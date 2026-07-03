@@ -1,6 +1,6 @@
 # IGP24 Axplorer
 
-Stage-0/stage-1 research scaffold for using Axplorer as a candidate generator for the
+Research scaffold for using Axplorer as a candidate generator for the
 SAIR IGP24 inverse Galois competition.
 
 This project generates, scores, locally improves, deduplicates, and exports
