@@ -1,6 +1,6 @@
 # IGP24 Axplorer
 
-Stage-0 research scaffold for using Axplorer as a candidate generator for the
+Stage-0/stage-1 research scaffold for using Axplorer as a candidate generator for the
 SAIR IGP24 inverse Galois competition.
 
 This project generates, scores, locally improves, deduplicates, and exports
@@ -31,6 +31,15 @@ Exact `24Tt` labels require later verification with external tooling such as
 PARI, MAGMA, or SAIR infrastructure. The current modular factorization data is
 only proxy evidence.
 
+Current stage-1 features:
+
+- configurable coefficient generation strategies,
+- exact SymPy prefilters for basic polynomial validity,
+- proxy score component metadata,
+- bounded deterministic local search with telemetry,
+- JSONL candidate ledger with canonical hash deduplication,
+- dry-run verifier stubs for future PARI, MAGMA, and SAIR integration.
+
 ## Setup
 
 Create the environment from `environment.yml`:
@@ -55,6 +64,9 @@ python train.py \
   --data_generation_only true \
   --always_search true \
   --max_local_search_steps 20 \
+  --igp24_generation_strategy mixed \
+  --igp24_sparse_terms 4 \
+  --igp24_low_height_bound 3 \
   --cpu true
 ```
 
@@ -69,11 +81,57 @@ Useful IGP24-specific generation flags:
 `--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
 `sparse`, `lower_degree`, or `structured`.
 
+The strategies are:
+
+- `uniform`: dense coefficients sampled from the full search box.
+- `low_height`: dense coefficients sampled from a smaller inner box.
+- `sparse`: a configurable number of nonzero free coefficients.
+- `lower_degree`: coefficients biased toward low-degree terms.
+- `structured`: simple sparse binomial/trinomial-like seeds.
+- `mixed`: a weighted mix of the above.
+
 Candidate records are written as JSONL by default:
 
 ```text
 data/igp24/candidates.jsonl
 ```
+
+Each ledger record includes exported coefficients, polynomial metadata, score
+components, generation metadata, local-search metadata, and verification status.
+Records remain proxy-scored unless an external verifier is used later.
+
+## Recent Smoke Result
+
+The current stage-1 smoke run used CPU-only mixed generation:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 train.py \
+  --env_name igp24 \
+  --exp_name igp24_stage1_mixed_smoke \
+  --dump_path /tmp/igp24_stage1_smoke \
+  --seed 123 \
+  --coeff_bound 4 \
+  --gensize 12 \
+  --pop_size 6 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --data_generation_only true \
+  --always_search true \
+  --max_local_search_steps 3 \
+  --prime_limit 11 \
+  --exact_score_timeout 3 \
+  --process_pool false \
+  --num_workers 1 \
+  --cpu true \
+  --igp24_generation_strategy mixed \
+  --igp24_sparse_terms 4 \
+  --igp24_low_height_bound 2 \
+  --igp24_ledger_path /tmp/igp24_stage1_mixed_candidates.jsonl
+```
+
+Result: 12 valid generated examples, best score `9943.432289451468`, and
+metadata present on all ledger records. See `TODO_IGP24.md` for the live command
+log and benchmark notes.
 
 ## Run Tests
 
@@ -82,8 +140,8 @@ python -m pytest
 ```
 
 The tests cover polynomial construction, export format, exact utility checks,
-proxy scoring, local search determinism, ledger deduplication, verifier stubs,
-and environment registration.
+generation strategies, proxy scoring, local-search determinism and telemetry,
+ledger deduplication, verifier stubs, and environment registration.
 
 ## Main Files
 
@@ -91,8 +149,8 @@ and environment registration.
 - `src/igp24/polynomial.py`: exact polynomial utilities and proxy scoring.
 - `src/igp24/ledger.py`: JSONL candidate ledger.
 - `src/igp24/verifiers/`: PARI, MAGMA, and SAIR stubs.
-- `NOTES_IGP24.md`: architecture notes and stage-0 rationale.
-- `TODO_IGP24.md`: staged roadmap.
+- `NOTES_IGP24.md`: architecture notes and scoring/generation rationale.
+- `TODO_IGP24.md`: live project log, task status, commands, and benchmark notes.
 
 ## License
 

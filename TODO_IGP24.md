@@ -131,6 +131,37 @@ results change.
   `PYTHONPATH=/tmp/igp24_pydeps` for local checks unless a proper environment is
   activated.
 
+## Future Stages
+
+Keep these future-stage items visible while the live log changes. Break them
+down further as they become active.
+
+### Stage 2: Structured Families And Exact-Tool Prep
+
+- [pending] Add more structured polynomial families:
+  - [pending] sparse families with fixed support templates,
+  - [pending] compositional and tower constructions with degrees multiplying to
+    24,
+  - [pending] resolvent-inspired families,
+  - [pending] solvable or imprimitive group families.
+- [pending] Add group metadata and target-family tags without claiming exact
+  `24Tt` labels.
+- [pending] Add better group-specific modular cycle-type filters.
+- [pending] Build PARI and MAGMA wrappers for offline/batched exact checks,
+  still outside the training loop.
+- [pending] Add safe batch export helpers for verifier input files.
+
+### Stage 3: Verification And Long Runs
+
+- [pending] Consider an optional Rust/PyO3 or multiprocessing verifier bridge.
+- [pending] Add batched exact verification workflows for candidates exported
+  from the ledger.
+- [pending] Add leaderboard-aware target selection after exact verification is
+  available.
+- [pending] Run longer generation/training jobs only after short benchmark
+  comparisons justify them.
+- [pending] Keep SAIR submission explicit and manual; never auto-submit.
+
 ## Recommended Next Tasks
 
 - [done] Implement configurable generation strategies and tests.
