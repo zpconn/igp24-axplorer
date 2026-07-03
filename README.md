@@ -58,6 +58,17 @@ python train.py \
   --cpu true
 ```
 
+Useful IGP24-specific generation flags:
+
+```text
+--igp24_generation_strategy mixed
+--igp24_sparse_terms 4
+--igp24_low_height_bound 3
+```
+
+`--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
+`sparse`, `lower_degree`, or `structured`.
+
 Candidate records are written as JSONL by default:
 
 ```text

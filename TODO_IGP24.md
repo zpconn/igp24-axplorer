@@ -58,9 +58,9 @@ results change.
 
 ## Stage 1: CLI And Smoke Runs
 
-- [pending] Add practical short CPU-only commands to documentation.
-- [pending] Run a small reproducible CPU-only generation smoke.
-- [pending] Record exact command, runtime, valid candidate count, best score, and
+- [done] Add practical short CPU-only commands to documentation.
+- [done] Run a small reproducible CPU-only generation smoke.
+- [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
 
 ## Tests And Checks
@@ -73,8 +73,9 @@ results change.
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
   - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
-- [pending] Run literal `python -m pytest`, or record the blocker.
-- [pending] If local dependency issues block the literal command, record the
+- [blocked] Run literal `python -m pytest`, or record the blocker.
+  - Result: blocked because `python` is not on PATH in this shell.
+- [done] If local dependency issues block the literal command, record the
   exact blocker and run the closest available equivalent.
 
 ## Command Log
@@ -88,21 +89,52 @@ results change.
   - Result: passed.
 - 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
   - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-03: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-03:
+  `/usr/bin/time -f 'elapsed_seconds %e' bash -lc 'PYTHONPATH=/tmp/igp24_pydeps python3 train.py --env_name igp24 --exp_name igp24_stage1_mixed_smoke --dump_path /tmp/igp24_stage1_smoke --seed 123 --coeff_bound 4 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --data_generation_only true --always_search true --max_local_search_steps 3 --prime_limit 11 --exact_score_timeout 3 --process_pool false --num_workers 1 --cpu true --igp24_generation_strategy mixed --igp24_sparse_terms 4 --igp24_low_height_bound 2 --igp24_ledger_path /tmp/igp24_stage1_mixed_candidates.jsonl'`
+  - Result: passed, `elapsed_seconds 5.51`.
 
 ## Benchmark And Smoke Results
 
-No current stage-1 benchmark results yet.
+### 2026-07-03 Mixed Strategy CPU Smoke
+
+- Command: see command log above.
+- Runtime: 5.51 seconds wall-clock from `/usr/bin/time`.
+- Generated valid examples reported by Axplorer stats: 12.
+- Score summary:
+  - Mean: 9928.237993556737.
+  - Median: 9931.467170953914.
+  - Max/best score: 9943.432289451468.
+- Ledger path: `/tmp/igp24_stage1_mixed_candidates.jsonl`.
+- Ledger records: 21 unique canonical hashes, 44K.
+- Strategy mix in ledger:
+  - `low_height`: 6.
+  - `lower_degree`: 2.
+  - `sparse`: 5.
+  - `structured`: 2.
+  - `uniform`: 6.
+- Best strategy: `low_height`.
+- Best canonical hash:
+  `bb48609ade17fbf3a8e958ccaa87a5b39353bb4de00ccbbb8d617cd04c0cd484`.
+- Metadata check: every ledger record included `score_components`,
+  `generation_metadata`, and `local_search_metadata`.
+- Local search telemetry: 12 ledger records included nonzero attempted move
+  counts.
 
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
   `/tmp/igp24_pydeps` because the base shell did not have `python`, `numpy`,
   `sympy`, `pytest`, or `torch` available directly.
-- Re-check local dependency state before running stage-1 tests and smoke jobs.
+- Current shell still lacks a `python` executable; use `python3` with
+  `PYTHONPATH=/tmp/igp24_pydeps` for local checks unless a proper environment is
+  activated.
 
 ## Recommended Next Tasks
 
 - [done] Implement configurable generation strategies and tests.
 - [done] Add score component metadata to ledger records.
 - [done] Add local-search stats metadata and tests.
-- [pending] Run and document a short CPU-only generation benchmark.
+- [done] Run and document a short CPU-only generation benchmark.
+- [pending] Run per-strategy comparisons with equal `gensize` and fixed seeds.
