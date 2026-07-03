@@ -93,25 +93,106 @@ class IGP24DataPoint(DataPoint):
     KNOWN_HASHES = set()
     ALWAYS_SEARCH = False
     REDEEM_ONLY = False
+    GENERATION_STRATEGY = "mixed"
+    SPARSE_TERMS = 4
+    LOW_HEIGHT_BOUND = 3
 
-    def __init__(self, N=DEGREE, init=False, coeffs=None):
+    def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None):
         super().__init__()
         if int(N) != DEGREE:
             raise ValueError(f"IGP24 uses fixed degree {DEGREE}; got N={N}")
         self.N = DEGREE
         self.coefficients = tuple(validate_coefficients(coeffs)) if coeffs is not None else tuple([0] * DEGREE)
         self.analysis = None
+        self.generation_strategy = generation_strategy or "manual"
+        self.local_search_stats = {}
         if init:
-            self.coefficients = self._random_coefficients()
+            self.coefficients, self.generation_strategy = self._generate_coefficients()
             self.calc_features()
             self.calc_score()
 
     @classmethod
-    def _random_coefficients(cls):
+    def _nonzero_random_int(cls, bound):
+        bound = max(1, int(bound))
+        value = 0
+        while value == 0:
+            value = int(np.random.randint(-bound, bound + 1))
+        return value
+
+    @classmethod
+    def _uniform_coefficients(cls):
         coeffs = np.random.randint(-cls.COEFF_BOUND, cls.COEFF_BOUND + 1, size=DEGREE).astype(int).tolist()
         if coeffs[0] == 0:
             coeffs[0] = 1 if np.random.randint(2) == 0 else -1
         return tuple(coeffs)
+
+    @classmethod
+    def _low_height_coefficients(cls):
+        inner_bound = max(1, min(cls.COEFF_BOUND, int(cls.LOW_HEIGHT_BOUND)))
+        coeffs = np.random.randint(-inner_bound, inner_bound + 1, size=DEGREE).astype(int).tolist()
+        if coeffs[0] == 0:
+            coeffs[0] = cls._nonzero_random_int(inner_bound)
+        return tuple(coeffs)
+
+    @classmethod
+    def _sparse_coefficients(cls):
+        coeffs = [0] * DEGREE
+        coeffs[0] = cls._nonzero_random_int(cls.COEFF_BOUND)
+        n_terms = max(1, min(DEGREE, int(cls.SPARSE_TERMS)))
+        if n_terms > 1:
+            indices = np.random.choice(np.arange(1, DEGREE), size=min(n_terms - 1, DEGREE - 1), replace=False)
+            for index in indices:
+                coeffs[int(index)] = cls._nonzero_random_int(cls.COEFF_BOUND)
+        return tuple(coeffs)
+
+    @classmethod
+    def _lower_degree_coefficients(cls):
+        coeffs = []
+        for index in range(DEGREE):
+            scale = ((DEGREE - index) / DEGREE) ** 1.5
+            local_bound = max(1, int(round(cls.COEFF_BOUND * scale)))
+            zero_probability = min(0.85, 0.15 + 0.65 * (index / (DEGREE - 1)))
+            if index > 0 and np.random.random() < zero_probability:
+                coeffs.append(0)
+            else:
+                coeffs.append(int(np.random.randint(-local_bound, local_bound + 1)))
+        if coeffs[0] == 0:
+            coeffs[0] = cls._nonzero_random_int(cls.COEFF_BOUND)
+        return tuple(coeffs)
+
+    @classmethod
+    def _structured_coefficients(cls):
+        coeffs = [0] * DEGREE
+        coeffs[0] = cls._nonzero_random_int(cls.COEFF_BOUND)
+        possible_exponents = [1, 2, 3, 4, 6, 8, 12, 16, 18]
+        n_extra = int(np.random.choice([1, 2, 3], p=[0.5, 0.35, 0.15]))
+        exponents = np.random.choice(possible_exponents, size=n_extra, replace=False)
+        inner_bound = max(1, min(cls.COEFF_BOUND, int(cls.LOW_HEIGHT_BOUND)))
+        for exponent in exponents:
+            coeffs[int(exponent)] = cls._nonzero_random_int(inner_bound)
+        return tuple(coeffs)
+
+    @classmethod
+    def _select_generation_strategy(cls):
+        strategy = cls.GENERATION_STRATEGY
+        if strategy != "mixed":
+            return strategy
+        return str(np.random.choice(["uniform", "low_height", "sparse", "lower_degree", "structured"], p=[0.2, 0.25, 0.2, 0.2, 0.15]))
+
+    @classmethod
+    def _generate_coefficients(cls):
+        strategy = cls._select_generation_strategy()
+        if strategy == "uniform":
+            return cls._uniform_coefficients(), strategy
+        if strategy == "low_height":
+            return cls._low_height_coefficients(), strategy
+        if strategy == "sparse":
+            return cls._sparse_coefficients(), strategy
+        if strategy == "lower_degree":
+            return cls._lower_degree_coefficients(), strategy
+        if strategy == "structured":
+            return cls._structured_coefficients(), strategy
+        raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
 
     @classmethod
     def _batch_generate_and_score(cls, batch_size, N, pars=None):
@@ -173,6 +254,13 @@ class IGP24DataPoint(DataPoint):
             target_r=self.TARGET_R,
             target_t=self.TARGET_T,
             experiment_name=self.EXPERIMENT_NAME,
+            generation_metadata={
+                "strategy": self.generation_strategy,
+                "coeff_bound": self.COEFF_BOUND,
+                "sparse_terms": self.SPARSE_TERMS,
+                "low_height_bound": self.LOW_HEIGHT_BOUND,
+            },
+            local_search_metadata=self.local_search_stats,
         )
         try:
             ledger = CandidateLedger(self.LEDGER_PATH)
@@ -201,7 +289,7 @@ class IGP24DataPoint(DataPoint):
         out[index] = max(-cls.COEFF_BOUND, min(cls.COEFF_BOUND, out[index] + delta))
         if index == 0 and out[index] == 0:
             out[index] = 1 if delta > 0 else -1
-        return tuple(out)
+        return tuple(out), "single"
 
     @classmethod
     def _few_mutation(cls, coeffs, rng):
@@ -213,7 +301,7 @@ class IGP24DataPoint(DataPoint):
             out[index] = max(-cls.COEFF_BOUND, min(cls.COEFF_BOUND, out[index] + delta))
         if out[0] == 0:
             out[0] = rng.choice([-1, 1])
-        return tuple(out)
+        return tuple(out), "few"
 
     @classmethod
     def _translation_mutation(cls, coeffs, rng):
@@ -224,8 +312,8 @@ class IGP24DataPoint(DataPoint):
             except Exception:
                 continue
             if cls._bounded(translated):
-                return translated
-        return coeffs
+                return translated, f"translate_{k}"
+        return coeffs, "translate_failed"
 
     @classmethod
     def _canonical_mutation(cls, coeffs):
@@ -236,10 +324,10 @@ class IGP24DataPoint(DataPoint):
                 coeff_bound=cls.COEFF_BOUND,
             )
             if cls._bounded(canonical):
-                return canonical
+                return canonical, "canonicalize"
         except Exception:
             pass
-        return coeffs
+        return coeffs, "canonicalize_failed"
 
     @classmethod
     def _mutate(cls, coeffs, rng):
@@ -252,6 +340,35 @@ class IGP24DataPoint(DataPoint):
             return cls._translation_mutation(coeffs, rng)
         return cls._canonical_mutation(coeffs)
 
+    @classmethod
+    def _analysis_metrics(cls, analysis, score):
+        if analysis is None or not analysis.valid:
+            return {
+                "score": score,
+                "height": None,
+                "log_abs_discriminant": None,
+                "target_r_distance": None,
+                "cycle_diversity_count": 0,
+            }
+        target_r_distance = None
+        if cls.TARGET_R is not None and analysis.real_root_count is not None:
+            target_r_distance = abs(int(cls.TARGET_R) - int(analysis.real_root_count))
+        return {
+            "score": score,
+            "height": analysis.coefficient_height,
+            "log_abs_discriminant": analysis.log_abs_discriminant,
+            "target_r_distance": target_r_distance,
+            "cycle_diversity_count": len({pattern.degrees for pattern in analysis.mod_p_factorization_degree_patterns}),
+        }
+
+    @staticmethod
+    def _improvement_flags(before, after):
+        flags = {"score": after["score"] > before["score"]}
+        for key in ["height", "log_abs_discriminant", "target_r_distance"]:
+            flags[key] = before[key] is not None and after[key] is not None and after[key] < before[key]
+        flags["cycle_diversity_count"] = after["cycle_diversity_count"] > before["cycle_diversity_count"]
+        return flags
+
     def local_search(self, improve_with_local_search):
         if not improve_with_local_search and self.score >= 0:
             return
@@ -261,24 +378,57 @@ class IGP24DataPoint(DataPoint):
         best_coeffs = tuple(self.coefficients)
         best_score, best_analysis = self._score_coefficients(best_coeffs)
         preserve_target = self.TARGET_R is not None and best_analysis.valid and best_analysis.real_root_count == self.TARGET_R
+        start_metrics = self._analysis_metrics(best_analysis, best_score)
+        accepted_moves = {}
+        rejected_reasons = {}
+        attempted = 0
+        accepted = 0
+        last_improvements = {}
 
         for _ in range(max(0, int(self.MAX_LOCAL_SEARCH_STEPS))):
-            candidate = self._mutate(best_coeffs, rng)
-            if candidate == best_coeffs or not self._bounded(candidate):
+            candidate, move_type = self._mutate(best_coeffs, rng)
+            attempted += 1
+            if candidate == best_coeffs:
+                rejected_reasons["unchanged"] = rejected_reasons.get("unchanged", 0) + 1
+                continue
+            if not self._bounded(candidate):
+                rejected_reasons["out_of_bounds"] = rejected_reasons.get("out_of_bounds", 0) + 1
                 continue
             candidate_score, candidate_analysis = self._score_coefficients(candidate)
             if preserve_target and candidate_analysis.valid and candidate_analysis.real_root_count != self.TARGET_R:
+                rejected_reasons["target_r_changed"] = rejected_reasons.get("target_r_changed", 0) + 1
                 continue
             if candidate_score > best_score:
+                before_metrics = self._analysis_metrics(best_analysis, best_score)
                 best_coeffs = candidate
                 best_score = candidate_score
                 best_analysis = candidate_analysis
+                after_metrics = self._analysis_metrics(best_analysis, best_score)
+                accepted += 1
+                accepted_moves[move_type] = accepted_moves.get(move_type, 0) + 1
+                last_improvements = self._improvement_flags(before_metrics, after_metrics)
                 if not improve_with_local_search and best_score >= 0:
                     break
+            else:
+                rejected_reasons["not_improved"] = rejected_reasons.get("not_improved", 0) + 1
 
         self.coefficients = tuple(best_coeffs)
         self.score = best_score
         self.analysis = best_analysis
+        end_metrics = self._analysis_metrics(best_analysis, best_score)
+        self.local_search_stats = {
+            "attempted": attempted,
+            "accepted": accepted,
+            "rejected": attempted - accepted,
+            "accepted_moves": accepted_moves,
+            "rejected_reasons": rejected_reasons,
+            "start": start_metrics,
+            "end": end_metrics,
+            "improved_from_start": self._improvement_flags(start_metrics, end_metrics),
+            "last_accepted_improvements": last_improvements,
+            "max_steps": int(self.MAX_LOCAL_SEARCH_STEPS),
+            "seed": int(self.SEED),
+        }
         self.calc_features()
         self._append_to_ledger_if_valid()
 
@@ -308,6 +458,9 @@ class IGP24DataPoint(DataPoint):
             "KNOWN_HASHES": set(cls.KNOWN_HASHES),
             "ALWAYS_SEARCH": cls.ALWAYS_SEARCH,
             "REDEEM_ONLY": cls.REDEEM_ONLY,
+            "GENERATION_STRATEGY": cls.GENERATION_STRATEGY,
+            "SPARSE_TERMS": cls.SPARSE_TERMS,
+            "LOW_HEIGHT_BOUND": cls.LOW_HEIGHT_BOUND,
         }
 
 
@@ -338,6 +491,9 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.KNOWN_HASHES = CandidateLedger(params.igp24_ledger_path).hashes if params.igp24_ledger_path else set()
         self.data_class.ALWAYS_SEARCH = bool(getattr(params, "always_search", False))
         self.data_class.REDEEM_ONLY = bool(getattr(params, "redeem_only", False))
+        self.data_class.GENERATION_STRATEGY = params.igp24_generation_strategy
+        self.data_class.SPARSE_TERMS = int(params.igp24_sparse_terms)
+        self.data_class.LOW_HEIGHT_BOUND = int(params.igp24_low_height_bound)
 
         self.tokenizer = IGP24CoefficientTokenizer(self.data_class, params.coeff_bound, self.SPECIAL_SYMBOLS)
 
@@ -357,3 +513,12 @@ class IGP24Environment(BaseEnvironment):
         parser.add_argument("--igp24_ledger_path", type=str, default="data/igp24/candidates.jsonl", help="JSONL candidate ledger path")
         parser.add_argument("--igp24_write_ledger", type=bool_flag, default="true", help="Write valid proxy-scored candidates to the JSONL ledger")
         parser.add_argument("--igp24_translation_radius", type=int, default=2, help="Small translation radius for canonical hashes")
+        parser.add_argument(
+            "--igp24_generation_strategy",
+            type=str,
+            default="mixed",
+            choices=["mixed", "uniform", "low_height", "sparse", "lower_degree", "structured"],
+            help="Initial IGP24 coefficient generation strategy",
+        )
+        parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")
+        parser.add_argument("--igp24_low_height_bound", type=int, default=3, help="Inner coefficient bound for low-height and structured generation")

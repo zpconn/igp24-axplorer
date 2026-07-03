@@ -27,31 +27,34 @@ results change.
 
 ## Stage 1: Candidate Generation
 
-- [in progress] Add generation strategies beyond uniform random coefficients.
-  - [pending] Sparse coefficient vectors.
-  - [pending] Low-height biased dense vectors.
-  - [pending] Lower-degree coefficient bias.
-  - [pending] Simple structured families such as binomial/trinomial seeds.
-- [pending] Make generation strategy configurable from the CLI.
-- [pending] Record generation strategy in candidate metadata and ledger records.
+- [done] Add generation strategies beyond uniform random coefficients.
+  - [done] Sparse coefficient vectors.
+  - [done] Low-height biased dense vectors.
+  - [done] Lower-degree coefficient bias.
+  - [done] Simple structured binomial/trinomial-like seeds.
+- [done] Make generation strategy configurable from the CLI with
+  `--igp24_generation_strategy`.
+- [done] Record generation strategy in candidate metadata and ledger records.
+- [pending] Compare strategy yield and score quality across short benchmark
+  runs.
 
 ## Stage 1: Scoring And Metadata
 
-- [in progress] Preserve proxy-only scoring while making score components easier
+- [done] Preserve proxy-only scoring while making score components easier
   to inspect.
-  - [pending] Store score component breakdown in each ledger record.
-  - [pending] Keep `target_t` metadata-only unless exact external verification
+  - [done] Store score component breakdown in each ledger record.
+  - [done] Keep `target_t` metadata-only unless exact external verification
     is actually performed.
-  - [pending] Keep invalid rejection reasons explicit and stable.
+  - [done] Keep invalid rejection reasons explicit and stable.
 
 ## Stage 1: Local Search
 
-- [in progress] Improve bounded local search observability.
-  - [pending] Track attempted, accepted, and rejected move counts.
-  - [pending] Track the accepted move type.
-  - [pending] Record whether accepted moves improved height, discriminant,
+- [done] Improve bounded local search observability.
+  - [done] Track attempted, accepted, and rejected move counts.
+  - [done] Track the accepted move type.
+  - [done] Record whether accepted moves improved height, discriminant,
     root-count match, or modular diversity.
-  - [pending] Preserve determinism under a fixed seed.
+  - [done] Preserve determinism under a fixed seed.
 
 ## Stage 1: CLI And Smoke Runs
 
@@ -62,11 +65,29 @@ results change.
 
 ## Tests And Checks
 
-- [pending] Run `python -m pytest`.
-- [pending] Run an import check proving `square`, `isosceles`, `sphere`, and
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+  - Result: 11 passed in 0.66s.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests`.
+  - Result: passed.
+- [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
+  - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- [pending] Run literal `python -m pytest`, or record the blocker.
 - [pending] If local dependency issues block the literal command, record the
   exact blocker and run the closest available equivalent.
+
+## Command Log
+
+- 2026-07-03: `git pull --ff-only`
+  - Result: already up to date.
+- 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 11 passed in 0.66s after generation/scoring/local-search metadata
+    changes.
+- 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests`
+  - Result: passed.
+- 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 
 ## Benchmark And Smoke Results
 
@@ -81,7 +102,7 @@ No current stage-1 benchmark results yet.
 
 ## Recommended Next Tasks
 
-- [pending] Implement configurable generation strategies and tests.
-- [pending] Add score component metadata to ledger records.
-- [pending] Add local-search stats metadata and tests.
+- [done] Implement configurable generation strategies and tests.
+- [done] Add score component metadata to ledger records.
+- [done] Add local-search stats metadata and tests.
 - [pending] Run and document a short CPU-only generation benchmark.

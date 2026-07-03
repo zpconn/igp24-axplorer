@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 sympy = pytest.importorskip("sympy")
@@ -78,6 +79,9 @@ def test_valid_synthetic_candidate_scoring_and_mod_p_patterns():
     score, analysis = score_candidate(VALID, coeff_bound=5, target_r=2, prime_limit=11)
     assert score >= 0
     assert analysis.valid
+    assert analysis.score_components["target_r_distance"] == 0
+    assert analysis.score_components["cycle_diversity_count"] >= 1
+    assert analysis.score_components["final_score"] == score
     patterns = mod_p_factorization_patterns(VALID, analysis.discriminant, prime_limit=11)
     assert patterns
     for pattern in patterns:
@@ -104,6 +108,7 @@ def test_ledger_write_read_and_deduplication(tmp_path):
     assert len(reloaded) == 1
     assert reloaded.records()[0]["canonical_hash"] == analysis.canonical_hash
     assert reloaded.records()[0]["exported_coefficients"][-1] == 1
+    assert reloaded.records()[0]["score_components"]["final_score"] == score
 
 
 def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
@@ -124,6 +129,9 @@ def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
         igp24_ledger_path=str(tmp_path / "ledger.jsonl"),
         igp24_write_ledger=False,
         igp24_translation_radius=2,
+        igp24_generation_strategy="mixed",
+        igp24_sparse_terms=4,
+        igp24_low_height_bound=3,
         exp_name="pytest",
         seed=123,
     )
@@ -133,6 +141,26 @@ def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
     decoded = env.tokenizer.decode(encoded)
     assert decoded is not None
     assert decoded.coefficients == VALID
+
+
+def test_generation_strategies_are_bounded_and_metadata_is_set():
+    IGP24DataPoint.COEFF_BOUND = 5
+    IGP24DataPoint.SPARSE_TERMS = 4
+    IGP24DataPoint.LOW_HEIGHT_BOUND = 2
+    for strategy in ["uniform", "low_height", "sparse", "lower_degree", "structured"]:
+        np_seed = {"uniform": 11, "low_height": 12, "sparse": 13, "lower_degree": 14, "structured": 15}[strategy]
+        np.random.seed(np_seed)
+        IGP24DataPoint.GENERATION_STRATEGY = strategy
+        coeffs, observed = IGP24DataPoint._generate_coefficients()
+        assert observed == strategy
+        assert len(coeffs) == DEGREE
+        assert coeffs[0] != 0
+        assert max(abs(c) for c in coeffs) <= IGP24DataPoint.COEFF_BOUND
+        if strategy == "sparse":
+            assert sum(1 for c in coeffs if c != 0) <= IGP24DataPoint.SPARSE_TERMS
+        if strategy in {"low_height", "structured"}:
+            non_constant = [abs(c) for c in coeffs[1:] if c != 0]
+            assert all(c <= IGP24DataPoint.LOW_HEIGHT_BOUND for c in non_constant)
 
 
 def test_local_search_determinism_under_fixed_seed(tmp_path):
@@ -153,6 +181,11 @@ def test_local_search_determinism_under_fixed_seed(tmp_path):
             "SEED": 999,
             "TRANSLATION_RADIUS": 2,
             "KNOWN_HASHES": set(),
+            "GENERATION_STRATEGY": "mixed",
+            "SPARSE_TERMS": 4,
+            "LOW_HEIGHT_BOUND": 3,
+            "ALWAYS_SEARCH": False,
+            "REDEEM_ONLY": False,
         }
     )
     first = IGP24DataPoint(N=DEGREE, coeffs=VALID)
@@ -164,6 +197,45 @@ def test_local_search_determinism_under_fixed_seed(tmp_path):
     assert first.coefficients == second.coefficients
     assert first.score == second.score
     assert first.score >= 0 or first.analysis.rejection_reason is not None
+    assert first.local_search_stats == second.local_search_stats
+    assert first.local_search_stats["attempted"] <= 5
+    assert "accepted_moves" in first.local_search_stats
+
+
+def test_ledger_records_generation_and_local_search_metadata(tmp_path):
+    IGP24DataPoint._update_class_params(
+        {
+            "COEFF_BOUND": 5,
+            "TARGET_R": 2,
+            "TARGET_T": None,
+            "PRIME_LIMIT": 7,
+            "MAX_LOCAL_SEARCH_STEPS": 2,
+            "DISCRIMINANT_WEIGHT": 1.0,
+            "HEIGHT_WEIGHT": 1.0,
+            "CYCLE_DIVERSITY_WEIGHT": 5.0,
+            "EXACT_SCORE_TIMEOUT": 0.0,
+            "LEDGER_PATH": str(tmp_path / "ledger.jsonl"),
+            "WRITE_LEDGER": True,
+            "EXPERIMENT_NAME": "pytest",
+            "SEED": 321,
+            "TRANSLATION_RADIUS": 2,
+            "KNOWN_HASHES": set(),
+            "GENERATION_STRATEGY": "structured",
+            "SPARSE_TERMS": 4,
+            "LOW_HEIGHT_BOUND": 2,
+            "ALWAYS_SEARCH": False,
+            "REDEEM_ONLY": False,
+        }
+    )
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=VALID, generation_strategy="structured")
+    datapoint.calc_score()
+    datapoint.local_search(improve_with_local_search=True)
+    records = CandidateLedger(tmp_path / "ledger.jsonl").records()
+    assert records
+    latest = records[-1]
+    assert latest["generation_metadata"]["strategy"] == "structured"
+    assert latest["local_search_metadata"]["max_steps"] == 2
+    assert "score_components" in latest
 
 
 def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path):

@@ -57,6 +57,27 @@ available through SymPy, then ranks valid candidates by:
 The modular factorization data is only Frobenius cycle-type proxy evidence. It
 can guide search, but it does not determine or certify the exact Galois group.
 
+Stage-1 scoring records a component breakdown in candidate metadata. The score
+still has no exact group-label component; `target_t` remains metadata only. The
+breakdown is meant to explain whether a candidate ranked well because of root
+count match, novelty, modular pattern diversity, small height, or small
+discriminant proxy.
+
+## Stage-1 Generation
+
+The IGP24 environment now supports several initial generation strategies:
+
+- `uniform`: dense coefficients sampled from the full search box.
+- `low_height`: dense coefficients sampled from a smaller inner box.
+- `sparse`: a configurable number of nonzero free coefficients.
+- `lower_degree`: coefficients biased toward lower-degree terms.
+- `structured`: simple sparse binomial/trinomial-like seeds.
+- `mixed`: a weighted mix of the above.
+
+These are still candidate-generation heuristics, not structured Galois-family
+certificates. Their job is to produce a more varied stream for exact SymPy
+prefilters, proxy scoring, and later external verification.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

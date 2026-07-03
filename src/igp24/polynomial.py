@@ -12,7 +12,7 @@ import json
 import math
 import signal
 import threading
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from numbers import Integral
 from typing import Any, Iterable, Iterator, Sequence
@@ -59,6 +59,7 @@ class CandidateAnalysis:
     canonical_translation: int
     valid: bool
     rejection_reason: str | None
+    score_components: dict[str, float | int | bool] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
 
 
@@ -286,6 +287,7 @@ def _invalid_analysis(raw_coefficients: Sequence[Any], reason: str, warnings: It
         canonical_translation=0,
         valid=False,
         rejection_reason=reason,
+        score_components={},
         warnings=tuple(warnings),
     )
 
@@ -342,6 +344,7 @@ def analyze_candidate(
                 canonical_translation=translation,
                 valid=True,
                 rejection_reason=None,
+                score_components={},
             )
     except ExactScoreTimeout:
         return _invalid_analysis(coefficients, "exact_score_timeout")
@@ -380,22 +383,43 @@ def score_candidate(
     diversity = len({pattern.degrees for pattern in analysis.mod_p_factorization_degree_patterns})
     root_component = 0.0
     if target_r is not None:
-        root_component = 250.0 / (1.0 + abs(int(target_r) - int(analysis.real_root_count or 0)))
+        target_r_distance = abs(int(target_r) - int(analysis.real_root_count or 0))
+        root_component = 250.0 / (1.0 + target_r_distance)
+    else:
+        target_r_distance = -1
     novelty_component = 25.0 if analysis.canonical_hash not in seen else 0.0
 
     # target_t is intentionally metadata-only in stage 0. Exact 24Tt labels need
     # later external verification; do not score against unverified labels here.
     _ = target_t
 
-    score = (
-        10_000.0
+    base_score = 10_000.0
+    cycle_component = float(cycle_diversity_weight) * diversity
+    discriminant_penalty = float(discriminant_weight) * float(analysis.log_abs_discriminant or 0.0)
+    height_penalty = float(height_weight) * float(analysis.coefficient_height or 0.0)
+    raw_score = (
+        base_score
         + root_component
         + novelty_component
-        + float(cycle_diversity_weight) * diversity
-        - float(discriminant_weight) * float(analysis.log_abs_discriminant or 0.0)
-        - float(height_weight) * float(analysis.coefficient_height or 0.0)
+        + cycle_component
+        - discriminant_penalty
+        - height_penalty
     )
-    return max(0.0, score), analysis
+    score = max(0.0, raw_score)
+    components: dict[str, float | int | bool] = {
+        "base_score": base_score,
+        "target_r_bonus": root_component,
+        "target_r_distance": target_r_distance,
+        "novelty_bonus": novelty_component,
+        "is_novel": analysis.canonical_hash not in seen,
+        "cycle_diversity_count": diversity,
+        "cycle_diversity_bonus": cycle_component,
+        "log_abs_discriminant_penalty": discriminant_penalty,
+        "height_penalty": height_penalty,
+        "raw_score": raw_score,
+        "final_score": score,
+    }
+    return score, replace(analysis, score_components=components)
 
 
 def analysis_to_record(
@@ -405,6 +429,8 @@ def analysis_to_record(
     target_t: str | None = None,
     experiment_name: str | None = None,
     verification_status: str | None = None,
+    generation_metadata: dict[str, Any] | None = None,
+    local_search_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     status = verification_status or ("proxy_scored" if analysis.valid else "rejected")
     payload = asdict(analysis)
@@ -415,6 +441,9 @@ def analysis_to_record(
     payload["canonical_coefficients"] = list(analysis.canonical_coefficients)
     payload["exported_coefficients"] = list(analysis.exported_coefficients)
     payload["score"] = score
+    payload["score_components"] = dict(analysis.score_components)
+    payload["generation_metadata"] = generation_metadata or {}
+    payload["local_search_metadata"] = local_search_metadata or {}
     payload["target_metadata"] = {"target_r": target_r, "target_t": target_t}
     payload["experiment_name"] = experiment_name
     payload["timestamp"] = datetime.now(timezone.utc).isoformat()
