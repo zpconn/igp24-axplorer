@@ -520,6 +520,21 @@ and mean score 9708.264. This confirms the opt-in control reduces duplicate
 export waste on the known bad seed without changing exact-tool or submission
 safety.
 
+The larger 1024-unique validation used the same dedup-aware mode with a
+4096-attempt budget on seeds `2401` and `2402`:
+
+| seed | attempts | written | decoded | duplicate skipped | stop reason | valid | rejected | best | mean |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| 2401 | 1219 | 1036 | 1024 | 183 | unique_target_reached | 909 | 115 | 9952.933 | 8807.756 |
+| 2402 | 3255 | 1026 | 1024 | 2229 | unique_target_reached | 953 | 71 | 9966.150 | 9233.465 |
+
+Both written exports had 1024 exact/canonical/token uniques and zero duplicate
+records in the raw diagnostic and CPU-scored output. Seed `2402` was much less
+attempt-efficient but found the best merged proxy score in this comparison.
+Recommendation: a later medium dedup-aware run is justified only as another
+bounded target/budget experiment with stop-reason auditing, not as an unbounded
+longer fixed-template run.
+
 ## Run A Small Smoke Job
 
 ```bash

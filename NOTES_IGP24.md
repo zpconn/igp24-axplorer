@@ -484,6 +484,19 @@ records. Compared with the earlier seed-`2401` full raw export, which wrote
 2048 rows with only 675 unique decoded/canonical outputs and 1368 duplicate
 records, the dedup-aware mode materially reduced duplicate export waste.
 
+A larger 1024-unique validation confirmed the mode scales across two short
+seeds, but also showed why the attempt budget must remain explicit. Seed
+`2401` reached 1024 unique decoded coefficient vectors after only 1219
+attempts, wrote 1036 rows, skipped 183 duplicate decoded attempts, and scored
+909 valid / 115 rejected with zero duplicate hashes. Seed `2402` also reached
+1024 uniques, but needed 3255 attempts and skipped 2229 duplicate decoded
+attempts before writing 1026 rows. Its scored output had 953 valid / 71
+rejected, zero duplicate hashes, and the strongest proxy score in the merged
+review at 9966.150. The larger target therefore does reduce duplicate export
+waste, but it does not remove seed sensitivity. Any medium dedup-aware export
+should keep a hard unique target, hard attempt budget, raw diagnostic, and
+explicit stop-reason audit.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

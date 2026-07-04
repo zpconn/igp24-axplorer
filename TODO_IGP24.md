@@ -1327,12 +1327,99 @@ results change.
         `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all/scored_samples.jsonl`,
         and
         `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all/split_workflow_manifest.json`.
-    - [in_progress] Decide whether a second seed such as `2402` is useful
+    - [done] Decide whether a second seed such as `2402` is useful
       within the bounded plan.
-    - [pending] Merge scored larger-dedup outputs with relevant baselines if
+      - Decision: seed `2401` reached the larger target cleanly within a
+        short run, so run seed `2402` with the same 1024-unique target and
+        4096-attempt budget to test cross-seed behavior.
+      - Seed `2402` GPU dedup scale command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2402 --dedup_unique_target 1024 --dedup_max_attempts 4096 --dedup_progress_interval 256 --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2402 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2402` GPU dedup scale result: return code 0, no timeout,
+        runtime 147.989s, `device: cuda`, four finite eval points, final
+        train/test loss about `0.316` / `1.883`, max monitored GPU
+        utilization 99.0%, average monitored GPU utilization 80.514%, max
+        CUDA reserved 242 MiB, and GPU-phase CPU scoring/local search/dataset
+        update avoided.
+      - Seed `2402` dedup export result: target 1024 unique decoded
+        coefficient vectors reached after 3255 attempts out of a
+        4096-attempt budget; 1026 rows written, 1024 decoded rows, 2 invalid
+        decode rows, 1024 unique decoded coefficient vectors, 2229 duplicate
+        decoded rows skipped, and `stop_reason=unique_target_reached`.
+      - Seed `2402` raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1024_a4096.jsonl --labels seed2402_t11_open_dedup_u1024 --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2402/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2402` raw diagnostic result: return code 0, 1026 rows read,
+        1024 decoded, 2 invalid decode, 1024 exact unique coefficient
+        vectors, 0 exact duplicate records, 1024 canonical unique hashes, 0
+        canonical duplicate records, 1024 token unique sequences, and 0 token
+        duplicate records.
+      - Seed `2402` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1024_a4096.jsonl --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2402` CPU score result: return code 0, runtime 37.669s,
+        `selection_mode=all_explicit`, 1026 rows read/selected, 1024 decoded
+        input rows, 2 skipped decode, 1024 scored, 953 valid, 71 rejected,
+        1024 unique canonical hashes, 0 duplicate hash records, best score
+        9966.150, mean score 9233.465, and local search disabled.
+      - Interpretation: the larger target also scales on seed `2402`, but it
+        is much less attempt-efficient than seed `2401`: 3255 attempts for
+        1024 uniques and 2229 duplicate attempts skipped. The written export
+        is still zero-duplicate and scored cleanly, and it found the strongest
+        proxy candidate in this validation block.
+      - Seed `2402` artifacts:
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1024_a4096.jsonl`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1024_a4096.jsonl.summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/export_diversity_diagnostic/export_diversity_report.md`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all/scored_samples.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all/split_workflow_manifest.json`.
+    - [done] Merge scored larger-dedup outputs with relevant baselines if
       multiple scored outputs exist.
-    - [pending] Update README, NOTES, and TODO with larger-target results and
+      - Merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all --labels seed2201_t09_clean seed2302_t11_open seed2402_t11_open_full2048 seed2401_t11_dedup512 seed2401_t11_dedup1024 seed2402_t11_dedup1024 --output_dir /tmp/igp24_gpu_dedup_scale_20260704/merged_scored_review --top_n 25`
+      - Merge result: six sources, 8687 scored rows, 7905 valid, 782
+        rejected, 7449 unique canonical hashes, 1238 duplicate hash records,
+        397 hashes seen in multiple sources, best score 9966.150, and mean
+        score 9028.051.
+      - Source comparison:
+        `seed2201_t09_clean`: 2047 scored, 1799 valid, 248 rejected, 2039
+        unique, 8 duplicates, best 9964.435, mean 8720.207.
+        `seed2302_t11_open`: 2043 scored, 1833 valid, 210 rejected, 2030
+        unique, 13 duplicates, best 9956.519, mean 8900.449.
+        `seed2402_t11_open_full2048`: 2037 scored, 1910 valid, 127
+        rejected, 1217 unique, 820 duplicates, best 9958.729, mean 9301.895.
+        `seed2401_t11_dedup512`: 512 scored, 501 valid, 11 rejected, 512
+        unique, 0 duplicates, best 9954.661, mean 9708.264.
+        `seed2401_t11_dedup1024`: 1024 scored, 909 valid, 115 rejected,
+        1024 unique, 0 duplicates, best 9952.933, mean 8807.756.
+        `seed2402_t11_dedup1024`: 1024 scored, 953 valid, 71 rejected, 1024
+        unique, 0 duplicates, best 9966.150, mean 9233.465.
+      - Overlap notes: `seed2402_t11_open_full2048` shared 267 hashes with
+        `seed2402_t11_dedup1024`; `seed2401_t11_dedup512` shared 129 hashes
+        with `seed2401_t11_dedup1024`; `seed2401_t11_dedup1024` and
+        `seed2402_t11_dedup1024` had zero overlap with each other.
+      - Merge artifacts:
+        `/tmp/igp24_gpu_dedup_scale_20260704/merged_scored_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/merged_scored_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_dedup_scale_20260704/merged_scored_review/top_deduped_candidates.jsonl`.
+      - Scaling conclusion: the 1024-unique dedup-aware mode meaningfully
+        reduces written duplicate waste across both seeds and can recover
+        clean scored outputs even when the raw model stream is duplicate
+        heavy. It is not uniformly attempt-efficient: seed `2402` needed
+        3255 attempts for 1024 uniques, which is close enough to the
+        4096-attempt cap that any larger target should keep an explicit
+        attempt budget and stop-reason audit. A later medium dedup-aware run
+        is justified only as a bounded target/budget experiment, not an
+        unbounded longer fixed-template run.
+    - [done] Update README, NOTES, and TODO with larger-target results and
       recommendation.
+      - Result: README and NOTES now summarize the 1024-unique seed `2401`
+        and `2402` validation table, the zero-duplicate diagnostics/scored
+        outputs, and the recommendation that any medium dedup-aware run remain
+        a bounded target/budget experiment with stop-reason auditing.
     - [pending] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
 
