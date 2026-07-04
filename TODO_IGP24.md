@@ -324,15 +324,28 @@ results change.
       combined manifest/report because it can link the source export, GPU
       probe summary, scored JSONL, score summary, command line, safety flags,
       and hash/dedup counts after scoring.
-  - [pending] Add a combined split-workflow manifest/report linking export
+  - [done] Add a combined split-workflow manifest/report linking export
     JSONL, train log, GPU probe summary/report, CPU score summary/report, and
     scored JSONL.
-  - [pending] Record source commit, command lines, counts, safety flags,
+    - Result: `scripts/igp24_score_sample_export.py` now writes
+      `split_workflow_manifest.json` and `split_workflow_report.md` beside the
+      score summary/report, auto-linking a sibling
+      `gpu_sampler_probe_summary.json` when present.
+  - [done] Record source commit, command lines, counts, safety flags,
     artifact paths, runtime, and duplicate/canonical-hash summaries.
-  - [pending] Make scoring all decoded export rows or an explicit capped
+    - Result: the manifest records source commit, GPU/CPU command lines,
+      linked artifact paths, GPU runtime/utilization/sample-export counts, CPU
+      scoring counts/runtime, proxy-only safety flags, and canonical-hash
+      dedup statistics.
+  - [done] Make scoring all decoded export rows or an explicit capped
     subset clear in helper arguments and summaries.
-  - [pending] Add focused tests for pure manifest/reporting, dedup/hash
+    - Result: added `--score_all true` as an explicit all-rows mode while
+      preserving `--max_records` for capped runs; summaries record
+      `selection_mode`.
+  - [done] Add focused tests for pure manifest/reporting, dedup/hash
     summaries, command construction, and safety flags.
+    - Result: focused tests passed: 22 passed in 1.15s, including a parser
+      regression check that false boolean defaults are not treated as truthy.
   - [pending] Run a larger short split smoke, around 512-1024 exported samples
     with a larger CPU scoring subset, capped well under 10 minutes.
   - [pending] Update README, NOTES, and TODO with commands, paths, counts,
@@ -380,6 +393,24 @@ results change.
   - Result: already up to date before GPU sample-export decoupling work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before split workflow hardening work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 22 passed in 1.15s after adding split manifest/report,
+    dedup/hash summaries, explicit `--score_all`, false-boolean parser
+    regression coverage, and the 1024-row split probe command.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed; helper now exposes `--score_all` and
+    `--gpu_probe_summary`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed after increasing the `sample_export_split` helper command
+    to a 1024-row export target.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_score_sample_export.py scripts/igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after split workflow hardening changes.
+- 2026-07-04: `git diff --check`
+  - Result: passed after split workflow hardening changes.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 18 passed in 1.36s after adding export-only model sampling,

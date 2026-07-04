@@ -164,9 +164,10 @@ def test_build_sample_export_split_command_is_export_only(tmp_path):
     assert config["post_train_cpu_sampling_scoring_avoided"]
     assert command[command.index("--cpu") + 1] == "false"
     assert command[command.index("--sample_export_only") + 1] == "true"
-    assert command[command.index("--num_samples_from_model") + 1] == "256"
+    assert command[command.index("--num_samples_from_model") + 1] == "1024"
     assert command[command.index("--always_search") + 1] == "false"
     assert command[command.index("--max_local_search_steps") + 1] == "0"
+    assert int(command[command.index("--batch_size") + 1]) >= 256
     assert "--sample_export_path" in command
     assert all("sair" not in str(part).lower() for part in command)
     assert all("magma" not in str(part).lower() for part in command)
