@@ -812,7 +812,7 @@ results change.
         `/tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds/export_diversity_report.md`,
         and
         `/tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds/top_duplicate_groups.jsonl`.
-    - [pending] Run two short export-only GPU intervention probes, each
+    - [done] Run two short export-only GPU intervention probes, each
       shorter than a 30-60m run and with CPU scoring/local search avoided
       during the GPU phase.
       - Preliminary `fixed_template_t10_top32` attempt on seed `2302`:
@@ -821,6 +821,32 @@ results change.
         written. Cause: `RuntimeError: selected index k out of range` from
         `torch.topk`, because `top_k=32` exceeded the tokenizer vocabulary.
         This variant was replaced with bounded `fixed_template_t10_top12`.
+      - `fixed_template_t10_top12` seed `2302` command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t10_top12 --diversity_seed 2302 --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - `fixed_template_t10_top12` GPU result: return code 0, no timeout,
+        runtime 150.884s, `device: cuda`, 4 finite eval points, final
+        train/test loss about `0.487` / `1.780`, max monitored GPU
+        utilization 99.0%, average monitored GPU utilization 80.892%, max
+        CUDA reserved 242 MiB, 2048 export rows, 2041 decoded rows, and
+        GPU-side CPU scoring/local search/dataset update avoided.
+      - `fixed_template_t10_top12` artifacts:
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/gpu_sampler_probe_report.md`,
+        and
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/gpu_model_sample_export_diversity_fixed_template_t10_top12_seed2302.jsonl`.
+      - `fixed_template_t11_open_topk` seed `2302` command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t11_open_topk --diversity_seed 2302 --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - `fixed_template_t11_open_topk` GPU result: return code 0, no
+        timeout, runtime 151.480s, `device: cuda`, 4 finite eval points,
+        final train/test loss about `0.633` / `0.872`, max monitored GPU
+        utilization 99.0%, average monitored GPU utilization 80.851%, max
+        CUDA reserved 242 MiB, 2048 export rows, 2043 decoded rows, and
+        GPU-side CPU scoring/local search/dataset update avoided.
+      - `fixed_template_t11_open_topk` artifacts:
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_sampler_probe_report.md`,
+        and
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2302.jsonl`.
     - [pending] Score only the necessary intervention exports on the CPU
       proxy path with `--score_all true`, `--local_search false`, and
       `--max_local_search_steps 0`.
