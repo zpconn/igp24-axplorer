@@ -10,13 +10,13 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   GPU export diversity work.
-- Active focus: improve GPU export sample diversity before any longer GPU
-  runs. The medium GPU phase loaded the RTX 5090 well, but CPU scoring showed
-  weak sample diversity, so this pass should add and run a bounded opt-in
-  diversity comparison. Keep CPU proxy-search, shortlist export, and
-  exact-tool prep primary. This remains proxy-only: no exact `24Tt` labels,
-  no MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
-  behavior.
+- Active focus: GPU export diversity comparison completed; final commit/push
+  is in progress. The fixed-template short diversity variant greatly improved
+  uniqueness versus the duplicate-heavy medium baseline, while the
+  mixed/high-temp variant traded diversity for validity and proxy score. Keep
+  CPU proxy-search, shortlist export, and exact-tool prep primary. This
+  remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
+  SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -590,12 +590,12 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 66 passed in 1.44s after the medium split final checks.
+  - Latest result: 68 passed in 1.57s after the GPU diversity sweep work.
 - [done] Run focused split/export tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`.
-  - Latest result: 25 passed in 1.08s after the medium split final checks.
+  - Latest result: 27 passed in 1.10s after the GPU diversity sweep work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after the medium split final checks.
+  - Latest result: passed after the GPU diversity sweep work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -608,13 +608,13 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after the medium split final checks.
+  - Latest result: passed after the GPU diversity sweep work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after the medium split final checks.
+  - Latest result: passed after the GPU diversity sweep work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Latest command:
-    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_medium_command'))"`
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'))"`
   - Latest result: `imports ok True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
@@ -720,6 +720,37 @@ results change.
     score 9396.872, local search disabled, and split manifest/report written
     under
     `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 27 passed in 1.10s after the GPU diversity sweep work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 68 passed in 1.57s after the GPU diversity sweep work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after the GPU diversity sweep work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed after the GPU diversity sweep work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed after the GPU diversity sweep work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'))"`
+  - Result: `imports ok True True True`.
+- 2026-07-04: `git diff --check`
+  - Result: passed after the GPU diversity sweep work.
+- 2026-07-04:
+  `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+  - Result: Stage 4 remains present at line 2519.
+- 2026-07-04: `nvidia-smi`
+  - Result: RTX 5090 visible and idle after the GPU diversity sweep work.
+- 2026-07-04: `ps -C python3 -o pid=,etime=,pcpu=,pmem=,args=`
+  - Result: no active `python3` processes after final checks.
+- 2026-07-04: `find . -type d -name __pycache__`
+  - Result: no generated `__pycache__` directories remained after cleanup.
+- 2026-07-04: `python -m pytest`
+  - Result: still blocked with `/bin/bash: line 1: python: command not found`;
+    `python3 -m pytest -q` is the passing local equivalent.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 25 passed in 1.08s after the medium split final checks.
