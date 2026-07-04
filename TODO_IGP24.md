@@ -9,16 +9,17 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  larger dedup-aware GPU sample-export validation.
-- Active focus: validate whether opt-in dedup-aware GPU export scales beyond
-  the first 512-unique smoke before any longer fixed-template GPU run. The
-  first `sample_export_split_dedup` smoke on duplicate-heavy
-  `fixed_template_t11_open_topk` seed `2401` reached 512 decoded uniques after
-  1439 attempts and skipped 923 duplicate decoded attempts. This run tests a
-  larger 1024-unique target with a 4096-attempt budget, remains proxy-only,
-  and keeps CPU proxy-search, shortlist export, and exact-tool prep primary.
-  No exact `24Tt` labels, MAGMA/PARI execution, SAIR/network calls, or
-  auto-submission behavior.
+  bounded 1536-unique dedup-aware GPU export stress testing.
+- Active focus: test whether opt-in dedup-aware GPU export remains useful at a
+  bounded 1536-unique target before any true longer GPU run. Prior
+  `sample_export_split_dedup` validation reached 1024 uniques on seed `2402`,
+  but needed 3255 attempts and skipped 2229 duplicate decoded attempts. The
+  current run uses duplicate-heavy `fixed_template_t11_open_topk` seed `2402`,
+  target 1536 unique decoded coefficient vectors, an 8192-attempt budget, and
+  a 1200-second timeout. It remains export-only/proxy-only and keeps CPU
+  proxy-search, shortlist export, and exact-tool prep primary. No exact
+  `24Tt` labels, MAGMA/PARI execution, SAIR/network calls, or auto-submission
+  behavior.
 
 ## Stage 0: Scaffold
 
@@ -1448,6 +1449,38 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Run a bounded medium-style dedup-aware GPU export stress
+    test.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+      GPU probe helper, raw export diagnostic helper, score helper, merge
+      helper, and focused tests.
+      - Result: the existing `sample_export_split_dedup` helper can run the
+        stress test without code changes. The helper keeps `sample_export_only`
+        true, `sample_export_dedup` true, `always_search` false,
+        `max_local_search_steps` 0, and avoids GPU-phase CPU scoring/local
+        search/dataset updates.
+    - [in_progress] Run seed `2402` bounded 1536-unique dedup-aware
+      export-only GPU stress test.
+      - GPU dedup stress command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2402 --dedup_unique_target 1536 --dedup_max_attempts 8192 --dedup_progress_interval 512 --output_dir /tmp/igp24_gpu_dedup_medium_20260704/seed2402 --timeout_seconds 1200 --monitor_interval_seconds 2`
+      - Intended measurements: runtime, CUDA status, monitored GPU
+        utilization, attempts, rows written, decoded rows, unique decoded
+        count, duplicate skipped count, invalid decodes, and stop reason.
+    - [pending] Immediately run raw export diversity diagnostic and record
+      exact/canonical/token duplicate counts.
+    - [pending] CPU-score the export only if the diagnostic justifies it,
+      using `--score_all true --local_search false
+      --max_local_search_steps 0`.
+    - [pending] Merge any scored output with the relevant prior baselines and
+      dedup runs.
+    - [pending] Decide whether the 1536 target is viable under bounded
+      attempts or whether the next step should use multiple smaller dedup
+      seeds.
+    - [pending] Update README/NOTES if the workflow recommendation changes,
+      run final verification, confirm Stage 4 remains present, audit
+      GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
