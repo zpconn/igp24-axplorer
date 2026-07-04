@@ -1241,21 +1241,46 @@ results change.
         `/tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all/scored_samples.jsonl`,
         and
         `/tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all/split_workflow_manifest.json`.
-    - [pending] Run final verification, confirm Stage 4 remains present,
+    - [done] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
+      - Focused split/export tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 38 passed in 1.23s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 79 passed in 1.61s.
+      - Compileall:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks passed for `igp24_gpu_sampler_probe.py`,
+        `igp24_score_sample_export.py`, `igp24_merge_scored_exports.py`, and
+        `igp24_export_diversity_diagnostic.py`.
+      - Import check passed:
+        `imports ok True True True True True True`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3250.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active `python3` processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 76 passed in 1.58s after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: 79 passed in 1.61s after opt-in dedup-aware export
+    control work.
 - [done] Run focused split/export tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
-  - Latest result: 35 passed in 1.18s after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: 38 passed in 1.23s after opt-in dedup-aware export
+    control work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: passed after opt-in dedup-aware export control work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -1268,23 +1293,19 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after the multi-seed
-    `fixed_template_t11_open_topk` stability validation; helper exposes
-    `--diversity_seed`,
-    `fixed_template_t10_top12`, and `fixed_template_t11_open_topk`.
+  - Latest result: passed after opt-in dedup-aware export control work;
+    helper exposes `sample_export_split_dedup`, `--dedup_unique_target`,
+    `--dedup_max_attempts`, and `--dedup_progress_interval`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: passed after opt-in dedup-aware export control work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py --help`.
-  - Latest result: passed after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: passed after opt-in dedup-aware export control work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py --help`.
-  - Latest result: passed after the multi-seed
-    `fixed_template_t11_open_topk` stability validation.
+  - Latest result: passed after opt-in dedup-aware export control work.
 - [done] Run an import check proving `train`, the environment registry,
   `igp24`, and the split/merge helpers remain discoverable.
   - Latest command:
-    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; import scripts.igp24_export_diversity_diagnostic as diag; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'), 'fixed_template_t11_open_topk' in probe.DIVERSITY_EXPORT_VARIANTS, hasattr(merge, 'merge_sources'), hasattr(diag, 'build_summary'))"`
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; import scripts.igp24_export_diversity_diagnostic as diag; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_dedup_command'), 'sample_export_split_dedup' in probe.get_parser().format_help(), hasattr(merge, 'merge_sources'), hasattr(diag, 'build_summary'))"`
   - Latest result: `imports ok True True True True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
