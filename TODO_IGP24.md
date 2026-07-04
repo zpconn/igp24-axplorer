@@ -10,8 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   larger target-r benchmark work.
-- Active focus: interpret the larger CPU-only target real-root-count benchmark
-  before changing generation defaults again.
+- Active focus: larger CPU-only target real-root-count benchmark completed;
+  next work should focus on target-specific presets and `r=4`-friendlier
+  families.
 
 ## Stage 0: Scaffold
 
@@ -91,15 +92,15 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 17 passed in 0.64s on final target-r benchmark check.
+  - Latest result: 18 passed in 0.70s after larger target-r benchmark work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed with `scripts` included.
+  - Latest result: passed after larger target-r benchmark work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
   - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
-  - Latest result: blocked because `python` is not on PATH in this shell.
+  - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
 - [done] If local dependency issues block the literal command, record the
   exact blocker and run the closest available equivalent.
 
@@ -120,6 +121,14 @@ results change.
 - 2026-07-04:
   `python3 -c "import json; p='/tmp/igp24_target_r_bench_larger_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['target_r'] for r in data}, key=lambda x: -1 if x is None else x)); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data))"`
   - Result: `48 True True [None, 0, 2, 4]` and `864 1561`.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 18 passed in 0.70s after larger target-r benchmark work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after larger target-r benchmark work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `git pull --ff-only`
   - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
 - 2026-07-04: `git pull --ff-only`
