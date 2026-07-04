@@ -9,12 +9,11 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  GPU-readiness and training-smoke work.
-- Active focus: GPU-readiness smoke is complete. The RTX 5090 and PyTorch CUDA
-  path work outside the managed sandbox, the tiny CPU baseline and tiny GPU
-  training smoke both returned 0, and the recommendation is to run both in
-  parallel: keep CPU proxy-search and exact-tool prep primary while using GPU
-  training as an additional sampler path. This remains proxy-only: no exact
+  short controlled GPU sampler probe work.
+- Active focus: run a short controlled GPU sampler probe, capped well below a
+  30-60 minute run, to decide whether a medium GPU training run is justified.
+  Keep CPU proxy-search, shortlist export, and exact-tool prep primary unless
+  the short probe provides stronger evidence. This remains proxy-only: no exact
   `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
   auto-submission behavior.
 
@@ -155,6 +154,23 @@ results change.
   - [done] Add fast tests for benchmark summary aggregation.
   - [done] Verify helper CLI with `--help`.
   - [done] Run the helper across all generation strategies.
+- [in_progress] Run a short controlled GPU sampler probe before considering a
+  30-60 minute training run.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect `train.py` and existing GPU smoke helper/test surfaces.
+    - Result: the next probe should reuse the existing CUDA/NVML probes and
+      ledger summary logic, but needs a more explicit sampler-train command,
+      timeout, and loss/memory/sample-log parser than the tiny smoke helper.
+  - [pending] Add a reproducible short sampler-probe helper if useful.
+  - [pending] Add tests only for pure command construction, log parsing, and
+    report/recommendation logic.
+  - [pending] Run a capped roughly 5-10 minute GPU training/sampling probe
+    under `/tmp/igp24_gpu_sampler_probe_20260704`.
+  - [pending] Record CUDA/PyTorch status, runtime, loss/eval behavior, CUDA
+    memory logs, sampled-candidate validity, ledger counts, metadata
+    completeness, and whether the result justifies another short probe or a
+    later medium run.
 
 ## Tests And Checks
 
@@ -184,6 +200,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before short controlled GPU sampler probe work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU-readiness and training-smoke work.
 - 2026-07-04: `python -m pytest`
@@ -1711,7 +1729,7 @@ down further as they become active.
 - [done] Run a small GPU training smoke before treating model training as a
   main path; keep CPU proxy-search primary unless CUDA/PyTorch and tiny
   training both work cleanly.
-- [pending] Run a controlled longer GPU sampler experiment, while keeping CPU
+- [in_progress] Run a controlled longer GPU sampler experiment, while keeping CPU
   proxy-search, shortlist export, and exact-tool prep primary until longer GPU
   evidence justifies changing the plan.
 - [done] Add one more `target_r=4` structured family before retuning the
