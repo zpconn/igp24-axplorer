@@ -9,11 +9,11 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  safe shortlist/export helper work.
-- Active focus: safe batch export/shortlist tooling is implemented, smoke
-  tested on top `target_r=4` proxy candidates, and final checks are complete.
-  The helper remains export-only with no verifier execution, exact `24Tt`
-  claim, SAIR call, or auto-submission path.
+  safe review-batch tooling work.
+- Active focus: add safe human-review/triage tooling that turns the proxy-only
+  r4 shortlist into a small auditable offline-verifier candidate batch. This
+  must remain review/export-only with no MAGMA/PARI/SAIR execution, network
+  call, exact `24Tt` claim, or auto-submission path.
 
 ## Stage 0: Scaffold
 
@@ -137,6 +137,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before safe review-batch tooling work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe shortlist/export helper work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_shortlist.py`
@@ -1140,6 +1142,20 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Add safe human-review tooling for exported shortlists.
+  - [pending] Add a review/export-only CLI that reads shortlist export
+    directories and optionally follows `source_ledger_path` to richer ledger
+    records.
+  - [pending] Support batch size, canonical-hash deduplication, score sorting,
+    and source-strategy diversity constraints where possible.
+  - [pending] Emit `review_report.md`, `verification_batch.jsonl`,
+    `verification_coefficients.txt`, and `manifest.json` with source
+    shortlist, source ledgers, command, criteria, timestamp, and safety flags.
+  - [pending] Add fast fixture-based tests covering shortlist loading,
+    source-ledger rehydration, diverse top-N selection, output files, and
+    proxy-only safety flags.
+  - [pending] Document the review-batch command and safety boundary in
+    README/NOTES/TODO.
 - [done] Add safe batch export/shortlist helpers for verifier input
   files.
   - [done] Add an export-only CLI that reads benchmark directories and/or
@@ -1273,6 +1289,6 @@ down further as they become active.
 - [done] Add safe batch export/shortlist helpers for top proxy candidates
   from the strongest r4 strategies so later offline exact verification can
   inspect them without adding any automatic SAIR submission path.
-- [pending] Manually review the exported r4 shortlist and choose a small batch
+- [in_progress] Manually review the exported r4 shortlist and choose a small batch
   for offline exact-verifier experiments, keeping any SAIR submission explicit
   and human-controlled.
