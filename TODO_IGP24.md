@@ -847,12 +847,79 @@ results change.
         `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_sampler_probe_report.md`,
         and
         `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2302.jsonl`.
-    - [pending] Score only the necessary intervention exports on the CPU
+    - [done] Score only the necessary intervention exports on the CPU
       proxy path with `--score_all true`, `--local_search false`, and
       `--max_local_search_steps 0`.
-    - [pending] Compare diagnostics and CPU dedup results against the
+      - Pre-score intervention diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2302.jsonl /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/gpu_model_sample_export_diversity_fixed_template_t10_top12_seed2302.jsonl /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2302.jsonl --labels baseline_t09_top9_seed2302 t10_top12_seed2302 t11_open_seed2302 --output_dir /tmp/igp24_export_diversity_diagnostic_20260704/intervention_compare_seed2302 --checkpoint_interval 256 --top_n 10`
+      - Pre-score diagnostic result: return code 0, runtime 137.824s.
+        Baseline `t09_top9` seed `2302`: 2047 decoded rows, 452 exact /
+        canonical / token uniques, and 1595 duplicate records. `t10_top12`
+        seed `2302`: 2041 decoded rows, 1288 exact / canonical / token
+        uniques, and 753 duplicate records. `t11_open_topk` seed `2302`:
+        2043 decoded rows, 2030 exact / canonical / token uniques, and 13
+        duplicate records.
+      - Diagnostic interpretation: increasing entropy directly improved the
+        raw repeated-token/coefficient collapse. `t11_open_topk` is the first
+        intervention to recover seed-`2201`-like per-run uniqueness on the
+        formerly duplicate-heavy seed `2302`.
+      - Diagnostic artifacts:
+        `/tmp/igp24_export_diversity_diagnostic_20260704/intervention_compare_seed2302/export_diversity_summary.json`,
+        `/tmp/igp24_export_diversity_diagnostic_20260704/intervention_compare_seed2302/export_diversity_report.md`,
+        and
+        `/tmp/igp24_export_diversity_diagnostic_20260704/intervention_compare_seed2302/top_duplicate_groups.jsonl`.
+      - `fixed_template_t10_top12` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/gpu_model_sample_export_diversity_fixed_template_t10_top12_seed2302.jsonl --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - `fixed_template_t10_top12` CPU score result: return code 0,
+        runtime 72.863s, `selection_mode=all_explicit`, 2048 rows
+        read/selected, 2041 decoded/scored, 7 skipped decode, 1888 valid
+        proxy-scored, 153 rejected, 1288 unique canonical hashes, 753
+        duplicate hash records, best score 9953.439, mean score 9177.150,
+        local search disabled.
+      - `fixed_template_t11_open_topk` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2302.jsonl --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - `fixed_template_t11_open_topk` CPU score result: return code 0,
+        runtime 76.778s, `selection_mode=all_explicit`, 2048 rows
+        read/selected, 2043 decoded/scored, 5 skipped decode, 1833 valid
+        proxy-scored, 210 rejected, 2030 unique canonical hashes, 13
+        duplicate hash records, best score 9956.519, mean score 8900.449,
+        local search disabled.
+      - Intervention merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all --labels baseline_t09_top9_seed2302 t10_top12_seed2302 t11_open_seed2302 --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/merged_intervention_review --top_n 25`
+      - Intervention merge result: 6131 scored rows across three sources,
+        5752 valid, 379 rejected, 3546 unique canonical hashes, 2585
+        duplicate hash records, 220 hashes seen in multiple sources, best
+        score 9956.519, mean score 9308.085. Pairwise overlap was 219
+        hashes between baseline and `t10_top12`, 4 between baseline and
+        `t11_open_topk`, and 5 between `t10_top12` and `t11_open_topk`.
+      - CPU/merge artifacts:
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/merged_intervention_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/merged_intervention_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_export_entropy_interventions_20260704/merged_intervention_review/top_deduped_candidates.jsonl`.
+    - [done] Compare diagnostics and CPU dedup results against the
       duplicate-heavy fixed-template seeds and produce the next
       recommendation.
+      - Result: `fixed_template_t11_open_topk` is the clear per-run
+        diversity intervention. On the same duplicate-heavy seed `2302`, it
+        improved from 452 unique / 2047 scored and 1595 duplicates to 2030
+        unique / 2043 scored and 13 duplicates, while also finding the best
+        single proxy score in the comparison. Tradeoff: validity dropped from
+        2031 valid / 16 rejected for baseline to 1833 valid / 210 rejected,
+        and mean proxy score dropped from 9845.475 to 8900.449. `t10_top12`
+        was a middle tradeoff at 1288 unique / 2041 scored but still kept 753
+        duplicates.
+      - Recommendation: do not start a longer fixed-template run yet. Use
+        `fixed_template_t11_open_topk` as the next short diversity-preserving
+        GPU export configuration, preferably across 2-3 seeds with the raw
+        export diagnostic run immediately after each export. If the next goal
+        changes code, the highest-leverage control is a true dedup-aware
+        export cap/stop policy, since duplicate collapse is visible in raw
+        token/coefficient outputs before scoring.
     - [pending] Update README, NOTES, and TODO with commands, artifacts,
       metrics, interpretation, and next action.
     - [pending] Run final verification, confirm Stage 4 remains present,
