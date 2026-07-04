@@ -9,7 +9,7 @@ import torch
 from src.datasets import CharDataset, InfiniteDataLoader, load_initial_data, update_datasets
 from src.envs import ENVS, build_env
 from src.envs.environment import do_stats
-from src.evaluator import sample_and_score
+from src.evaluator import sample_and_export, sample_and_score
 from src.models.model import Transformer
 from src.trainer import reload_model_optimizer, train
 from src.utils import bool_flag, force_release_memory, initialize_exp, log_resources, write_important_metrics
@@ -69,6 +69,18 @@ def get_parser():
         type=bool_flag,
         default="false",
         help="train for each epoch without post-epoch sampling, scoring, or dataset updates",
+    )
+    parser.add_argument(
+        "--sample_export_only",
+        type=bool_flag,
+        default="false",
+        help="after training, export model samples without scoring, local search, or dataset updates",
+    )
+    parser.add_argument(
+        "--sample_export_path",
+        type=str,
+        default="",
+        help="JSONL path for --sample_export_only; defaults to dump_path/model_samples_epoch_<n>.jsonl",
     )
 
     return parser
@@ -179,6 +191,19 @@ if __name__ == "__main__":
             del batch_loader
         log_resources(f"Epoch {epoch} AFTER_TRAIN")
         force_release_memory()
+
+        if args.sample_export_only:
+            export_path = args.sample_export_path or os.path.join(args.dump_path, f"model_samples_epoch_{n_epoch}.jsonl")
+            export_summary = sample_and_export(model, args, stoi, itos, env, temperature, args.temp_span, export_path=export_path)
+            logger.info(f"Sample export summary: {export_summary}")
+            log_resources(f"Epoch {epoch} AFTER_SAMPLE_EXPORT")
+            n_epoch += 1
+            with open(epoch_file, "w") as f:
+                f.write(str(n_epoch))
+            with open(temp_file, "w") as f:
+                f.write(str(temperature))
+            write_important_metrics(metrics, n_epoch, metric_file)
+            continue
 
         if args.train_only:
             logger.info("Train-only mode. Skipping sampling, scoring, local search, and dataset update for this epoch.")

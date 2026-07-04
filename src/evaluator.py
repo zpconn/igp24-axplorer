@@ -1,8 +1,11 @@
+import json
 import queue
 import threading
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from logging import getLogger
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -121,3 +124,137 @@ def sample_and_score(model, args, stoi, itos, env, temp, temp_span=0):
     do_stats(total_invalid, all_processed_data)
 
     return results
+
+
+def build_sample_export_record(
+    *,
+    sample_index: int,
+    batch_index: int,
+    batch_row: int,
+    token_ids: list[int],
+    decoded_coefficients: list[int] | None,
+    args: Any,
+    temperature: float,
+    top_k: int | None,
+) -> dict[str, Any]:
+    exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
+    return {
+        "schema_version": 1,
+        "record_type": "igp24_model_sample_export",
+        "sample_index": int(sample_index),
+        "batch_index": int(batch_index),
+        "batch_row": int(batch_row),
+        "env_name": getattr(args, "env_name", None),
+        "exp_name": getattr(args, "exp_name", None),
+        "exp_id": getattr(args, "exp_id", None),
+        "device": getattr(args, "device", None),
+        "temperature": float(temperature),
+        "top_k": top_k,
+        "max_len": int(getattr(args, "max_len", 0)),
+        "coeff_bound": int(getattr(args, "coeff_bound", 0)),
+        "token_ids": token_ids,
+        "decoded": decoded_coefficients is not None,
+        "decoded_coefficients": decoded_coefficients,
+        "exported_coefficients": exported_coefficients,
+        "score": None,
+        "scoring_status": "unscored",
+        "local_search_status": "not_run",
+        "verification_status": "not_run",
+        "verified_group_label": None,
+        "generation_metadata": {
+            "strategy": "model_sample_export",
+            "source": "gpu_or_device_model_generate",
+            "resolved_generation_strategy": getattr(args, "igp24_generation_strategy", None),
+            "generation_preset": getattr(args, "igp24_generation_preset", None),
+            "sample_export_only": True,
+        },
+        "safety": {
+            "proxy_only": True,
+            "scored": False,
+            "local_search_run": False,
+            "runs_exact_verifiers": False,
+            "calls_sair": False,
+            "uses_network": False,
+            "auto_submits": False,
+        },
+    }
+
+
+def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_path=None):
+    if export_path is None:
+        raise ValueError("sample export path is required")
+
+    export_path = Path(export_path)
+    export_path.parent.mkdir(parents=True, exist_ok=True)
+
+    sample_batch_size = args.gen_batch_size
+    total = int(args.num_samples_from_model)
+    batch_counts = [sample_batch_size] * (total // sample_batch_size)
+    remainder = total % sample_batch_size
+    if remainder:
+        batch_counts.append(remainder)
+
+    top_k = args.top_k if args.top_k != -1 else None
+    records_written = 0
+    decoded_records = 0
+    invalid_decode_records = 0
+
+    logger.info(f"Export-only model sampling to {export_path}")
+    with export_path.open("w", encoding="utf-8") as handle:
+        for batch_index, batch_size in enumerate(batch_counts):
+            if temp_span > 0:
+                curr_temp = temp + 0.1 * np.random.randint(temp_span + 1)
+            else:
+                curr_temp = temp
+            logger.info(f"{records_written} / {total} samples generated for export")
+
+            X_init = torch.empty((batch_size, 1), dtype=torch.long)
+            X_init[:, 0] = stoi["BOS"]
+            X_init = X_init.to(args.device)
+            batch_numpy = model.generate(
+                X_init,
+                args.max_len + 1,
+                temperature=curr_temp,
+                top_k=top_k,
+                do_sample=True,
+            ).cpu().numpy()
+
+            for batch_row in range(batch_numpy.shape[0]):
+                token_ids = [int(token) for token in batch_numpy[batch_row].tolist()]
+                decoded = env.tokenizer.decode(batch_numpy[batch_row])
+                decoded_coefficients = None
+                if decoded is not None:
+                    decoded_coefficients = [int(coefficient) for coefficient in decoded.coefficients]
+                    decoded_records += 1
+                else:
+                    invalid_decode_records += 1
+
+                record = build_sample_export_record(
+                    sample_index=records_written,
+                    batch_index=batch_index,
+                    batch_row=batch_row,
+                    token_ids=token_ids,
+                    decoded_coefficients=decoded_coefficients,
+                    args=args,
+                    temperature=curr_temp,
+                    top_k=top_k,
+                )
+                handle.write(json.dumps(record, sort_keys=True) + "\n")
+                records_written += 1
+
+    logger.info(
+        "Export-only model sampling wrote %s records to %s; decoded=%s invalid_decode=%s",
+        records_written,
+        export_path,
+        decoded_records,
+        invalid_decode_records,
+    )
+    return {
+        "export_path": str(export_path),
+        "records_written": records_written,
+        "decoded_records": decoded_records,
+        "invalid_decode_records": invalid_decode_records,
+        "scoring_avoided": True,
+        "local_search_avoided": True,
+        "dataset_update_avoided": True,
+    }

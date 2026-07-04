@@ -262,14 +262,25 @@ results change.
       tokenizer can decode raw token sequences into coefficient vectors
       without scoring, so an export-only sampler can split model generation
       from CPU scoring without changing normal defaults.
-  - [pending] Add an opt-in export-only model-sampling path that writes raw
+  - [done] Add an opt-in export-only model-sampling path that writes raw
     token sequences and decoded coefficient vectors without scoring, local
     search, exact verification, dataset update, network calls, or submission.
-  - [pending] Add a small CPU-side import/scoring helper if useful to prove
+    - Result: added `sample_and_export` plus `--sample_export_only` and
+      `--sample_export_path` to `train.py`. The default path still uses
+      `sample_and_score`; export-only mode writes unscored JSONL rows with raw
+      token IDs, decoded coefficient vectors when possible, and safety flags.
+  - [done] Add a small CPU-side import/scoring helper if useful to prove
     the exported samples can be consumed by the proxy pipeline, with local
     search explicit and off by default.
-  - [pending] Add focused tests only for export format, command construction,
+    - Result: added `scripts/igp24_score_sample_export.py`, which consumes
+      sample-export JSONL, scores decoded coefficient vectors through the
+      existing proxy scorer, leaves local search off by default, writes
+      `scored_samples.jsonl`, `score_summary.json`, and `score_report.md`,
+      and does not run exact verifiers, SAIR/network calls, or submission.
+  - [done] Add focused tests only for export format, command construction,
     parsing/reporting, and safety flags.
+    - Result: focused tests passed: 18 passed in 1.36s across the GPU helper
+      and sample-export tests.
   - [pending] Run a short capped split-workflow smoke, not a 30-60 minute job,
     and audit artifact paths, record counts, GPU utilization if practical, and
     scoring-consumption results.
@@ -312,6 +323,25 @@ results change.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before train-only GPU utilization diagnosis
     work.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before GPU sample-export decoupling work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 18 passed in 1.36s after adding export-only model sampling,
+    sample-export scoring helper, and split-probe command construction.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper now exposes
+    `--probe_mode {sampler,train_only_utilization,sample_export_split}`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed; helper documents sample-export input, output directory,
+    record cap, proxy-scoring options, and explicit local-search flag.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src/evaluator.py scripts/igp24_gpu_sampler_probe.py scripts/igp24_score_sample_export.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: passed after adding the split GPU sample-export workflow.
+- 2026-07-04: `git diff --check`
+  - Result: passed after adding the split GPU sample-export workflow.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py`
   - Result: 10 passed in 0.03s after adding the train-only utilization probe

@@ -39,9 +39,11 @@ DEFAULT_OUTPUT_DIR = Path("/tmp/igp24_gpu_sampler_probe_20260704")
 DEFAULT_BASELINE_SUMMARY = Path("/tmp/igp24_gpu_smoke_20260704/gpu_smoke_summary.json")
 PROBE_MODE_SAMPLER = "sampler"
 PROBE_MODE_TRAIN_ONLY = "train_only_utilization"
+PROBE_MODE_SAMPLE_EXPORT = "sample_export_split"
 STRICT_SUCCESS_ACTIONS = {
     "proceed_to_medium_30_60_minute_gpu_run_later",
     "decouple_gpu_training_from_cpu_scoring",
+    "consume_exported_samples_with_cpu_proxy_helper",
 }
 
 
@@ -92,6 +94,7 @@ def parse_train_log(text: str) -> dict[str, Any]:
         "logged_device": device_matches[-1].strip() if device_matches else None,
         "epoch_count": len(re.findall(r"==== Starting Epoch", text)),
         "train_only_skip_logged": "Train-only mode. Skipping sampling, scoring, local search, and dataset update" in text,
+        "sample_export_only_logged": "Export-only model sampling" in text,
         "eval_losses": eval_losses,
         "step_losses": step_losses,
         "cuda_memory": cuda_memory,
@@ -156,6 +159,23 @@ def summarize_model_sample_records(records: list[dict[str, Any]]) -> dict[str, A
         "model_sample_best_score": max(scores) if scores else None,
         "model_sample_mean_score": (sum(scores) / len(scores)) if scores else None,
         "model_sample_hashes": [record.get("canonical_hash") for record in sampled[:10]],
+    }
+
+
+def summarize_sample_export(path: Path) -> dict[str, Any]:
+    records = read_jsonl(path)
+    decoded = [record for record in records if record.get("decoded")]
+    safety = [record.get("safety") or {} for record in records]
+    return {
+        "sample_export_path": str(path),
+        "sample_export_exists": path.exists(),
+        "sample_export_records": len(records),
+        "sample_export_decoded_records": len(decoded),
+        "sample_export_invalid_decode_records": len(records) - len(decoded),
+        "sample_export_first_indices": [record.get("sample_index") for record in records[:10]],
+        "sample_export_scoring_avoided": all(not flags.get("scored", True) for flags in safety) if records else False,
+        "sample_export_local_search_avoided": all(not flags.get("local_search_run", True) for flags in safety) if records else False,
+        "sample_export_exact_verifiers_avoided": all(not flags.get("runs_exact_verifiers", True) for flags in safety) if records else False,
     }
 
 
@@ -473,6 +493,110 @@ def build_train_only_utilization_command(
     }
 
 
+def build_sample_export_split_command(
+    *,
+    python_executable: str,
+    output_dir: Path,
+    run_id: str,
+) -> dict[str, Any]:
+    exp_name = "igp24_gpu_sample_export_probe"
+    dump_root = output_dir / "gpu_sample_export_dump"
+    ledger_path = output_dir / "gpu_sample_export_initial_candidates.jsonl"
+    sample_export_path = output_dir / "gpu_model_sample_export.jsonl"
+    train_log_path = dump_root / exp_name / run_id / "train.log"
+    cmd = [
+        python_executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        exp_name,
+        "--dump_path",
+        str(dump_root),
+        "--exp_id",
+        run_id,
+        "--seed",
+        "2001",
+        "--coeff_bound",
+        "4",
+        "--gensize",
+        "256",
+        "--pop_size",
+        "192",
+        "--ntest",
+        "16",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "120",
+        "--num_eval_steps",
+        "60",
+        "--num_samples_from_model",
+        "256",
+        "--batch_size",
+        "128",
+        "--n_layer",
+        "6",
+        "--n_head",
+        "8",
+        "--n_embd",
+        "512",
+        "--max_len",
+        "24",
+        "--temperature",
+        "0.9",
+        "--top_k",
+        "9",
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "11",
+        "--exact_score_timeout",
+        "2",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        str(sample_export_path),
+        "--igp24_generation_strategy",
+        "fixed_sparse_template",
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+    return {
+        "probe_mode": PROBE_MODE_SAMPLE_EXPORT,
+        "command": cmd,
+        "command_text": command_text(cmd),
+        "dump_root": str(dump_root),
+        "ledger_path": str(ledger_path),
+        "sample_export_path": str(sample_export_path),
+        "train_log_path": str(train_log_path),
+        "exp_name": exp_name,
+        "exp_id": run_id,
+        "caps": {
+            "timeout_seconds": 600,
+            "max_epochs": 1,
+            "max_steps_per_epoch": 120,
+            "num_eval_steps": 60,
+            "num_samples_from_model_per_epoch": 256,
+            "batch_size": 128,
+            "n_layer": 6,
+            "n_head": 8,
+            "n_embd": 512,
+        },
+        "post_train_cpu_sampling_scoring_avoided": True,
+    }
+
+
 def load_baseline_summary(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -502,8 +626,17 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
     train_log_path = Path(command_config["train_log_path"])
     records = read_jsonl(ledger_path)
     train_log = inspect_sampler_log(train_log_path)
+    sample_export = summarize_sample_export(Path(command_config["sample_export_path"])) if command_config.get("sample_export_path") else {}
     post_train_cpu_sampling_scoring_avoided = bool(
-        command_config.get("post_train_cpu_sampling_scoring_avoided") and train_log.get("train_only_skip_logged")
+        command_config.get("post_train_cpu_sampling_scoring_avoided")
+        and (
+            train_log.get("train_only_skip_logged")
+            or (
+                train_log.get("sample_export_only_logged")
+                and sample_export.get("sample_export_scoring_avoided")
+                and sample_export.get("sample_export_local_search_avoided")
+            )
+        )
     )
     return {
         "status": "completed",
@@ -515,6 +648,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "command": command_config["command"],
         "command_text": command_config["command_text"],
         "ledger_path": str(ledger_path),
+        "sample_export_path": command_config.get("sample_export_path"),
         "train_log_path": str(train_log_path),
         "train_log": train_log,
         "post_train_cpu_sampling_scoring_avoided": post_train_cpu_sampling_scoring_avoided,
@@ -526,6 +660,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "gpu_monitor": command_result.get("gpu_monitor", summarize_gpu_monitor([])),
         "stdout_tail": command_result.get("stdout_tail", []),
         "stderr_tail": command_result.get("stderr_tail", []),
+        **sample_export,
         **summarize_records(records),
         **summarize_model_sample_records(records),
     }
@@ -536,11 +671,14 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
     run = summary.get("runs", {}).get("gpu_sampler_probe") or {}
     probe_mode = run.get("probe_mode", summary.get("probe_mode", PROBE_MODE_SAMPLER))
     is_train_only = probe_mode == PROBE_MODE_TRAIN_ONLY
+    is_sample_export = probe_mode == PROBE_MODE_SAMPLE_EXPORT
     train_log = run.get("train_log") or {}
     eval_losses = train_log.get("eval_losses") or []
     final_eval = eval_losses[-1] if eval_losses else {}
     sample_valid_total = int(train_log.get("sample_valid_total") or 0)
     model_sample_records = int(run.get("model_sample_ledger_records") or 0)
+    sample_export_records = int(run.get("sample_export_records") or 0)
+    sample_export_decoded_records = int(run.get("sample_export_decoded_records") or 0)
     gpu_monitor = run.get("gpu_monitor") or {}
     max_gpu_utilization = gpu_monitor.get("max_gpu_utilization_percent")
     post_train_cpu_sampling_scoring_avoided = bool(run.get("post_train_cpu_sampling_scoring_avoided"))
@@ -601,6 +739,24 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
                 "The earlier sampler probe was likely CPU-bound by scoring/local search, so the next "
                 "architecture step should decouple GPU training/sampling from CPU scoring before any "
                 "medium-length run."
+            ),
+        }
+    if is_sample_export:
+        if not post_train_cpu_sampling_scoring_avoided:
+            return {
+                "action": "run_another_short_gpu_probe_with_adjusted_settings",
+                "reason": "The sample-export probe did not prove CPU scoring/local search was avoided during GPU sampling.",
+            }
+        if sample_export_records == 0 or sample_export_decoded_records == 0:
+            return {
+                "action": "run_another_short_gpu_probe_with_adjusted_settings",
+                "reason": "The sample-export probe ran, but did not produce decoded model-sample records.",
+            }
+        return {
+            "action": "consume_exported_samples_with_cpu_proxy_helper",
+            "reason": (
+                "CUDA training/sampling produced unscored export records while avoiding CPU scoring/local search. "
+                "The next check is to consume that export with the CPU proxy scorer before considering a medium run."
             ),
         }
     if sample_valid_total == 0 and model_sample_records == 0:
@@ -667,8 +823,8 @@ def build_report(summary: dict[str, Any]) -> str:
         "",
         "## GPU Probe Run",
         "",
-        "| returncode | timeout | interrupted | runtime_s | device | evals | final_train_loss | final_test_loss | max_reserved_mb | max_gpu_util | avg_gpu_util | post_train_cpu_sampling_scoring_avoided | sample_requested | sample_valid | model_sample_ledger | ledger_rows | metadata |",
-        "| ---: | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |",
+        "| returncode | timeout | interrupted | runtime_s | device | evals | final_train_loss | final_test_loss | max_reserved_mb | max_gpu_util | avg_gpu_util | post_train_cpu_sampling_scoring_avoided | sample_export_records | sample_export_decoded | sample_requested | sample_valid | model_sample_ledger | ledger_rows | metadata |",
+        "| ---: | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         "| "
         + " | ".join(
             [
@@ -684,6 +840,8 @@ def build_report(summary: dict[str, Any]) -> str:
                 _fmt(gpu_monitor.get("max_gpu_utilization_percent")),
                 _fmt(gpu_monitor.get("avg_gpu_utilization_percent")),
                 str(run.get("post_train_cpu_sampling_scoring_avoided")),
+                str(run.get("sample_export_records")),
+                str(run.get("sample_export_decoded_records")),
                 str(train_log.get("sample_requested_total")),
                 str(train_log.get("sample_valid_total")),
                 str(run.get("model_sample_ledger_records")),
@@ -737,9 +895,12 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--monitor_interval_seconds", type=float, default=2.0)
     parser.add_argument(
         "--probe_mode",
-        choices=[PROBE_MODE_SAMPLER, PROBE_MODE_TRAIN_ONLY],
+        choices=[PROBE_MODE_SAMPLER, PROBE_MODE_TRAIN_ONLY, PROBE_MODE_SAMPLE_EXPORT],
         default=PROBE_MODE_SAMPLER,
-        help="sampler keeps the original train/sample probe; train_only_utilization isolates GPU-side training",
+        help=(
+            "sampler keeps the original train/sample probe; train_only_utilization isolates GPU-side training; "
+            "sample_export_split exports unscored model samples after CUDA training"
+        ),
     )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
@@ -785,6 +946,12 @@ def main() -> int:
     if torch_parsed.get("cuda_available"):
         if args.probe_mode == PROBE_MODE_TRAIN_ONLY:
             command_config = build_train_only_utilization_command(
+                python_executable=args.python_executable,
+                output_dir=args.output_dir,
+                run_id=run_id,
+            )
+        elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT:
+            command_config = build_sample_export_split_command(
                 python_executable=args.python_executable,
                 output_dir=args.output_dir,
                 run_id=run_id,

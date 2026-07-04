@@ -3,11 +3,13 @@ import json
 from scripts.igp24_gpu_sampler_probe import (
     build_recommendation,
     build_sampler_command,
+    build_sample_export_split_command,
     build_train_only_utilization_command,
     load_baseline_summary,
     parse_gpu_utilization_sample,
     parse_sample_sections,
     parse_train_log,
+    summarize_sample_export,
     summarize_model_sample_records,
 )
 
@@ -79,6 +81,23 @@ INFO - Train-only mode. Skipping sampling, scoring, local search, and dataset up
     assert parsed["sample_valid_total"] == 0
 
 
+def test_parse_train_log_detects_sample_export_only():
+    text = """
+INFO - device: cuda
+INFO - ==== Starting Epoch 0 =====
+INFO - Memory allocated: 30.00MB, reserved: 90.00MB
+INFO - step 60 train loss: 1.5 test loss: 1.6
+INFO - Export-only model sampling to /tmp/samples.jsonl
+INFO - Export-only model sampling wrote 16 records to /tmp/samples.jsonl; decoded=12 invalid_decode=4
+"""
+
+    parsed = parse_train_log(text)
+
+    assert parsed["sample_export_only_logged"]
+    assert parsed["sample_requested_total"] == 0
+    assert parsed["sample_valid_total"] == 0
+
+
 def test_summarize_model_sample_records_filters_null_strategy():
     records = [
         {"score": 10.0, "canonical_hash": "a", "generation_metadata": {"strategy": "fixed_sparse_template"}},
@@ -135,6 +154,66 @@ def test_build_train_only_utilization_command_skips_sampling(tmp_path):
     assert all("sair" not in str(part).lower() for part in command)
     assert all("magma" not in str(part).lower() for part in command)
     assert all("pari" not in str(part).lower() for part in command)
+
+
+def test_build_sample_export_split_command_is_export_only(tmp_path):
+    config = build_sample_export_split_command(python_executable="python3", output_dir=tmp_path, run_id="run")
+    command = config["command"]
+
+    assert config["probe_mode"] == "sample_export_split"
+    assert config["post_train_cpu_sampling_scoring_avoided"]
+    assert command[command.index("--cpu") + 1] == "false"
+    assert command[command.index("--sample_export_only") + 1] == "true"
+    assert command[command.index("--num_samples_from_model") + 1] == "256"
+    assert command[command.index("--always_search") + 1] == "false"
+    assert command[command.index("--max_local_search_steps") + 1] == "0"
+    assert "--sample_export_path" in command
+    assert all("sair" not in str(part).lower() for part in command)
+    assert all("magma" not in str(part).lower() for part in command)
+    assert all("pari" not in str(part).lower() for part in command)
+
+
+def test_summarize_sample_export_reads_safety_flags(tmp_path):
+    path = tmp_path / "samples.jsonl"
+    path.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "sample_index": 0,
+                        "decoded": True,
+                        "safety": {
+                            "scored": False,
+                            "local_search_run": False,
+                            "runs_exact_verifiers": False,
+                        },
+                    }
+                ),
+                json.dumps(
+                    {
+                        "sample_index": 1,
+                        "decoded": False,
+                        "safety": {
+                            "scored": False,
+                            "local_search_run": False,
+                            "runs_exact_verifiers": False,
+                        },
+                    }
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    summary = summarize_sample_export(path)
+
+    assert summary["sample_export_records"] == 2
+    assert summary["sample_export_decoded_records"] == 1
+    assert summary["sample_export_invalid_decode_records"] == 1
+    assert summary["sample_export_scoring_avoided"]
+    assert summary["sample_export_local_search_avoided"]
+    assert summary["sample_export_exact_verifiers_avoided"]
 
 
 def test_build_recommendation_advances_only_with_valid_model_samples():
@@ -198,6 +277,37 @@ def test_build_recommendation_for_train_only_utilization():
     assert build_recommendation(base)["action"] == "investigate_gpu_workload_shape_before_gpu_training"
     base["runs"]["gpu_sampler_probe"]["gpu_monitor"]["max_gpu_utilization_percent"] = 25.0
     assert build_recommendation(base)["action"] == "decouple_gpu_training_from_cpu_scoring"
+
+
+def test_build_recommendation_for_sample_export_split():
+    base = {
+        "probe_mode": "sample_export_split",
+        "probes": {"torch_cuda": {"parsed": {"cuda_available": True}}},
+        "runs": {
+            "gpu_sampler_probe": {
+                "probe_mode": "sample_export_split",
+                "returncode": 0,
+                "timed_out": False,
+                "interrupted": False,
+                "gpu_used": True,
+                "post_train_cpu_sampling_scoring_avoided": True,
+                "sample_export_records": 16,
+                "sample_export_decoded_records": 12,
+                "model_sample_ledger_records": 0,
+                "train_log": {
+                    "eval_losses": [
+                        {"step": 60, "train_loss": 2.0, "test_loss": 2.1},
+                        {"step": 120, "train_loss": 1.8, "test_loss": 1.9},
+                    ],
+                    "sample_valid_total": 0,
+                },
+            }
+        },
+    }
+
+    assert build_recommendation(base)["action"] == "consume_exported_samples_with_cpu_proxy_helper"
+    base["runs"]["gpu_sampler_probe"]["sample_export_decoded_records"] = 0
+    assert build_recommendation(base)["action"] == "run_another_short_gpu_probe_with_adjusted_settings"
 
 
 def test_load_baseline_summary_reads_relevant_context(tmp_path):
