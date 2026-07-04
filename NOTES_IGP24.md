@@ -322,13 +322,31 @@ and produced 908 valid proxy-scored records, 115 rejected records, 1022 unique
 canonical hashes, and one duplicate hash record. The combined manifest is
 `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_manifest.json`.
 
-This is meaningful progress: GPU sampling is no longer blocked by CPU scoring,
-the full short handoff has one-file auditability, and all decoded export rows
-can be consumed in a separate CPU proxy phase. A later bounded 30-60 minute GPU
-run is now reasonable only as an export-only sampler run with the same manifest
-discipline and a separate CPU score/review phase. Do not switch back to an
-integrated GPU train/sample/score loop; CPU proxy-search, shortlist export,
-and exact-tool prep remain the primary pipeline.
+The first bounded medium split run on 2026-07-04 used
+`/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704`. The first
+attempt was interrupted after 153.1 seconds because the initial CPU seed set
+was too large and delayed the GPU training phase. After retuning the initial
+CPU seed scale back to `gensize=512`, `pop_size=384`, `ntest=16`, and
+`gen_batch_size=64`, the GPU export phase returned 0 with no timeout in
+1300.8 seconds, logged `device: cuda`, reached max monitored GPU utilization
+99.0% with average utilization 96.0%, used up to 10141 MiB of monitored GPU
+memory, wrote 8192 export rows, and decoded all 8192. The CPU proxy phase used
+`--score_all true`, recorded `selection_mode=all_explicit`, scored all 8192
+rows in 264.6 seconds with local search disabled, and produced 8188 valid
+proxy-scored records, 4 rejected records, 384 unique canonical hashes, and
+7808 duplicate hash records. The combined manifest is
+`/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/split_workflow_manifest.json`.
+
+This is meaningful progress with one important warning. GPU sampling is no
+longer blocked by CPU scoring, the medium handoff has one-file auditability,
+and the RTX 5090 was genuinely loaded during export-only training/sampling.
+However, the fixed-template medium sample collapsed to only 384 unique
+canonical hashes out of 8192 scored rows. The next GPU task should improve
+sample diversity before running longer jobs, for example by changing the
+export sampler mix, temperature/top-k, dedup-aware export caps, or multi-seed
+medium batches. Do not switch back to an integrated GPU train/sample/score
+loop; CPU proxy-search, shortlist export, and exact-tool prep remain the
+primary pipeline.
 
 ## Why Random Polynomials Are Limited
 

@@ -9,9 +9,11 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  score-all split handoff validation.
-- Active focus: add and run a bounded medium GPU export-only split workflow,
-  keeping CPU scoring/review separate and auditable. Keep CPU proxy-search,
+  medium export-only split workflow work.
+- Active focus: finish verification, documentation, commit, and push for the
+  bounded medium GPU export-only split workflow. The medium GPU phase loaded
+  the RTX 5090 well, but CPU scoring showed weak sample diversity, so the next
+  GPU step should improve diversity before longer runs. Keep CPU proxy-search,
   shortlist export, and exact-tool prep primary. This remains proxy-only: no
   exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
   auto-submission behavior.
@@ -475,11 +477,29 @@ results change.
       `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_sampler_probe_summary.json`,
       and
       `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_sampler_probe_report.md`.
-  - [in_progress] Score all decoded rows if runtime is reasonable; otherwise
+  - [done] Score all decoded rows if runtime is reasonable; otherwise
     score a clearly documented capped CPU subset, with local search disabled.
-  - [pending] Update README, NOTES, and TODO with exact commands, artifact
+    - Command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_model_sample_export_medium.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - Result: return code 0, runtime 264.635s,
+      `selection_mode=all_explicit`, 8192 rows read/selected, 8192
+      decoded/scored, 0 skipped decode, 8188 valid proxy-scored, 4 rejected,
+      384 unique canonical hashes, 7808 duplicate hash records, local search
+      disabled.
+    - Artifacts:
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/score_summary.json`,
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/scored_samples.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/split_workflow_manifest.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/split_workflow_report.md`.
+  - [done] Update README, NOTES, and TODO with exact commands, artifact
     paths, counts, comparison against the prior short score-all handoff, and
     recommendation.
+    - Result: the docs now record that the medium run fixed GPU utilization
+      but exposed duplicate-heavy sampling. Recommendation: improve export
+      diversity before longer GPU runs; do not return to integrated GPU
+      train/sample/score, and keep CPU proxy-search plus exact-tool prep
+      primary.
 
 ## Tests And Checks
 
@@ -557,6 +577,14 @@ results change.
     99.0%, average monitored GPU utilization 95.977%, max monitored GPU
     memory 10141 MiB, and 8192 decoded unscored export rows. GPU-side CPU
     scoring/local search/dataset update was avoided.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_model_sample_export_medium.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: completed in 264.635s with return code 0,
+    `selection_mode=all_explicit`, 8192 rows read/selected, 8192
+    decoded/scored, 8188 valid, 4 rejected, 384 unique canonical hashes,
+    7808 duplicate hash records, local search disabled, and split
+    manifest/report written under
+    `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all`.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression

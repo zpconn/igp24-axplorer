@@ -204,9 +204,42 @@ hash record. The combined manifest is at:
 /tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_manifest.json
 ```
 
-Recommendation: a later bounded 30-60 minute GPU run is now reasonable only as
-an export-only sampler run with the same manifest discipline and a separate CPU
-score/review phase. Do not switch back to an integrated GPU train/sample/score
+The first bounded medium split run on 2026-07-04 used the same export-only
+discipline:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_medium \
+  --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704 \
+  --timeout_seconds 3600 \
+  --monitor_interval_seconds 5
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_model_sample_export_medium.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+That run completed the GPU phase in 1300.8s with `device: cuda`, no timeout,
+max monitored GPU utilization 99.0%, average utilization 96.0%, max monitored
+GPU memory 10141 MiB, 8192 exported rows, and 8192 decoded rows. The CPU phase
+used `selection_mode=all_explicit`, scored all 8192 rows in 264.6s, and found
+8188 valid proxy-scored records, 4 rejected records, 384 unique canonical
+hashes, and 7808 duplicate hash records. The combined manifest is at:
+
+```text
+/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/split_workflow_manifest.json
+```
+
+Recommendation: the GPU path is now genuinely loading the RTX 5090 when run as
+export-only training/sampling. The next GPU work should improve sample
+diversity before longer runs, because this fixed-template medium run was
+duplicate-heavy. Do not switch back to an integrated GPU train/sample/score
 loop; keep CPU proxy-search, shortlist export, and exact-tool prep as the main
 pipeline.
 
