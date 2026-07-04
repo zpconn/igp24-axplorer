@@ -9,10 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  benchmark-only dual-family r4 mix work.
-- Active focus: benchmark-only dual-family r4 mix comparison is complete.
-  `mix_r4_dual_quality` is the strongest bounded-run tradeoff, but
-  `preset_r4` remains unchanged pending larger confirmation.
+  larger `mix_r4_dual_quality` confirmation work.
+- Active focus: run a larger CPU-only `target_r=4` confirmation benchmark to
+  decide whether `preset_r4` should retune to the dual-quality mix.
 
 ## Stage 0: Scaffold
 
@@ -131,6 +130,9 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before larger `mix_r4_dual_quality`
+    confirmation work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before benchmark-only dual-family r4 mix work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -848,6 +850,16 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Confirm whether `preset_r4` should retune to
+  `mix_r4_dual_quality`.
+  - [pending] Run a larger 12-seed CPU-only `target_r=4` confirmation across
+    `preset_r4`, `four_real_seed`, `quartic_lift`, and dual r4 mix labels.
+  - [pending] Audit return codes, metadata completeness, expected row count,
+    and mix metadata in ledgers.
+  - [pending] Decide whether `mix_r4_dual_quality` clearly beats current
+    `preset_r4` on match rate and average score metrics.
+  - [pending] If evidence is strong, retune `preset_r4`; otherwise document why
+    it remains unchanged.
 - [done] Test benchmark-only r4 dual-family mixes.
   - [done] Add helper-only labels combining `four_real_seed`,
     `quartic_lift`, and optional sparse diversity.
