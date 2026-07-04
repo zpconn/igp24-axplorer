@@ -8,7 +8,8 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
-- Last pull: 2026-07-03, `git pull --ff-only` -> already up to date.
+- Last pull: 2026-07-04, `git pull --ff-only` -> fast-forwarded README update
+  from `f60e285` to `9b00f3d`.
 - Active focus: move from stage-0 scaffold toward a practical stage-1 candidate
   generation workflow.
 
@@ -35,8 +36,13 @@ results change.
 - [done] Make generation strategy configurable from the CLI with
   `--igp24_generation_strategy`.
 - [done] Record generation strategy in candidate metadata and ledger records.
-- [pending] Compare strategy yield and score quality across short benchmark
+- [done] Compare strategy yield and score quality across short benchmark
   runs.
+- [done] Seed NumPy from `--seed` in the IGP24 environment so short
+  process-pool-off benchmarks are reproducible.
+- [done] Adjust default `mixed` weights conservatively toward the stronger
+  small-sample strategies:
+  `uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25`.
 
 ## Stage 1: Scoring And Metadata
 
@@ -62,25 +68,26 @@ results change.
 - [done] Run a small reproducible CPU-only generation smoke.
 - [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
-- [in progress] Add a reusable per-strategy benchmark helper.
+- [done] Add a reusable per-strategy benchmark helper.
   - [done] Add `scripts/igp24_benchmark.py` to run short CPU-only `train.py`
     jobs and summarize JSONL ledgers.
   - [done] Add fast tests for benchmark summary aggregation.
   - [done] Verify helper CLI with `--help`.
-  - [pending] Run the helper across all generation strategies.
+  - [done] Run the helper across all generation strategies.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 13 passed in 1.04s after adding benchmark helper tests.
-- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests`.
+  - Latest result: 16 passed in 0.68s after benchmark helper, valid-count
+    parser, mixed-weight, and seed-reset tests.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
   - Latest result: passed with `scripts` included.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
   - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
-  - Result: blocked because `python` is not on PATH in this shell.
+  - Latest result: blocked because `python` is not on PATH in this shell.
 - [done] If local dependency issues block the literal command, record the
   exact blocker and run the closest available equivalent.
 
@@ -89,11 +96,28 @@ results change.
 - 2026-07-04: `git pull --ff-only`
   - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
-  - Result: 13 passed in 1.04s.
+  - Result: 13 passed in 1.04s for the initial benchmark helper.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
   - Result: passed.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; printed benchmark helper usage.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies uniform,low_height,sparse,lower_degree,structured,mixed --seeds 101,102 --coeff_bound 4 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 3 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_strategy_bench_final`
+  - Result: passed; 12 short CPU-only runs completed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 16 passed in 0.64s after valid-count parser, mixed weights, and
+    seed-reset fixes.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after valid-count parser, mixed weights, and seed-reset
+    fixes.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 16 passed in 0.68s on final check.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed on final check.
 - 2026-07-03: `git pull --ff-only`
   - Result: already up to date.
 - 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
@@ -136,6 +160,45 @@ results change.
 - Local search telemetry: 12 ledger records included nonzero attempted move
   counts.
 
+### 2026-07-04 Per-Strategy CPU Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_strategy_bench_final`.
+- Summary files:
+  - `/tmp/igp24_strategy_bench_final/summary.json`
+  - `/tmp/igp24_strategy_bench_final/summary.jsonl`
+- Configuration:
+  - Strategies: `uniform`, `low_height`, `sparse`, `lower_degree`,
+    `structured`, `mixed`.
+  - Seeds: `101`, `102`.
+  - `coeff_bound=4`, `gensize=12`, `max_local_search_steps=3`,
+    `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- All 12 runs returned code 0.
+- All summary records included parsed valid-candidate counts and complete
+  score/generation/local-search metadata.
+
+| Strategy | Runs | Avg Runtime | Valid Total | Ledger Records | Avg Best | Avg Mean | Best | Local Acceptance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `uniform` | 2 | 5.08s | 24 | 44 | 9929.100 | 9909.405 | 9933.489 | 0.507 |
+| `low_height` | 2 | 4.73s | 24 | 45 | 9950.229 | 9932.816 | 9950.780 | 0.507 |
+| `sparse` | 2 | 2.74s | 24 | 40 | 9957.878 | 9933.097 | 9971.765 | 0.486 |
+| `lower_degree` | 2 | 3.24s | 24 | 43 | 9945.981 | 9932.596 | 9947.996 | 0.478 |
+| `structured` | 2 | 2.60s | 23 | 39 | 9963.893 | 9944.075 | 9966.440 | 0.530 |
+| `mixed` | 2 | 3.58s | 24 | 45 | 9959.846 | 9925.957 | 9960.447 | 0.493 |
+
+Interpretation:
+
+- `structured` had the strongest average mean score and the fastest
+  high-scoring runs in this tiny comparison.
+- `sparse` found the best single candidate and was also fast.
+- `uniform` was slowest and lowest-scoring here.
+- `mixed` remained viable but diluted the strongest strategies; default mixed
+  weights now lean toward `sparse` and `structured` while preserving all
+  strategies for diversity.
+- These are small proxy-scoring runs only; do not overfit without larger runs
+  and later exact verification.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -144,6 +207,11 @@ results change.
 - Current shell still lacks a `python` executable; use `python3` with
   `PYTHONPATH=/tmp/igp24_pydeps` for local checks unless a proper environment is
   activated.
+- Benchmark helper initially parsed valid candidates from stdout only, but
+  Axplorer logging writes the count to stderr. Fixed by parsing combined
+  stdout/stderr.
+- Initial benchmark attempts showed that fixed `--seed` did not control NumPy
+  generation. Fixed by seeding NumPy in `IGP24Environment`.
 
 ## Future Stages
 
@@ -182,4 +250,6 @@ down further as they become active.
 - [done] Add score component metadata to ledger records.
 - [done] Add local-search stats metadata and tests.
 - [done] Run and document a short CPU-only generation benchmark.
-- [pending] Run per-strategy comparisons with equal `gensize` and fixed seeds.
+- [done] Run per-strategy comparisons with equal `gensize` and fixed seeds.
+- [pending] Run larger per-strategy comparisons, including target real-root
+  counts, before further tuning defaults.

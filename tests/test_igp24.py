@@ -6,7 +6,7 @@ import pytest
 sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
-from src.envs.igp24 import IGP24DataPoint
+from src.envs.igp24 import IGP24DataPoint, format_mixed_strategy_weights, parse_mixed_strategy_weights
 from src.igp24.ledger import CandidateLedger
 from src.igp24.polynomial import (
     DEGREE,
@@ -132,6 +132,7 @@ def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
         igp24_generation_strategy="mixed",
         igp24_sparse_terms=4,
         igp24_low_height_bound=3,
+        igp24_mixed_strategy_weights="uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25",
         exp_name="pytest",
         seed=123,
     )
@@ -141,6 +142,41 @@ def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
     decoded = env.tokenizer.decode(encoded)
     assert decoded is not None
     assert decoded.coefficients == VALID
+
+
+def _igp24_params(tmp_path, seed=123, strategy="mixed"):
+    return SimpleNamespace(
+        env_name="igp24",
+        N=DEGREE,
+        encoding_tokens="coefficients",
+        coeff_bound=5,
+        target_r=2,
+        target_t="24T1",
+        prime_limit=7,
+        max_local_search_steps=3,
+        discriminant_weight=1.0,
+        height_weight=1.0,
+        cycle_diversity_weight=5.0,
+        exact_score_timeout=0.0,
+        igp24_ledger_path=str(tmp_path / f"ledger_{seed}_{strategy}.jsonl"),
+        igp24_write_ledger=False,
+        igp24_translation_radius=2,
+        igp24_generation_strategy=strategy,
+        igp24_sparse_terms=4,
+        igp24_low_height_bound=3,
+        igp24_mixed_strategy_weights="uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25",
+        exp_name="pytest",
+        seed=seed,
+    )
+
+
+def test_environment_seed_resets_generation(tmp_path):
+    build_env(_igp24_params(tmp_path, seed=777, strategy="lower_degree"))
+    first = IGP24DataPoint._generate_coefficients()
+    build_env(_igp24_params(tmp_path, seed=777, strategy="lower_degree"))
+    second = IGP24DataPoint._generate_coefficients()
+
+    assert first == second
 
 
 def test_generation_strategies_are_bounded_and_metadata_is_set():
@@ -161,6 +197,21 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
         if strategy in {"low_height", "structured"}:
             non_constant = [abs(c) for c in coeffs[1:] if c != 0]
             assert all(c <= IGP24DataPoint.LOW_HEIGHT_BOUND for c in non_constant)
+
+
+def test_mixed_strategy_weights_are_normalized_and_selectable():
+    weights = parse_mixed_strategy_weights("uniform:1,structured:3")
+    assert weights["uniform"] == 0.25
+    assert weights["structured"] == 0.75
+    assert weights["sparse"] == 0.0
+    assert "structured:0.7500" in format_mixed_strategy_weights(weights)
+
+    IGP24DataPoint.GENERATION_STRATEGY = "mixed"
+    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("structured:1")
+    np.random.seed(100)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    assert observed == "structured"
+    assert len(coeffs) == DEGREE
 
 
 def test_local_search_determinism_under_fixed_seed(tmp_path):
@@ -184,6 +235,7 @@ def test_local_search_determinism_under_fixed_seed(tmp_path):
             "GENERATION_STRATEGY": "mixed",
             "SPARSE_TERMS": 4,
             "LOW_HEIGHT_BOUND": 3,
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25"),
             "ALWAYS_SEARCH": False,
             "REDEEM_ONLY": False,
         }
@@ -223,6 +275,7 @@ def test_ledger_records_generation_and_local_search_metadata(tmp_path):
             "GENERATION_STRATEGY": "structured",
             "SPARSE_TERMS": 4,
             "LOW_HEIGHT_BOUND": 2,
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25"),
             "ALWAYS_SEARCH": False,
             "REDEEM_ONLY": False,
         }
@@ -234,6 +287,7 @@ def test_ledger_records_generation_and_local_search_metadata(tmp_path):
     assert records
     latest = records[-1]
     assert latest["generation_metadata"]["strategy"] == "structured"
+    assert "mixed_strategy_weights" in latest["generation_metadata"]
     assert latest["local_search_metadata"]["max_steps"] == 2
     assert "score_components" in latest
 

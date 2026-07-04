@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import shutil
 import statistics
 import subprocess
 import sys
@@ -77,6 +79,13 @@ def summarize_records(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def parse_valid_examples(output: str) -> int | None:
+    matches = re.findall(r"Valid examples:\s*(\d+)", output)
+    if not matches:
+        return None
+    return int(matches[-1])
+
+
 def run_one(args: argparse.Namespace, strategy: str, seed: int) -> dict[str, Any]:
     run_name = f"{strategy}_seed_{seed}"
     run_dir = args.output_dir / run_name
@@ -85,6 +94,8 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int) -> dict[str, Any
     run_dir.mkdir(parents=True, exist_ok=True)
     if ledger_path.exists():
         ledger_path.unlink()
+    if dump_path.exists():
+        shutil.rmtree(dump_path)
 
     cmd = [
         sys.executable,
@@ -129,6 +140,8 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int) -> dict[str, Any
         str(args.sparse_terms),
         "--igp24_low_height_bound",
         str(args.low_height_bound),
+        "--igp24_mixed_strategy_weights",
+        args.mixed_strategy_weights,
         "--igp24_ledger_path",
         str(ledger_path),
     ]
@@ -146,6 +159,7 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int) -> dict[str, Any
         "local_search_steps": args.max_local_search_steps,
         "runtime_seconds": elapsed,
         "returncode": completed.returncode,
+        "valid_candidates": parse_valid_examples(completed.stdout + "\n" + completed.stderr),
         "ledger_path": str(ledger_path),
         "command": cmd,
         "stdout_tail": completed.stdout.splitlines()[-20:],
@@ -167,7 +181,7 @@ def write_outputs(results: list[dict[str, Any]], output_dir: Path) -> None:
 
 
 def print_table(results: list[dict[str, Any]]) -> None:
-    print("strategy\tseed\treturncode\truntime_s\tledger_records\tbest_score\tmean_score\tlocal_acceptance")
+    print("strategy\tseed\treturncode\truntime_s\tvalid_candidates\tledger_records\tbest_score\tmean_score\tlocal_acceptance")
     for result in results:
         attempted = int(result.get("local_search_attempted") or 0)
         accepted = int(result.get("local_search_accepted") or 0)
@@ -178,7 +192,7 @@ def print_table(results: list[dict[str, Any]]) -> None:
         mean_score_text = f"{mean_score:.6f}" if mean_score is not None else "NA"
         print(
             f"{result['strategy']}\t{result['seed']}\t{result['returncode']}\t"
-            f"{result['runtime_seconds']:.2f}\t{result['ledger_records']}\t"
+            f"{result['runtime_seconds']:.2f}\t{result.get('valid_candidates')}\t{result['ledger_records']}\t"
             f"{best_score_text}\t"
             f"{mean_score_text}\t"
             f"{acceptance:.3f}"
@@ -199,6 +213,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--exact_score_timeout", type=float, default=3.0)
     parser.add_argument("--sparse_terms", type=int, default=4)
     parser.add_argument("--low_height_bound", type=int, default=2)
+    parser.add_argument(
+        "--mixed_strategy_weights",
+        default="uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25",
+        help="Comma-separated name:weight entries forwarded to mixed generation runs",
+    )
     parser.add_argument("--always_search", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--repo_root", type=Path, default=Path(__file__).resolve().parents[1])

@@ -22,6 +22,48 @@ from src.utils import bool_flag
 
 logger = logging.getLogger(__name__)
 
+IGP24_GENERATION_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured"]
+DEFAULT_MIXED_STRATEGY_WEIGHTS = {
+    "uniform": 0.10,
+    "low_height": 0.20,
+    "sparse": 0.25,
+    "lower_degree": 0.20,
+    "structured": 0.25,
+}
+
+
+def parse_mixed_strategy_weights(value):
+    if isinstance(value, dict):
+        weights = {str(key): float(weight) for key, weight in value.items()}
+    else:
+        weights = {}
+        for item in str(value).split(","):
+            item = item.strip()
+            if not item:
+                continue
+            if ":" not in item:
+                raise ValueError("mixed strategy weights must use name:weight entries")
+            name, weight = item.split(":", 1)
+            weights[name.strip()] = float(weight)
+
+    unknown = set(weights) - set(IGP24_GENERATION_STRATEGIES)
+    if unknown:
+        raise ValueError(f"unknown mixed strategy weight keys: {sorted(unknown)}")
+    if not weights:
+        raise ValueError("at least one mixed strategy weight is required")
+    if any(weight < 0 for weight in weights.values()):
+        raise ValueError("mixed strategy weights must be nonnegative")
+    total = sum(weights.values())
+    if total <= 0:
+        raise ValueError("mixed strategy weights must have positive total weight")
+
+    normalized = {name: weights.get(name, 0.0) / total for name in IGP24_GENERATION_STRATEGIES}
+    return normalized
+
+
+def format_mixed_strategy_weights(weights):
+    return ",".join(f"{name}:{weights[name]:.4f}" for name in IGP24_GENERATION_STRATEGIES)
+
 
 class IGP24CoefficientTokenizer(Tokenizer):
     """Fixed-length signed coefficient tokenizer using coeff + coeff_bound."""
@@ -96,6 +138,7 @@ class IGP24DataPoint(DataPoint):
     GENERATION_STRATEGY = "mixed"
     SPARSE_TERMS = 4
     LOW_HEIGHT_BOUND = 3
+    MIXED_STRATEGY_WEIGHTS = DEFAULT_MIXED_STRATEGY_WEIGHTS.copy()
 
     def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None):
         super().__init__()
@@ -177,7 +220,9 @@ class IGP24DataPoint(DataPoint):
         strategy = cls.GENERATION_STRATEGY
         if strategy != "mixed":
             return strategy
-        return str(np.random.choice(["uniform", "low_height", "sparse", "lower_degree", "structured"], p=[0.2, 0.25, 0.2, 0.2, 0.15]))
+        weights = parse_mixed_strategy_weights(cls.MIXED_STRATEGY_WEIGHTS)
+        probabilities = [weights[name] for name in IGP24_GENERATION_STRATEGIES]
+        return str(np.random.choice(IGP24_GENERATION_STRATEGIES, p=probabilities))
 
     @classmethod
     def _generate_coefficients(cls):
@@ -259,6 +304,7 @@ class IGP24DataPoint(DataPoint):
                 "coeff_bound": self.COEFF_BOUND,
                 "sparse_terms": self.SPARSE_TERMS,
                 "low_height_bound": self.LOW_HEIGHT_BOUND,
+                "mixed_strategy_weights": dict(self.MIXED_STRATEGY_WEIGHTS),
             },
             local_search_metadata=self.local_search_stats,
         )
@@ -461,6 +507,7 @@ class IGP24DataPoint(DataPoint):
             "GENERATION_STRATEGY": cls.GENERATION_STRATEGY,
             "SPARSE_TERMS": cls.SPARSE_TERMS,
             "LOW_HEIGHT_BOUND": cls.LOW_HEIGHT_BOUND,
+            "MIXED_STRATEGY_WEIGHTS": dict(cls.MIXED_STRATEGY_WEIGHTS),
         }
 
 
@@ -487,6 +534,8 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.WRITE_LEDGER = bool(params.igp24_write_ledger)
         self.data_class.EXPERIMENT_NAME = params.exp_name
         self.data_class.SEED = int(params.seed)
+        if int(params.seed) >= 0:
+            np.random.seed(int(params.seed))
         self.data_class.TRANSLATION_RADIUS = int(params.igp24_translation_radius)
         self.data_class.KNOWN_HASHES = CandidateLedger(params.igp24_ledger_path).hashes if params.igp24_ledger_path else set()
         self.data_class.ALWAYS_SEARCH = bool(getattr(params, "always_search", False))
@@ -494,6 +543,7 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.GENERATION_STRATEGY = params.igp24_generation_strategy
         self.data_class.SPARSE_TERMS = int(params.igp24_sparse_terms)
         self.data_class.LOW_HEIGHT_BOUND = int(params.igp24_low_height_bound)
+        self.data_class.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights(params.igp24_mixed_strategy_weights)
 
         self.tokenizer = IGP24CoefficientTokenizer(self.data_class, params.coeff_bound, self.SPECIAL_SYMBOLS)
 
@@ -522,3 +572,9 @@ class IGP24Environment(BaseEnvironment):
         )
         parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")
         parser.add_argument("--igp24_low_height_bound", type=int, default=3, help="Inner coefficient bound for low-height and structured generation")
+        parser.add_argument(
+            "--igp24_mixed_strategy_weights",
+            type=str,
+            default=format_mixed_strategy_weights(DEFAULT_MIXED_STRATEGY_WEIGHTS),
+            help="Comma-separated name:weight entries used when --igp24_generation_strategy mixed",
+        )

@@ -78,6 +78,25 @@ These are still candidate-generation heuristics, not structured Galois-family
 certificates. Their job is to produce a more varied stream for exact SymPy
 prefilters, proxy scoring, and later external verification.
 
+The stage-1 benchmark helper runs short CPU-only `train.py` generation jobs and
+summarizes JSONL ledger records. IGP24 now seeds NumPy from `--seed` during
+environment setup so process-pool-off generation benchmarks are reproducible.
+
+A short benchmark with seeds `101,102`, `coeff_bound=4`, `gensize=12`, and
+`max_local_search_steps=3` found that `structured` and `sparse` were the
+strongest small-sample strategies: `structured` had the best average mean score
+and fastest high-scoring runs, while `sparse` found the best single candidate.
+Uniform generation was slowest and lowest-scoring. As a conservative default,
+the `mixed` strategy now weights sparse and structured generation more heavily
+than uniform generation, while keeping all strategies active:
+
+```text
+uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
+```
+
+This weighting is a stage-1 heuristic only. It should be revisited after larger
+benchmarks and, later, exact external verification.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

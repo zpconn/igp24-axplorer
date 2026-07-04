@@ -1,6 +1,6 @@
 import json
 
-from scripts.igp24_benchmark import read_jsonl, summarize_records
+from scripts.igp24_benchmark import parse_valid_examples, read_jsonl, summarize_records
 
 
 def test_summarize_records_aggregates_scores_and_metadata():
@@ -49,3 +49,10 @@ def test_read_jsonl_skips_blank_lines(tmp_path):
 
     assert read_jsonl(path) == [{"score": 1}, {"score": 2}]
     assert read_jsonl(tmp_path / "missing.jsonl") == []
+
+
+def test_parse_valid_examples_uses_last_reported_count():
+    output = "INFO - Valid examples: 3\nINFO - Valid examples: 12\n"
+
+    assert parse_valid_examples(output) == 12
+    assert parse_valid_examples("no stats here") is None

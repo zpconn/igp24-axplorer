@@ -76,6 +76,7 @@ Useful IGP24-specific generation flags:
 --igp24_generation_strategy mixed
 --igp24_sparse_terms 4
 --igp24_low_height_bound 3
+--igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
 ```
 
 `--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
@@ -99,6 +100,30 @@ data/igp24/candidates.jsonl
 Each ledger record includes exported coefficients, polynomial metadata, score
 components, generation metadata, local-search metadata, and verification status.
 Records remain proxy-scored unless an external verifier is used later.
+
+## Compare Generation Strategies
+
+Use the benchmark helper for short, reproducible CPU-only comparisons:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
+  --strategies uniform,low_height,sparse,lower_degree,structured,mixed \
+  --seeds 101,102 \
+  --coeff_bound 4 \
+  --gensize 12 \
+  --pop_size 6 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 3 \
+  --prime_limit 11 \
+  --exact_score_timeout 3 \
+  --output_dir /tmp/igp24_strategy_bench
+```
+
+The helper runs `train.py`, writes per-run ledgers under the output directory,
+and produces `summary.json` plus `summary.jsonl` with valid-candidate counts,
+ledger counts, scores, runtimes, strategy mix, and local-search acceptance
+statistics.
 
 ## Recent Smoke Result
 
