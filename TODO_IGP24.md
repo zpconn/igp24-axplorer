@@ -9,15 +9,15 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  multi-seed fixed-template GPU export scale-up work.
-- Active focus: multi-seed fixed-template GPU export scale-up is complete and
-  final commit/push is in progress. Three short export-only CUDA seeds added
-  fresh cross-seed hashes with zero pairwise overlap, but per-seed diversity
-  was unstable. Improve per-run diversity or add dedup-aware export controls
-  before any longer fixed-template GPU export. Keep CPU proxy-search,
-  shortlist export, and exact-tool prep primary. This remains proxy-only: no
-  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
-  auto-submission behavior.
+  per-run GPU export diversity diagnostic work.
+- Active focus: diagnosing and improving per-run fixed-template GPU export
+  diversity before any longer fixed-template GPU export. The current plan is
+  to add a raw export diversity diagnostic, compare the clean seed `2201`
+  against duplicate-heavy seeds `2301`-`2303`, then run two short opt-in
+  fixed-template entropy interventions against the known duplicate-heavy
+  behavior. Keep CPU proxy-search, shortlist export, and exact-tool prep
+  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
+  execution, no SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -750,7 +750,58 @@ results change.
       - Literal `python -m pytest` remains blocked with `/bin/bash: line 1:
         python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
-    - [in_progress] Commit and push final docs/results state.
+    - [done] Commit and push final docs/results state.
+      - Result: pushed commits through `63c357f` to `igp24-dev`.
+  - [in_progress] Diagnose and improve per-run fixed-template export
+    diversity before any longer fixed-template GPU run.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, GPU probe/export helpers,
+      score/merge helpers, `train.py`, `src/evaluator.py`, polynomial
+      canonicalization, and relevant tests.
+      - Result: export JSONL rows already contain sample index, batch index,
+        batch row, token IDs, decoded coefficients, temperature, top-k,
+        device, strategy metadata, and safety flags. A post-export diagnostic
+        helper is the smallest useful first mechanism because it can report
+        exact coefficient and translation-canonical duplicate trajectories
+        before CPU scoring without changing normal `train.py` defaults.
+    - [done] Add a proxy-only raw export diversity diagnostic helper
+      and focused tests.
+      - Result: added `scripts/igp24_export_diversity_diagnostic.py`, which
+        reads one or more raw sample-export JSONLs and reports decoded/invalid
+        counts, exact coefficient uniqueness, translation-canonical hash
+        uniqueness, token-sequence uniqueness, top duplicate groups,
+        per-batch summaries, and checkpoint trajectories. It is diagnostic
+        only: no scoring, no local search, no exact verifier execution, no
+        SAIR/network calls, and no submission behavior.
+    - [done] Add two opt-in fixed-template entropy variants to compare
+      against the current `fixed_template_t09_top9` behavior.
+      - Result: added `fixed_template_t10_top32` and
+        `fixed_template_t11_open_topk` to the opt-in
+        `sample_export_split_diversity` helper. Both preserve export-only
+        GPU behavior and use `fixed_sparse_template`; normal `train.py`
+        defaults and existing variants are unchanged.
+    - [done] Run focused tests, compile, help, and import checks before the
+      first periodic commit.
+      - Result: focused tests passed with 35 passed in 1.21s; compileall
+        passed for the edited helper/test files; diagnostic helper `--help`
+        passed; GPU probe `--help` shows the new variants; import check
+        passed for the diagnostic helper and variant registry.
+    - [pending] Run diagnostics on existing seed `2201` and seeds
+      `2301`-`2303` to investigate why per-run diversity differed.
+    - [pending] Run two short export-only GPU intervention probes, each
+      shorter than a 30-60m run and with CPU scoring/local search avoided
+      during the GPU phase.
+    - [pending] Score only the necessary intervention exports on the CPU
+      proxy path with `--score_all true`, `--local_search false`, and
+      `--max_local_search_steps 0`.
+    - [pending] Compare diagnostics and CPU dedup results against the
+      duplicate-heavy fixed-template seeds and produce the next
+      recommendation.
+    - [pending] Update README, NOTES, and TODO with commands, artifacts,
+      metrics, interpretation, and next action.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
@@ -793,6 +844,9 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before per-run GPU export diversity
+    diagnostic work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before multi-seed fixed-template GPU export
     scale-up work.

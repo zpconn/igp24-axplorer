@@ -49,6 +49,18 @@ DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
         "top_k": "9",
         "generation_strategy": "fixed_sparse_template",
     },
+    "fixed_template_t10_top32": {
+        "seed": "2401",
+        "temperature": "1.0",
+        "top_k": "32",
+        "generation_strategy": "fixed_sparse_template",
+    },
+    "fixed_template_t11_open_topk": {
+        "seed": "2402",
+        "temperature": "1.1",
+        "top_k": "-1",
+        "generation_strategy": "fixed_sparse_template",
+    },
     "mixed_t12_open_topk": {
         "seed": "2202",
         "temperature": "1.2",

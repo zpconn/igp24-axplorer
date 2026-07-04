@@ -221,7 +221,14 @@ def test_build_sample_export_diversity_commands_are_bounded_export_only(tmp_path
         for config in configs
     }
     assert strategies["fixed_template_t09_top9"] == "fixed_sparse_template"
+    assert strategies["fixed_template_t10_top32"] == "fixed_sparse_template"
+    assert strategies["fixed_template_t11_open_topk"] == "fixed_sparse_template"
     assert strategies["mixed_t12_open_topk"] == "mixed"
+    by_variant = {config["diversity_variant"]: config for config in configs}
+    assert by_variant["fixed_template_t10_top32"]["caps"]["temperature"] == 1.0
+    assert by_variant["fixed_template_t10_top32"]["caps"]["top_k"] == 32
+    assert by_variant["fixed_template_t11_open_topk"]["caps"]["temperature"] == 1.1
+    assert by_variant["fixed_template_t11_open_topk"]["caps"]["top_k"] == -1
     for config in configs:
         command = config["command"]
         assert config["probe_mode"] == "sample_export_split_diversity"
