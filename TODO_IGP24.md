@@ -9,13 +9,12 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  train-only GPU utilization diagnosis work.
-- Active focus: finish verification and docs for the train-only GPU
-  utilization diagnosis. Current finding: GPU-sized train-only work can load
-  the RTX 5090, while the earlier mixed sampler probe was likely CPU-bound by
-  scoring/local search. Keep CPU proxy-search, shortlist export, and
-  exact-tool prep primary. Do not start a medium 30-60 minute GPU run until
-  GPU training/sampling is better decoupled from CPU scoring. This remains
+  GPU sample-export decoupling work.
+- Active focus: add the smallest safe opt-in workflow that lets CUDA
+  training/sampling export model candidates without immediately blocking on
+  CPU proxy scoring, local search, or dataset updates. Keep CPU proxy-search,
+  shortlist export, and exact-tool prep primary. Do not start a medium
+  30-60 minute GPU run until the split workflow is smoke-tested. This remains
   proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
   SAIR/network calls, and no auto-submission behavior.
 
@@ -250,6 +249,32 @@ results change.
       the shell has no `python` executable, no active Python/GPU compute
       process remained after the probe, and generated `__pycache__`
       directories were cleaned.
+- [in_progress] Decouple GPU model sampling from CPU proxy scoring/local
+  search.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect `train.py`, `src/trainer.py`, `src/evaluator.py`,
+    `src/datasets.py`, `scripts/igp24_gpu_sampler_probe.py`, README, NOTES,
+    TODO, and relevant tests.
+    - Result: `sample_and_score` currently generates token sequences on the
+      selected device, then immediately sends them into detokenization,
+      proxy scoring, optional local search, and dataset update work. The IGP24
+      tokenizer can decode raw token sequences into coefficient vectors
+      without scoring, so an export-only sampler can split model generation
+      from CPU scoring without changing normal defaults.
+  - [pending] Add an opt-in export-only model-sampling path that writes raw
+    token sequences and decoded coefficient vectors without scoring, local
+    search, exact verification, dataset update, network calls, or submission.
+  - [pending] Add a small CPU-side import/scoring helper if useful to prove
+    the exported samples can be consumed by the proxy pipeline, with local
+    search explicit and off by default.
+  - [pending] Add focused tests only for export format, command construction,
+    parsing/reporting, and safety flags.
+  - [pending] Run a short capped split-workflow smoke, not a 30-60 minute job,
+    and audit artifact paths, record counts, GPU utilization if practical, and
+    scoring-consumption results.
+  - [pending] Update README, NOTES, and TODO with the decoupling result and
+    whether a later medium GPU run is justified.
 
 ## Tests And Checks
 
