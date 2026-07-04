@@ -1183,8 +1183,12 @@ results change.
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src/evaluator.py scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
         passed.
       - Result: `git diff --check` passed.
-    - [pending] Update README, NOTES, and TODO with CLI usage and
+    - [done] Update README, NOTES, and TODO with CLI usage and
       interpretation.
+      - Result: README and NOTES now document
+        `--probe_mode sample_export_split_dedup`, the new `train.py` export
+        flags, the sidecar `EXPORT.jsonl.summary.json`, and the key summary
+        fields for interpreting duplicate avoidance.
     - [pending] Run a short bounded GPU export-only smoke with the new mode,
       raw export diagnostics immediately afterward, and bounded CPU scoring
       only if diagnostics justify it.

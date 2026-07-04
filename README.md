@@ -466,6 +466,48 @@ stable enough across fresh seeds. The best next code change is a dedup-aware
 export cap/stop policy or live uniqueness monitor, since duplicate collapse is
 visible before CPU scoring.
 
+The dedup-aware export control is now available as an opt-in mode. Defaults are
+unchanged. When enabled, the export path tracks decoded coefficient tuples,
+writes only first-seen decoded tuples, skips repeated decoded tuples, and stops
+when either the unique target or attempt budget is reached. It still does not
+score candidates, run local search, call exact verifiers, call SAIR/network
+APIs, or submit anything.
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_dedup \
+  --diversity_variant fixed_template_t11_open_topk \
+  --diversity_seed 2401 \
+  --dedup_unique_target 512 \
+  --dedup_max_attempts 2048 \
+  --dedup_progress_interval 128 \
+  --output_dir /tmp/igp24_gpu_dedup_export_20260704/seed2401 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+```
+
+The underlying `train.py` flags are:
+
+```text
+--sample_export_dedup true
+--sample_export_unique_target 512
+--sample_export_max_attempts 2048
+--sample_export_progress_interval 128
+```
+
+For a dedup-aware export, inspect both the export JSONL and its sidecar summary:
+
+```text
+EXPORT.jsonl
+EXPORT.jsonl.summary.json
+```
+
+Important summary fields are `attempted_samples`, `records_written`,
+`unique_decoded_coefficients`, `duplicate_decoded_records_skipped`, and
+`stop_reason`. A good short smoke should show `stop_reason=unique_target_reached`
+or a clear `attempt_budget_exhausted` result with fewer duplicate rows written
+than the raw diagnostic would otherwise report.
+
 ## Run A Small Smoke Job
 
 ```bash

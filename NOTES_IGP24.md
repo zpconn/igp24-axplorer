@@ -450,6 +450,27 @@ Do not start a longer fixed-template job yet. The next code step should be a
 dedup-aware export cap/stop policy or live uniqueness monitor, because the
 duplicate collapse is visible before any CPU scoring happens.
 
+That next step is implemented as an opt-in dedup-aware sample export mode.
+Normal `train.py` behavior and ordinary `--sample_export_only` behavior remain
+unchanged unless the new flags are passed. The new controls are
+`--sample_export_dedup`, `--sample_export_unique_target`,
+`--sample_export_max_attempts`, and `--sample_export_progress_interval`. When
+enabled, export keeps a set of raw decoded coefficient tuples, writes only the
+first occurrence of each decoded tuple, skips repeated decoded tuples, and
+records `attempted_samples`, `records_written`, `unique_decoded_coefficients`,
+`duplicate_decoded_records_skipped`, and `stop_reason` in a sidecar
+`EXPORT.jsonl.summary.json`.
+
+The reproducible helper mode is `sample_export_split_dedup`. It reuses the
+bounded export-only CUDA path and accepts the usual `--diversity_variant` and
+`--diversity_seed` controls plus `--dedup_unique_target`,
+`--dedup_max_attempts`, and `--dedup_progress_interval`. The intended first
+smoke is a duplicate-heavy `fixed_template_t11_open_topk` seed with a modest
+unique target, followed immediately by the raw export diversity diagnostic.
+The success condition is not an exact-label claim; it is evidence that the
+export file avoids repeated decoded rows and records a clear stop reason before
+any CPU scoring or local search happens.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
