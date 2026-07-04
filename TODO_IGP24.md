@@ -9,10 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  Stage 2 `target_r=4` structured-family work.
-- Active focus: Stage 2 `quartic_lift` r4 structured-family work is complete.
-  Keep `preset_r4` unchanged until a larger r4 mix comparison justifies
-  retuning.
+  benchmark-only dual-family r4 mix work.
+- Active focus: test benchmark-only r4 mixes that combine `four_real_seed`
+  yield with `quartic_lift` peak proxy quality before changing `preset_r4`.
 
 ## Stage 0: Scaffold
 
@@ -131,6 +130,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before benchmark-only dual-family r4 mix work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before Stage 2 `target_r=4`
     structured-family work.
@@ -756,6 +757,15 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Test benchmark-only r4 dual-family mixes.
+  - [pending] Add helper-only labels combining `four_real_seed`,
+    `quartic_lift`, and optional sparse diversity.
+  - [pending] Add focused benchmark-helper tests for dual-mix label
+    resolution.
+  - [pending] Run a bounded CPU-only `target_r=4` comparison against
+    `four_real_seed`, `quartic_lift`, `preset_r4`, and the dual labels.
+  - [pending] Interpret whether any dual mix improves the current r4
+    yield/quality tradeoff before changing any preset/default.
 - [done] Add a `target_r=4` quartic-lift structured family.
   - [done] Probe bounded quartic-in-`x^6` templates with small perturbations.
   - [done] Implement a distinct `quartic_lift` generation strategy with
