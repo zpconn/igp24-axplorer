@@ -99,9 +99,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 18 passed in 0.70s after larger target-r benchmark work.
+  - Latest result: 18 passed in 0.65s after `four_real_seed` work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after larger target-r benchmark work.
+  - Latest result: passed after `four_real_seed` work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -139,6 +139,16 @@ results change.
   - Result: 123 `four_real_seed` ledger records included
     `target_r_heuristic=4`, the perturbed seed template, and perturbation
     metadata.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 18 passed in 0.65s after `four_real_seed` work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after `four_real_seed` work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed after `four_real_seed` work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger target-r benchmark work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
