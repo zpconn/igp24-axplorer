@@ -10,10 +10,10 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   second r4 preset confirmation work.
-- Active focus: run the second CPU-only `target_r=4` confirmation directly
-  comparing current `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`, and
-  controls on fresh disjoint seeds before deciding whether to retune
-  `preset_r4`.
+- Active focus: second CPU-only `target_r=4` confirmation is complete.
+  Evidence still splits yield, average proxy quality, and peak score, so
+  `preset_r4` remains unchanged pending either higher-budget proxy evidence or
+  exact-verifier export work.
 
 ## Stage 0: Scaffold
 
@@ -137,6 +137,35 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before second r4 preset confirmation work.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies preset_r4,quartic_lift,mix_r4_dual_yield,mix_r4_dual_quality,four_real_seed,mix_r4_dual_balanced --seeds 1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_r4_second_confirm_20260704`
+  - Result: passed; 96 CPU-only `target_r=4` confirmation runs completed in
+    397.34 seconds wall-clock.
+- 2026-07-04: audited
+  `/tmp/igp24_r4_second_confirm_20260704/summary.json`.
+  - Result:
+    `96 True True ['four_real_seed', 'mix_r4_dual_balanced', 'mix_r4_dual_quality', 'mix_r4_dual_yield', 'preset_r4', 'quartic_lift'] [4]`
+    and `1715 2821 1887`.
+- 2026-07-04: audited
+  `/tmp/igp24_r4_second_confirm_20260704/aggregate_summary.json`.
+  - Result: 6 aggregate rows; required aggregate fields for match rate,
+    average best, average mean, best score, and local-search acceptance were
+    present.
+- 2026-07-04: inspected all second-confirmation dual-mix ledgers for mix
+  metadata.
+  - Result: 1,403 dual-label ledger records checked, no mixed-weight metadata
+    mismatches. Observed strategy mix was `dual_yield`: 372
+    `four_real_seed`, 104 `quartic_lift`; `dual_quality`: 325
+    `quartic_lift`, 132 `four_real_seed`; `dual_balanced`: 228
+    `four_real_seed`, 202 `quartic_lift`, 40 `sparse`.
+- 2026-07-04: combined the prior 12-seed confirmation with the fresh 16-seed
+  block for a 28-seed comparison.
+  - Result: `four_real_seed` had the highest combined match rate at 0.702;
+    `mix_r4_dual_quality` had the strongest combined average best score
+    10204.712 and average mean score 10131.587; `quartic_lift` kept the best
+    single proxy score at 10214.148; `mix_r4_dual_yield` remained a middle
+    tradeoff at 0.694 match rate and 10129.761 average mean; `preset_r4`
+    trailed at 0.585 match rate and 10108.354 average mean.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `mix_r4_dual_quality`
     confirmation work.
@@ -926,6 +955,82 @@ Interpretation:
   on a second 12-seed block or add a quartic-heavy preset candidate before
   changing the user-facing preset.
 
+### 2026-07-04 Second R4 Preset Confirmation
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_second_confirm_20260704`.
+- Summary files:
+  - `/tmp/igp24_r4_second_confirm_20260704/summary.json`
+  - `/tmp/igp24_r4_second_confirm_20260704/summary.jsonl`
+  - `/tmp/igp24_r4_second_confirm_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: current `preset_r4`, explicit `quartic_lift`,
+    `mix_r4_dual_yield`, `mix_r4_dual_quality`, explicit
+    `four_real_seed`, and `mix_r4_dual_balanced`.
+  - Target: `target_r=4`.
+  - Fresh disjoint seeds: `1001`, `1002`, `1003`, `1004`, `1005`,
+    `1006`, `1007`, `1008`, `1009`, `1010`, `1011`, `1012`, `1013`,
+    `1014`, `1015`, `1016`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 397.34 seconds.
+- All 96 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 96.
+  - Valid candidates: 1,715.
+  - Ledger records: 2,821.
+  - Target-r matching records: 1,887.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - Aggregate rows included match rate, average best, average mean, best
+    score, and local-search acceptance fields.
+  - All 1,403 dual-label ledger records checked had the expected mixed
+    weights.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 16 | 4.29s | 281 | 479 | 341 | 0.712 | 10196.345 | 10196.345 | 10129.904 | 10205.378 | 0.375 |
+| `mix_r4_dual_balanced` | `r=4` | 16 | 4.09s | 288 | 470 | 311 | 0.665 | 10203.000 | 10203.000 | 10126.958 | 10206.711 | 0.365 |
+| `mix_r4_dual_quality` | `r=4` | 16 | 3.96s | 285 | 457 | 321 | 0.703 | 10205.721 | 10205.721 | 10136.184 | 10213.786 | 0.363 |
+| `mix_r4_dual_yield` | `r=4` | 16 | 4.12s | 287 | 476 | 334 | 0.702 | 10200.852 | 10200.852 | 10130.398 | 10212.926 | 0.356 |
+| `preset_r4` | `r=4` | 16 | 4.44s | 287 | 494 | 288 | 0.582 | 10193.953 | 10193.953 | 10107.642 | 10203.816 | 0.372 |
+| `quartic_lift` | `r=4` | 16 | 3.94s | 287 | 445 | 292 | 0.657 | 10204.829 | 10204.829 | 10131.884 | 10213.786 | 0.352 |
+
+Combined with the prior 12-seed confirmation:
+
+| Strategy | Runs | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Mean | Best | Local Acceptance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | 28 | 497 | 831 | 582 | 0.702 | 10195.863 | 10128.393 | 10205.378 | 0.369 |
+| `mix_r4_dual_balanced` | 28 | 503 | 820 | 523 | 0.641 | 10201.261 | 10123.021 | 10207.509 | 0.383 |
+| `mix_r4_dual_quality` | 28 | 499 | 799 | 539 | 0.676 | 10204.712 | 10131.587 | 10213.786 | 0.369 |
+| `mix_r4_dual_yield` | 28 | 501 | 811 | 563 | 0.694 | 10200.353 | 10129.761 | 10212.926 | 0.368 |
+| `preset_r4` | 28 | 500 | 842 | 494 | 0.585 | 10193.695 | 10108.354 | 10203.816 | 0.377 |
+| `quartic_lift` | 28 | 497 | 767 | 503 | 0.654 | 10204.711 | 10130.997 | 10214.148 | 0.358 |
+
+Interpretation:
+
+- Current `preset_r4` again trailed the stronger r4 families and mixes on
+  both match rate and score metrics. It is useful as historical context but no
+  longer looks competitive in these proxy runs.
+- The fresh 16-seed block favored `mix_r4_dual_quality` on average best score,
+  average mean score, and best single score, while `four_real_seed` retained a
+  slightly higher match rate.
+- `mix_r4_dual_yield` did not clearly win the yield/quality tradeoff: its
+  match rate was close to `mix_r4_dual_quality`, but its average best and
+  average mean scores were lower.
+- `quartic_lift` did not clearly beat the mix labels overall. It had strong
+  quality metrics and ties the fresh-block best single proxy score, but its
+  match rate was lower than both dual-yield and dual-quality.
+- Across both confirmation blocks, evidence still splits by objective:
+  `four_real_seed` for match rate, `mix_r4_dual_quality` for average proxy
+  quality, and `quartic_lift` for the best single proxy score.
+- Decision: keep `preset_r4` unchanged again. The current preset is likely
+  stale, but neither requested retune target is clearly dominant enough to
+  change the user-facing preset on proxy-only evidence. A better next step is
+  to add safe batch export/shortlist tooling for top r4 proxy candidates so the
+  strongest families can feed later offline exact verification.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -947,16 +1052,16 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Run second direct r4 preset confirmation.
-  - [pending] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
+- [done] Run second direct r4 preset confirmation.
+  - [done] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
     across `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`,
     `mix_r4_dual_quality`, `four_real_seed`, and
     `mix_r4_dual_balanced`.
-  - [pending] Audit return codes, expected summary row count, metadata
+  - [done] Audit return codes, expected summary row count, metadata
     completeness, aggregate fields, and dual-mix ledger metadata.
-  - [pending] Decide whether `preset_r4` should remain unchanged, retune
+  - [done] Decide whether `preset_r4` should remain unchanged, retune
     toward `quartic_lift`, or retune to the dual-yield mix.
-  - [pending] If retuning, update focused tests plus README/NOTES/TODO; if
+  - [done] If retuning, update focused tests plus README/NOTES/TODO; if
     not retuning, document the tradeoff and next task.
 - [done] Confirm whether `preset_r4` should retune to
   `mix_r4_dual_quality`.
@@ -1062,5 +1167,8 @@ down further as they become active.
   `preset_r4`.
 - [done] Run a larger confirmation benchmark centered on
   `mix_r4_dual_quality` before retuning `preset_r4`.
-- [in_progress] Run a second confirmation that directly compares `quartic_lift`,
+- [done] Run a second confirmation that directly compares `quartic_lift`,
   `mix_r4_dual_yield`, and current `preset_r4` before changing the r4 preset.
+- [pending] Add safe batch export/shortlist helpers for top proxy candidates
+  from the strongest r4 strategies so later offline exact verification can
+  inspect them without adding any automatic SAIR submission path.

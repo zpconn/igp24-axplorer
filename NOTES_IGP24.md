@@ -201,6 +201,17 @@ cleanly enough to promote. Keep `preset_r4` unchanged until a second
 confirmation compares `quartic_lift`, `mix_r4_dual_yield`, and the current
 preset directly.
 
+That second confirmation used fresh disjoint seeds and confirmed the same broad
+shape without producing a single clean retune target. Current `preset_r4`
+trailed the stronger families again. `mix_r4_dual_quality` gave the strongest
+fresh-block average best and average mean proxy scores, while `four_real_seed`
+kept the best match rate and `quartic_lift` remained competitive on peak proxy
+score. `mix_r4_dual_yield` was a useful middle tradeoff, but it did not clearly
+beat `mix_r4_dual_quality` on quality or `four_real_seed` on yield. Keep
+`preset_r4` unchanged on proxy-only evidence. The next practical step is to
+shortlist/export top r4 proxy candidates for later offline exact verification
+rather than keep tuning the user-facing preset from bounded proxy benchmarks.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
