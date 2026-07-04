@@ -40,6 +40,7 @@ DEFAULT_BASELINE_SUMMARY = Path("/tmp/igp24_gpu_smoke_20260704/gpu_smoke_summary
 PROBE_MODE_SAMPLER = "sampler"
 PROBE_MODE_TRAIN_ONLY = "train_only_utilization"
 PROBE_MODE_SAMPLE_EXPORT = "sample_export_split"
+PROBE_MODE_SAMPLE_EXPORT_MEDIUM = "sample_export_split_medium"
 STRICT_SUCCESS_ACTIONS = {
     "proceed_to_medium_30_60_minute_gpu_run_later",
     "decouple_gpu_training_from_cpu_scoring",
@@ -597,6 +598,110 @@ def build_sample_export_split_command(
     }
 
 
+def build_sample_export_split_medium_command(
+    *,
+    python_executable: str,
+    output_dir: Path,
+    run_id: str,
+) -> dict[str, Any]:
+    exp_name = "igp24_gpu_sample_export_medium"
+    dump_root = output_dir / "gpu_sample_export_medium_dump"
+    ledger_path = output_dir / "gpu_sample_export_medium_initial_candidates.jsonl"
+    sample_export_path = output_dir / "gpu_model_sample_export_medium.jsonl"
+    train_log_path = dump_root / exp_name / run_id / "train.log"
+    cmd = [
+        python_executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        exp_name,
+        "--dump_path",
+        str(dump_root),
+        "--exp_id",
+        run_id,
+        "--seed",
+        "2101",
+        "--coeff_bound",
+        "4",
+        "--gensize",
+        "2048",
+        "--pop_size",
+        "1536",
+        "--ntest",
+        "64",
+        "--gen_batch_size",
+        "256",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "12000",
+        "--num_eval_steps",
+        "600",
+        "--num_samples_from_model",
+        "8192",
+        "--batch_size",
+        "512",
+        "--n_layer",
+        "8",
+        "--n_head",
+        "8",
+        "--n_embd",
+        "768",
+        "--max_len",
+        "24",
+        "--temperature",
+        "0.9",
+        "--top_k",
+        "9",
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "11",
+        "--exact_score_timeout",
+        "2",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        str(sample_export_path),
+        "--igp24_generation_strategy",
+        "fixed_sparse_template",
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+    return {
+        "probe_mode": PROBE_MODE_SAMPLE_EXPORT_MEDIUM,
+        "command": cmd,
+        "command_text": command_text(cmd),
+        "dump_root": str(dump_root),
+        "ledger_path": str(ledger_path),
+        "sample_export_path": str(sample_export_path),
+        "train_log_path": str(train_log_path),
+        "exp_name": exp_name,
+        "exp_id": run_id,
+        "caps": {
+            "timeout_seconds": 3600,
+            "max_epochs": 1,
+            "max_steps_per_epoch": 12000,
+            "num_eval_steps": 600,
+            "num_samples_from_model_per_epoch": 8192,
+            "batch_size": 512,
+            "n_layer": 8,
+            "n_head": 8,
+            "n_embd": 768,
+        },
+        "post_train_cpu_sampling_scoring_avoided": True,
+    }
+
+
 def load_baseline_summary(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -671,7 +776,7 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
     run = summary.get("runs", {}).get("gpu_sampler_probe") or {}
     probe_mode = run.get("probe_mode", summary.get("probe_mode", PROBE_MODE_SAMPLER))
     is_train_only = probe_mode == PROBE_MODE_TRAIN_ONLY
-    is_sample_export = probe_mode == PROBE_MODE_SAMPLE_EXPORT
+    is_sample_export = probe_mode in {PROBE_MODE_SAMPLE_EXPORT, PROBE_MODE_SAMPLE_EXPORT_MEDIUM}
     train_log = run.get("train_log") or {}
     eval_losses = train_log.get("eval_losses") or []
     final_eval = eval_losses[-1] if eval_losses else {}
@@ -895,11 +1000,12 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--monitor_interval_seconds", type=float, default=2.0)
     parser.add_argument(
         "--probe_mode",
-        choices=[PROBE_MODE_SAMPLER, PROBE_MODE_TRAIN_ONLY, PROBE_MODE_SAMPLE_EXPORT],
+        choices=[PROBE_MODE_SAMPLER, PROBE_MODE_TRAIN_ONLY, PROBE_MODE_SAMPLE_EXPORT, PROBE_MODE_SAMPLE_EXPORT_MEDIUM],
         default=PROBE_MODE_SAMPLER,
         help=(
             "sampler keeps the original train/sample probe; train_only_utilization isolates GPU-side training; "
-            "sample_export_split exports unscored model samples after CUDA training"
+            "sample_export_split exports unscored model samples after CUDA training; "
+            "sample_export_split_medium runs a bounded longer export-only sampler"
         ),
     )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
@@ -952,6 +1058,12 @@ def main() -> int:
             )
         elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT:
             command_config = build_sample_export_split_command(
+                python_executable=args.python_executable,
+                output_dir=args.output_dir,
+                run_id=run_id,
+            )
+        elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_MEDIUM:
+            command_config = build_sample_export_split_medium_command(
                 python_executable=args.python_executable,
                 output_dir=args.output_dir,
                 run_id=run_id,

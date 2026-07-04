@@ -10,14 +10,11 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   score-all split handoff validation.
-- Latest focus complete: the GPU sample-export -> CPU proxy-scoring workflow
-  has now been validated on a full short-run handoff: 1024 exported rows, 1023
-  decoded rows, and all decoded rows scored through the separate CPU proxy
-  helper with `selection_mode=all_explicit`. A later bounded 30-60 minute GPU
-  run is reasonable only as an export-only sampler run with separate CPU
-  scoring/review. Keep CPU proxy-search, shortlist export, and exact-tool prep
-  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
-  execution, no SAIR/network calls, and no auto-submission behavior.
+- Active focus: add and run a bounded medium GPU export-only split workflow,
+  keeping CPU scoring/review separate and auditable. Keep CPU proxy-search,
+  shortlist export, and exact-tool prep primary. This remains proxy-only: no
+  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
+  auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -424,6 +421,37 @@ results change.
       an export-only sampler run with the same manifest discipline and a
       separate CPU score/review phase. Do not return to an integrated GPU
       train/sample/score loop.
+- [in_progress] Add and run a bounded medium export-only split workflow.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect TODO, README, NOTES, `scripts/igp24_gpu_sampler_probe.py`,
+    `scripts/igp24_score_sample_export.py`, `train.py`, `src/evaluator.py`,
+    and relevant tests.
+    - Result: `sample_export_only` remains an explicit opt-in path, normal
+      `train.py` behavior remains unchanged, and a one-epoch medium helper
+      mode avoids fixed export-path overwrites across epochs.
+  - [done] Add an explicit bounded medium helper mode.
+    - Result: added `sample_export_split_medium`, which still calls
+      `train.py` with `--sample_export_only true`, `--always_search false`,
+      `--max_local_search_steps 0`, `--process_pool false`, and CPU scoring
+      avoided during the GPU phase. Medium caps are one epoch, 12000 training
+      steps, 8192 requested export samples, and a 3600s timeout cap.
+  - [done] Add focused tests for pure medium command construction,
+    recommendation behavior, caps, and safety flags.
+    - Result: tests now assert the medium mode is export-only, local
+      search/process-pool scoring paths are off, caps are bounded, and the
+      command contains no SAIR/MAGMA/PARI execution.
+  - [done] Run focused tests and commit the implementation checkpoint.
+    - Result: focused tests passed: 25 passed in 1.27s. Helper help now
+      exposes `--probe_mode ... sample_export_split_medium`, and compileall
+      passed for the edited helper/test files.
+  - [pending] Run the medium GPU export-only split job with monitoring and an
+    explicit 3600s timeout.
+  - [pending] Score all decoded rows if runtime is reasonable; otherwise
+    score a clearly documented capped CPU subset, with local search disabled.
+  - [pending] Update README, NOTES, and TODO with exact commands, artifact
+    paths, counts, comparison against the prior short score-all handoff, and
+    recommendation.
 
 ## Tests And Checks
 
@@ -470,6 +498,18 @@ results change.
   - Result: already up to date before split workflow hardening work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before score-all split handoff validation.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before medium export-only split workflow work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 25 passed in 1.27s after adding bounded medium export-only mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper now exposes
+    `--probe_mode {sampler,train_only_utilization,sample_export_split,sample_export_split_medium}`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after adding the medium export-only mode.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression

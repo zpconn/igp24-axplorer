@@ -4,6 +4,7 @@ from scripts.igp24_gpu_sampler_probe import (
     build_recommendation,
     build_sampler_command,
     build_sample_export_split_command,
+    build_sample_export_split_medium_command,
     build_train_only_utilization_command,
     load_baseline_summary,
     parse_gpu_utilization_sample,
@@ -174,6 +175,31 @@ def test_build_sample_export_split_command_is_export_only(tmp_path):
     assert all("pari" not in str(part).lower() for part in command)
 
 
+def test_build_sample_export_split_medium_command_is_bounded_export_only(tmp_path):
+    config = build_sample_export_split_medium_command(python_executable="python3", output_dir=tmp_path, run_id="run")
+    command = config["command"]
+
+    assert config["probe_mode"] == "sample_export_split_medium"
+    assert config["post_train_cpu_sampling_scoring_avoided"]
+    assert config["caps"]["timeout_seconds"] == 3600
+    assert config["caps"]["max_epochs"] == 1
+    assert 1024 < config["caps"]["num_samples_from_model_per_epoch"] <= 10000
+    assert config["caps"]["max_steps_per_epoch"] <= 12000
+    assert command[command.index("--cpu") + 1] == "false"
+    assert command[command.index("--sample_export_only") + 1] == "true"
+    assert command[command.index("--num_samples_from_model") + 1] == "8192"
+    assert command[command.index("--always_search") + 1] == "false"
+    assert command[command.index("--max_local_search_steps") + 1] == "0"
+    assert command[command.index("--process_pool") + 1] == "false"
+    assert command[command.index("--max_epochs") + 1] == "1"
+    assert int(command[command.index("--batch_size") + 1]) >= 512
+    assert int(command[command.index("--n_embd") + 1]) >= 768
+    assert "--sample_export_path" in command
+    assert all("sair" not in str(part).lower() for part in command)
+    assert all("magma" not in str(part).lower() for part in command)
+    assert all("pari" not in str(part).lower() for part in command)
+
+
 def test_summarize_sample_export_reads_safety_flags(tmp_path):
     path = tmp_path / "samples.jsonl"
     path.write_text(
@@ -309,6 +335,35 @@ def test_build_recommendation_for_sample_export_split():
     assert build_recommendation(base)["action"] == "consume_exported_samples_with_cpu_proxy_helper"
     base["runs"]["gpu_sampler_probe"]["sample_export_decoded_records"] = 0
     assert build_recommendation(base)["action"] == "run_another_short_gpu_probe_with_adjusted_settings"
+
+
+def test_build_recommendation_for_sample_export_split_medium():
+    base = {
+        "probe_mode": "sample_export_split_medium",
+        "probes": {"torch_cuda": {"parsed": {"cuda_available": True}}},
+        "runs": {
+            "gpu_sampler_probe": {
+                "probe_mode": "sample_export_split_medium",
+                "returncode": 0,
+                "timed_out": False,
+                "interrupted": False,
+                "gpu_used": True,
+                "post_train_cpu_sampling_scoring_avoided": True,
+                "sample_export_records": 8192,
+                "sample_export_decoded_records": 8100,
+                "model_sample_ledger_records": 0,
+                "train_log": {
+                    "eval_losses": [
+                        {"step": 600, "train_loss": 2.0, "test_loss": 2.1},
+                        {"step": 1200, "train_loss": 1.8, "test_loss": 1.9},
+                    ],
+                    "sample_valid_total": 0,
+                },
+            }
+        },
+    }
+
+    assert build_recommendation(base)["action"] == "consume_exported_samples_with_cpu_proxy_helper"
 
 
 def test_load_baseline_summary_reads_relevant_context(tmp_path):
