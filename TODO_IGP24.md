@@ -346,11 +346,36 @@ results change.
     summaries, command construction, and safety flags.
     - Result: focused tests passed: 22 passed in 1.15s, including a parser
       regression check that false boolean defaults are not treated as truthy.
-  - [pending] Run a larger short split smoke, around 512-1024 exported samples
+  - [done] Run a larger short split smoke, around 512-1024 exported samples
     with a larger CPU scoring subset, capped well under 10 minutes.
-  - [pending] Update README, NOTES, and TODO with commands, paths, counts,
+    - GPU export command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+    - GPU export result: return code 0, no timeout, no interruption, runtime
+      32.079s, logged `device: cuda`, two finite eval points, final
+      train/test loss about `0.878` / `0.706`, max monitored GPU utilization
+      93.0%, average monitored GPU utilization 17.516%, max monitored GPU
+      memory 5457 MiB, 1024 export rows, and 1024 decoded export rows.
+      GPU-side CPU scoring/local search was avoided.
+    - CPU score command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_larger_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export --max_records 512 --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - CPU score result: runtime 19.719s, 1024 rows read, 512 selected with
+      `selection_mode=capped`, 512 decoded/scored, 450 valid proxy-scored,
+      62 rejected, 512 unique canonical hashes, 0 duplicate hash records,
+      local search disabled.
+    - Artifacts:
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/gpu_model_sample_export.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/gpu_sampler_probe_summary.json`,
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/score_summary.json`,
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/scored_samples.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_manifest.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_report.md`.
+  - [done] Update README, NOTES, and TODO with commands, paths, counts,
     interpretation, and whether another short split smoke or a medium run is
     next.
+    - Result: docs record the larger split smoke and recommend one more short
+      split smoke, preferably all-row scoring or a small target-setting
+      comparison, before any medium 30-60 minute GPU run.
 
 ## Tests And Checks
 
@@ -411,6 +436,18 @@ results change.
   - Result: passed after split workflow hardening changes.
 - 2026-07-04: `git diff --check`
   - Result: passed after split workflow hardening changes.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+  - Result: return code 0 in 32.079s, no timeout/interruption, logged
+    `device: cuda`, max monitored GPU utilization 93.0%, average monitored GPU
+    utilization 17.516%, max monitored GPU memory 5457 MiB, 1024 export rows,
+    1024 decoded export rows, and GPU-side CPU scoring/local search avoided.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_larger_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export --max_records 512 --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: return code 0 in 19.719s, 1024 rows read, 512 selected/scored,
+    450 valid, 62 rejected, 512 unique canonical hashes, 0 duplicate hash
+    records, local search disabled, and split manifest/report written under
+    `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export`.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 18 passed in 1.36s after adding export-only model sampling,

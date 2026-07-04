@@ -132,8 +132,49 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
 
 That CPU handoff smoke scored 64 exported rows, found 56 valid proxy-scored
 records and 8 rejected records, with local search disabled. This proves the
-split is usable, but a medium 30-60 minute GPU run should still wait for a
-larger short export/scoring smoke and better batching/queueing ergonomics.
+split is usable.
+
+The split helper was then hardened so the CPU scoring phase writes a combined
+`split_workflow_manifest.json` and `split_workflow_report.md` linking the
+export JSONL, GPU probe summary/report, train log, CPU score summary/report,
+scored JSONL, source commit, command lines, safety flags, and canonical-hash
+dedup counts. Use `--max_records N` for an explicit capped subset, or
+`--score_all true` to score all decoded export rows.
+
+The larger short split smoke on 2026-07-04 used:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split \
+  --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704 \
+  --timeout_seconds 600 \
+  --monitor_interval_seconds 1
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_split_larger_20260704/gpu_model_sample_export.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export \
+  --max_records 512 \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+That run completed the GPU phase in 32.1s with `device: cuda`, no timeout,
+max monitored GPU utilization 93%, average utilization 17.5%, max monitored
+GPU memory 5457 MiB, and 1024 decoded unscored export rows. The CPU phase
+scored a capped 512-row subset in 19.7s, with 450 valid proxy-scored records,
+62 rejected records, 512 unique canonical hashes, zero duplicate hash records,
+and local search disabled. The combined manifest is at:
+
+```text
+/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_manifest.json
+```
+
+Recommendation: the split path is now practical enough for one more short
+export/scoring smoke, preferably scoring all decoded rows or comparing another
+small target setting. Do not start a medium 30-60 minute GPU run yet.
 
 ## Run A Small Smoke Job
 

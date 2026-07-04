@@ -290,9 +290,32 @@ export with local search disabled, scoring 64 selected rows through the proxy
 scorer and producing 56 valid and 8 rejected records under
 `/tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export`. This proves
 that GPU sampling and CPU scoring can be run as separate auditable phases.
-However, this is still a small smoke, not evidence for a medium 30-60 minute
-GPU run. The next GPU-facing step should improve batching/queueing ergonomics
-and run a larger short split smoke before any medium training/sampling job.
+
+The handoff is now more auditable. The CPU scoring helper writes a combined
+`split_workflow_manifest.json` and `split_workflow_report.md` beside the score
+summary, linking the source export, GPU probe summary/report, train log, CPU
+score summary/report, scored JSONL, source commit, command lines, safety flags,
+runtime counts, and canonical-hash dedup summary. It also records whether a
+run used an explicit cap with `--max_records` or explicit all-row scoring with
+`--score_all true`.
+
+A larger short split smoke on 2026-07-04 used
+`/tmp/igp24_gpu_sample_export_split_larger_20260704`. The GPU export phase
+returned 0 with no timeout in 32.1 seconds, logged `device: cuda`, reached max
+monitored GPU utilization 93% with average utilization 17.5%, used up to
+5457 MiB of monitored GPU memory, and wrote 1024 decoded unscored export rows.
+The CPU proxy phase scored a capped 512-row subset in 19.7 seconds with local
+search disabled, producing 450 valid proxy-scored records, 62 rejected records,
+512 unique canonical hashes, and zero duplicate hash records. The combined
+manifest is
+`/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_manifest.json`.
+
+This is meaningful progress: GPU sampling is no longer blocked by CPU scoring
+and the handoff has one-file auditability. It is still not a reason to start a
+medium 30-60 minute GPU run yet. The next GPU-facing step should be one more
+short split smoke, ideally all-row scoring or a small target-setting
+comparison, while CPU proxy-search, shortlist export, and exact-tool prep
+remain the primary pipeline.
 
 ## Why Random Polynomials Are Limited
 
