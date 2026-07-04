@@ -191,6 +191,8 @@ def test_build_sample_export_split_medium_command_is_bounded_export_only(tmp_pat
     assert command[command.index("--always_search") + 1] == "false"
     assert command[command.index("--max_local_search_steps") + 1] == "0"
     assert command[command.index("--process_pool") + 1] == "false"
+    assert int(command[command.index("--gensize") + 1]) <= 512
+    assert int(command[command.index("--pop_size") + 1]) <= 384
     assert command[command.index("--max_epochs") + 1] == "1"
     assert int(command[command.index("--batch_size") + 1]) >= 512
     assert int(command[command.index("--n_embd") + 1]) >= 768

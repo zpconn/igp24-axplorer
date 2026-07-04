@@ -445,8 +445,23 @@ results change.
     - Result: focused tests passed: 25 passed in 1.27s. Helper help now
       exposes `--probe_mode ... sample_export_split_medium`, and compileall
       passed for the edited helper/test files.
-  - [pending] Run the medium GPU export-only split job with monitoring and an
-    explicit 3600s timeout.
+  - [done] Interrupt and retune the first medium attempt when it proved
+    CPU-seed-bound.
+    - First medium command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_medium --output_dir /tmp/igp24_gpu_sample_export_split_medium_20260704 --timeout_seconds 3600 --monitor_interval_seconds 5`
+    - Interrupted result: return code 130 after 153.119s, no timeout, no eval
+      points, 0 export rows, 1840 initial ledger rows, max monitored GPU
+      utilization 98.0%, average monitored GPU utilization 10.433%, max
+      monitored GPU memory 10262 MiB. Train log showed epoch 0 started only
+      around 2m22s because the initial CPU seed generation was too large.
+    - Retune: keep the medium GPU training/export target but reduce the
+      initial CPU seed set back to the proven short-run scale (`gensize=512`,
+      `pop_size=384`, `ntest=16`, `gen_batch_size=64`) so GPU training starts
+      quickly.
+    - Retuned focused checks: 25 passed in 1.12s; compileall and helper help
+      still passed.
+  - [pending] Run the retuned medium GPU export-only split job with monitoring
+    and an explicit 3600s timeout.
   - [pending] Score all decoded rows if runtime is reasonable; otherwise
     score a clearly documented capped CPU subset, with local search disabled.
   - [pending] Update README, NOTES, and TODO with exact commands, artifact
@@ -510,6 +525,18 @@ results change.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
   - Result: passed after adding the medium export-only mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_medium --output_dir /tmp/igp24_gpu_sample_export_split_medium_20260704 --timeout_seconds 3600 --monitor_interval_seconds 5`
+  - Result: interrupted intentionally with return code 130 after 153.119s
+    because the first medium caps were CPU-seed-bound; no eval/export records
+    were produced, and the mode was retuned to use the proven small initial
+    CPU seed scale before rerunning.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 25 passed in 1.12s after retuning medium initial CPU seed caps.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after retuning medium initial CPU seed caps.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression
