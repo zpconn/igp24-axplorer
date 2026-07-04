@@ -23,6 +23,11 @@ from typing import Any
 
 DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed", "mixed"]
 DEFAULT_PRESETS = ["none", "r0", "r2", "r4"]
+MIXED_VARIANT_WEIGHTS = {
+    "mix_r4_yield": "four_real_seed:1.0",
+    "mix_r4_balanced": "four_real_seed:0.8,sparse:0.2",
+    "mix_r4_diverse": "four_real_seed:0.6,sparse:0.4",
+}
 
 
 def _parse_csv(value: str) -> list[str]:
@@ -44,15 +49,17 @@ def parse_target_rs(value: str) -> list[int | None]:
     return targets
 
 
-def resolve_benchmark_strategy(label: str) -> tuple[str, str]:
+def resolve_benchmark_strategy(label: str) -> tuple[str, str, str | None]:
     if label.startswith("preset_"):
         preset = label.removeprefix("preset_")
         if preset not in DEFAULT_PRESETS or preset == "none":
             raise ValueError(f"unknown generation preset strategy label: {label}")
-        return "mixed", preset
+        return "mixed", preset, None
+    if label in MIXED_VARIANT_WEIGHTS:
+        return "mixed", "none", MIXED_VARIANT_WEIGHTS[label]
     if label not in DEFAULT_STRATEGIES:
         raise ValueError(f"unknown strategy: {label}")
-    return label, "none"
+    return label, "none", None
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -169,7 +176,8 @@ def _target_label(target_r: int | None) -> str:
 
 
 def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | None = None) -> dict[str, Any]:
-    resolved_strategy, generation_preset = resolve_benchmark_strategy(strategy)
+    resolved_strategy, generation_preset, mixed_weights_override = resolve_benchmark_strategy(strategy)
+    mixed_strategy_weights = mixed_weights_override or args.mixed_strategy_weights
     run_name = f"{strategy}_{_target_label(target_r)}_seed_{seed}"
     run_dir = args.output_dir / run_name
     ledger_path = run_dir / "candidates.jsonl"
@@ -226,7 +234,7 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | 
         "--igp24_low_height_bound",
         str(args.low_height_bound),
         "--igp24_mixed_strategy_weights",
-        args.mixed_strategy_weights,
+        mixed_strategy_weights,
         "--igp24_ledger_path",
         str(ledger_path),
     ]
@@ -242,6 +250,7 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | 
         "strategy": strategy,
         "resolved_generation_strategy": resolved_strategy,
         "generation_preset": generation_preset,
+        "mixed_strategy_weights_override": mixed_weights_override,
         "seed": seed,
         "target_r": target_r,
         "coeff_bound": args.coeff_bound,
@@ -336,7 +345,10 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--strategies",
         default=",".join(DEFAULT_STRATEGIES),
-        help="Comma-separated generation strategies; use preset_r0, preset_r2, or preset_r4 for generation presets",
+        help=(
+            "Comma-separated generation strategies; use preset_r0/preset_r2/preset_r4 for presets "
+            "or mix_r4_yield/mix_r4_balanced/mix_r4_diverse for benchmark-only r4 mix variants"
+        ),
     )
     parser.add_argument("--seeds", default="101", help="Comma-separated integer seeds")
     parser.add_argument("--target_rs", default="none", help="Comma-separated target real-root counts; use none for untargeted")

@@ -79,8 +79,11 @@ def test_parse_target_rs_accepts_untargeted_aliases_and_integers():
 
 
 def test_resolve_benchmark_strategy_accepts_preset_labels():
-    assert resolve_benchmark_strategy("four_real_seed") == ("four_real_seed", "none")
-    assert resolve_benchmark_strategy("preset_r4") == ("mixed", "r4")
+    assert resolve_benchmark_strategy("four_real_seed") == ("four_real_seed", "none", None)
+    assert resolve_benchmark_strategy("preset_r4") == ("mixed", "r4", None)
+    assert resolve_benchmark_strategy("mix_r4_yield") == ("mixed", "none", "four_real_seed:1.0")
+    assert resolve_benchmark_strategy("mix_r4_balanced") == ("mixed", "none", "four_real_seed:0.8,sparse:0.2")
+    assert resolve_benchmark_strategy("mix_r4_diverse") == ("mixed", "none", "four_real_seed:0.6,sparse:0.4")
 
 
 def test_aggregate_results_groups_strategy_and_target():

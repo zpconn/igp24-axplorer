@@ -9,9 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  target-specific preset work.
-- Active focus: opt-in target-specific generation presets are implemented and
-  the first `r4` preset benchmark is documented.
+  larger `target_r=4` preset tradeoff validation.
+- Active focus: validate the `target_r=4` yield-vs-peak-quality tradeoff with
+  larger CPU-only runs and benchmark-only mixed-weight variants.
 
 ## Stage 0: Scaffold
 
@@ -60,6 +60,14 @@ results change.
   - [done] Add focused preset tests and benchmark helper support.
   - [done] Benchmark the `r4` preset against baseline `mixed` and explicit
     `four_real_seed`.
+- [in_progress] Validate and tune the `target_r=4` preset tradeoff.
+  - [done] Add benchmark-helper labels for r4 mixed-weight variants.
+  - [pending] Run a larger CPU-only `target_r=4` benchmark than the previous
+    4-seed preset run.
+  - [pending] Compare baseline `mixed`, explicit `four_real_seed`,
+    current `preset_r4`, and r4 mixed-weight variants.
+  - [pending] Interpret target-r yield versus peak proxy score before changing
+    any preset or default.
 
 ## Stage 1: Scoring And Metadata
 
@@ -122,6 +130,15 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before larger `target_r=4` preset validation.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
+  - Result: 6 passed in 0.02s after adding benchmark-only r4 mix labels.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts tests`
+  - Result: passed after adding benchmark-only r4 mix labels.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper documents `mix_r4_yield`,
+    `mix_r4_balanced`, and `mix_r4_diverse` benchmark-only labels.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before target-specific preset work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
