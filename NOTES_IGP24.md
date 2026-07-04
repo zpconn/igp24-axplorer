@@ -74,6 +74,9 @@ The IGP24 environment now supports several initial generation strategies:
 - `structured`: simple sparse binomial/trinomial-like seeds.
 - `four_real_seed`: an experimental `target_r=4`-oriented seed that starts
   near `(x^2-a)(x^2-b)(x^20+1)` and adds small odd perturbations.
+- `quartic_lift`: an experimental `target_r=4`-oriented seed that starts
+  near `(y-a)(y-b)(y+c)(y+d)` with `y=x^6` and adds small off-support
+  perturbations.
 - `mixed`: a weighted mix of the above.
 
 These are still candidate-generation heuristics, not structured Galois-family
@@ -166,6 +169,18 @@ variants. Explicit `four_real_seed` remained the best high-yield option for
 best single proxy score but lost target-r yield. The preset should therefore
 stay balanced for now, with explicit `four_real_seed` documented for runs where
 `r=4` yield is the only priority.
+
+The first Stage-2 structured-family addition is `quartic_lift`. It uses a
+quartic polynomial in `y=x^6` with two positive and two negative `y` roots, then
+perturbs one to three coefficients outside the core exponents
+`0,6,12,18`. This is a compositional/tower-style seed and is deliberately
+distinct from the existing near-product `four_real_seed` family. In its first
+bounded r4 comparison with six seeds, `quartic_lift` had a 0.705 average
+`target_r=4` match rate, below explicit `four_real_seed` at 0.757 but above
+current `preset_r4` at 0.608. It also produced the strongest average best
+score and best single proxy score in that batch. This makes it a promising
+quality-oriented r4 family, but one proxy-only run is not enough to change the
+default mixed weights or the balanced `r4` preset.
 
 ## Why Random Polynomials Are Limited
 

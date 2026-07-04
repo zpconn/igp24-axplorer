@@ -355,8 +355,9 @@ def get_parser() -> argparse.ArgumentParser:
         "--strategies",
         default=",".join(DEFAULT_STRATEGIES),
         help=(
-            "Comma-separated generation strategies; use preset_r0/preset_r2/preset_r4 for presets "
-            "or mix_r4_yield/mix_r4_balanced/mix_r4_diverse for benchmark-only r4 mix variants"
+            "Comma-separated generation strategies, including quartic_lift; "
+            "use preset_r0/preset_r2/preset_r4 for presets or "
+            "mix_r4_yield/mix_r4_balanced/mix_r4_diverse for benchmark-only r4 mix variants"
         ),
     )
     parser.add_argument("--seeds", default="101", help="Comma-separated integer seeds")

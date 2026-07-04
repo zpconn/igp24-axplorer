@@ -77,11 +77,12 @@ Useful IGP24-specific generation flags:
 --igp24_generation_preset none
 --igp24_sparse_terms 4
 --igp24_low_height_bound 3
---igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00
+--igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00,quartic_lift:0.00
 ```
 
 `--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
-`sparse`, `lower_degree`, `structured`, or `four_real_seed`.
+`sparse`, `lower_degree`, `structured`, `four_real_seed`, or
+`quartic_lift`.
 
 The strategies are:
 
@@ -92,10 +93,12 @@ The strategies are:
 - `structured`: simple sparse binomial/trinomial-like seeds.
 - `four_real_seed`: an experimental `target_r=4`-oriented near-product seed
   with small odd perturbations.
+- `quartic_lift`: an experimental `target_r=4`-oriented quartic-in-`x^6`
+  seed with small off-support perturbations.
 - `mixed`: a weighted mix of the above.
 
-The default `mixed` weights keep `four_real_seed` at zero weight. Use it
-explicitly when running `target_r=4` experiments.
+The default `mixed` weights keep `four_real_seed` and `quartic_lift` at zero
+weight. Use them explicitly when running `target_r=4` experiments.
 
 Target-specific presets are opt-in with `--igp24_generation_preset`. The
 default `none` preserves the explicit strategy and weight settings. Available
@@ -171,7 +174,7 @@ or the `r4` preset explicitly:
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
-  --strategies mixed,four_real_seed,preset_r4 \
+  --strategies mixed,four_real_seed,preset_r4,quartic_lift \
   --seeds 501,502,503,504 \
   --target_rs 4 \
   --coeff_bound 4 \

@@ -11,7 +11,8 @@ results change.
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   Stage 2 `target_r=4` structured-family work.
 - Active focus: add and benchmark a new `target_r=4`-friendly structured
-  generation family that is distinct from `four_real_seed`.
+  generation family that is distinct from `four_real_seed`; `quartic_lift` is
+  implemented and benchmarked, with final verification pending.
 
 ## Stage 0: Scaffold
 
@@ -152,6 +153,19 @@ results change.
   `IGP24DataPoint._quartic_lift_templates()` at `coeff_bound=4`.
   - Result: bounded templates are `(1,2,1,1)` with quartic coefficients
     `[2,1,-3,-1,1]` and `(1,3,1,1)` with `[3,2,-4,-2,1]`.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies mixed,four_real_seed,preset_r4,quartic_lift --seeds 701,702,703,704,705,706 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_quartic_lift_bench_20260704`
+  - Result: passed; 24 CPU-only `target_r=4` comparison runs completed in
+    104.35 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_quartic_lift_bench_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result:
+    `24 True True ['four_real_seed', 'mixed', 'preset_r4', 'quartic_lift'] [4]`
+    and `430 708 391`.
+- 2026-07-04: inspected `quartic_lift` benchmark ledgers for metadata.
+  - Result: all six sampled `quartic_lift` run ledgers included
+    `strategy='quartic_lift'`, the quartic-lift seed template, core support
+    `[0,6,12,18]`, quartic coefficients, and perturbation coefficients.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `target_r=4` preset validation.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -660,6 +674,57 @@ Interpretation:
 - No default generation change is justified; this is still proxy-only and has
   no exact `24Tt` verification.
 
+### 2026-07-04 Quartic-lift Target-r Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_quartic_lift_bench_20260704`.
+- Summary files:
+  - `/tmp/igp24_quartic_lift_bench_20260704/summary.json`
+  - `/tmp/igp24_quartic_lift_bench_20260704/summary.jsonl`
+  - `/tmp/igp24_quartic_lift_bench_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: baseline `mixed`, explicit `four_real_seed`, current
+    `preset_r4`, and new `quartic_lift`.
+  - Target: `target_r=4`.
+  - Seeds: `701`, `702`, `703`, `704`, `705`, `706`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 104.35 seconds.
+- All 24 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 24.
+  - Valid candidates: 430.
+  - Ledger records: 708.
+  - Target-r matching records: 391.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - `quartic_lift` ledger records included the seed template, core support,
+    quartic coefficients, and perturbation coefficients.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 6 | 4.18s | 107 | 166 | 126 | 0.757 | 10196.049 | 10196.049 | 10137.886 | 10203.007 | 0.381 |
+| `mixed` | `r=4` | 6 | 5.22s | 108 | 196 | 39 | 0.197 | 10191.736 | 10191.736 | 10041.856 | 10194.638 | 0.424 |
+| `preset_r4` | `r=4` | 6 | 4.06s | 107 | 180 | 109 | 0.608 | 10195.473 | 10195.473 | 10112.317 | 10201.396 | 0.390 |
+| `quartic_lift` | `r=4` | 6 | 3.78s | 108 | 166 | 117 | 0.705 | 10206.896 | 10206.896 | 10139.839 | 10210.196 | 0.352 |
+
+Interpretation:
+
+- `quartic_lift` is a promising quality-oriented r4 family. It had the
+  strongest average best score, strongest average matching score, strongest
+  average mean score, and best single proxy score in this batch.
+- Explicit `four_real_seed` still had the strongest r4 yield: 0.757 average
+  match rate versus 0.705 for `quartic_lift` and 0.608 for `preset_r4`.
+- `quartic_lift` beat the current balanced `preset_r4` on match rate and proxy
+  score in this run, but one bounded proxy-only benchmark is not enough to
+  retune the preset.
+- Local-search acceptance was lowest for `quartic_lift`; future work should
+  inspect whether generic mutations disrupt the quartic-lift shape.
+- Keep default mixed weights and `preset_r4` unchanged. The next useful step is
+  a larger r4 comparison that includes both `four_real_seed` and
+  `quartic_lift`, or a benchmark-only mixed variant combining them.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -686,12 +751,14 @@ down further as they become active.
   - [done] Implement a distinct `quartic_lift` generation strategy with
     ledger metadata.
   - [done] Add deterministic generation and metadata tests.
-  - [pending] Benchmark `quartic_lift` against `mixed`, `four_real_seed`, and
+  - [done] Benchmark `quartic_lift` against `mixed`, `four_real_seed`, and
     `preset_r4`.
-  - [pending] Document whether it improves target-r yield, peak proxy score,
+  - [done] Document whether it improves target-r yield, peak proxy score,
     or diversity before changing any preset/default.
 - [in_progress] Add more structured polynomial families:
   - [pending] sparse families with fixed support templates,
+  - [done] first compositional/tower-style construction:
+    `quartic_lift`, a quartic-in-`x^6` family for `target_r=4`,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,
@@ -757,5 +824,8 @@ down further as they become active.
   `preset_r4`, and tuned target-specific mixes before promoting presets.
 - [pending] Run a longer focused `target_r=2` comparison between `sparse` and
   `structured`.
-- [pending] Add more `target_r=4` structured families before retuning the
+- [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
+- [pending] Run a larger r4 comparison or benchmark-only mix that combines
+  `four_real_seed` yield with `quartic_lift` peak proxy quality before changing
+  `preset_r4`.
