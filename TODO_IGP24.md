@@ -10,8 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   benchmark-only dual-family r4 mix work.
-- Active focus: benchmark-only dual-family r4 mix comparison is complete;
-  final verification is pending before push.
+- Active focus: benchmark-only dual-family r4 mix comparison is complete.
+  `mix_r4_dual_quality` is the strongest bounded-run tradeoff, but
+  `preset_r4` remains unchanged pending larger confirmation.
 
 ## Stage 0: Scaffold
 
@@ -116,9 +117,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 22 passed in 0.68s after `quartic_lift` work.
+  - Latest result: 22 passed in 0.68s after dual-family r4 mix work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after `quartic_lift` work.
+  - Latest result: passed after dual-family r4 mix work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -154,6 +155,16 @@ results change.
     37 `quartic_lift`; `dual_quality`: 120 `quartic_lift`, 60
     `four_real_seed`; `dual_balanced`: 84 `four_real_seed`, 86
     `quartic_lift`, 16 `sparse`.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 22 passed in 0.68s after dual-family r4 mix work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after dual-family r4 mix work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper mentions the dual r4 mix labels.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before Stage 2 `target_r=4`
     structured-family work.
