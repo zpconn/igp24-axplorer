@@ -460,9 +460,22 @@ results change.
       quickly.
     - Retuned focused checks: 25 passed in 1.12s; compileall and helper help
       still passed.
-  - [pending] Run the retuned medium GPU export-only split job with monitoring
+  - [done] Run the retuned medium GPU export-only split job with monitoring
     and an explicit 3600s timeout.
-  - [pending] Score all decoded rows if runtime is reasonable; otherwise
+    - Command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_medium --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704 --timeout_seconds 3600 --monitor_interval_seconds 5`
+    - Result: return code 0, no timeout, no interruption, runtime
+      1300.803s, logged `device: cuda`, 20 finite eval points, final
+      train/test loss about `0.238` / `2.665`, max monitored GPU utilization
+      99.0%, average monitored GPU utilization 95.977%, max monitored GPU
+      memory 10141 MiB, 8192 export rows, and 8192 decoded export rows.
+      GPU-side CPU scoring/local search/dataset update was avoided.
+    - Artifacts:
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_model_sample_export_medium.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_sampler_probe_summary.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/gpu_sampler_probe_report.md`.
+  - [in_progress] Score all decoded rows if runtime is reasonable; otherwise
     score a clearly documented capped CPU subset, with local search disabled.
   - [pending] Update README, NOTES, and TODO with exact commands, artifact
     paths, counts, comparison against the prior short score-all handoff, and
@@ -537,6 +550,13 @@ results change.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
   - Result: passed after retuning medium initial CPU seed caps.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_medium --output_dir /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704 --timeout_seconds 3600 --monitor_interval_seconds 5`
+  - Result: completed in 1300.803s with return code 0, no timeout,
+    `device: cuda`, 20 finite eval points, max monitored GPU utilization
+    99.0%, average monitored GPU utilization 95.977%, max monitored GPU
+    memory 10141 MiB, and 8192 decoded unscored export rows. GPU-side CPU
+    scoring/local search/dataset update was avoided.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression
