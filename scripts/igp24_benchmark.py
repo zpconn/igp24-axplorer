@@ -98,6 +98,53 @@ def summarize_records(records: list[dict[str, Any]], target_r: int | None = None
     }
 
 
+def _mean(values: list[float]) -> float | None:
+    return statistics.fmean(values) if values else None
+
+
+def aggregate_results(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Aggregate per-run benchmark rows by strategy and target real-root count."""
+
+    groups: dict[tuple[str, int | None], list[dict[str, Any]]] = {}
+    for result in results:
+        key = (str(result["strategy"]), result.get("target_r"))
+        groups.setdefault(key, []).append(result)
+
+    aggregated = []
+    for (strategy, target_r), rows in sorted(groups.items(), key=lambda item: (item[0][0], _target_label(item[0][1]))):
+        attempted = sum(int(row.get("local_search_attempted") or 0) for row in rows)
+        accepted = sum(int(row.get("local_search_accepted") or 0) for row in rows)
+        best_scores = [float(row["best_score"]) for row in rows if row.get("best_score") is not None]
+        best_matching_scores = [float(row["best_matching_score"]) for row in rows if row.get("best_matching_score") is not None]
+        mean_scores = [float(row["mean_score"]) for row in rows if row.get("mean_score") is not None]
+        match_rates = [float(row["target_r_match_rate"]) for row in rows if row.get("target_r_match_rate") is not None]
+        match_total = (
+            sum(int(row.get("target_r_match_count") or 0) for row in rows)
+            if target_r is not None
+            else None
+        )
+        aggregated.append(
+            {
+                "strategy": strategy,
+                "target_r": target_r,
+                "runs": len(rows),
+                "avg_runtime_seconds": _mean([float(row["runtime_seconds"]) for row in rows]),
+                "valid_candidates_total": sum(int(row.get("valid_candidates") or 0) for row in rows),
+                "ledger_records_total": sum(int(row.get("ledger_records") or 0) for row in rows),
+                "target_r_match_total": match_total,
+                "avg_match_rate": _mean(match_rates),
+                "avg_best_score": _mean(best_scores),
+                "avg_best_matching_score": _mean(best_matching_scores),
+                "avg_mean_score": _mean(mean_scores),
+                "best_score": max(best_scores) if best_scores else None,
+                "local_search_acceptance": (accepted / attempted) if attempted else 0.0,
+                "all_returncode_zero": all(int(row.get("returncode") or 0) == 0 for row in rows),
+                "metadata_complete": all(bool(row.get("metadata_complete")) for row in rows),
+            }
+        )
+    return aggregated
+
+
 def parse_valid_examples(output: str) -> int | None:
     matches = re.findall(r"Valid examples:\s*(\d+)", output)
     if not matches:
@@ -200,6 +247,9 @@ def write_outputs(results: list[dict[str, Any]], output_dir: Path) -> None:
     summary_path = output_dir / "summary.json"
     summary_path.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
+    aggregate_path = output_dir / "aggregate_summary.json"
+    aggregate_path.write_text(json.dumps(aggregate_results(results), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
     jsonl_path = output_dir / "summary.jsonl"
     with jsonl_path.open("w", encoding="utf-8") as handle:
         for result in results:
@@ -232,6 +282,35 @@ def print_table(results: list[dict[str, Any]]) -> None:
             f"{best_matching_score_text}\t"
             f"{mean_score_text}\t"
             f"{acceptance:.3f}"
+        )
+
+
+def print_aggregate_table(results: list[dict[str, Any]]) -> None:
+    print()
+    print(
+        "strategy\ttarget_r\truns\tavg_runtime_s\tvalid_total\tledger_records\t"
+        "target_matches\tavg_match_rate\tavg_best\tavg_best_matching\tavg_mean\tbest\tlocal_acceptance"
+    )
+    for result in aggregate_results(results):
+        avg_runtime = result.get("avg_runtime_seconds")
+        avg_best = result.get("avg_best_score")
+        avg_best_matching = result.get("avg_best_matching_score")
+        avg_mean = result.get("avg_mean_score")
+        best = result.get("best_score")
+        avg_match_rate = result.get("avg_match_rate")
+        match_total_text = str(result.get("target_r_match_total")) if result.get("target_r") is not None else "NA"
+        match_rate_text = f"{avg_match_rate:.3f}" if avg_match_rate is not None else "NA"
+        avg_best_text = f"{avg_best:.3f}" if avg_best is not None else "NA"
+        avg_best_matching_text = f"{avg_best_matching:.3f}" if avg_best_matching is not None else "NA"
+        avg_mean_text = f"{avg_mean:.3f}" if avg_mean is not None else "NA"
+        best_text = f"{best:.3f}" if best is not None else "NA"
+        print(
+            f"{result['strategy']}\t{_target_label(result.get('target_r'))}\t{result['runs']}\t"
+            f"{avg_runtime:.2f}\t"
+            f"{result['valid_candidates_total']}\t{result['ledger_records_total']}\t"
+            f"{match_total_text}\t{match_rate_text}\t{avg_best_text}\t"
+            f"{avg_best_matching_text}\t{avg_mean_text}\t{best_text}\t"
+            f"{result['local_search_acceptance']:.3f}"
         )
 
 
@@ -281,10 +360,12 @@ def main() -> int:
                 if result["returncode"] != 0:
                     write_outputs(results, args.output_dir)
                     print_table(results)
+                    print_aggregate_table(results)
                     return result["returncode"]
 
     write_outputs(results, args.output_dir)
     print_table(results)
+    print_aggregate_table(results)
     return 0
 
 

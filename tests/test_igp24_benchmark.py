@@ -1,6 +1,6 @@
 import json
 
-from scripts.igp24_benchmark import parse_target_rs, parse_valid_examples, read_jsonl, summarize_records
+from scripts.igp24_benchmark import aggregate_results, parse_target_rs, parse_valid_examples, read_jsonl, summarize_records
 
 
 def test_summarize_records_aggregates_scores_and_metadata():
@@ -69,3 +69,78 @@ def test_parse_valid_examples_uses_last_reported_count():
 
 def test_parse_target_rs_accepts_untargeted_aliases_and_integers():
     assert parse_target_rs("none,0,2,untargeted,-") == [None, 0, 2, None, None]
+
+
+def test_aggregate_results_groups_strategy_and_target():
+    results = [
+        {
+            "strategy": "sparse",
+            "target_r": 2,
+            "runtime_seconds": 2.0,
+            "valid_candidates": 12,
+            "ledger_records": 20,
+            "target_r_match_count": 10,
+            "target_r_match_rate": 0.5,
+            "best_score": 100.0,
+            "best_matching_score": 99.0,
+            "mean_score": 90.0,
+            "local_search_attempted": 10,
+            "local_search_accepted": 4,
+            "returncode": 0,
+            "metadata_complete": True,
+        },
+        {
+            "strategy": "sparse",
+            "target_r": 2,
+            "runtime_seconds": 4.0,
+            "valid_candidates": 11,
+            "ledger_records": 30,
+            "target_r_match_count": 18,
+            "target_r_match_rate": 0.6,
+            "best_score": 110.0,
+            "best_matching_score": 108.0,
+            "mean_score": 95.0,
+            "local_search_attempted": 20,
+            "local_search_accepted": 8,
+            "returncode": 0,
+            "metadata_complete": True,
+        },
+        {
+            "strategy": "sparse",
+            "target_r": None,
+            "runtime_seconds": 3.0,
+            "valid_candidates": 12,
+            "ledger_records": 25,
+            "target_r_match_count": None,
+            "target_r_match_rate": None,
+            "best_score": 80.0,
+            "best_matching_score": None,
+            "mean_score": 75.0,
+            "local_search_attempted": 5,
+            "local_search_accepted": 1,
+            "returncode": 0,
+            "metadata_complete": True,
+        },
+    ]
+
+    aggregated = aggregate_results(results)
+    targeted = next(row for row in aggregated if row["target_r"] == 2)
+    untargeted = next(row for row in aggregated if row["target_r"] is None)
+
+    assert targeted["runs"] == 2
+    assert targeted["avg_runtime_seconds"] == 3.0
+    assert targeted["valid_candidates_total"] == 23
+    assert targeted["ledger_records_total"] == 50
+    assert targeted["target_r_match_total"] == 28
+    assert targeted["avg_match_rate"] == 0.55
+    assert targeted["avg_best_score"] == 105.0
+    assert targeted["avg_best_matching_score"] == 103.5
+    assert targeted["avg_mean_score"] == 92.5
+    assert targeted["best_score"] == 110.0
+    assert targeted["local_search_acceptance"] == 0.4
+    assert targeted["all_returncode_zero"]
+    assert targeted["metadata_complete"]
+
+    assert untargeted["target_r_match_total"] is None
+    assert untargeted["avg_match_rate"] is None
+    assert untargeted["avg_best_matching_score"] is None

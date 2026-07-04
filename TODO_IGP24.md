@@ -8,10 +8,10 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
-- Last pull: 2026-07-04, `git pull --ff-only` -> fast-forwarded README update
-  from `f60e285` to `9b00f3d`.
-- Active focus: move from stage-0 scaffold toward a practical stage-1 candidate
-  generation workflow.
+- Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
+  larger target-r benchmark work.
+- Active focus: run a larger CPU-only target real-root-count benchmark before
+  changing generation defaults again.
 
 ## Stage 0: Scaffold
 
@@ -57,6 +57,14 @@ results change.
   - [done] Summarize target-r match count, match rate, and best matching
     score.
   - [done] Run short untargeted vs `target_r=2` comparison.
+- [in_progress] Run larger per-strategy target real-root-count comparisons
+  across `target_r=none,0,2,4`.
+  - [done] Add aggregate strategy/target reporting to the benchmark
+    helper so multi-seed runs are easier to audit.
+  - [pending] Run the larger CPU-only benchmark with at least `sparse`,
+    `structured`, and `mixed`.
+  - [pending] Record commands, artifact paths, result tables, and
+    interpretation before considering any default tuning.
 
 ## Stage 1: Local Search
 
@@ -97,6 +105,12 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before larger target-r benchmark work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
+  - Result: 5 passed in 0.02s after adding aggregate benchmark summaries.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts tests`
+  - Result: passed after adding aggregate benchmark summaries.
 - 2026-07-04: `git pull --ff-only`
   - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
 - 2026-07-04: `git pull --ff-only`
