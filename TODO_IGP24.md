@@ -10,13 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   train-only GPU utilization diagnosis work.
-- Active focus: diagnose why the current GPU sampler probe did not
-  meaningfully load the RTX 5090, then run a short utilization-focused probe
-  that isolates GPU-side training from CPU-side sampling, scoring, and local
-  search. Keep CPU proxy-search, shortlist export, and exact-tool prep primary
-  unless this short probe gives stronger evidence. Do not start a 30-60 minute
-  run yet. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
-  execution, no SAIR/network calls, and no auto-submission behavior.
+- Active focus: finish verification and docs for the train-only GPU
+  utilization diagnosis. Current finding: GPU-sized train-only work can load
+  the RTX 5090, while the earlier mixed sampler probe was likely CPU-bound by
+  scoring/local search. Keep CPU proxy-search, shortlist export, and
+  exact-tool prep primary. Do not start a medium 30-60 minute GPU run until
+  GPU training/sampling is better decoupled from CPU scoring. This remains
+  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
+  SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -218,11 +219,30 @@ results change.
     - Result: added tests for train-only command construction, train-only log
       parsing, and train-only recommendation actions. Focused test run passed:
       10 passed in 0.03s.
-  - [pending] Run the capped train-only utilization probe, below 10 minutes.
-  - [pending] Record device/CUDA status, runtime/timeout, max/average GPU
+  - [done] Run the capped train-only utilization probe, below 10 minutes.
+    - Command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode train_only_utilization --output_dir /tmp/igp24_gpu_train_only_probe_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+    - Result: return code 0, no timeout, no interruption, runtime 34.1s.
+  - [done] Record device/CUDA status, runtime/timeout, max/average GPU
     utilization, max CUDA memory, train/eval loss behavior, whether
     sampling/scoring/local search was avoided, and whether any longer GPU run
     is justified.
+    - Result: `nvidia-smi` saw an RTX 5090 with driver 596.49 and 32607 MiB;
+      PyTorch `2.12.1+cu130` reported CUDA available and device
+      `NVIDIA GeForce RTX 5090`; train log recorded `device: cuda`.
+    - Utilization: 33 parsed monitor samples, max GPU utilization 95.0%,
+      average GPU utilization 20.67%, max monitored GPU memory 5814 MiB.
+    - Training: one epoch, 240 steps, four finite eval points, final
+      train/test loss about `0.698` / `0.724`, max PyTorch CUDA allocated
+      97.17 MiB, max PyTorch CUDA reserved 110.0 MiB.
+    - Isolation: post-training CPU sampling/scoring/local search was skipped;
+      `sample_requested_total=0`, `sample_valid_total=0`, and
+      `model_sample_ledger_records=0` by design.
+    - Recommendation: do not start a medium 30-60 minute run from the earlier
+      sampler path. GPU training itself can load the RTX 5090, so the next
+      architecture step should decouple GPU training/sampling from CPU
+      scoring/local search while CPU proxy-search and exact-tool prep remain
+      primary.
 
 ## Tests And Checks
 
@@ -273,6 +293,22 @@ results change.
   - Result: passed after adding `--train_only` and train-only probe mode.
 - 2026-07-04: `git diff --check`
   - Result: passed after adding the train-only utilization probe mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode train_only_utilization --output_dir /tmp/igp24_gpu_train_only_probe_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+  - Result: passed outside the managed sandbox in 34.1s with return code 0,
+    no timeout, no interruption, `device: cuda`, four finite eval points, max
+    monitored GPU utilization 95.0%, average monitored GPU utilization
+    20.67%, max monitored GPU memory 5814 MiB, final train/test loss about
+    `0.698` / `0.724`, and post-training sampling/scoring/local search
+    skipped.
+- 2026-07-04: audited
+  `/tmp/igp24_gpu_train_only_probe_20260704/gpu_sampler_probe_summary.json`.
+  - Result: 33 parsed utilization samples, PyTorch `2.12.1+cu130`, CUDA
+    available on `NVIDIA GeForce RTX 5090`, max PyTorch CUDA allocated
+    97.17 MiB, max PyTorch CUDA reserved 110.0 MiB, `sample_requested_total=0`,
+    `sample_valid_total=0`, `model_sample_ledger_records=0`, 451 initial
+    ledger records, metadata complete, and recommendation
+    `decouple_gpu_training_from_cpu_scoring`.
 - 2026-07-04: `python -m pytest`
   - Result: blocked with `/bin/bash: line 1: python: command not found`.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`

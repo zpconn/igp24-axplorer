@@ -242,6 +242,32 @@ SAIR, make network calls, submit candidates, or promote exact group labels.
 If local PARI/GP or MAGMA execution is requested explicitly, raw output must be
 kept as provenance before any later exact-label claim is made.
 
+## GPU Training Utilization Diagnosis
+
+The first short GPU sampler probe proved that `train.py` could run on CUDA and
+produce model-sampled proxy candidates, but live `nvidia-smi` observations
+showed near-zero utilization during that mixed train/sample/scoring workflow.
+The bottleneck was ambiguous because each normal epoch immediately entered
+CPU-heavy detokenization, proxy scoring, local search, and dataset update work.
+
+To isolate GPU-side training, `train.py` now has an opt-in `--train_only` flag
+that skips post-epoch sampling, scoring, local search, and dataset updates
+without changing normal defaults. The GPU sampler helper also has
+`--probe_mode train_only_utilization`, which uses a larger CUDA training
+workload, `--num_samples_from_model 0`, and frequent `nvidia-smi` sampling.
+
+The 2026-07-04 train-only utilization probe under
+`/tmp/igp24_gpu_train_only_probe_20260704` completed cleanly in 34.1 seconds on
+the RTX 5090 with PyTorch `2.12.1+cu130`, `device: cuda`, four finite eval
+points, final train/test loss about `0.698` / `0.724`, max monitored GPU
+utilization 95%, average monitored utilization 20.7%, max monitored GPU memory
+5814 MiB, max PyTorch CUDA reserved memory 110 MiB, and zero requested model
+samples. This shows that GPU-sized training can load the GPU. The earlier
+sampler workflow was therefore likely CPU-bound by scoring/local search. The
+next architecture step is to decouple GPU training/sampling from CPU scoring
+before any medium-length GPU run; CPU proxy-search, shortlist export, and
+exact-tool preparation remain the primary pipeline meanwhile.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

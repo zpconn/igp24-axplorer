@@ -78,9 +78,24 @@ Use GPU training as a parallel sampler path; keep CPU proxy-search, shortlist
 export, and exact-tool prep as the main candidate pipeline.
 
 A later short sampler probe generated valid model-sampled proxy candidates, but
-live `nvidia-smi` observation showed the current workload was not meaningfully
-loading the GPU. Do another short utilization-focused probe before any
-30-60 minute GPU run.
+live `nvidia-smi` observation showed that path was not meaningfully loading the
+GPU. A follow-up train-only utilization probe on 2026-07-04 isolated
+GPU-side training from post-epoch sampling/scoring/local search:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode train_only_utilization \
+  --output_dir /tmp/igp24_gpu_train_only_probe_20260704 \
+  --timeout_seconds 600 \
+  --monitor_interval_seconds 1
+```
+
+That run completed in 34.1s with `device: cuda`, four finite eval points, max
+monitored GPU utilization 95%, average utilization 20.7%, and zero requested
+model samples. Conclusion: GPU-sized training can load the RTX 5090; the
+earlier sampler path was CPU-bound by scoring/local search. The next GPU step
+should decouple GPU training/sampling from CPU scoring before any medium
+30-60 minute run.
 
 ## Run A Small Smoke Job
 
