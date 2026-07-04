@@ -49,10 +49,10 @@ DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
         "top_k": "9",
         "generation_strategy": "fixed_sparse_template",
     },
-    "fixed_template_t10_top32": {
+    "fixed_template_t10_top12": {
         "seed": "2401",
         "temperature": "1.0",
-        "top_k": "32",
+        "top_k": "12",
         "generation_strategy": "fixed_sparse_template",
     },
     "fixed_template_t11_open_topk": {

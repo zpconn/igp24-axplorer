@@ -776,7 +776,7 @@ results change.
         SAIR/network calls, and no submission behavior.
     - [done] Add two opt-in fixed-template entropy variants to compare
       against the current `fixed_template_t09_top9` behavior.
-      - Result: added `fixed_template_t10_top32` and
+      - Result: added `fixed_template_t10_top12` and
         `fixed_template_t11_open_topk` to the opt-in
         `sample_export_split_diversity` helper. Both preserve export-only
         GPU behavior and use `fixed_sparse_template`; normal `train.py`
@@ -815,6 +815,12 @@ results change.
     - [pending] Run two short export-only GPU intervention probes, each
       shorter than a 30-60m run and with CPU scoring/local search avoided
       during the GPU phase.
+      - Preliminary `fixed_template_t10_top32` attempt on seed `2302`:
+        loaded CUDA and reached 99.0% max monitored GPU utilization, but
+        exited with return code 1 after 147.326s before export rows were
+        written. Cause: `RuntimeError: selected index k out of range` from
+        `torch.topk`, because `top_k=32` exceeded the tokenizer vocabulary.
+        This variant was replaced with bounded `fixed_template_t10_top12`.
     - [pending] Score only the necessary intervention exports on the CPU
       proxy path with `--score_all true`, `--local_search false`, and
       `--max_local_search_steps 0`.
