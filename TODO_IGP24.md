@@ -10,10 +10,10 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   safe shortlist/export helper work.
-- Active focus: add safe batch export/shortlist tooling for top proxy-scored
-  candidates from existing ledgers and benchmark directories. This must remain
-  export-only for later human-reviewed offline exact verification; no verifier
-  execution, exact `24Tt` claim, SAIR call, or auto-submission path.
+- Active focus: safe batch export/shortlist tooling is implemented and smoke
+  tested on top `target_r=4` proxy candidates. Final verification is pending;
+  the helper remains export-only with no verifier execution, exact `24Tt`
+  claim, SAIR call, or auto-submission path.
 
 ## Stage 0: Scaffold
 
@@ -145,6 +145,18 @@ results change.
   - Result: passed; helper documents input paths, output directory,
     target-r filtering, strategy filtering, top-N limit, sort key, and
     ascending sort option.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py /tmp/igp24_r4_second_confirm_20260704 /tmp/igp24_r4_dual_quality_confirm_20260704 --target_r 4 --limit 25 --output_dir /tmp/igp24_r4_shortlist_20260704`
+  - Result: passed; loaded 4,870 source records and selected 25 deduplicated
+    `target_r=4` proxy candidates. Top score was 10214.147570701043.
+    Strategy counts were `quartic_lift`: 23 and `four_real_seed`: 2.
+- 2026-07-04: audited `/tmp/igp24_r4_shortlist_20260704`.
+  - Result: `shortlist.jsonl`, `coefficients.json`, `coefficients.txt`, and
+    `manifest.json` exist. The shortlist has 25 rows, 25 unique canonical
+    hashes, all real-root counts are 4, all exported coefficient vectors have
+    length 25 and end in fixed leading coefficient 1, all rows include source
+    ledger paths, scores are sorted descending, and manifest safety flags show
+    proxy-only/export-only with no verifier execution or submission.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before second r4 preset confirmation work.
 - 2026-07-04:
@@ -1055,6 +1067,41 @@ Interpretation:
   to add safe batch export/shortlist tooling for top r4 proxy candidates so the
   strongest families can feed later offline exact verification.
 
+### 2026-07-04 R4 Shortlist Export Smoke
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_shortlist_20260704`.
+- Inputs:
+  - `/tmp/igp24_r4_second_confirm_20260704`
+  - `/tmp/igp24_r4_dual_quality_confirm_20260704`
+- Filters: `target_r=4`, top 25 by descending proxy score, deduplicated by
+  canonical hash.
+- Output files:
+  - `/tmp/igp24_r4_shortlist_20260704/shortlist.jsonl`
+  - `/tmp/igp24_r4_shortlist_20260704/coefficients.json`
+  - `/tmp/igp24_r4_shortlist_20260704/coefficients.txt`
+  - `/tmp/igp24_r4_shortlist_20260704/manifest.json`
+- Loaded source records: 4,870.
+- Selected records: 25.
+- Unique canonical hashes: 25.
+- Top score: 10214.147570701043.
+- Last selected score: 10205.676526314839.
+- Strategy counts:
+  - `quartic_lift`: 23.
+  - `four_real_seed`: 2.
+- Audit:
+  - All selected rows have `real_root_count=4`.
+  - All exported coefficient vectors have length 25 and end in the fixed
+    leading coefficient 1.
+  - All selected rows include `source_ledger_path`.
+  - Scores are sorted descending.
+  - Manifest safety flags record `proxy_only=true`,
+    `verifier_executed=false`, `submission_executed=false`, and
+    `exact_group_claims=false`.
+- Caveat: this is still proxy-scored export data only. It prepares candidates
+  for later human-reviewed offline exact verification and does not certify any
+  exact group label.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -1076,7 +1123,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Add safe batch export/shortlist helpers for verifier input
+- [done] Add safe batch export/shortlist helpers for verifier input
   files.
   - [done] Add an export-only CLI that reads benchmark directories and/or
     ledger JSONL files without running MAGMA/PARI/SAIR or network calls.
@@ -1087,7 +1134,7 @@ down further as they become active.
   - [done] Add fast fixture-based tests for filtering, deduplication,
     sorting, manifest creation, and coefficient export shape.
   - [done] Document usage and the safety boundary in README/NOTES/TODO.
-  - [pending] Run and audit a small r4 shortlist smoke export from existing
+  - [done] Run and audit a small r4 shortlist smoke export from existing
     benchmark artifacts.
 - [done] Run second direct r4 preset confirmation.
   - [done] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
@@ -1206,6 +1253,9 @@ down further as they become active.
   `mix_r4_dual_quality` before retuning `preset_r4`.
 - [done] Run a second confirmation that directly compares `quartic_lift`,
   `mix_r4_dual_yield`, and current `preset_r4` before changing the r4 preset.
-- [in_progress] Add safe batch export/shortlist helpers for top proxy candidates
+- [done] Add safe batch export/shortlist helpers for top proxy candidates
   from the strongest r4 strategies so later offline exact verification can
   inspect them without adding any automatic SAIR submission path.
+- [pending] Manually review the exported r4 shortlist and choose a small batch
+  for offline exact-verifier experiments, keeping any SAIR submission explicit
+  and human-controlled.
