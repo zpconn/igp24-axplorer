@@ -10,12 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   split workflow hardening work.
-- Active focus: validate the GPU sample-export -> CPU proxy-scoring workflow
-  on a full short-run handoff by scoring all decoded exported rows, not just a
-  capped subset. Keep CPU proxy-search, shortlist export, and exact-tool prep
-  primary. Do not start a medium 30-60 minute GPU run yet. This remains
-  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
-  calls, and no auto-submission behavior.
+- Latest focus complete: the GPU sample-export -> CPU proxy-scoring workflow
+  has now been validated on a full short-run handoff: 1024 exported rows, 1023
+  decoded rows, and all decoded rows scored through the separate CPU proxy
+  helper with `selection_mode=all_explicit`. A later bounded 30-60 minute GPU
+  run is reasonable only as an export-only sampler run with separate CPU
+  scoring/review. Keep CPU proxy-search, shortlist export, and exact-tool prep
+  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
+  execution, no SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -390,12 +392,38 @@ results change.
     - Result: added a score-all regression test proving all exported records
       are selected, `score_all` stays true, `max_records` stays unset, and the
       split manifest records `selection_mode=all_explicit`.
-  - [pending] Run a short GPU export smoke around the current 1024-row scale.
-  - [pending] Score all decoded export rows with `--score_all true`,
+  - [done] Run a short GPU export smoke around the current 1024-row scale.
+    - Command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+    - Result: return code 0, no timeout, no interruption, runtime 32.273s,
+      logged `device: cuda`, two finite eval points, final train/test loss
+      about `0.911` / `0.742`, max monitored GPU utilization 94.0%, average
+      monitored GPU utilization 14.516%, max monitored GPU memory 5320 MiB,
+      1024 export rows, and 1023 decoded export rows. GPU-side CPU scoring
+      and local search were avoided.
+  - [done] Score all decoded export rows with `--score_all true`,
     `--local_search false`, and `--max_local_search_steps 0`.
-  - [pending] Update README, NOTES, and TODO with exact commands, artifact
+    - Command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - Result: runtime 36.724s, 1024 rows read and selected with
+      `selection_mode=all_explicit`, 1023 decoded/scored, 1 skipped decode,
+      908 valid proxy-scored, 115 rejected, 1022 unique canonical hashes,
+      1 duplicate canonical-hash record, local search disabled.
+    - Artifacts:
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_sampler_probe_summary.json`,
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/score_summary.json`,
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/scored_samples.jsonl`,
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_manifest.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_report.md`.
+  - [done] Update README, NOTES, and TODO with exact commands, artifact
     paths, counts, interpretation, and whether a later medium GPU run is
     justified.
+    - Result: a later bounded 30-60 minute GPU run is now reasonable only as
+      an export-only sampler run with the same manifest discipline and a
+      separate CPU score/review phase. Do not return to an integrated GPU
+      train/sample/score loop.
 
 ## Tests And Checks
 
@@ -445,6 +473,19 @@ results change.
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression
     coverage.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+  - Result: return code 0 in 32.273s, no timeout/interruption, logged
+    `device: cuda`, max monitored GPU utilization 94.0%, average monitored GPU
+    utilization 14.516%, max monitored GPU memory 5320 MiB, 1024 export rows,
+    1023 decoded export rows, and GPU-side CPU scoring/local search avoided.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: return code 0 in 36.724s, `selection_mode=all_explicit`, 1024
+    rows read/selected, 1023 decoded/scored, 1 skipped decode, 908 valid,
+    115 rejected, 1022 unique canonical hashes, 1 duplicate hash record,
+    local search disabled, and split manifest/report written under
+    `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all`.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 22 passed in 1.15s after adding split manifest/report,

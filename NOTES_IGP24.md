@@ -310,12 +310,25 @@ search disabled, producing 450 valid proxy-scored records, 62 rejected records,
 manifest is
 `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_manifest.json`.
 
-This is meaningful progress: GPU sampling is no longer blocked by CPU scoring
-and the handoff has one-file auditability. It is still not a reason to start a
-medium 30-60 minute GPU run yet. The next GPU-facing step should be one more
-short split smoke, ideally all-row scoring or a small target-setting
-comparison, while CPU proxy-search, shortlist export, and exact-tool prep
-remain the primary pipeline.
+The follow-up score-all short handoff on 2026-07-04 used
+`/tmp/igp24_gpu_sample_export_split_score_all_20260704`. The GPU export phase
+returned 0 with no timeout in 32.3 seconds, logged `device: cuda`, reached max
+monitored GPU utilization 94% with average utilization 14.5%, used up to
+5320 MiB of monitored GPU memory, wrote 1024 export rows, and decoded 1023 of
+them. The CPU proxy phase used `--score_all true`, recorded
+`selection_mode=all_explicit`, selected all 1024 export rows, skipped the one
+undecoded row, scored 1023 rows in 36.7 seconds with local search disabled,
+and produced 908 valid proxy-scored records, 115 rejected records, 1022 unique
+canonical hashes, and one duplicate hash record. The combined manifest is
+`/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_manifest.json`.
+
+This is meaningful progress: GPU sampling is no longer blocked by CPU scoring,
+the full short handoff has one-file auditability, and all decoded export rows
+can be consumed in a separate CPU proxy phase. A later bounded 30-60 minute GPU
+run is now reasonable only as an export-only sampler run with the same manifest
+discipline and a separate CPU score/review phase. Do not switch back to an
+integrated GPU train/sample/score loop; CPU proxy-search, shortlist export,
+and exact-tool prep remain the primary pipeline.
 
 ## Why Random Polynomials Are Limited
 

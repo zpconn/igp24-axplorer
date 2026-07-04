@@ -172,9 +172,43 @@ and local search disabled. The combined manifest is at:
 /tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export/split_workflow_manifest.json
 ```
 
-Recommendation: the split path is now practical enough for one more short
-export/scoring smoke, preferably scoring all decoded rows or comparing another
-small target setting. Do not start a medium 30-60 minute GPU run yet.
+The follow-up score-all short handoff on 2026-07-04 used:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split \
+  --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704 \
+  --timeout_seconds 600 \
+  --monitor_interval_seconds 1
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+That run completed the GPU phase in 32.3s with `device: cuda`, no timeout,
+max monitored GPU utilization 94%, average utilization 14.5%, max monitored
+GPU memory 5320 MiB, 1024 exported rows, and 1023 decoded rows. The CPU phase
+used `selection_mode=all_explicit`, selected all 1024 exported rows, skipped
+one undecoded row, scored 1023 rows in 36.7s, and found 908 valid proxy-scored
+records, 115 rejected records, 1022 unique canonical hashes, and one duplicate
+hash record. The combined manifest is at:
+
+```text
+/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all/split_workflow_manifest.json
+```
+
+Recommendation: a later bounded 30-60 minute GPU run is now reasonable only as
+an export-only sampler run with the same manifest discipline and a separate CPU
+score/review phase. Do not switch back to an integrated GPU train/sample/score
+loop; keep CPU proxy-search, shortlist export, and exact-tool prep as the main
+pipeline.
 
 ## Run A Small Smoke Job
 
