@@ -62,13 +62,19 @@ results change.
 - [done] Run a small reproducible CPU-only generation smoke.
 - [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
+- [in progress] Add a reusable per-strategy benchmark helper.
+  - [done] Add `scripts/igp24_benchmark.py` to run short CPU-only `train.py`
+    jobs and summarize JSONL ledgers.
+  - [done] Add fast tests for benchmark summary aggregation.
+  - [done] Verify helper CLI with `--help`.
+  - [pending] Run the helper across all generation strategies.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Result: 11 passed in 0.66s.
+  - Latest result: 13 passed in 1.04s after adding benchmark helper tests.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests`.
-  - Result: passed.
+  - Latest result: passed with `scripts` included.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -80,6 +86,14 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 13 passed in 1.04s.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; printed benchmark helper usage.
 - 2026-07-03: `git pull --ff-only`
   - Result: already up to date.
 - 2026-07-03: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`

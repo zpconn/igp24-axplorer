@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+"""Run short CPU-only IGP24 generation benchmarks through train.py.
+
+The helper intentionally exercises the real Axplorer CLI instead of duplicating
+the generation loop. It keeps all benchmark artifacts under the requested
+output directory and summarizes JSONL ledger metadata after each run.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import statistics
+import subprocess
+import sys
+import time
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "mixed"]
+
+
+def _parse_csv(value: str) -> list[str]:
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _parse_int_csv(value: str) -> list[int]:
+    return [int(item) for item in _parse_csv(value)]
+
+
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    records: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if line:
+                records.append(json.loads(line))
+    return records
+
+
+def summarize_records(records: list[dict[str, Any]]) -> dict[str, Any]:
+    scores = [float(record["score"]) for record in records if record.get("score") is not None]
+    strategies = Counter(record.get("generation_metadata", {}).get("strategy", "missing") for record in records)
+    local_attempted = 0
+    local_accepted = 0
+    local_records = 0
+    for record in records:
+        stats = record.get("local_search_metadata") or {}
+        attempted = int(stats.get("attempted") or 0)
+        accepted = int(stats.get("accepted") or 0)
+        if attempted or accepted:
+            local_records += 1
+        local_attempted += attempted
+        local_accepted += accepted
+
+    best_record = max(records, key=lambda record: float(record.get("score", float("-inf"))), default=None)
+    return {
+        "ledger_records": len(records),
+        "best_score": max(scores) if scores else None,
+        "mean_score": statistics.fmean(scores) if scores else None,
+        "median_score": statistics.median(scores) if scores else None,
+        "strategy_mix": dict(sorted(strategies.items())),
+        "local_search_attempted": local_attempted,
+        "local_search_accepted": local_accepted,
+        "local_search_records": local_records,
+        "best_hash": best_record.get("canonical_hash") if best_record else None,
+        "best_generation_strategy": best_record.get("generation_metadata", {}).get("strategy") if best_record else None,
+        "metadata_complete": all(
+            "score_components" in record and "generation_metadata" in record and "local_search_metadata" in record for record in records
+        )
+        if records
+        else False,
+    }
+
+
+def run_one(args: argparse.Namespace, strategy: str, seed: int) -> dict[str, Any]:
+    run_name = f"{strategy}_seed_{seed}"
+    run_dir = args.output_dir / run_name
+    ledger_path = run_dir / "candidates.jsonl"
+    dump_path = run_dir / "dump"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    if ledger_path.exists():
+        ledger_path.unlink()
+
+    cmd = [
+        sys.executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        f"igp24_bench_{strategy}_{seed}",
+        "--dump_path",
+        str(dump_path),
+        "--seed",
+        str(seed),
+        "--coeff_bound",
+        str(args.coeff_bound),
+        "--gensize",
+        str(args.gensize),
+        "--pop_size",
+        str(args.pop_size),
+        "--ntest",
+        str(args.ntest),
+        "--gen_batch_size",
+        str(args.gen_batch_size),
+        "--data_generation_only",
+        "true",
+        "--always_search",
+        str(args.always_search).lower(),
+        "--max_local_search_steps",
+        str(args.max_local_search_steps),
+        "--prime_limit",
+        str(args.prime_limit),
+        "--exact_score_timeout",
+        str(args.exact_score_timeout),
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "true",
+        "--igp24_generation_strategy",
+        strategy,
+        "--igp24_sparse_terms",
+        str(args.sparse_terms),
+        "--igp24_low_height_bound",
+        str(args.low_height_bound),
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+
+    start = time.perf_counter()
+    completed = subprocess.run(cmd, cwd=args.repo_root, text=True, capture_output=True, check=False)
+    elapsed = time.perf_counter() - start
+    records = read_jsonl(ledger_path)
+    summary = summarize_records(records)
+    result: dict[str, Any] = {
+        "strategy": strategy,
+        "seed": seed,
+        "coeff_bound": args.coeff_bound,
+        "gensize": args.gensize,
+        "local_search_steps": args.max_local_search_steps,
+        "runtime_seconds": elapsed,
+        "returncode": completed.returncode,
+        "ledger_path": str(ledger_path),
+        "command": cmd,
+        "stdout_tail": completed.stdout.splitlines()[-20:],
+        "stderr_tail": completed.stderr.splitlines()[-20:],
+        **summary,
+    }
+    return result
+
+
+def write_outputs(results: list[dict[str, Any]], output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = output_dir / "summary.json"
+    summary_path.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    jsonl_path = output_dir / "summary.jsonl"
+    with jsonl_path.open("w", encoding="utf-8") as handle:
+        for result in results:
+            handle.write(json.dumps(result, sort_keys=True, separators=(",", ":")) + "\n")
+
+
+def print_table(results: list[dict[str, Any]]) -> None:
+    print("strategy\tseed\treturncode\truntime_s\tledger_records\tbest_score\tmean_score\tlocal_acceptance")
+    for result in results:
+        attempted = int(result.get("local_search_attempted") or 0)
+        accepted = int(result.get("local_search_accepted") or 0)
+        acceptance = (accepted / attempted) if attempted else 0.0
+        best_score = result.get("best_score")
+        mean_score = result.get("mean_score")
+        best_score_text = f"{best_score:.6f}" if best_score is not None else "NA"
+        mean_score_text = f"{mean_score:.6f}" if mean_score is not None else "NA"
+        print(
+            f"{result['strategy']}\t{result['seed']}\t{result['returncode']}\t"
+            f"{result['runtime_seconds']:.2f}\t{result['ledger_records']}\t"
+            f"{best_score_text}\t"
+            f"{mean_score_text}\t"
+            f"{acceptance:.3f}"
+        )
+
+
+def get_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Short CPU-only benchmark runner for IGP24 generation strategies")
+    parser.add_argument("--strategies", default=",".join(DEFAULT_STRATEGIES), help="Comma-separated generation strategies")
+    parser.add_argument("--seeds", default="101", help="Comma-separated integer seeds")
+    parser.add_argument("--coeff_bound", type=int, default=4)
+    parser.add_argument("--gensize", type=int, default=12)
+    parser.add_argument("--pop_size", type=int, default=6)
+    parser.add_argument("--ntest", type=int, default=2)
+    parser.add_argument("--gen_batch_size", type=int, default=2)
+    parser.add_argument("--max_local_search_steps", type=int, default=3)
+    parser.add_argument("--prime_limit", type=int, default=11)
+    parser.add_argument("--exact_score_timeout", type=float, default=3.0)
+    parser.add_argument("--sparse_terms", type=int, default=4)
+    parser.add_argument("--low_height_bound", type=int, default=2)
+    parser.add_argument("--always_search", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--output_dir", type=Path, required=True)
+    parser.add_argument("--repo_root", type=Path, default=Path(__file__).resolve().parents[1])
+    return parser
+
+
+def main() -> int:
+    parser = get_parser()
+    args = parser.parse_args()
+    args.strategies = _parse_csv(args.strategies)
+    args.seeds = _parse_int_csv(args.seeds)
+    args.output_dir = args.output_dir.resolve()
+    args.repo_root = args.repo_root.resolve()
+
+    results = []
+    for strategy in args.strategies:
+        if strategy not in DEFAULT_STRATEGIES:
+            parser.error(f"unknown strategy: {strategy}")
+        for seed in args.seeds:
+            result = run_one(args, strategy, seed)
+            results.append(result)
+            if result["returncode"] != 0:
+                write_outputs(results, args.output_dir)
+                print_table(results)
+                return result["returncode"]
+
+    write_outputs(results, args.output_dir)
+    print_table(results)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
