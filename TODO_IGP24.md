@@ -10,9 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   larger `mix_r4_dual_quality` confirmation work.
-- Active focus: larger `mix_r4_dual_quality` confirmation is complete.
-  Evidence is mixed, so `preset_r4` remains unchanged pending more targeted
-  confirmation.
+- Active focus: larger `mix_r4_dual_quality` confirmation and final checks
+  are complete. Evidence is mixed, so `preset_r4` remains unchanged pending
+  more targeted confirmation.
 
 ## Stage 0: Scaffold
 
@@ -117,9 +117,12 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 22 passed in 0.68s after dual-family r4 mix work.
+  - Latest result: 22 passed in 0.77s after larger r4 dual-quality
+    confirmation work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after dual-family r4 mix work.
+  - Latest result: passed after larger r4 dual-quality confirmation work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
+  - Latest result: passed after larger r4 dual-quality confirmation work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -152,6 +155,21 @@ results change.
 - 2026-07-04: checked `resolve_generation_preset('r4', 'uniform', 'uniform:1')`.
   - Result: `preset_r4` still resolves to `mixed` with
     `four_real_seed:0.8,sparse:0.2`; no preset retune was applied.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 22 passed in 0.77s after larger r4 dual-quality confirmation
+    work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories; follow-up search
+    found none.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before benchmark-only dual-family r4 mix work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -926,7 +944,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Confirm whether `preset_r4` should retune to
+- [done] Confirm whether `preset_r4` should retune to
   `mix_r4_dual_quality`.
   - [done] Run a larger 12-seed CPU-only `target_r=4` confirmation across
     `preset_r4`, `four_real_seed`, `quartic_lift`, and dual r4 mix labels.
