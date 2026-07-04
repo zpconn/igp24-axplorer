@@ -9,13 +9,12 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  safe offline-verifier preparation workflow work.
-- Active focus: safe offline exact-verifier preparation workflow for
-  `/tmp/igp24_r4_review_batch_20260704` is implemented, smoke-tested, and
-  ready for a future machine with local PARI/GP or MAGMA installed. The current
-  machine has neither `gp` nor `magma` on PATH, so exact verification remains
-  unrun and no exact `24Tt` labels are claimed. SAIR/network/submission
-  behavior remains out of scope.
+  fixed-support sparse template generation work.
+- Active focus: add an opt-in `fixed_sparse_template` generation family, then
+  benchmark it against `sparse` and `structured` with at least `target_r=2`.
+  This remains proxy-only: exact verification is still blocked locally because
+  `gp` and `magma` are unavailable, no exact `24Tt` labels are claimed, and
+  no SAIR/network/submission behavior should be added.
 
 ## Stage 0: Scaffold
 
@@ -144,6 +143,9 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before fixed-support sparse template generation
+    work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe offline-verifier preparation
     workflow work.
@@ -1308,6 +1310,19 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Add an opt-in fixed-support sparse template generation family.
+  - [pending] Add a `fixed_sparse_template` strategy distinct from random
+    `sparse`, using a small hand-auditable set of support templates.
+  - [pending] Keep the strategy opt-in only; do not change default mixed
+    weights, default generation behavior, or `preset_r4`.
+  - [pending] Record ledger metadata for template name, support indices,
+    coefficient bound, and any target-r intent.
+  - [pending] Add focused tests for coefficient shape, template metadata,
+    deterministic generation, CLI strategy validity, and unchanged defaults.
+  - [pending] Document the strategy in README/NOTES/TODO.
+  - [pending] Run a bounded CPU-only benchmark against `sparse` and
+    `structured`, including at least `target_r=2`, and interpret proxy-only
+    results without retuning defaults.
 - [done] Add safe offline exact-verifier preparation workflow.
   - [done] Add a preparation-only CLI that reads review-batch directories,
     validates `verification_batch.jsonl`, `verification_coefficients.txt`, and
@@ -1460,8 +1475,8 @@ down further as they become active.
   strategy/target pairs.
 - [done] Run a larger `target_r=4` validation with `four_real_seed`,
   `preset_r4`, and tuned target-specific mixes before promoting presets.
-- [pending] Run a longer focused `target_r=2` comparison between `sparse` and
-  `structured`.
+- [in_progress] Run a longer focused `target_r=2` comparison between `sparse`,
+  `structured`, and the new fixed-support sparse template family.
 - [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
 - [done] Run a larger r4 comparison or benchmark-only mix that combines
