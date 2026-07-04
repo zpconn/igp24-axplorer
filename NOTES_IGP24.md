@@ -290,3 +290,11 @@ RTX 5090, PyTorch `2.12.1+cu130` with CUDA available, a passing CPU baseline,
 and a passing tiny GPU train with `device: cuda` and CUDA memory logging. The
 recommendation is to run both in parallel: keep CPU proxy-search and exact-tool
 prep primary while using GPU training as an additional sampler path.
+
+A later short sampler probe under `/tmp/igp24_gpu_sampler_probe_20260704`
+completed a bounded CUDA training/sampling run and produced many valid
+model-sampled proxy candidates, but live GPU observation showed utilization at
+or near zero during the run. Treat this as evidence that the current settings
+are CPU-bound by scoring/local search or too small to load the RTX 5090. Do not
+move to a 30-60 minute GPU run until another short probe demonstrates
+nontrivial monitored GPU utilization.

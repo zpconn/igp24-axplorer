@@ -13,9 +13,12 @@ results change.
 - Active focus: run a short controlled GPU sampler probe, capped well below a
   30-60 minute run, to decide whether a medium GPU training run is justified.
   Keep CPU proxy-search, shortlist export, and exact-tool prep primary unless
-  the short probe provides stronger evidence. This remains proxy-only: no exact
-  `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
-  auto-submission behavior.
+  the short probe provides stronger evidence. Current finding: CUDA placement
+  works and model sampling can produce valid proxy candidates, but live
+  observation showed the GPU sitting near zero utilization during the sampler
+  probe, so a 30-60 minute run is not justified yet. This remains proxy-only:
+  no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and
+  no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -172,12 +175,27 @@ results change.
       parsing, train-log loss/memory parsing, model-sample ledger filtering,
       capped command construction, baseline loading, and recommendation logic
       without requiring GPU hardware.
-  - [pending] Run a capped roughly 5-10 minute GPU training/sampling probe
+  - [done] Run a capped roughly 5-10 minute GPU training/sampling probe
     under `/tmp/igp24_gpu_sampler_probe_20260704`.
-  - [pending] Record CUDA/PyTorch status, runtime, loss/eval behavior, CUDA
+    - Result: completed short CUDA sampler runs in about 183-185 seconds with
+      return code 0, two epochs, eight finite eval points, and `device: cuda`.
+      A utilization-monitored rerun was interrupted after the user observed
+      `nvidia-smi` sitting near zero utilization; no active GPU process
+      remained afterward.
+  - [done] Record CUDA/PyTorch status, runtime, loss/eval behavior, CUDA
     memory logs, sampled-candidate validity, ledger counts, metadata
     completeness, and whether the result justifies another short probe or a
     later medium run.
+    - Result: unmonitored completed run showed PyTorch `2.12.1+cu130` on the
+      RTX 5090, max CUDA reserved memory 76 MiB, final train/test losses around
+      `0.618` / `1.382`, 910 valid sampled candidates out of 1024 requested,
+      1728 ledger rows, 1615 `manual` model-sampled rows, and complete
+      metadata. Because live utilization appeared near zero, this does not
+      justify a 30-60 minute GPU run yet.
+    - Recommendation: run another short GPU probe with adjusted settings that
+      explicitly targets nontrivial GPU utilization, for example more
+      GPU-side model/batch work and less CPU-side scoring pressure. Keep CPU
+      proxy-search and exact-tool prep primary.
 
 ## Tests And Checks
 
@@ -197,7 +215,8 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after adding the short GPU sampler probe helper.
+  - Latest result: passed after adding utilization-monitoring and interrupt
+    cleanup to the short GPU sampler probe helper.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -221,6 +240,35 @@ results change.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
   - Result: passed after adding the short GPU sampler probe helper.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --output_dir /tmp/igp24_gpu_sampler_probe_20260704 --timeout_seconds 600`
+  - Result: passed outside the managed sandbox in about 183-185 seconds. The
+    completed runs logged `device: cuda`, two epochs, eight finite eval points,
+    max CUDA reserved memory 76 MiB, final train/test loss around `0.618` /
+    `1.382`, 910 valid sampled candidates out of 1024 requested, 1728 ledger
+    rows, 1615 `manual` model-sampled rows, and complete metadata.
+  - Interpretation update: this proves the training/sampling path can produce
+    valid proxy candidates, but it does not prove meaningful GPU utilization.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --output_dir /tmp/igp24_gpu_sampler_probe_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+  - Result: interrupted intentionally after live observation showed the GPU
+    sitting near zero utilization. The wrapper was stopped with Ctrl-C; the
+    summary file only contains probe data because interruption happened before
+    the run summary was written.
+  - Follow-up check: `nvidia-smi` showed no active compute processes after the
+    interruption. A partial run log still showed `device: cuda`, two epochs,
+    eight finite eval points, and valid samples, but no complete utilization
+    report was written.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py`
+  - Result: 7 passed in 0.01s after adding utilization parsing and interrupt
+    cleanup.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after adding utilization parsing and interrupt cleanup.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper now exposes `--monitor_interval_seconds`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU-readiness and training-smoke work.
 - 2026-07-04: `python -m pytest`

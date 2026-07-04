@@ -4,6 +4,7 @@ from scripts.igp24_gpu_sampler_probe import (
     build_recommendation,
     build_sampler_command,
     load_baseline_summary,
+    parse_gpu_utilization_sample,
     parse_sample_sections,
     parse_train_log,
     summarize_model_sample_records,
@@ -65,7 +66,7 @@ def test_summarize_model_sample_records_filters_null_strategy():
     records = [
         {"score": 10.0, "canonical_hash": "a", "generation_metadata": {"strategy": "fixed_sparse_template"}},
         {"score": 12.0, "canonical_hash": "b", "generation_metadata": {"strategy": None}},
-        {"score": 14.0, "canonical_hash": "c", "generation_metadata": {"strategy": None}},
+        {"score": 14.0, "canonical_hash": "c", "generation_metadata": {"strategy": "manual"}},
     ]
 
     summary = summarize_model_sample_records(records)
@@ -74,6 +75,17 @@ def test_summarize_model_sample_records_filters_null_strategy():
     assert summary["model_sample_best_score"] == 14.0
     assert summary["model_sample_mean_score"] == 13.0
     assert summary["model_sample_hashes"] == ["b", "c"]
+
+
+def test_parse_gpu_utilization_sample_reads_nvidia_smi_query():
+    sample = parse_gpu_utilization_sample("42, 2676, 71.23\n")
+
+    assert sample == {
+        "gpu_utilization_percent": 42.0,
+        "memory_used_mib": 2676.0,
+        "power_draw_watts": 71.23,
+    }
+    assert parse_gpu_utilization_sample("not csv") is None
 
 
 def test_build_sampler_command_is_capped_gpu_and_proxy_only(tmp_path):
@@ -97,7 +109,9 @@ def test_build_recommendation_advances_only_with_valid_model_samples():
             "gpu_sampler_probe": {
                 "returncode": 0,
                 "timed_out": False,
+                "interrupted": False,
                 "gpu_used": True,
+                "gpu_monitor": {"max_gpu_utilization_percent": 0.0},
                 "model_sample_ledger_records": 0,
                 "train_log": {
                     "eval_losses": [
@@ -111,8 +125,13 @@ def test_build_recommendation_advances_only_with_valid_model_samples():
     }
 
     assert build_recommendation(base)["action"] == "run_another_short_gpu_probe_with_adjusted_settings"
+    base["runs"]["gpu_sampler_probe"]["interrupted"] = True
+    assert build_recommendation(base)["action"] == "run_another_short_gpu_probe_with_adjusted_settings"
+    base["runs"]["gpu_sampler_probe"]["interrupted"] = False
     base["runs"]["gpu_sampler_probe"]["model_sample_ledger_records"] = 2
     base["runs"]["gpu_sampler_probe"]["train_log"]["sample_valid_total"] = 2
+    assert build_recommendation(base)["action"] == "run_another_short_gpu_probe_with_adjusted_settings"
+    base["runs"]["gpu_sampler_probe"]["gpu_monitor"]["max_gpu_utilization_percent"] = 25.0
     assert build_recommendation(base)["action"] == "proceed_to_medium_30_60_minute_gpu_run_later"
 
 

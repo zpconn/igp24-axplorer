@@ -12,7 +12,9 @@ import argparse
 import json
 import math
 import re
+import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -139,7 +141,7 @@ def summarize_model_sample_records(records: list[dict[str, Any]]) -> dict[str, A
     sampled = [
         record
         for record in records
-        if (record.get("generation_metadata") or {}).get("strategy") is None
+        if (record.get("generation_metadata") or {}).get("strategy") in {None, "manual"}
     ]
     scores = [float(record["score"]) for record in sampled if record.get("score") is not None]
     return {
@@ -147,6 +149,116 @@ def summarize_model_sample_records(records: list[dict[str, Any]]) -> dict[str, A
         "model_sample_best_score": max(scores) if scores else None,
         "model_sample_mean_score": (sum(scores) / len(scores)) if scores else None,
         "model_sample_hashes": [record.get("canonical_hash") for record in sampled[:10]],
+    }
+
+
+def nvidia_utilization_command() -> list[str]:
+    return [
+        "nvidia-smi",
+        "--query-gpu=utilization.gpu,memory.used,power.draw",
+        "--format=csv,noheader,nounits",
+    ]
+
+
+def parse_gpu_utilization_sample(stdout: str) -> dict[str, Any] | None:
+    for line in stdout.splitlines():
+        parts = [part.strip() for part in line.split(",")]
+        if len(parts) < 3:
+            continue
+        try:
+            return {
+                "gpu_utilization_percent": float(parts[0]),
+                "memory_used_mib": float(parts[1]),
+                "power_draw_watts": float(parts[2]),
+            }
+        except ValueError:
+            continue
+    return None
+
+
+def sample_gpu_utilization(cwd: Path) -> dict[str, Any]:
+    result = run_command(nvidia_utilization_command(), cwd, 10)
+    sample = parse_gpu_utilization_sample("\n".join(result.get("stdout_tail", [])))
+    return {
+        "returncode": result.get("returncode"),
+        "runtime_seconds": result.get("runtime_seconds"),
+        "sample": sample,
+        "stderr_tail": result.get("stderr_tail", []),
+    }
+
+
+def summarize_gpu_monitor(samples: list[dict[str, Any]]) -> dict[str, Any]:
+    parsed = [sample["sample"] for sample in samples if sample.get("sample") is not None]
+    util = [float(sample["gpu_utilization_percent"]) for sample in parsed]
+    memory = [float(sample["memory_used_mib"]) for sample in parsed]
+    power = [float(sample["power_draw_watts"]) for sample in parsed]
+    return {
+        "sample_count": len(samples),
+        "parsed_sample_count": len(parsed),
+        "max_gpu_utilization_percent": max(util) if util else None,
+        "avg_gpu_utilization_percent": (sum(util) / len(util)) if util else None,
+        "max_memory_used_mib": max(memory) if memory else None,
+        "avg_power_draw_watts": (sum(power) / len(power)) if power else None,
+        "samples": samples,
+    }
+
+
+def run_monitored_command(
+    cmd: list[str],
+    cwd: Path,
+    timeout_seconds: int,
+    monitor_interval_seconds: float,
+) -> dict[str, Any]:
+    start = time.perf_counter()
+    process = subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    samples: list[dict[str, Any]] = []
+    stdout = ""
+    stderr = ""
+    timed_out = False
+    interrupted = False
+    while True:
+        elapsed = time.perf_counter() - start
+        remaining = timeout_seconds - elapsed
+        if remaining <= 0:
+            process.kill()
+            stdout, stderr = process.communicate()
+            timed_out = True
+            break
+        wait_for = min(monitor_interval_seconds, remaining)
+        try:
+            stdout, stderr = process.communicate(timeout=wait_for)
+            break
+        except subprocess.TimeoutExpired:
+            samples.append(sample_gpu_utilization(cwd))
+        except KeyboardInterrupt:
+            interrupted = True
+            process.terminate()
+            try:
+                stdout, stderr = process.communicate(timeout=10)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                stdout, stderr = process.communicate()
+            break
+
+    elapsed = time.perf_counter() - start
+    return {
+        "command": [str(part) for part in cmd],
+        "command_text": command_text(cmd),
+        "returncode": 130 if interrupted else (124 if timed_out else process.returncode),
+        "runtime_seconds": elapsed,
+        "timed_out": timed_out,
+        "interrupted": interrupted,
+        "stdout_tail": stdout.splitlines()[-30:],
+        "stderr_tail": stderr.splitlines()[-30:],
+        "stdout": stdout,
+        "stderr": stderr,
+        "gpu_monitor": summarize_gpu_monitor(samples),
     }
 
 
@@ -285,6 +397,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "status": "completed",
         "returncode": command_result.get("returncode"),
         "timed_out": command_result.get("timed_out"),
+        "interrupted": command_result.get("interrupted", False),
         "runtime_seconds": command_result.get("runtime_seconds"),
         "command": command_config["command"],
         "command_text": command_config["command_text"],
@@ -296,6 +409,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
             and train_log.get("logged_device") == "cuda"
             and bool(train_log.get("cuda_memory_logged"))
         ),
+        "gpu_monitor": command_result.get("gpu_monitor", summarize_gpu_monitor([])),
         "stdout_tail": command_result.get("stdout_tail", []),
         "stderr_tail": command_result.get("stderr_tail", []),
         **summarize_records(records),
@@ -311,6 +425,8 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
     final_eval = eval_losses[-1] if eval_losses else {}
     sample_valid_total = int(train_log.get("sample_valid_total") or 0)
     model_sample_records = int(run.get("model_sample_ledger_records") or 0)
+    gpu_monitor = run.get("gpu_monitor") or {}
+    max_gpu_utilization = gpu_monitor.get("max_gpu_utilization_percent")
 
     if not torch_probe.get("cuda_available"):
         return {
@@ -321,6 +437,11 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
         return {
             "action": "run_another_short_gpu_probe_with_adjusted_settings",
             "reason": "The short probe hit its timeout cap; reduce settings before any longer run.",
+        }
+    if run.get("interrupted"):
+        return {
+            "action": "run_another_short_gpu_probe_with_adjusted_settings",
+            "reason": "The monitored probe was interrupted before a complete utilization report was written.",
         }
     if run.get("returncode") != 0:
         return {
@@ -341,6 +462,15 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
         return {
             "action": "run_another_short_gpu_probe_with_adjusted_settings",
             "reason": "Training was stable, but model sampling produced no valid IGP24 candidates.",
+        }
+    if max_gpu_utilization is None or float(max_gpu_utilization) < 10.0:
+        return {
+            "action": "run_another_short_gpu_probe_with_adjusted_settings",
+            "reason": (
+                "CUDA placement worked and samples were useful, but monitored GPU utilization "
+                "was too low to justify a medium run yet. Increase model/batch work or reduce "
+                "CPU-side scoring pressure in another short probe."
+            ),
         }
     if model_sample_records > 0:
         return {
@@ -370,6 +500,7 @@ def build_report(summary: dict[str, Any]) -> str:
     nvidia = probes.get("nvidia_smi", {})
     run = summary.get("runs", {}).get("gpu_sampler_probe", {})
     train_log = run.get("train_log") or {}
+    gpu_monitor = run.get("gpu_monitor") or {}
     final_eval = (train_log.get("eval_losses") or [{}])[-1]
     recommendation = summary.get("recommendation", {})
     baseline = summary.get("baseline")
@@ -390,19 +521,21 @@ def build_report(summary: dict[str, Any]) -> str:
         "",
         "## GPU Sampler Run",
         "",
-        "| returncode | timeout | runtime_s | device | evals | final_train_loss | final_test_loss | max_reserved_mb | sample_requested | sample_valid | model_sample_ledger | ledger_rows | metadata |",
-        "| ---: | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| returncode | timeout | interrupted | runtime_s | device | evals | final_train_loss | final_test_loss | max_reserved_mb | max_gpu_util | sample_requested | sample_valid | model_sample_ledger | ledger_rows | metadata |",
+        "| ---: | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         "| "
         + " | ".join(
             [
                 str(run.get("returncode")),
                 str(run.get("timed_out")),
+                str(run.get("interrupted")),
                 _fmt(run.get("runtime_seconds")),
                 str(train_log.get("logged_device")),
                 str(len(train_log.get("eval_losses") or [])),
                 _fmt(final_eval.get("train_loss")),
                 _fmt(final_eval.get("test_loss")),
                 _fmt(train_log.get("max_cuda_reserved_mb")),
+                _fmt(gpu_monitor.get("max_gpu_utilization_percent")),
                 str(train_log.get("sample_requested_total")),
                 str(train_log.get("sample_valid_total")),
                 str(run.get("model_sample_ledger_records")),
@@ -453,6 +586,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout_seconds", type=int, default=600)
     parser.add_argument("--run_id", default="", help="Optional fixed experiment id; defaults to a UTC timestamp")
     parser.add_argument("--baseline_summary", type=Path, default=DEFAULT_BASELINE_SUMMARY)
+    parser.add_argument("--monitor_interval_seconds", type=float, default=2.0)
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances to a medium run")
     return parser
 
@@ -501,7 +635,12 @@ def main() -> int:
         )
         command_config["caps"]["timeout_seconds"] = args.timeout_seconds
         Path(command_config["ledger_path"]).unlink(missing_ok=True)
-        command_result = run_command(command_config["command"], args.repo_root, args.timeout_seconds)
+        command_result = run_monitored_command(
+            command_config["command"],
+            args.repo_root,
+            args.timeout_seconds,
+            args.monitor_interval_seconds,
+        )
         summary["runs"]["gpu_sampler_probe"] = summarize_sampler_run(command_config, command_result)
     else:
         summary["runs"]["gpu_sampler_probe"] = {

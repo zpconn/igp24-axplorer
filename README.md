@@ -77,6 +77,11 @@ GPU training smoke both returned 0, and the GPU train log shows `device: cuda`.
 Use GPU training as a parallel sampler path; keep CPU proxy-search, shortlist
 export, and exact-tool prep as the main candidate pipeline.
 
+A later short sampler probe generated valid model-sampled proxy candidates, but
+live `nvidia-smi` observation showed the current workload was not meaningfully
+loading the GPU. Do another short utilization-focused probe before any
+30-60 minute GPU run.
+
 ## Run A Small Smoke Job
 
 ```bash
