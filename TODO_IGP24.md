@@ -10,15 +10,15 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   multi-seed `fixed_template_t11_open_topk` stability validation.
-- Active focus: validating whether `fixed_template_t11_open_topk` is stable
-  across fresh short GPU export-only seeds before any longer fixed-template
-  run. The plan is three short CUDA export-only runs for seeds `2401`,
-  `2402`, and `2403`, raw export diagnostics immediately after each export,
-  CPU score-all only after diagnostics confirm the exports are worth scoring,
-  and a merged dedup review. Keep CPU proxy-search, shortlist export, and
-  exact-tool prep primary. This remains proxy-only: no exact `24Tt` labels,
-  no MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
-  behavior.
+- Active focus: do not start a longer fixed-template GPU run yet.
+  Multi-seed validation showed `fixed_template_t11_open_topk` is not stable
+  across fresh short export-only seeds: seed `2302` had near-clean raw
+  diversity, but seeds `2401`, `2402`, and `2403` produced only 675, 1217,
+  and 1088 canonical unique hashes. Keep CPU proxy-search, shortlist export,
+  and exact-tool prep primary. The next GPU/code step should be a dedup-aware
+  export cap/stop policy or live uniqueness monitor, still proxy-only with no
+  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
+  auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -1047,16 +1047,73 @@ results change.
         2030 unique / 2043 decoded and only 13 duplicates, but fresh seeds
         `2401`, `2402`, and `2403` had only 675, 1217, and 1088 canonical
         unique hashes with 1368, 820, and 938 duplicates respectively.
-    - [in_progress] Decide from diagnostics which exports are worth CPU
+    - [done] Decide from diagnostics which exports are worth CPU
       score-all, then score necessary exports with local search disabled.
       - Decision: skip CPU scoring seed `2401` because raw export diversity
         collapsed badly. Score seeds `2402` and `2403` because they have
         partial recovery above 1000 unique raw/canonical outputs and can
         clarify validity/score tradeoffs.
-    - [pending] Merge scored outputs and compare against prior clean seed
+      - Seed `2402` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2402.jsonl --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2402` CPU score result: return code 0, runtime 71.768s,
+        `selection_mode=all_explicit`, 2048 rows read/selected, 2037
+        decoded/scored, 11 skipped decode, 1910 valid, 127 rejected, 1217
+        unique canonical hashes, 820 duplicate hash records, best score
+        9958.729, mean score 9301.895, and local search disabled.
+      - Seed `2403` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2403.jsonl --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2403` CPU score result: return code 0, runtime 70.270s,
+        `selection_mode=all_explicit`, 2048 rows read/selected, 2026
+        decoded/scored, 22 skipped decode, 1913 valid, 113 rejected, 1088
+        unique canonical hashes, 938 duplicate hash records, best score
+        9952.131, mean score 9367.702, and local search disabled.
+      - CPU score artifacts:
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all/split_workflow_manifest.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all/split_workflow_report.md`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all/split_workflow_manifest.json`,
+        and
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all/split_workflow_report.md`.
+    - [done] Merge scored outputs and compare against prior clean seed
       `2201`, duplicate-heavy baseline seed `2302`, and intervention seed
       `2302` where useful.
-    - [pending] Update README, NOTES, and TODO with commands, artifacts,
+      - Merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/cpu_scored_export_all --labels seed2201_t09_clean seed2302_t09_baseline seed2302_t11_open seed2402_t11_open seed2403_t11_open --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/merged_scored_review --top_n 25`
+      - Merge result: five sources, 10200 scored rows, 9486 valid,
+        714 rejected, 6822 unique canonical hashes, 3378 duplicate hash
+        records, four cross-seed shared hashes, best score 9964.435, and mean
+        score 9226.911.
+      - Source comparison:
+        `seed2201_t09_clean`: 2047 scored, 1799 valid, 248 rejected, 2039
+        unique, 8 duplicates, best 9964.435, mean 8720.207.
+        `seed2302_t09_baseline`: 2047 scored, 2031 valid, 16 rejected, 452
+        unique, 1595 duplicates, best 9951.923, mean 9845.475.
+        `seed2302_t11_open`: 2043 scored, 1833 valid, 210 rejected, 2030
+        unique, 13 duplicates, best 9956.519, mean 8900.449.
+        `seed2402_t11_open`: 2037 scored, 1910 valid, 127 rejected, 1217
+        unique, 820 duplicates, best 9958.729, mean 9301.895.
+        `seed2403_t11_open`: 2026 scored, 1913 valid, 113 rejected, 1088
+        unique, 938 duplicates, best 9952.131, mean 9367.702.
+      - Top merged candidates: the best overall proxy score remained from
+        `seed2201_t09_clean` at 9964.435. The best fresh `t11_open` result in
+        this validation was seed `2402` at 9958.729, ranked third in the
+        merged dedup report.
+      - Merge artifacts:
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/merged_scored_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/merged_scored_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/merged_scored_review/top_deduped_candidates.jsonl`.
+      - Stability conclusion: `fixed_template_t11_open_topk` is not stable
+        enough to promote as the next longer-run configuration. It can produce
+        excellent diversity on some seeds, but two of three fresh seeds
+        duplicated heavily and the third still landed far below the clean
+        seed `2302`/seed `2201` uniqueness regime. Do not run a longer
+        fixed-template job yet; implement dedup-aware export control or live
+        uniqueness monitoring next.
+    - [in_progress] Update README, NOTES, and TODO with commands, artifacts,
       metrics, stability interpretation, and next action.
     - [pending] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
