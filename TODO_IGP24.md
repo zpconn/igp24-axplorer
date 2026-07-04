@@ -10,9 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   safe shortlist/export helper work.
-- Active focus: safe batch export/shortlist tooling is implemented and smoke
-  tested on top `target_r=4` proxy candidates. Final verification is pending;
-  the helper remains export-only with no verifier execution, exact `24Tt`
+- Active focus: safe batch export/shortlist tooling is implemented, smoke
+  tested on top `target_r=4` proxy candidates, and final checks are complete.
+  The helper remains export-only with no verifier execution, exact `24Tt`
   claim, SAIR call, or auto-submission path.
 
 ## Stage 0: Scaffold
@@ -118,12 +118,14 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 22 passed in 0.68s after second r4 preset confirmation
+  - Latest result: 25 passed in 1.03s after safe shortlist/export helper
     work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after second r4 preset confirmation work.
+  - Latest result: passed after safe shortlist/export helper work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
+  - Latest result: passed after safe shortlist/export helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
-  - Latest result: passed after second r4 preset confirmation work.
+  - Latest result: passed after safe shortlist/export helper work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -157,6 +159,21 @@ results change.
     length 25 and end in fixed leading coefficient 1, all rows include source
     ledger paths, scores are sorted descending, and manifest safety flags show
     proxy-only/export-only with no verifier execution or submission.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 25 passed in 1.03s after safe shortlist/export helper work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before second r4 preset confirmation work.
 - 2026-07-04:
