@@ -52,11 +52,11 @@ results change.
   - [done] Keep `target_t` metadata-only unless exact external verification
     is actually performed.
   - [done] Keep invalid rejection reasons explicit and stable.
-- [in progress] Add target real-root-count benchmark reporting.
+- [done] Add target real-root-count benchmark reporting.
   - [done] Extend benchmark helper with `--target_rs`.
   - [done] Summarize target-r match count, match rate, and best matching
     score.
-  - [pending] Run short untargeted vs `target_r=2` comparison.
+  - [done] Run short untargeted vs `target_r=2` comparison.
 
 ## Stage 1: Local Search
 
@@ -83,7 +83,7 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 17 passed in 0.86s after target-r benchmark summary tests.
+  - Latest result: 17 passed in 0.64s on final target-r benchmark check.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
   - Latest result: passed with `scripts` included.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
@@ -107,6 +107,17 @@ results change.
   - Result: passed after adding target-r benchmark helper support.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; `--target_rs` is listed in the helper usage.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured,mixed --seeds 201,202 --target_rs none,2 --coeff_bound 4 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 3 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_target_r_bench`
+  - Result: passed; 12 short CPU-only target-r benchmark runs completed.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 17 passed in 0.64s on final target-r benchmark check.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed on final target-r benchmark check.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
   - Result: 13 passed in 1.04s for the initial benchmark helper.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
@@ -211,6 +222,47 @@ Interpretation:
 - These are small proxy-scoring runs only; do not overfit without larger runs
   and later exact verification.
 
+### 2026-07-04 Target-r CPU Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_target_r_bench`.
+- Summary files:
+  - `/tmp/igp24_target_r_bench/summary.json`
+  - `/tmp/igp24_target_r_bench/summary.jsonl`
+- Configuration:
+  - Strategies: `sparse`, `structured`, `mixed`.
+  - Targets: untargeted and `target_r=2`.
+  - Seeds: `201`, `202`.
+  - `coeff_bound=4`, `gensize=12`, `max_local_search_steps=3`,
+    `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- All 12 runs returned code 0.
+- All summary records included target-r fields and complete
+  score/generation/local-search metadata.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `sparse` | untargeted | 2 | 3.38s | 24 | 41 | NA | NA | 9958.046 | NA | 9930.899 | 9959.898 | 0.455 |
+| `sparse` | `r=2` | 2 | 2.69s | 24 | 41 | 36 | 0.868 | 10207.559 | 10207.559 | 10158.324 | 10208.925 | 0.439 |
+| `structured` | untargeted | 2 | 2.55s | 24 | 45 | NA | NA | 9964.574 | NA | 9941.921 | 9965.166 | 0.493 |
+| `structured` | `r=2` | 2 | 2.65s | 24 | 44 | 25 | 0.564 | 10208.513 | 10208.513 | 10119.278 | 10215.166 | 0.515 |
+| `mixed` | untargeted | 2 | 3.48s | 24 | 42 | NA | NA | 9952.847 | NA | 9931.606 | 9954.384 | 0.493 |
+| `mixed` | `r=2` | 2 | 3.43s | 24 | 41 | 26 | 0.627 | 10202.847 | 10202.847 | 10119.258 | 10204.384 | 0.530 |
+
+Interpretation:
+
+- `target_r=2` produced high match rates for all three compared strategies in
+  this tiny run.
+- `sparse` had the strongest `r=2` match rate at 0.868 and the best sparse
+  target-r average score.
+- `structured` retained the strongest untargeted average mean score and found
+  the best single target-r score, but its `r=2` match rate was lower than
+  `sparse`.
+- `mixed` remained useful but did not beat the best specialized strategy under
+  this short run.
+- No new generation default change is warranted from this small target-r run
+  alone; use larger target-r benchmarks before tuning again.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -288,5 +340,6 @@ down further as they become active.
 - [done] Add local-search stats metadata and tests.
 - [done] Run and document a short CPU-only generation benchmark.
 - [done] Run per-strategy comparisons with equal `gensize` and fixed seeds.
-- [pending] Run larger per-strategy comparisons, including target real-root
-  counts, before further tuning defaults.
+- [done] Run short per-strategy comparisons including target real-root counts.
+- [pending] Run larger per-strategy target-r comparisons before further tuning
+  defaults.

@@ -97,6 +97,18 @@ uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
 This weighting is a stage-1 heuristic only. It should be revisited after larger
 benchmarks and, later, exact external verification.
 
+The benchmark helper also supports target real-root-count comparisons through
+`--target_rs`. A short run over `sparse`, `structured`, and `mixed` with
+untargeted scoring and `target_r=2` showed:
+
+- `sparse` had the highest `r=2` match rate in this small sample,
+- `structured` kept the strongest untargeted average score,
+- target-r scoring mostly shifted scores by the intended real-root-count bonus,
+- no generation default should be retuned from this tiny target-r run alone.
+
+The target-r data is useful for reporting and experiment planning, but it is
+still proxy scoring. It does not imply any exact `24Tt` label.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
