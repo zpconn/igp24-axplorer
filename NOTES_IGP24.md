@@ -212,6 +212,13 @@ beat `mix_r4_dual_quality` on quality or `four_real_seed` on yield. Keep
 shortlist/export top r4 proxy candidates for later offline exact verification
 rather than keep tuning the user-facing preset from bounded proxy benchmarks.
 
+The shortlist/export helper is the bridge from proxy search to later exact
+verification. It reads only existing ledgers or benchmark directories, filters
+and deduplicates candidates, and emits audit-friendly coefficient exports plus
+a manifest. It deliberately does not run PARI, MAGMA, SAIR, network APIs, exact
+group verification, or any submission path. Exported records remain proxy-only
+until an offline exact verifier is run manually and its provenance is recorded.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

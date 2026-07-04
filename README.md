@@ -202,6 +202,26 @@ opt-in generation preset, `four_real_seed` directly when r4 yield is the main
 priority, or the dual labels to compare `four_real_seed` yield with
 `quartic_lift` peak proxy quality.
 
+## Export Proxy Shortlists
+
+Use the shortlist helper to collect top proxy-scored candidates from existing
+benchmark directories or ledger JSONL files:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py \
+  /tmp/igp24_r4_second_confirm_20260704 \
+  /tmp/igp24_r4_dual_quality_confirm_20260704 \
+  --target_r 4 \
+  --limit 25 \
+  --output_dir /tmp/igp24_r4_shortlist
+```
+
+The helper writes `shortlist.jsonl`, `coefficients.json`,
+`coefficients.txt`, and `manifest.json`. It is export-only: it does not run
+PARI, MAGMA, SAIR, network calls, exact group verification, or submission.
+Treat every exported candidate as proxy-scored until a human-reviewed offline
+exact verifier confirms it.
+
 ## Recent Smoke Result
 
 The current smoke run used CPU-only mixed generation:

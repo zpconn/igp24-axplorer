@@ -137,6 +137,14 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe shortlist/export helper work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_shortlist.py`
+  - Result: 3 passed in 0.01s after adding the shortlist/export helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_shortlist.py tests/test_igp24_shortlist.py`
+  - Result: passed after adding the shortlist/export helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`
+  - Result: passed; helper documents input paths, output directory,
+    target-r filtering, strategy filtering, top-N limit, sort key, and
+    ascending sort option.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before second r4 preset confirmation work.
 - 2026-07-04:
@@ -1070,15 +1078,17 @@ down further as they become active.
 
 - [in_progress] Add safe batch export/shortlist helpers for verifier input
   files.
-  - [pending] Add an export-only CLI that reads benchmark directories and/or
+  - [done] Add an export-only CLI that reads benchmark directories and/or
     ledger JSONL files without running MAGMA/PARI/SAIR or network calls.
-  - [pending] Support target-r filtering, generation-strategy filtering,
+  - [done] Support target-r filtering, generation-strategy filtering,
     top-N limits, canonical-hash deduplication, and score sorting.
-  - [pending] Emit an audit manifest, JSONL shortlist, and coefficient export
+  - [done] Emit an audit manifest, JSONL shortlist, and coefficient export
     suitable for later human-reviewed offline verifier input.
-  - [pending] Add fast fixture-based tests for filtering, deduplication,
+  - [done] Add fast fixture-based tests for filtering, deduplication,
     sorting, manifest creation, and coefficient export shape.
-  - [pending] Document usage and the safety boundary in README/NOTES/TODO.
+  - [done] Document usage and the safety boundary in README/NOTES/TODO.
+  - [pending] Run and audit a small r4 shortlist smoke export from existing
+    benchmark artifacts.
 - [done] Run second direct r4 preset confirmation.
   - [done] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
     across `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`,
