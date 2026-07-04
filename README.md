@@ -193,10 +193,14 @@ The benchmark helper also accepts r4 mix labels for tuning experiments:
 - `mix_r4_yield`: `four_real_seed:1.0`
 - `mix_r4_balanced`: `four_real_seed:0.8,sparse:0.2`
 - `mix_r4_diverse`: `four_real_seed:0.6,sparse:0.4`
+- `mix_r4_dual_yield`: `four_real_seed:0.75,quartic_lift:0.25`
+- `mix_r4_dual_quality`: `four_real_seed:0.25,quartic_lift:0.75`
+- `mix_r4_dual_balanced`: `four_real_seed:0.45,quartic_lift:0.45,sparse:0.10`
 
 These labels are benchmark-only conveniences. Use `preset_r4` for the actual
-opt-in generation preset, or `four_real_seed` directly when r4 yield is the
-main priority.
+opt-in generation preset, `four_real_seed` directly when r4 yield is the main
+priority, or the dual labels to compare `four_real_seed` yield with
+`quartic_lift` peak proxy quality.
 
 ## Recent Smoke Result
 

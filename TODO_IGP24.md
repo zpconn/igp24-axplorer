@@ -10,8 +10,8 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   benchmark-only dual-family r4 mix work.
-- Active focus: test benchmark-only r4 mixes that combine `four_real_seed`
-  yield with `quartic_lift` peak proxy quality before changing `preset_r4`.
+- Active focus: benchmark-only dual-family r4 mix comparison is complete;
+  final verification is pending before push.
 
 ## Stage 0: Scaffold
 
@@ -139,6 +139,21 @@ results change.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; helper mentions `mix_r4_dual_yield`,
     `mix_r4_dual_quality`, and `mix_r4_dual_balanced`.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies four_real_seed,quartic_lift,preset_r4,mix_r4_dual_yield,mix_r4_dual_quality,mix_r4_dual_balanced --seeds 801,802,803,804,805,806 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_r4_dual_mix_bench_20260704`
+  - Result: passed; 36 CPU-only `target_r=4` dual-mix benchmark runs
+    completed in 150.98 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_r4_dual_mix_bench_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result:
+    `36 True True ['four_real_seed', 'mix_r4_dual_balanced', 'mix_r4_dual_quality', 'mix_r4_dual_yield', 'preset_r4', 'quartic_lift'] [4]`
+    and `640 1046 718`.
+- 2026-07-04: inspected all dual-mix benchmark ledgers for mix metadata.
+  - Result: 537 dual-label ledger records checked, no mixed-weight metadata
+    mismatches. Observed strategy mix was `dual_yield`: 134 `four_real_seed`,
+    37 `quartic_lift`; `dual_quality`: 120 `quartic_lift`, 60
+    `four_real_seed`; `dual_balanced`: 84 `four_real_seed`, 86
+    `quartic_lift`, 16 `sparse`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before Stage 2 `target_r=4`
     structured-family work.
@@ -743,6 +758,64 @@ Interpretation:
   a larger r4 comparison that includes both `four_real_seed` and
   `quartic_lift`, or a benchmark-only mixed variant combining them.
 
+### 2026-07-04 R4 Dual-family Mix Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_dual_mix_bench_20260704`.
+- Summary files:
+  - `/tmp/igp24_r4_dual_mix_bench_20260704/summary.json`
+  - `/tmp/igp24_r4_dual_mix_bench_20260704/summary.jsonl`
+  - `/tmp/igp24_r4_dual_mix_bench_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: explicit `four_real_seed`, explicit `quartic_lift`, current
+    `preset_r4`, and benchmark-only dual labels `mix_r4_dual_yield`,
+    `mix_r4_dual_quality`, and `mix_r4_dual_balanced`.
+  - Mix labels:
+    - `mix_r4_dual_yield`: `four_real_seed:0.75,quartic_lift:0.25`.
+    - `mix_r4_dual_quality`: `four_real_seed:0.25,quartic_lift:0.75`.
+    - `mix_r4_dual_balanced`:
+      `four_real_seed:0.45,quartic_lift:0.45,sparse:0.10`.
+  - Target: `target_r=4`.
+  - Seeds: `801`, `802`, `803`, `804`, `805`, `806`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 150.98 seconds.
+- All 36 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 36.
+  - Valid candidates: 640.
+  - Ledger records: 1,046.
+  - Target-r matching records: 718.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - All 537 dual-label ledger records checked had the expected mixed weights.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 6 | 4.41s | 106 | 171 | 121 | 0.709 | 10192.989 | 10192.989 | 10129.971 | 10195.878 | 0.358 |
+| `mix_r4_dual_balanced` | `r=4` | 6 | 4.07s | 108 | 186 | 120 | 0.649 | 10206.061 | 10206.061 | 10123.920 | 10212.713 | 0.355 |
+| `mix_r4_dual_quality` | `r=4` | 6 | 4.04s | 108 | 180 | 139 | 0.774 | 10201.181 | 10201.181 | 10147.115 | 10207.040 | 0.359 |
+| `mix_r4_dual_yield` | `r=4` | 6 | 4.30s | 106 | 171 | 126 | 0.734 | 10196.517 | 10196.517 | 10136.035 | 10205.056 | 0.387 |
+| `preset_r4` | `r=4` | 6 | 4.38s | 108 | 190 | 115 | 0.604 | 10195.842 | 10195.842 | 10112.710 | 10205.003 | 0.376 |
+| `quartic_lift` | `r=4` | 6 | 3.95s | 104 | 148 | 97 | 0.657 | 10201.844 | 10201.844 | 10130.628 | 10207.040 | 0.362 |
+
+Interpretation:
+
+- `mix_r4_dual_quality` was the best overall tradeoff in this bounded run:
+  highest average match rate at 0.774, strongest average mean score, and a
+  strong average best score.
+- `mix_r4_dual_yield` also improved over explicit `four_real_seed` on match
+  rate and score metrics, though less dramatically than the quality-leaning
+  mix.
+- `mix_r4_dual_balanced` found the best single proxy score at 10212.713, but
+  its match rate was below the other two dual mixes.
+- Current `preset_r4` trailed all three dual labels on match rate and average
+  best score in this run.
+- Despite that, do not change `preset_r4` yet. This was a bounded proxy-only
+  benchmark with one seed block. The evidence justifies a larger confirmation
+  run, likely centered on `mix_r4_dual_quality`, before retuning any preset.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -764,14 +837,14 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Test benchmark-only r4 dual-family mixes.
+- [done] Test benchmark-only r4 dual-family mixes.
   - [done] Add helper-only labels combining `four_real_seed`,
     `quartic_lift`, and optional sparse diversity.
   - [done] Add focused benchmark-helper tests for dual-mix label
     resolution.
-  - [pending] Run a bounded CPU-only `target_r=4` comparison against
+  - [done] Run a bounded CPU-only `target_r=4` comparison against
     `four_real_seed`, `quartic_lift`, `preset_r4`, and the dual labels.
-  - [pending] Interpret whether any dual mix improves the current r4
+  - [done] Interpret whether any dual mix improves the current r4
     yield/quality tradeoff before changing any preset/default.
 - [done] Add a `target_r=4` quartic-lift structured family.
   - [done] Probe bounded quartic-in-`x^6` templates with small perturbations.
@@ -853,6 +926,8 @@ down further as they become active.
   `structured`.
 - [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
-- [pending] Run a larger r4 comparison or benchmark-only mix that combines
+- [done] Run a larger r4 comparison or benchmark-only mix that combines
   `four_real_seed` yield with `quartic_lift` peak proxy quality before changing
   `preset_r4`.
+- [pending] Run a larger confirmation benchmark centered on
+  `mix_r4_dual_quality` before retuning `preset_r4`.

@@ -182,6 +182,15 @@ score and best single proxy score in that batch. This makes it a promising
 quality-oriented r4 family, but one proxy-only run is not enough to change the
 default mixed weights or the balanced `r4` preset.
 
+A follow-up benchmark tested helper-only mixes combining `four_real_seed` and
+`quartic_lift`. The quality-leaning mix
+`four_real_seed:0.25,quartic_lift:0.75` had the best tradeoff in that bounded
+run, with a 0.774 average `target_r=4` match rate and the strongest average
+mean score. A balanced mix with sparse diversity found the best single proxy
+score, but had lower target-r yield. These dual-family results are promising
+enough to justify a larger confirmation run, but they are still proxy-only and
+do not by themselves justify changing `preset_r4`.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
