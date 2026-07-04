@@ -10,8 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   larger `target_r=4` preset tradeoff validation.
-- Active focus: validate the `target_r=4` yield-vs-peak-quality tradeoff with
-  larger CPU-only runs and benchmark-only mixed-weight variants.
+- Active focus: larger `target_r=4` preset tradeoff validation is complete.
+  Keep `preset_r4` at the balanced `four_real_seed:0.8,sparse:0.2` blend for
+  now; explicit `four_real_seed` remains the better high-yield r4 option.
 
 ## Stage 0: Scaffold
 
@@ -60,13 +61,13 @@ results change.
   - [done] Add focused preset tests and benchmark helper support.
   - [done] Benchmark the `r4` preset against baseline `mixed` and explicit
     `four_real_seed`.
-- [in_progress] Validate and tune the `target_r=4` preset tradeoff.
+- [done] Validate and tune the `target_r=4` preset tradeoff.
   - [done] Add benchmark-helper labels for r4 mixed-weight variants.
-  - [pending] Run a larger CPU-only `target_r=4` benchmark than the previous
+  - [done] Run a larger CPU-only `target_r=4` benchmark than the previous
     4-seed preset run.
-  - [pending] Compare baseline `mixed`, explicit `four_real_seed`,
+  - [done] Compare baseline `mixed`, explicit `four_real_seed`,
     current `preset_r4`, and r4 mixed-weight variants.
-  - [pending] Interpret target-r yield versus peak proxy score before changing
+  - [done] Interpret target-r yield versus peak proxy score before changing
     any preset or default.
 
 ## Stage 1: Scoring And Metadata
@@ -139,6 +140,18 @@ results change.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; helper documents `mix_r4_yield`,
     `mix_r4_balanced`, and `mix_r4_diverse` benchmark-only labels.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies mixed,four_real_seed,preset_r4,mix_r4_yield,mix_r4_balanced,mix_r4_diverse --seeds 601,602,603,604,605,606 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_r4_mix_variant_bench_20260704`
+  - Result: passed; 36 CPU-only `target_r=4` tradeoff runs completed in
+    157.13 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_r4_mix_variant_bench_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result:
+    `36 True True ['four_real_seed', 'mix_r4_balanced', 'mix_r4_diverse', 'mix_r4_yield', 'mixed', 'preset_r4'] [4]`
+    and `646 1089 555`.
+- 2026-07-04: inspected r4 mix-variant ledgers for metadata.
+  - Result: `mix_r4_yield`, `mix_r4_balanced`, and `mix_r4_diverse` records
+    included the intended resolved mixed strategy weights.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before target-specific preset work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
@@ -554,6 +567,68 @@ Interpretation:
   with a yield/quality tradeoff that needs larger validation.
 - Default generation remains unchanged because presets are opt-in.
 
+### 2026-07-04 R4 Mix Variant Validation
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_mix_variant_bench_20260704`.
+- Summary files:
+  - `/tmp/igp24_r4_mix_variant_bench_20260704/summary.json`
+  - `/tmp/igp24_r4_mix_variant_bench_20260704/summary.jsonl`
+  - `/tmp/igp24_r4_mix_variant_bench_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: baseline `mixed`, explicit `four_real_seed`, current
+    `preset_r4`, and benchmark-only mix labels `mix_r4_yield`,
+    `mix_r4_balanced`, and `mix_r4_diverse`.
+  - Mix labels:
+    - `mix_r4_yield`: `four_real_seed:1.0`.
+    - `mix_r4_balanced`: `four_real_seed:0.8,sparse:0.2`.
+    - `mix_r4_diverse`: `four_real_seed:0.6,sparse:0.4`.
+  - Target: `target_r=4`.
+  - Seeds: `601`, `602`, `603`, `604`, `605`, `606`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 157.13 seconds.
+- All 36 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 36.
+  - Valid candidates: 646.
+  - Ledger records: 1,089.
+  - Target-r matching records: 555.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - Mix-variant ledger records included the intended resolved mixed weights.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 6 | 4.29s | 107 | 174 | 133 | 0.765 | 10193.551 | 10193.551 | 10140.093 | 10195.370 | 0.347 |
+| `mix_r4_balanced` | `r=4` | 6 | 4.12s | 108 | 182 | 101 | 0.555 | 10195.700 | 10195.700 | 10106.215 | 10198.632 | 0.372 |
+| `mix_r4_diverse` | `r=4` | 6 | 3.88s | 108 | 185 | 71 | 0.393 | 10195.487 | 10195.487 | 10076.236 | 10201.230 | 0.404 |
+| `mix_r4_yield` | `r=4` | 6 | 4.20s | 107 | 173 | 112 | 0.652 | 10192.954 | 10192.954 | 10120.969 | 10198.193 | 0.349 |
+| `mixed` | `r=4` | 6 | 5.32s | 108 | 193 | 37 | 0.192 | 10194.609 | 10194.609 | 10044.129 | 10204.040 | 0.406 |
+| `preset_r4` | `r=4` | 6 | 4.06s | 108 | 182 | 101 | 0.555 | 10195.700 | 10195.700 | 10106.215 | 10198.632 | 0.372 |
+
+Interpretation:
+
+- Explicit `four_real_seed` remains the best high-yield `target_r=4` option:
+  it had the highest average match rate at 0.765 and the highest average mean
+  score.
+- Current `preset_r4` exactly matches the benchmark-only balanced label,
+  `mix_r4_balanced`, as expected. It improved over baseline `mixed` on match
+  rate, average best score, and average mean score.
+- The diversity-heavy `mix_r4_diverse` found the best single proxy score in
+  this batch, but its match rate fell to 0.393. Extra sparse diversity appears
+  to help peak exploration at the cost of target-r yield.
+- The pure `mix_r4_yield` label used mixed dispatch with 100%
+  `four_real_seed`; because it consumed random choices differently than the
+  explicit strategy, it was not identical to explicit `four_real_seed` and had
+  a lower 0.652 match rate in this run.
+- Do not change `preset_r4` from `four_real_seed:0.8,sparse:0.2` yet. It is a
+  reasonable balanced preset, while explicit `four_real_seed` should remain
+  the documented recommendation when `r=4` yield is the only priority.
+- No default generation change is justified; this is still proxy-only and has
+  no exact `24Tt` verification.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -638,7 +713,9 @@ down further as they become active.
   generation family.
 - [done] Add target-specific benchmark presets or docs for promising
   strategy/target pairs.
-- [pending] Run a larger `target_r=4` validation with `four_real_seed`,
+- [done] Run a larger `target_r=4` validation with `four_real_seed`,
   `preset_r4`, and tuned target-specific mixes before promoting presets.
 - [pending] Run a longer focused `target_r=2` comparison between `sparse` and
   `structured`.
+- [pending] Add more `target_r=4` structured families before retuning the
+  balanced `preset_r4` weights again.

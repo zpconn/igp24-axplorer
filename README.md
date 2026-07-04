@@ -185,6 +185,16 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
   --output_dir /tmp/igp24_r4_preset_bench
 ```
 
+The benchmark helper also accepts r4 mix labels for tuning experiments:
+
+- `mix_r4_yield`: `four_real_seed:1.0`
+- `mix_r4_balanced`: `four_real_seed:0.8,sparse:0.2`
+- `mix_r4_diverse`: `four_real_seed:0.6,sparse:0.4`
+
+These labels are benchmark-only conveniences. Use `preset_r4` for the actual
+opt-in generation preset, or `four_real_seed` directly when r4 yield is the
+main priority.
+
 ## Recent Smoke Result
 
 The current smoke run used CPU-only mixed generation:

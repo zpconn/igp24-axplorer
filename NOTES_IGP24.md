@@ -157,6 +157,16 @@ rate. This means the preset is a useful convenience and diversity experiment,
 not a replacement for explicit `four_real_seed` when target-r yield is the only
 goal.
 
+A larger r4-only validation with six seeds compared baseline `mixed`, explicit
+`four_real_seed`, current `preset_r4`, and three benchmark-only mixed-weight
+variants. Explicit `four_real_seed` remained the best high-yield option for
+`target_r=4`, while current `preset_r4` matched the balanced
+`four_real_seed:0.8,sparse:0.2` variant and improved clearly over baseline
+`mixed`. A diversity-heavy `four_real_seed:0.6,sparse:0.4` variant found the
+best single proxy score but lost target-r yield. The preset should therefore
+stay balanced for now, with explicit `four_real_seed` documented for runs where
+`r=4` yield is the only priority.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
