@@ -10,10 +10,11 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   safe review-batch tooling work.
-- Active focus: add safe human-review/triage tooling that turns the proxy-only
-  r4 shortlist into a small auditable offline-verifier candidate batch. This
-  must remain review/export-only with no MAGMA/PARI/SAIR execution, network
-  call, exact `24Tt` claim, or auto-submission path.
+- Active focus: safe human-review/triage tooling for the proxy-only r4
+  shortlist is implemented, smoke-tested, and ready for later manual offline
+  exact-verifier experiments. The next step must still avoid SAIR
+  auto-submission and keep any exact group claims tied to recorded verifier
+  provenance.
 
 ## Stage 0: Scaffold
 
@@ -118,16 +119,15 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 25 passed in 1.03s after safe shortlist/export helper
-    work.
+  - Latest result: 28 passed in 0.92s after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after safe shortlist/export helper work.
+  - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
-  - Latest result: passed after safe shortlist/export helper work.
+  - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after adding the safe review-batch helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
-  - Latest result: passed after safe shortlist/export helper work.
+  - Latest result: passed after safe review-batch helper work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -164,6 +164,24 @@ results change.
     ledger and source shortlist paths, `verified_group_label` is null for every
     row, and manifest safety flags record proxy-only/review-export-only with no
     verifier execution, submission, network calls, or exact group claims.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 28 passed in 0.92s after safe review-batch helper work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories; follow-up search
+    found none.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe shortlist/export helper work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_shortlist.py`
