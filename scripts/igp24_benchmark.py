@@ -22,6 +22,7 @@ from typing import Any
 
 
 DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed", "mixed"]
+DEFAULT_PRESETS = ["none", "r0", "r2", "r4"]
 
 
 def _parse_csv(value: str) -> list[str]:
@@ -41,6 +42,17 @@ def parse_target_rs(value: str) -> list[int | None]:
         else:
             targets.append(int(item))
     return targets
+
+
+def resolve_benchmark_strategy(label: str) -> tuple[str, str]:
+    if label.startswith("preset_"):
+        preset = label.removeprefix("preset_")
+        if preset not in DEFAULT_PRESETS or preset == "none":
+            raise ValueError(f"unknown generation preset strategy label: {label}")
+        return "mixed", preset
+    if label not in DEFAULT_STRATEGIES:
+        raise ValueError(f"unknown strategy: {label}")
+    return label, "none"
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -157,6 +169,7 @@ def _target_label(target_r: int | None) -> str:
 
 
 def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | None = None) -> dict[str, Any]:
+    resolved_strategy, generation_preset = resolve_benchmark_strategy(strategy)
     run_name = f"{strategy}_{_target_label(target_r)}_seed_{seed}"
     run_dir = args.output_dir / run_name
     ledger_path = run_dir / "candidates.jsonl"
@@ -205,7 +218,9 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | 
         "--cpu",
         "true",
         "--igp24_generation_strategy",
-        strategy,
+        resolved_strategy,
+        "--igp24_generation_preset",
+        generation_preset,
         "--igp24_sparse_terms",
         str(args.sparse_terms),
         "--igp24_low_height_bound",
@@ -225,6 +240,8 @@ def run_one(args: argparse.Namespace, strategy: str, seed: int, target_r: int | 
     summary = summarize_records(records, target_r=target_r)
     result: dict[str, Any] = {
         "strategy": strategy,
+        "resolved_generation_strategy": resolved_strategy,
+        "generation_preset": generation_preset,
         "seed": seed,
         "target_r": target_r,
         "coeff_bound": args.coeff_bound,
@@ -316,7 +333,11 @@ def print_aggregate_table(results: list[dict[str, Any]]) -> None:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Short CPU-only benchmark runner for IGP24 generation strategies")
-    parser.add_argument("--strategies", default=",".join(DEFAULT_STRATEGIES), help="Comma-separated generation strategies")
+    parser.add_argument(
+        "--strategies",
+        default=",".join(DEFAULT_STRATEGIES),
+        help="Comma-separated generation strategies; use preset_r0, preset_r2, or preset_r4 for generation presets",
+    )
     parser.add_argument("--seeds", default="101", help="Comma-separated integer seeds")
     parser.add_argument("--target_rs", default="none", help="Comma-separated target real-root counts; use none for untargeted")
     parser.add_argument("--coeff_bound", type=int, default=4)
@@ -351,8 +372,10 @@ def main() -> int:
 
     results = []
     for strategy in args.strategies:
-        if strategy not in DEFAULT_STRATEGIES:
-            parser.error(f"unknown strategy: {strategy}")
+        try:
+            resolve_benchmark_strategy(strategy)
+        except ValueError as exc:
+            parser.error(str(exc))
         for target_r in args.target_rs:
             for seed in args.seeds:
                 result = run_one(args, strategy, seed, target_r=target_r)

@@ -6,7 +6,12 @@ import pytest
 sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
-from src.envs.igp24 import IGP24DataPoint, format_mixed_strategy_weights, parse_mixed_strategy_weights
+from src.envs.igp24 import (
+    IGP24DataPoint,
+    format_mixed_strategy_weights,
+    parse_mixed_strategy_weights,
+    resolve_generation_preset,
+)
 from src.igp24.ledger import CandidateLedger
 from src.igp24.polynomial import (
     DEGREE,
@@ -162,6 +167,7 @@ def _igp24_params(tmp_path, seed=123, strategy="mixed"):
         igp24_write_ledger=False,
         igp24_translation_radius=2,
         igp24_generation_strategy=strategy,
+        igp24_generation_preset="none",
         igp24_sparse_terms=4,
         igp24_low_height_bound=3,
         igp24_mixed_strategy_weights="uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25",
@@ -229,6 +235,50 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert len(coeffs) == DEGREE
 
 
+def test_generation_presets_resolve_explicitly_without_changing_default():
+    no_preset = resolve_generation_preset(
+        "none",
+        "sparse",
+        "uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25",
+    )
+    assert no_preset["preset_name"] == "none"
+    assert no_preset["target_r_intent"] is None
+    assert no_preset["resolved_strategy"] == "sparse"
+    assert no_preset["resolved_mixed_strategy_weights"]["four_real_seed"] == 0.0
+
+    r0 = resolve_generation_preset("r0", "mixed", "uniform:1")
+    assert r0["resolved_strategy"] == "structured"
+    assert r0["target_r_intent"] == 0
+
+    r2 = resolve_generation_preset("r2", "uniform", "uniform:1")
+    assert r2["resolved_strategy"] == "mixed"
+    assert r2["target_r_intent"] == 2
+    assert r2["resolved_mixed_strategy_weights"]["sparse"] == 0.55
+    assert r2["resolved_mixed_strategy_weights"]["structured"] == 0.45
+
+    r4 = resolve_generation_preset("r4", "uniform", "uniform:1")
+    assert r4["resolved_strategy"] == "mixed"
+    assert r4["target_r_intent"] == 4
+    assert r4["resolved_mixed_strategy_weights"]["four_real_seed"] == 0.8
+    assert r4["resolved_mixed_strategy_weights"]["sparse"] == 0.2
+
+
+def test_environment_applies_generation_preset_and_keeps_seed_determinism(tmp_path):
+    params = _igp24_params(tmp_path, seed=888, strategy="uniform")
+    params.target_r = 4
+    params.igp24_generation_preset = "r4"
+    build_env(params)
+    assert IGP24DataPoint.GENERATION_PRESET == "r4"
+    assert IGP24DataPoint.GENERATION_PRESET_TARGET_R == 4
+    assert IGP24DataPoint.GENERATION_STRATEGY == "mixed"
+    assert IGP24DataPoint.MIXED_STRATEGY_WEIGHTS["four_real_seed"] == 0.8
+    first = IGP24DataPoint._generate_coefficients()
+
+    build_env(params)
+    second = IGP24DataPoint._generate_coefficients()
+    assert first == second
+
+
 def test_local_search_determinism_under_fixed_seed(tmp_path):
     IGP24DataPoint._update_class_params(
         {
@@ -251,6 +301,8 @@ def test_local_search_determinism_under_fixed_seed(tmp_path):
             "SPARSE_TERMS": 4,
             "LOW_HEIGHT_BOUND": 3,
             "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25"),
+            "GENERATION_PRESET": "none",
+            "GENERATION_PRESET_TARGET_R": None,
             "ALWAYS_SEARCH": False,
             "REDEEM_ONLY": False,
         }
@@ -287,10 +339,12 @@ def test_ledger_records_generation_and_local_search_metadata(tmp_path):
             "SEED": 321,
             "TRANSLATION_RADIUS": 2,
             "KNOWN_HASHES": set(),
-            "GENERATION_STRATEGY": "structured",
+            "GENERATION_STRATEGY": "mixed",
             "SPARSE_TERMS": 4,
             "LOW_HEIGHT_BOUND": 2,
-            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25"),
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("four_real_seed:0.8,sparse:0.2"),
+            "GENERATION_PRESET": "r4",
+            "GENERATION_PRESET_TARGET_R": 4,
             "ALWAYS_SEARCH": False,
             "REDEEM_ONLY": False,
         }
@@ -302,6 +356,10 @@ def test_ledger_records_generation_and_local_search_metadata(tmp_path):
     assert records
     latest = records[-1]
     assert latest["generation_metadata"]["strategy"] == "four_real_seed"
+    assert latest["generation_metadata"]["generation_preset"] == "r4"
+    assert latest["generation_metadata"]["preset_target_r"] == 4
+    assert latest["generation_metadata"]["resolved_generation_strategy"] == "mixed"
+    assert "resolved_mixed_strategy_weights" in latest["generation_metadata"]
     assert latest["generation_metadata"]["target_r_heuristic"] == 4
     assert "perturbed_(x^2-a)(x^2-b)" in latest["generation_metadata"]["seed_template"]
     assert "mixed_strategy_weights" in latest["generation_metadata"]

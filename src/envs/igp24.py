@@ -31,6 +31,28 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "structured": 0.25,
     "four_real_seed": 0.0,
 }
+IGP24_GENERATION_PRESETS = {
+    "none": {
+        "target_r": None,
+        "strategy": None,
+        "mixed_strategy_weights": None,
+    },
+    "r0": {
+        "target_r": 0,
+        "strategy": "structured",
+        "mixed_strategy_weights": None,
+    },
+    "r2": {
+        "target_r": 2,
+        "strategy": "mixed",
+        "mixed_strategy_weights": {"sparse": 0.55, "structured": 0.45},
+    },
+    "r4": {
+        "target_r": 4,
+        "strategy": "mixed",
+        "mixed_strategy_weights": {"four_real_seed": 0.80, "sparse": 0.20},
+    },
+}
 
 
 def parse_mixed_strategy_weights(value):
@@ -64,6 +86,29 @@ def parse_mixed_strategy_weights(value):
 
 def format_mixed_strategy_weights(weights):
     return ",".join(f"{name}:{weights[name]:.4f}" for name in IGP24_GENERATION_STRATEGIES)
+
+
+def resolve_generation_preset(preset, generation_strategy, mixed_strategy_weights):
+    preset_name = str(preset or "none").strip().lower()
+    if preset_name not in IGP24_GENERATION_PRESETS:
+        raise ValueError(f"unknown IGP24 generation preset: {preset_name}")
+
+    resolved_strategy = str(generation_strategy)
+    resolved_weights = parse_mixed_strategy_weights(mixed_strategy_weights)
+    target_r_intent = None
+    if preset_name != "none":
+        spec = IGP24_GENERATION_PRESETS[preset_name]
+        resolved_strategy = spec["strategy"] or resolved_strategy
+        target_r_intent = spec["target_r"]
+        if spec["mixed_strategy_weights"] is not None:
+            resolved_weights = parse_mixed_strategy_weights(spec["mixed_strategy_weights"])
+
+    return {
+        "preset_name": preset_name,
+        "target_r_intent": target_r_intent,
+        "resolved_strategy": resolved_strategy,
+        "resolved_mixed_strategy_weights": resolved_weights,
+    }
 
 
 class IGP24CoefficientTokenizer(Tokenizer):
@@ -140,6 +185,8 @@ class IGP24DataPoint(DataPoint):
     SPARSE_TERMS = 4
     LOW_HEIGHT_BOUND = 3
     MIXED_STRATEGY_WEIGHTS = DEFAULT_MIXED_STRATEGY_WEIGHTS.copy()
+    GENERATION_PRESET = "none"
+    GENERATION_PRESET_TARGET_R = None
 
     def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None):
         super().__init__()
@@ -329,6 +376,10 @@ class IGP24DataPoint(DataPoint):
             return
         generation_metadata = {
             "strategy": self.generation_strategy,
+            "generation_preset": self.GENERATION_PRESET,
+            "preset_target_r": self.GENERATION_PRESET_TARGET_R,
+            "resolved_generation_strategy": self.GENERATION_STRATEGY,
+            "resolved_mixed_strategy_weights": dict(self.MIXED_STRATEGY_WEIGHTS),
             "coeff_bound": self.COEFF_BOUND,
             "sparse_terms": self.SPARSE_TERMS,
             "low_height_bound": self.LOW_HEIGHT_BOUND,
@@ -551,6 +602,8 @@ class IGP24DataPoint(DataPoint):
             "SPARSE_TERMS": cls.SPARSE_TERMS,
             "LOW_HEIGHT_BOUND": cls.LOW_HEIGHT_BOUND,
             "MIXED_STRATEGY_WEIGHTS": dict(cls.MIXED_STRATEGY_WEIGHTS),
+            "GENERATION_PRESET": cls.GENERATION_PRESET,
+            "GENERATION_PRESET_TARGET_R": cls.GENERATION_PRESET_TARGET_R,
         }
 
 
@@ -583,10 +636,17 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.KNOWN_HASHES = CandidateLedger(params.igp24_ledger_path).hashes if params.igp24_ledger_path else set()
         self.data_class.ALWAYS_SEARCH = bool(getattr(params, "always_search", False))
         self.data_class.REDEEM_ONLY = bool(getattr(params, "redeem_only", False))
-        self.data_class.GENERATION_STRATEGY = params.igp24_generation_strategy
+        generation_resolution = resolve_generation_preset(
+            getattr(params, "igp24_generation_preset", "none"),
+            params.igp24_generation_strategy,
+            params.igp24_mixed_strategy_weights,
+        )
+        self.data_class.GENERATION_STRATEGY = generation_resolution["resolved_strategy"]
         self.data_class.SPARSE_TERMS = int(params.igp24_sparse_terms)
         self.data_class.LOW_HEIGHT_BOUND = int(params.igp24_low_height_bound)
-        self.data_class.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights(params.igp24_mixed_strategy_weights)
+        self.data_class.MIXED_STRATEGY_WEIGHTS = generation_resolution["resolved_mixed_strategy_weights"]
+        self.data_class.GENERATION_PRESET = generation_resolution["preset_name"]
+        self.data_class.GENERATION_PRESET_TARGET_R = generation_resolution["target_r_intent"]
 
         self.tokenizer = IGP24CoefficientTokenizer(self.data_class, params.coeff_bound, self.SPECIAL_SYMBOLS)
 
@@ -612,6 +672,13 @@ class IGP24Environment(BaseEnvironment):
             default="mixed",
             choices=["mixed"] + IGP24_GENERATION_STRATEGIES,
             help="Initial IGP24 coefficient generation strategy",
+        )
+        parser.add_argument(
+            "--igp24_generation_preset",
+            type=str,
+            default="none",
+            choices=sorted(IGP24_GENERATION_PRESETS),
+            help="Optional target-specific generation preset; none preserves explicit strategy settings",
         )
         parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")
         parser.add_argument("--igp24_low_height_bound", type=int, default=3, help="Inner coefficient bound for low-height and structured generation")

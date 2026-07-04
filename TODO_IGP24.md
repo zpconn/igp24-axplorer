@@ -9,9 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  `target_r=4` generation work.
-- Active focus: experimental `four_real_seed` strategy improved short-run
-  `target_r=4` match rate without changing the global `mixed` default.
+  target-specific preset work.
+- Active focus: add opt-in target-specific generation presets without changing
+  default generation behavior.
 
 ## Stage 0: Scaffold
 
@@ -51,6 +51,15 @@ results change.
   - [done] Add focused generation, metadata, and determinism tests.
   - [done] Benchmark against current `sparse` and `mixed` baselines on
     `target_r=4`.
+- [in_progress] Add opt-in target-specific generation presets.
+  - [done] Add `--igp24_generation_preset` with `none`, `r0`, `r2`,
+    and `r4` choices.
+  - [done] Preserve default behavior when no preset is selected.
+  - [done] Record preset name, target-r intent, resolved strategy, and
+    resolved mixed weights in ledger metadata.
+  - [done] Add focused preset tests and benchmark helper support.
+  - [pending] Benchmark the `r4` preset against baseline `mixed` and explicit
+    `four_real_seed`.
 
 ## Stage 1: Scoring And Metadata
 
@@ -113,6 +122,15 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before target-specific preset work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
+  - Result: 21 passed in 1.00s after adding target-specific preset support.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src tests scripts`
+  - Result: passed after adding target-specific preset support.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper documents `preset_r0`, `preset_r2`, and
+    `preset_r4` benchmark labels.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before `target_r=4` generation work.
 - 2026-07-04: local scorer probe for odd-perturbed

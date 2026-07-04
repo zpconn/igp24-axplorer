@@ -1,6 +1,13 @@
 import json
 
-from scripts.igp24_benchmark import aggregate_results, parse_target_rs, parse_valid_examples, read_jsonl, summarize_records
+from scripts.igp24_benchmark import (
+    aggregate_results,
+    parse_target_rs,
+    parse_valid_examples,
+    read_jsonl,
+    resolve_benchmark_strategy,
+    summarize_records,
+)
 
 
 def test_summarize_records_aggregates_scores_and_metadata():
@@ -69,6 +76,11 @@ def test_parse_valid_examples_uses_last_reported_count():
 
 def test_parse_target_rs_accepts_untargeted_aliases_and_integers():
     assert parse_target_rs("none,0,2,untargeted,-") == [None, 0, 2, None, None]
+
+
+def test_resolve_benchmark_strategy_accepts_preset_labels():
+    assert resolve_benchmark_strategy("four_real_seed") == ("four_real_seed", "none")
+    assert resolve_benchmark_strategy("preset_r4") == ("mixed", "r4")
 
 
 def test_aggregate_results_groups_strategy_and_target():
