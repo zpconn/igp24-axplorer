@@ -539,8 +539,41 @@ results change.
       average monitored GPU utilization 80.135%, max monitored GPU memory
       about 10310 MiB, 2048 export rows, 2030 decoded rows, and GPU-side CPU
       scoring/local search/dataset update avoided.
-  - [in_progress] Score each export separately on the CPU proxy path with local
+  - [done] Score each export separately on the CPU proxy path with local
     search disabled.
+    - Fixed-template CPU score command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - Fixed-template CPU score result: return code 0, runtime 76.537s,
+      `selection_mode=all_explicit`, 2048 rows read/selected, 2047
+      decoded/scored, 1 skipped decode, 1799 valid proxy-scored, 248
+      rejected, 2039 unique canonical hashes, 8 duplicate hash records, best
+      score 9964.435, mean score 8720.207, local search disabled.
+    - Fixed-template artifacts:
+      `/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all/score_summary.json`,
+      `/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all/scored_samples.jsonl`,
+      `/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all/split_workflow_manifest.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all/split_workflow_report.md`.
+    - Mixed/high-temp CPU score command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/gpu_model_sample_export_diversity_mixed_t12_open_topk.jsonl --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - Mixed/high-temp CPU score result: return code 0, runtime 77.709s,
+      `selection_mode=all_explicit`, 2048 rows read/selected, 2030
+      decoded/scored, 18 skipped decode, 1921 valid proxy-scored, 109
+      rejected, 1067 unique canonical hashes, 963 duplicate hash records,
+      best score 9969.676, mean score 9396.872, local search disabled.
+    - Mixed/high-temp artifacts:
+      `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all/score_summary.json`,
+      `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all/scored_samples.jsonl`,
+      `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all/split_workflow_manifest.json`,
+      and
+      `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all/split_workflow_report.md`.
+    - Interpretation: both short variants dramatically improve uniqueness
+      relative to the duplicate-heavy medium baseline
+      (384 unique / 8192 scored; 7808 duplicate records). The fixed-template
+      short variant is the better diversity probe at 2039 unique / 2047 scored
+      with only 8 duplicate records. The mixed/high-temp variant has better
+      validity and score metrics, but weaker diversity at 1067 unique / 2030
+      scored with 963 duplicate records.
   - [pending] Update README, NOTES, and TODO with commands, artifact paths,
     GPU utilization, valid/rejected counts, unique/duplicate hash counts,
     best/mean score, comparison to the duplicate-heavy medium baseline, and
@@ -661,6 +694,24 @@ results change.
     99.0%, average monitored GPU utilization 80.135%, max monitored GPU
     memory about 10310 MiB, 2048 export rows, 2030 decoded rows, and
     GPU-side CPU scoring/local search/dataset update avoided.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: completed in 76.537s with return code 0,
+    `selection_mode=all_explicit`, 2048 rows read/selected, 2047
+    decoded/scored, 1 skipped decode, 1799 valid, 248 rejected, 2039 unique
+    canonical hashes, 8 duplicate hash records, best score 9964.435, mean
+    score 8720.207, local search disabled, and split manifest/report written
+    under
+    `/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/gpu_model_sample_export_diversity_mixed_t12_open_topk.jsonl --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: completed in 77.709s with return code 0,
+    `selection_mode=all_explicit`, 2048 rows read/selected, 2030
+    decoded/scored, 18 skipped decode, 1921 valid, 109 rejected, 1067 unique
+    canonical hashes, 963 duplicate hash records, best score 9969.676, mean
+    score 9396.872, local search disabled, and split manifest/report written
+    under
+    `/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all`.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 25 passed in 1.08s after the medium split final checks.
