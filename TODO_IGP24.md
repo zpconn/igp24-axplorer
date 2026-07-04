@@ -10,11 +10,12 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   fixed-support sparse template generation work.
-- Active focus: add an opt-in `fixed_sparse_template` generation family, then
-  benchmark it against `sparse` and `structured` with at least `target_r=2`.
-  This remains proxy-only: exact verification is still blocked locally because
-  `gp` and `magma` are unavailable, no exact `24Tt` labels are claimed, and
-  no SAIR/network/submission behavior should be added.
+- Active focus: opt-in `fixed_sparse_template` generation family is
+  implemented, tested, documented, and benchmarked against `sparse` and
+  `structured` on `target_r=2`. It remains proxy-only and is not promoted to
+  any default or preset. Exact verification is still blocked locally because
+  `gp` and `magma` are unavailable, no exact `24Tt` labels are claimed, and no
+  SAIR/network/submission behavior was added.
 
 ## Stage 0: Scaffold
 
@@ -119,10 +120,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 33 passed in 0.95s after safe offline-verifier preparation
-    helper work.
+  - Latest result: 35 passed in 0.74s after fixed-sparse-template work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after safe offline-verifier preparation helper work.
+  - Latest result: passed after fixed-sparse-template work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -174,6 +174,20 @@ results change.
     `divisor_ladder_3`: 39, `r2_tail_bridge`: 23, and `r2_even_spine`: 20.
     Local search introduced 100 extra nonzero outside-template indices across
     those rows, recorded under `fixed_sparse_extra_nonzero_indices`.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 35 passed in 0.74s after fixed-sparse-template work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories; follow-up search
+    found none.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe offline-verifier preparation
     workflow work.
