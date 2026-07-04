@@ -153,6 +153,27 @@ results change.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; helper documents `fixed_sparse_template` as a direct
     benchmark strategy alongside `quartic_lift`.
+- 2026-07-04:
+  `/usr/bin/time -f elapsed_seconds %e env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured,fixed_sparse_template --seeds 1101,1102,1103,1104 --target_rs 2 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_fixed_sparse_template_bench_20260704`
+  - Result: command-format blocker; `/usr/bin/time` received `%e` as the
+    command because the format string was not quoted. Reran with portable
+    `time -p`.
+- 2026-07-04:
+  `/usr/bin/time -p env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured,fixed_sparse_template --seeds 1101,1102,1103,1104 --target_rs 2 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_fixed_sparse_template_bench_20260704`
+  - Result: passed; 12 CPU-only `target_r=2` benchmark runs completed in
+    `real 50.42` seconds.
+- 2026-07-04: audited
+  `/tmp/igp24_fixed_sparse_template_bench_20260704/summary.json`.
+  - Result: 12 rows, all return codes 0, all metadata complete, strategies
+    were `fixed_sparse_template`, `sparse`, and `structured`, target set was
+    `[2]`, valid candidates totaled 216, ledger records totaled 391, and
+    target-r matching records totaled 258.
+- 2026-07-04: audited fixed-template benchmark ledger metadata.
+  - Result: 130 `fixed_sparse_template` ledger rows checked; no missing
+    template/support/bound metadata. Template counts were `low_high_bridge`: 48,
+    `divisor_ladder_3`: 39, `r2_tail_bridge`: 23, and `r2_even_spine`: 20.
+    Local search introduced 100 extra nonzero outside-template indices across
+    those rows, recorded under `fixed_sparse_extra_nonzero_indices`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe offline-verifier preparation
     workflow work.
@@ -1296,6 +1317,48 @@ Interpretation:
   candidates, parse exact group labels, contact SAIR, make network calls, or
   submit anything.
 
+### 2026-07-04 Fixed Sparse Template r2 Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_fixed_sparse_template_bench_20260704`.
+- Configuration:
+  - Strategies: `sparse`, `structured`, `fixed_sparse_template`.
+  - Target: `target_r=2`.
+  - Seeds: `1101`, `1102`, `1103`, `1104`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 50.42 seconds from `/usr/bin/time -p`.
+- All 12 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 12.
+  - Valid candidates: 216.
+  - Ledger records: 391.
+  - Target-r matching records: 258.
+  - All summary rows had complete score/generation/local-search metadata.
+  - 130 `fixed_sparse_template` ledger rows included template name, support
+    indices, coefficient bound, and extra nonzero indices introduced by local
+    search where applicable.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `fixed_sparse_template` | `r=2` | 4 | 4.66s | 72 | 130 | 90 | 0.692 | 10192.027 | 10118.108 | 10193.846 | 0.420 |
+| `sparse` | `r=2` | 4 | 4.40s | 72 | 133 | 88 | 0.658 | 10199.870 | 10124.774 | 10205.840 | 0.472 |
+| `structured` | `r=2` | 4 | 3.54s | 72 | 128 | 80 | 0.626 | 10214.248 | 10128.146 | 10219.375 | 0.408 |
+
+Interpretation:
+
+- `fixed_sparse_template` had the highest average `r=2` match rate in this
+  small block, 0.692 versus 0.658 for `sparse` and 0.626 for `structured`.
+- The new family lagged the baselines on proxy quality: `structured` had the
+  strongest average best, average mean, and best single proxy score; `sparse`
+  was second on those score metrics.
+- Treat `fixed_sparse_template` as a useful r2-yield/diversity probe, not as a
+  default or preset candidate from this one bounded proxy benchmark.
+- No generation default, default mixed weight, or `preset_r4` change is
+  justified here. Exact verification remains unrun because local PARI/GP and
+  MAGMA are unavailable.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -1317,7 +1380,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Add an opt-in fixed-support sparse template generation family.
+- [done] Add an opt-in fixed-support sparse template generation family.
   - [done] Add a `fixed_sparse_template` strategy distinct from random
     `sparse`, using a small hand-auditable set of support templates.
   - [done] Keep the strategy opt-in only; do not change default mixed
@@ -1327,7 +1390,7 @@ down further as they become active.
   - [done] Add focused tests for coefficient shape, template metadata,
     deterministic generation, CLI strategy validity, and unchanged defaults.
   - [done] Document the strategy in README/NOTES/TODO.
-  - [pending] Run a bounded CPU-only benchmark against `sparse` and
+  - [done] Run a bounded CPU-only benchmark against `sparse` and
     `structured`, including at least `target_r=2`, and interpret proxy-only
     results without retuning defaults.
 - [done] Add safe offline exact-verifier preparation workflow.
@@ -1482,8 +1545,11 @@ down further as they become active.
   strategy/target pairs.
 - [done] Run a larger `target_r=4` validation with `four_real_seed`,
   `preset_r4`, and tuned target-specific mixes before promoting presets.
-- [in_progress] Run a longer focused `target_r=2` comparison between `sparse`,
+- [done] Run a longer focused `target_r=2` comparison between `sparse`,
   `structured`, and the new fixed-support sparse template family.
+- [pending] Use fixed-support sparse templates as an opt-in diversity/yield
+  probe only; do not promote to defaults or presets without larger proxy runs
+  and later exact verifier evidence.
 - [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
 - [done] Run a larger r4 comparison or benchmark-only mix that combines
