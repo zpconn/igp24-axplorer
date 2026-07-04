@@ -10,13 +10,13 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   medium export-only split workflow work.
-- Active focus: finish verification, documentation, commit, and push for the
-  bounded medium GPU export-only split workflow. The medium GPU phase loaded
-  the RTX 5090 well, but CPU scoring showed weak sample diversity, so the next
-  GPU step should improve diversity before longer runs. Keep CPU proxy-search,
-  shortlist export, and exact-tool prep primary. This remains proxy-only: no
-  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
-  auto-submission behavior.
+- Active focus: bounded medium GPU export-only split workflow completed and
+  final verification passed; commit/push is in progress. The medium GPU phase
+  loaded the RTX 5090 well, but CPU scoring showed weak sample diversity, so
+  the next GPU step should improve diversity before longer runs. Keep CPU
+  proxy-search, shortlist export, and exact-tool prep primary. This remains
+  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
+  calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -423,7 +423,7 @@ results change.
       an export-only sampler run with the same manifest discipline and a
       separate CPU score/review phase. Do not return to an integrated GPU
       train/sample/score loop.
-- [in_progress] Add and run a bounded medium export-only split workflow.
+- [done] Add and run a bounded medium export-only split workflow.
   - [done] Pull latest before starting.
     - Result: `git pull --ff-only` was already up to date.
   - [done] Inspect TODO, README, NOTES, `scripts/igp24_gpu_sampler_probe.py`,
@@ -504,10 +504,12 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 64 passed in 1.49s after score-all split handoff
-    validation.
+  - Latest result: 66 passed in 1.44s after the medium split final checks.
+- [done] Run focused split/export tests:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`.
+  - Latest result: 25 passed in 1.08s after the medium split final checks.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after score-all split handoff validation.
+  - Latest result: passed after the medium split final checks.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -520,13 +522,13 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after score-all split handoff validation.
+  - Latest result: passed after the medium split final checks.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after score-all split handoff validation.
+  - Latest result: passed after the medium split final checks.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Latest command:
-    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_command'))"`
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_medium_command'))"`
   - Latest result: `imports ok True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
@@ -585,6 +587,37 @@ results change.
     7808 duplicate hash records, local search disabled, and split
     manifest/report written under
     `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 25 passed in 1.08s after the medium split final checks.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 66 passed in 1.44s after the medium split final checks.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after the medium split final checks.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed after the medium split final checks.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed after the medium split final checks.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_medium_command'))"`
+  - Result: `imports ok True True True`.
+- 2026-07-04: `git diff --check`
+  - Result: passed after the medium split final checks.
+- 2026-07-04:
+  `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+  - Result: Stage 4 remains present at line 2353.
+- 2026-07-04: `nvidia-smi`
+  - Result: RTX 5090 visible and idle after the medium split final checks.
+- 2026-07-04: `ps -C python3 -o pid=,etime=,pcpu=,pmem=,args=`
+  - Result: no active `python3` processes after the medium split final checks.
+- 2026-07-04: `find . -type d -name __pycache__`
+  - Result: no generated `__pycache__` directories remained after cleanup.
+- 2026-07-04: `python -m pytest`
+  - Result: still blocked with `/bin/bash: line 1: python: command not found`;
+    `python3 -m pytest -q` is the passing local equivalent.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 23 passed in 2.42s after adding score-all manifest regression
