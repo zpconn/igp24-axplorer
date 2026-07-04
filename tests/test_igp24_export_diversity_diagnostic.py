@@ -76,7 +76,7 @@ def test_build_summary_counts_raw_export_duplicates_and_checkpoints(tmp_path):
     assert seed_a["top_canonical_duplicate_groups"][0]["count"] == 2
     assert seed_a["checkpoints"][0]["decoded_records"] == 2
     assert seed_a["checkpoints"][0]["canonical_duplicate_records"] == 1
-    assert summary["overlap"]["pairwise_top_duplicate_canonical"][0]["shared_canonical_hashes"] == 1
+    assert summary["overlap"]["pairwise"][0]["shared_canonical_hashes"] == 1
     assert any(record["source_label"] == "seed_a" for record in duplicate_records)
 
 

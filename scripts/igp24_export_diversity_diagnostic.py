@@ -8,6 +8,7 @@ import hashlib
 import json
 import shlex
 import sys
+import time
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from itertools import combinations
@@ -378,7 +379,7 @@ def build_summary(
             "source_count": len(source_summaries),
             "sources": source_summaries,
             "overlap": {
-                "pairwise_top_duplicate_canonical": pairwise_overlap(source_summaries),
+                "pairwise": pairwise_overlap(source_summaries),
             },
         },
         duplicate_records,
@@ -512,6 +513,7 @@ def get_parser() -> argparse.ArgumentParser:
 def main() -> int:
     parser = get_parser()
     args = parser.parse_args()
+    start = time.perf_counter()
     try:
         summary, duplicate_records = build_summary(
             args.sample_exports,
@@ -523,6 +525,7 @@ def main() -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
+    summary["runtime_seconds"] = time.perf_counter() - start
     write_outputs(summary, duplicate_records, args.output_dir.resolve())
     artifacts = summary["artifacts"]
     print(f"export diversity summary: {artifacts['summary_path']}")

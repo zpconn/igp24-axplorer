@@ -787,8 +787,31 @@ results change.
         passed for the edited helper/test files; diagnostic helper `--help`
         passed; GPU probe `--help` shows the new variants; import check
         passed for the diagnostic helper and variant registry.
-    - [pending] Run diagnostics on existing seed `2201` and seeds
+    - [done] Run diagnostics on existing seed `2201` and seeds
       `2301`-`2303` to investigate why per-run diversity differed.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2301.jsonl /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2302.jsonl /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2303.jsonl --labels seed2201_clean seed2301 seed2302 seed2303 --output_dir /tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds --checkpoint_interval 256 --top_n 10`
+      - Result: return code 0, runtime 179.182s. Seed `2201_clean` had
+        2047 decoded rows, 2039 exact unique coefficient vectors, 8 exact
+        duplicate records, 2039 canonical unique hashes, 8 canonical
+        duplicate records, 2039 unique token sequences, and 8 token duplicate
+        records. Seed `2301` had 2040 decoded rows, 1132 exact/canonical
+        uniques, 908 exact/canonical duplicate records, 1133 unique token
+        sequences, and 907 token duplicate records. Seed `2302` had 2047
+        decoded rows, 452 exact/canonical/token uniques, and 1595 duplicate
+        records by all three views. Seed `2303` had 2043 decoded rows, 772
+        exact/canonical/token uniques, and 1271 duplicate records by all
+        three views.
+      - Interpretation: the duplicate-heavy seeds are not mainly a
+        translation-canonicalization artifact. They are exact decoded
+        coefficient/token repeats emitted by the model sampler. Cross-seed
+        exact and canonical overlap remained zero across all seed pairs, so
+        the collapse is within-run repetition.
+      - Artifacts:
+        `/tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds/export_diversity_summary.json`,
+        `/tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds/export_diversity_report.md`,
+        and
+        `/tmp/igp24_export_diversity_diagnostic_20260704/baseline_fixed_seeds/top_duplicate_groups.jsonl`.
     - [pending] Run two short export-only GPU intervention probes, each
       shorter than a 30-60m run and with CPU scoring/local search avoided
       during the GPU phase.
