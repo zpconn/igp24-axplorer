@@ -1,7 +1,7 @@
 # IGP24 Axplorer
 
 Research scaffold for using Axplorer as a candidate generator for the
-SAIR IGP24 inverse Galois competition.
+[SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview).
 
 This project generates, scores, locally improves, deduplicates, and exports
 monic degree-24 integer polynomials:
