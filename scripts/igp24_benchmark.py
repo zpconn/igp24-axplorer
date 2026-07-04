@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "mixed"]
+DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed", "mixed"]
 
 
 def _parse_csv(value: str) -> list[str]:

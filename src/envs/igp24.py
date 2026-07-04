@@ -22,13 +22,14 @@ from src.utils import bool_flag
 
 logger = logging.getLogger(__name__)
 
-IGP24_GENERATION_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured"]
+IGP24_GENERATION_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed"]
 DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "uniform": 0.10,
     "low_height": 0.20,
     "sparse": 0.25,
     "lower_degree": 0.20,
     "structured": 0.25,
+    "four_real_seed": 0.0,
 }
 
 
@@ -216,6 +217,37 @@ class IGP24DataPoint(DataPoint):
         return tuple(coeffs)
 
     @classmethod
+    def _four_real_factor_pairs(cls):
+        bound = max(1, int(cls.COEFF_BOUND))
+        pairs = []
+        for a in range(1, bound + 1):
+            for b in range(a + 1, bound + 1):
+                if a + b <= bound and a * b <= bound:
+                    pairs.append((a, b))
+        return pairs
+
+    @classmethod
+    def _four_real_seed_coefficients(cls):
+        pairs = cls._four_real_factor_pairs()
+        if not pairs:
+            return cls._sparse_coefficients()
+
+        a, b = pairs[int(np.random.randint(len(pairs)))]
+        coeffs = [0] * DEGREE
+        coeffs[0] = a * b
+        coeffs[2] = -(a + b)
+        coeffs[4] = 1
+        coeffs[20] = a * b
+        coeffs[22] = -(a + b)
+
+        odd_indices = list(range(1, DEGREE, 2))
+        perturb_count = int(np.random.choice([1, 2, 3], p=[0.5, 0.35, 0.15]))
+        perturb_count = min(perturb_count, len(odd_indices))
+        for index in np.random.choice(odd_indices, size=perturb_count, replace=False):
+            coeffs[int(index)] = cls._nonzero_random_int(1)
+        return tuple(coeffs)
+
+    @classmethod
     def _select_generation_strategy(cls):
         strategy = cls.GENERATION_STRATEGY
         if strategy != "mixed":
@@ -237,6 +269,8 @@ class IGP24DataPoint(DataPoint):
             return cls._lower_degree_coefficients(), strategy
         if strategy == "structured":
             return cls._structured_coefficients(), strategy
+        if strategy == "four_real_seed":
+            return cls._four_real_seed_coefficients(), strategy
         raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
 
     @classmethod
@@ -293,19 +327,28 @@ class IGP24DataPoint(DataPoint):
     def _append_to_ledger_if_valid(self):
         if not self.WRITE_LEDGER or not self.LEDGER_PATH or self.analysis is None or not self.analysis.valid:
             return
+        generation_metadata = {
+            "strategy": self.generation_strategy,
+            "coeff_bound": self.COEFF_BOUND,
+            "sparse_terms": self.SPARSE_TERMS,
+            "low_height_bound": self.LOW_HEIGHT_BOUND,
+            "mixed_strategy_weights": dict(self.MIXED_STRATEGY_WEIGHTS),
+        }
+        if self.generation_strategy == "four_real_seed":
+            generation_metadata.update(
+                {
+                    "target_r_heuristic": 4,
+                    "seed_template": "perturbed_(x^2-a)(x^2-b)(x^20+1)",
+                    "perturbation": "one_to_three_odd_coefficients",
+                }
+            )
         record = analysis_to_record(
             self.analysis,
             self.score,
             target_r=self.TARGET_R,
             target_t=self.TARGET_T,
             experiment_name=self.EXPERIMENT_NAME,
-            generation_metadata={
-                "strategy": self.generation_strategy,
-                "coeff_bound": self.COEFF_BOUND,
-                "sparse_terms": self.SPARSE_TERMS,
-                "low_height_bound": self.LOW_HEIGHT_BOUND,
-                "mixed_strategy_weights": dict(self.MIXED_STRATEGY_WEIGHTS),
-            },
+            generation_metadata=generation_metadata,
             local_search_metadata=self.local_search_stats,
         )
         try:
@@ -567,7 +610,7 @@ class IGP24Environment(BaseEnvironment):
             "--igp24_generation_strategy",
             type=str,
             default="mixed",
-            choices=["mixed", "uniform", "low_height", "sparse", "lower_degree", "structured"],
+            choices=["mixed"] + IGP24_GENERATION_STRATEGIES,
             help="Initial IGP24 coefficient generation strategy",
         )
         parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")

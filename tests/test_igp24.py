@@ -183,8 +183,15 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
     IGP24DataPoint.COEFF_BOUND = 5
     IGP24DataPoint.SPARSE_TERMS = 4
     IGP24DataPoint.LOW_HEIGHT_BOUND = 2
-    for strategy in ["uniform", "low_height", "sparse", "lower_degree", "structured"]:
-        np_seed = {"uniform": 11, "low_height": 12, "sparse": 13, "lower_degree": 14, "structured": 15}[strategy]
+    for strategy in ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed"]:
+        np_seed = {
+            "uniform": 11,
+            "low_height": 12,
+            "sparse": 13,
+            "lower_degree": 14,
+            "structured": 15,
+            "four_real_seed": 16,
+        }[strategy]
         np.random.seed(np_seed)
         IGP24DataPoint.GENERATION_STRATEGY = strategy
         coeffs, observed = IGP24DataPoint._generate_coefficients()
@@ -197,6 +204,13 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
         if strategy in {"low_height", "structured"}:
             non_constant = [abs(c) for c in coeffs[1:] if c != 0]
             assert all(c <= IGP24DataPoint.LOW_HEIGHT_BOUND for c in non_constant)
+        if strategy == "four_real_seed":
+            assert coeffs[0] > 0
+            assert coeffs[2] < 0
+            assert coeffs[4] == 1
+            assert coeffs[20] == coeffs[0]
+            assert coeffs[22] == coeffs[2]
+            assert any(coeffs[index] != 0 for index in range(1, DEGREE, 2))
 
 
 def test_mixed_strategy_weights_are_normalized_and_selectable():
@@ -204,13 +218,14 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert weights["uniform"] == 0.25
     assert weights["structured"] == 0.75
     assert weights["sparse"] == 0.0
+    assert weights["four_real_seed"] == 0.0
     assert "structured:0.7500" in format_mixed_strategy_weights(weights)
 
     IGP24DataPoint.GENERATION_STRATEGY = "mixed"
-    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("structured:1")
+    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("four_real_seed:1")
     np.random.seed(100)
     coeffs, observed = IGP24DataPoint._generate_coefficients()
-    assert observed == "structured"
+    assert observed == "four_real_seed"
     assert len(coeffs) == DEGREE
 
 
@@ -280,13 +295,15 @@ def test_ledger_records_generation_and_local_search_metadata(tmp_path):
             "REDEEM_ONLY": False,
         }
     )
-    datapoint = IGP24DataPoint(N=DEGREE, coeffs=VALID, generation_strategy="structured")
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=VALID, generation_strategy="four_real_seed")
     datapoint.calc_score()
     datapoint.local_search(improve_with_local_search=True)
     records = CandidateLedger(tmp_path / "ledger.jsonl").records()
     assert records
     latest = records[-1]
-    assert latest["generation_metadata"]["strategy"] == "structured"
+    assert latest["generation_metadata"]["strategy"] == "four_real_seed"
+    assert latest["generation_metadata"]["target_r_heuristic"] == 4
+    assert "perturbed_(x^2-a)(x^2-b)" in latest["generation_metadata"]["seed_template"]
     assert "mixed_strategy_weights" in latest["generation_metadata"]
     assert latest["local_search_metadata"]["max_steps"] == 2
     assert "score_components" in latest

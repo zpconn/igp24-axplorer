@@ -9,10 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  larger target-r benchmark work.
-- Active focus: larger CPU-only target real-root-count benchmark completed;
-  next work should focus on target-specific presets and `r=4`-friendlier
-  families.
+  `target_r=4` generation work.
+- Active focus: implement and benchmark an experimental `target_r=4`-friendlier
+  generation strategy without changing the global `mixed` default.
 
 ## Stage 0: Scaffold
 
@@ -44,6 +43,14 @@ results change.
 - [done] Adjust default `mixed` weights conservatively toward the stronger
   small-sample strategies:
   `uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25`.
+- [in_progress] Add an experimental `target_r=4`-friendlier generation
+  strategy.
+  - [done] Implement a bounded near-product `four_real_seed` strategy
+    based on perturbed `(x^2-a)(x^2-b)(x^20+1)` seeds.
+  - [done] Record strategy-specific metadata in ledger records.
+  - [done] Add focused generation, metadata, and determinism tests.
+  - [pending] Benchmark against current `sparse` and `mixed` baselines on
+    `target_r=4`.
 
 ## Stage 1: Scoring And Metadata
 
@@ -106,6 +113,20 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before `target_r=4` generation work.
+- 2026-07-04: local scorer probe for odd-perturbed
+  `(x^2-a)(x^2-b)(x^20+1)` seeds at `coeff_bound=4`.
+  - Result: across three 200-sample probes, valid samples had high `r=4`
+    representation; this justifies trying a small explicit generator strategy.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
+  - Result: 18 passed in 0.70s after adding `four_real_seed`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src tests scripts`
+  - Result: passed after adding `four_real_seed`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed after adding `four_real_seed`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 train.py --env_name igp24 --help`
+  - Result: passed; this code path prints global `train.py` options only.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger target-r benchmark work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
