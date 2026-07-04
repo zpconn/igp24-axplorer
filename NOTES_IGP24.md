@@ -219,6 +219,13 @@ a manifest. It deliberately does not run PARI, MAGMA, SAIR, network APIs, exact
 group verification, or any submission path. Exported records remain proxy-only
 until an offline exact verifier is run manually and its provenance is recorded.
 
+The review-batch helper sits one step after shortlist export. It can follow
+recorded `source_ledger_path` values back to fuller ledger rows, select a small
+score-sorted batch with optional source-strategy diversity constraints, and
+write a markdown review report plus verifier-input coefficient files. This is
+still not exact verification; it is a human triage artifact for later manual
+offline verifier runs.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

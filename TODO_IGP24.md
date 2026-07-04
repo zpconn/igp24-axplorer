@@ -124,6 +124,8 @@ results change.
   - Latest result: passed after safe shortlist/export helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe shortlist/export helper work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
+  - Latest result: passed after adding the safe review-batch helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after safe shortlist/export helper work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
@@ -139,6 +141,16 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe review-batch tooling work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_review_shortlist.py`
+  - Result: 3 passed in 0.01s after adding the review-batch helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_review_shortlist.py tests/test_igp24_review_shortlist.py`
+  - Result: passed after adding the review-batch helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`
+  - Result: initially exposed a direct-execution import-path blocker
+    (`ModuleNotFoundError: No module named 'scripts'`). Fixed the helper's
+    repo-root path setup and reran successfully; CLI documents shortlist input,
+    output directory, batch size, sort key, strategy cap/minimum, source-ledger
+    following, and repo-root options.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe shortlist/export helper work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_shortlist.py`
@@ -1143,19 +1155,21 @@ down further as they become active.
 ### Stage 2: Structured Families And Exact-Tool Prep
 
 - [in_progress] Add safe human-review tooling for exported shortlists.
-  - [pending] Add a review/export-only CLI that reads shortlist export
+  - [done] Add a review/export-only CLI that reads shortlist export
     directories and optionally follows `source_ledger_path` to richer ledger
     records.
-  - [pending] Support batch size, canonical-hash deduplication, score sorting,
+  - [done] Support batch size, canonical-hash deduplication, score sorting,
     and source-strategy diversity constraints where possible.
-  - [pending] Emit `review_report.md`, `verification_batch.jsonl`,
+  - [done] Emit `review_report.md`, `verification_batch.jsonl`,
     `verification_coefficients.txt`, and `manifest.json` with source
     shortlist, source ledgers, command, criteria, timestamp, and safety flags.
-  - [pending] Add fast fixture-based tests covering shortlist loading,
+  - [done] Add fast fixture-based tests covering shortlist loading,
     source-ledger rehydration, diverse top-N selection, output files, and
     proxy-only safety flags.
-  - [pending] Document the review-batch command and safety boundary in
+  - [done] Document the review-batch command and safety boundary in
     README/NOTES/TODO.
+  - [pending] Run and audit an r4 review-batch smoke export from the existing
+    `/tmp/igp24_r4_shortlist_20260704` shortlist.
 - [done] Add safe batch export/shortlist helpers for verifier input
   files.
   - [done] Add an export-only CLI that reads benchmark directories and/or

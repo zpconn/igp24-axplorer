@@ -222,6 +222,25 @@ PARI, MAGMA, SAIR, network calls, exact group verification, or submission.
 Treat every exported candidate as proxy-scored until a human-reviewed offline
 exact verifier confirms it.
 
+## Review A Shortlist
+
+Use the review helper to turn a proxy shortlist into a small manual review
+batch for later offline verifier experiments:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py \
+  /tmp/igp24_r4_shortlist_20260704 \
+  --batch_size 8 \
+  --min_strategies 2 \
+  --per_strategy_cap 6 \
+  --output_dir /tmp/igp24_r4_review_batch
+```
+
+The helper writes `review_report.md`, `verification_batch.jsonl`,
+`verification_coefficients.txt`, and `manifest.json`. It may follow recorded
+`source_ledger_path` values to enrich records, but it still only reads and
+writes local files. It does not run exact verifiers or submit anything.
+
 ## Recent Smoke Result
 
 The current smoke run used CPU-only mixed generation:
