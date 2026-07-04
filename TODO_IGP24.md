@@ -9,14 +9,13 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  GPU sample-export decoupling work.
-- Active focus: add the smallest safe opt-in workflow that lets CUDA
-  training/sampling export model candidates without immediately blocking on
-  CPU proxy scoring, local search, or dataset updates. Keep CPU proxy-search,
-  shortlist export, and exact-tool prep primary. Do not start a medium
-  30-60 minute GPU run until the split workflow is smoke-tested. This remains
-  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
-  SAIR/network calls, and no auto-submission behavior.
+  split workflow hardening work.
+- Active focus: harden the GPU sample-export -> CPU proxy-scoring workflow
+  with a combined audit manifest/report, duplicate/hash summaries, and a
+  larger short split smoke. Keep CPU proxy-search, shortlist export, and
+  exact-tool prep primary. Do not start a medium 30-60 minute GPU run yet.
+  This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution,
+  no SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -314,6 +313,31 @@ results change.
       smoke, the separate CPU scoring helper command, artifact paths, record
       counts, safety boundary, and recommendation to run a larger short split
       smoke before any medium GPU run.
+- [in_progress] Harden the split GPU-sampling to CPU-scoring workflow.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+    `scripts/igp24_gpu_sampler_probe.py`, `scripts/igp24_score_sample_export.py`,
+    and relevant tests.
+    - Result: the split is functional but audit details are spread across
+      multiple files. The CPU scoring helper is the right place to write a
+      combined manifest/report because it can link the source export, GPU
+      probe summary, scored JSONL, score summary, command line, safety flags,
+      and hash/dedup counts after scoring.
+  - [pending] Add a combined split-workflow manifest/report linking export
+    JSONL, train log, GPU probe summary/report, CPU score summary/report, and
+    scored JSONL.
+  - [pending] Record source commit, command lines, counts, safety flags,
+    artifact paths, runtime, and duplicate/canonical-hash summaries.
+  - [pending] Make scoring all decoded export rows or an explicit capped
+    subset clear in helper arguments and summaries.
+  - [pending] Add focused tests for pure manifest/reporting, dedup/hash
+    summaries, command construction, and safety flags.
+  - [pending] Run a larger short split smoke, around 512-1024 exported samples
+    with a larger CPU scoring subset, capped well under 10 minutes.
+  - [pending] Update README, NOTES, and TODO with commands, paths, counts,
+    interpretation, and whether another short split smoke or a medium run is
+    next.
 
 ## Tests And Checks
 
@@ -354,6 +378,8 @@ results change.
     work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU sample-export decoupling work.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before split workflow hardening work.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 18 passed in 1.36s after adding export-only model sampling,
