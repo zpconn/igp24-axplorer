@@ -76,11 +76,11 @@ Useful IGP24-specific generation flags:
 --igp24_generation_strategy mixed
 --igp24_sparse_terms 4
 --igp24_low_height_bound 3
---igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
+--igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00
 ```
 
 `--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
-`sparse`, `lower_degree`, or `structured`.
+`sparse`, `lower_degree`, `structured`, or `four_real_seed`.
 
 The strategies are:
 
@@ -89,7 +89,12 @@ The strategies are:
 - `sparse`: a configurable number of nonzero free coefficients.
 - `lower_degree`: coefficients biased toward low-degree terms.
 - `structured`: simple sparse binomial/trinomial-like seeds.
+- `four_real_seed`: an experimental `target_r=4`-oriented near-product seed
+  with small odd perturbations.
 - `mixed`: a weighted mix of the above.
+
+The default `mixed` weights keep `four_real_seed` at zero weight. Use it
+explicitly when running `target_r=4` experiments.
 
 Candidate records are written as JSONL by default:
 
@@ -148,6 +153,25 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
 Target-r summaries include match counts, match rates, and best matching scores
 when a target is supplied. The aggregate summary groups repeated seeds by
 strategy and target.
+
+For a focused `target_r=4` comparison, include the experimental strategy
+explicitly:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
+  --strategies sparse,mixed,four_real_seed \
+  --seeds 401,402,403,404 \
+  --target_rs 4 \
+  --coeff_bound 4 \
+  --gensize 18 \
+  --pop_size 8 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 3 \
+  --output_dir /tmp/igp24_four_real_seed_bench
+```
 
 ## Recent Smoke Result
 

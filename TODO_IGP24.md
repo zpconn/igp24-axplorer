@@ -10,8 +10,8 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   `target_r=4` generation work.
-- Active focus: implement and benchmark an experimental `target_r=4`-friendlier
-  generation strategy without changing the global `mixed` default.
+- Active focus: experimental `four_real_seed` strategy improved short-run
+  `target_r=4` match rate without changing the global `mixed` default.
 
 ## Stage 0: Scaffold
 
@@ -43,13 +43,13 @@ results change.
 - [done] Adjust default `mixed` weights conservatively toward the stronger
   small-sample strategies:
   `uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25`.
-- [in_progress] Add an experimental `target_r=4`-friendlier generation
+- [done] Add an experimental `target_r=4`-friendlier generation
   strategy.
   - [done] Implement a bounded near-product `four_real_seed` strategy
     based on perturbed `(x^2-a)(x^2-b)(x^20+1)` seeds.
   - [done] Record strategy-specific metadata in ledger records.
   - [done] Add focused generation, metadata, and determinism tests.
-  - [pending] Benchmark against current `sparse` and `mixed` baselines on
+  - [done] Benchmark against current `sparse` and `mixed` baselines on
     `target_r=4`.
 
 ## Stage 1: Scoring And Metadata
@@ -127,6 +127,18 @@ results change.
   - Result: passed after adding `four_real_seed`.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 train.py --env_name igp24 --help`
   - Result: passed; this code path prints global `train.py` options only.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,mixed,four_real_seed --seeds 401,402,403,404 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_four_real_seed_bench_20260704`
+  - Result: passed; 12 CPU-only `target_r=4` benchmark runs completed in
+    52.10 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_four_real_seed_bench_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result: `12 True True ['four_real_seed', 'mixed', 'sparse'] [4]` and
+    `216 380 144`.
+- 2026-07-04: inspected `four_real_seed` benchmark ledgers for metadata.
+  - Result: 123 `four_real_seed` ledger records included
+    `target_r_heuristic=4`, the perturbed seed template, and perturbation
+    metadata.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger target-r benchmark work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -374,6 +386,56 @@ Interpretation:
   `structured` for `r=0`, `sparse` plus `structured` for `r=2`, and new
   `r=4`-friendly families before retuning `mixed`.
 
+### 2026-07-04 Four-real Seed Target-r Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_four_real_seed_bench_20260704`.
+- Summary files:
+  - `/tmp/igp24_four_real_seed_bench_20260704/summary.json`
+  - `/tmp/igp24_four_real_seed_bench_20260704/summary.jsonl`
+  - `/tmp/igp24_four_real_seed_bench_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: `sparse`, `mixed`, `four_real_seed`.
+  - Target: `target_r=4`.
+  - Seeds: `401`, `402`, `403`, `404`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 52.10 seconds.
+- All 12 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 12.
+  - Valid candidates: 216.
+  - Ledger records: 380.
+  - Target-r matching records: 144.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - `four_real_seed` ledger records included `target_r_heuristic=4`,
+    `seed_template`, and perturbation metadata.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 4 | 4.18s | 72 | 123 | 97 | 0.792 | 10193.136 | 10193.136 | 10145.343 | 10195.370 | 0.346 |
+| `mixed` | `r=4` | 4 | 5.04s | 72 | 130 | 26 | 0.200 | 10191.476 | 10191.476 | 10043.085 | 10197.883 | 0.438 |
+| `sparse` | `r=4` | 4 | 3.67s | 72 | 127 | 21 | 0.164 | 10194.103 | 10194.103 | 10037.574 | 10207.604 | 0.423 |
+
+Interpretation:
+
+- `four_real_seed` materially improved `target_r=4` match rate in this short
+  proxy-scored run: 0.792 average match rate versus 0.200 for `mixed` and
+  0.164 for `sparse`.
+- `four_real_seed` also had the strongest average mean score, which is expected
+  because target-r bonus dominates once many generated candidates match
+  `r=4`.
+- `sparse` still found the best single candidate score in this batch, so the
+  new strategy should be treated as a high-yield target-r generator rather than
+  a universal quality winner.
+- Local-search acceptance was lower for `four_real_seed`; this may indicate the
+  current mutation moves often disturb the `r=4` shape.
+- No global `mixed` default was changed. A later target-specific preset could
+  include `four_real_seed` for `target_r=4`, but it needs a larger run and
+  eventually exact external verification before promotion.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -454,9 +516,11 @@ down further as they become active.
 - [done] Run short per-strategy comparisons including target real-root counts.
 - [done] Run larger per-strategy target-r comparisons before further tuning
   defaults.
+- [done] Add an experimental `target_r=4`-friendlier `four_real_seed`
+  generation family.
 - [pending] Add target-specific benchmark presets or docs for promising
   strategy/target pairs.
-- [pending] Design new `target_r=4`-friendlier generation families before
-  retuning mixed defaults for that target.
+- [pending] Run a larger `target_r=4` validation with `four_real_seed`,
+  `sparse`, and tuned target-specific mixes before promoting presets.
 - [pending] Run a longer focused `target_r=2` comparison between `sparse` and
   `structured`.

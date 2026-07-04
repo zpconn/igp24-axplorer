@@ -72,6 +72,8 @@ The IGP24 environment now supports several initial generation strategies:
 - `sparse`: a configurable number of nonzero free coefficients.
 - `lower_degree`: coefficients biased toward lower-degree terms.
 - `structured`: simple sparse binomial/trinomial-like seeds.
+- `four_real_seed`: an experimental `target_r=4`-oriented seed that starts
+  near `(x^2-a)(x^2-b)(x^20+1)` and adds small odd perturbations.
 - `mixed`: a weighted mix of the above.
 
 These are still candidate-generation heuristics, not structured Galois-family
@@ -123,6 +125,17 @@ average score.
 This argues against a single global default retune. The next useful step is
 target-specific presets or run recommendations, plus new `r=4`-friendlier
 families before trying to tune `mixed` weights for that target.
+
+The first `r=4`-friendlier family is `four_real_seed`. It is intentionally
+explicit rather than part of the default `mixed` distribution: it biases the
+candidate stream toward a polynomial shape with four real roots, then perturbs
+odd coefficients so the generator is not merely emitting the reducible even
+product. In a bounded CPU-only comparison against `sparse` and `mixed` with
+seeds `401,402,403,404`, `four_real_seed` improved average `target_r=4` match
+rate to 0.792, versus 0.200 for `mixed` and 0.164 for `sparse`. It also
+improved average mean score, but `sparse` still found the best single candidate
+score in that batch. Treat this as evidence that the family is useful for
+target-yield, not as proof that it is best for final candidate quality.
 
 ## Why Random Polynomials Are Limited
 
