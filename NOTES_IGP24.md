@@ -348,6 +348,54 @@ medium batches. Do not switch back to an integrated GPU train/sample/score
 loop; CPU proxy-search, shortlist export, and exact-tool prep remain the
 primary pipeline.
 
+The next bounded diversity pass added an explicit
+`sample_export_split_diversity` helper mode with named variants and no changes
+to normal `train.py` defaults. The two first variants were:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t09_top9 \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant mixed_t12_open_topk \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+```
+
+Both stayed export-only and avoided GPU-phase CPU scoring/local search/dataset
+updates. The fixed-template short run completed in 148.7 seconds with
+`device: cuda`, max monitored GPU utilization 99%, average utilization 80.8%,
+2048 export rows, and 2047 decoded rows. Its separate CPU score-all handoff
+scored 2047 rows in 76.5 seconds with local search disabled, producing 1799
+valid proxy-scored records, 248 rejected records, 2039 unique canonical
+hashes, 8 duplicate hash records, best score 9964.435, and mean score
+8720.207. The manifest is
+`/tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all/split_workflow_manifest.json`.
+
+The mixed/high-temperature run completed in 152.4 seconds with `device: cuda`,
+max monitored GPU utilization 99%, average utilization 80.1%, 2048 export
+rows, and 2030 decoded rows. Its separate CPU score-all handoff scored 2030
+rows in 77.7 seconds with local search disabled, producing 1921 valid
+proxy-scored records, 109 rejected records, 1067 unique canonical hashes, 963
+duplicate hash records, best score 9969.676, and mean score 9396.872. The
+manifest is
+`/tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all/split_workflow_manifest.json`.
+
+Compared with the duplicate-heavy medium baseline, the fixed-template short
+diversity variant is the clear uniqueness win: 2039 unique hashes out of 2047
+scored rows versus 384 unique hashes out of 8192 scored rows. The mixed
+high-temperature variant is a useful quality/validity contrast, but it
+duplicates enough that it should not be the next longer-run default on its own.
+The next GPU step should test diversity-preserving scale-up, such as multiple
+short fixed-template seeds with dedup-aware CPU merge/review, before trying
+another single longer export.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

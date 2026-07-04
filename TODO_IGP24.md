@@ -574,10 +574,18 @@ results change.
       with only 8 duplicate records. The mixed/high-temp variant has better
       validity and score metrics, but weaker diversity at 1067 unique / 2030
       scored with 963 duplicate records.
-  - [pending] Update README, NOTES, and TODO with commands, artifact paths,
+  - [done] Update README, NOTES, and TODO with commands, artifact paths,
     GPU utilization, valid/rejected counts, unique/duplicate hash counts,
     best/mean score, comparison to the duplicate-heavy medium baseline, and
     next recommendation.
+    - Result: README and NOTES now document the diversity helper mode, exact
+      variant commands, CPU score-all handoff commands, artifacts, GPU
+      utilization, score/diversity metrics, and recommendation. The fixed
+      short variant is the clear uniqueness winner; the mixed/high-temp
+      variant improves validity/score but duplicates more. Next GPU work
+      should test diversity-preserving scale-up, such as multiple short
+      fixed-template seeds with dedup-aware CPU merge/review, before another
+      single longer export.
 
 ## Tests And Checks
 

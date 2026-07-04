@@ -236,10 +236,56 @@ hashes, and 7808 duplicate hash records. The combined manifest is at:
 /tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all/split_workflow_manifest.json
 ```
 
-Recommendation: the GPU path is now genuinely loading the RTX 5090 when run as
-export-only training/sampling. The next GPU work should improve sample
-diversity before longer runs, because this fixed-template medium run was
-duplicate-heavy. Do not switch back to an integrated GPU train/sample/score
+The follow-up bounded diversity sweep on 2026-07-04 compared two short
+export-only variants:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t09_top9 \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant mixed_t12_open_topk \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/gpu_model_sample_export_diversity_mixed_t12_open_topk.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+Both GPU phases loaded the RTX 5090 well: max monitored utilization 99%, about
+80% average utilization, and about 10.3 GiB monitored memory. The fixed-template
+short variant scored 2047 rows in 76.5s with 1799 valid records, 2039 unique
+canonical hashes, and only 8 duplicate hash records. The mixed/high-temperature
+variant scored 2030 rows in 77.7s with 1921 valid records, 1067 unique
+canonical hashes, and 963 duplicate hash records.
+
+Recommendation: use the diversity sweep before any longer GPU export. The
+short fixed-template shape is promising for uniqueness, while the
+mixed/high-temperature shape is better for validity and proxy score but
+duplicates more. Do not switch back to an integrated GPU train/sample/score
 loop; keep CPU proxy-search, shortlist export, and exact-tool prep as the main
 pipeline.
 
