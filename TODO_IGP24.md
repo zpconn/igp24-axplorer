@@ -159,6 +159,21 @@ results change.
   - Result: passed; CLI documents review-batch input, output directory,
     explicit `--run_pari`/`--run_magma` opt-ins, executable names, timeout, and
     repo-root options.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_r4_offline_verify_20260704`
+  - Result: passed in default preparation-only mode. Loaded 8 review records,
+    wrote `offline_verification_manifest.json`, `pari_input.gp`,
+    `magma_input.m`, and `verification_plan.md`. Local `gp` and `magma`
+    availability were both false; no local verifier execution was requested or
+    performed.
+- 2026-07-04: audited `/tmp/igp24_r4_offline_verify_20260704`.
+  - Result: selected record count is 8, selected hashes are unique, coefficient
+    shape is recorded as length 25 with leading coefficient 1, PARI/GP and
+    MAGMA are unavailable on PATH, `pari_executed=false`,
+    `magma_executed=false`, `dry_run_preparation_only=true`, and safety flags
+    record no network calls, no SAIR submission, no auto-submission, no exact
+    group-label parsing, and no exact group claims. No `*raw_output*` files
+    were created.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe review-batch tooling work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_review_shortlist.py`
@@ -1217,6 +1232,41 @@ Interpretation:
   experiments. It did not run PARI, MAGMA, SAIR, network calls, exact group
   verification, or any submission path.
 
+### 2026-07-04 R4 Offline Verification Prep Smoke
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_offline_verify_20260704`.
+- Input review batch: `/tmp/igp24_r4_review_batch_20260704`.
+- Mode: default preparation-only dry run; no `--run_pari` or `--run_magma`
+  flags were used.
+- Output files:
+  - `/tmp/igp24_r4_offline_verify_20260704/offline_verification_manifest.json`
+  - `/tmp/igp24_r4_offline_verify_20260704/pari_input.gp`
+  - `/tmp/igp24_r4_offline_verify_20260704/magma_input.m`
+  - `/tmp/igp24_r4_offline_verify_20260704/verification_plan.md`
+- Loaded review records: 8.
+- Unique selected hashes: 8.
+- Tool availability:
+  - PARI/GP `gp`: unavailable on PATH.
+  - MAGMA `magma`: unavailable on PATH.
+- Execution:
+  - PARI/GP requested: false; executed: false.
+  - MAGMA requested: false; executed: false.
+  - No raw verifier output files were created.
+- Audit:
+  - Manifest records coefficient shape as length 25 with fixed leading
+    coefficient 1.
+  - Generated PARI/GP and MAGMA scripts include the candidate hashes and
+    commented exact Galois-group steps for deliberate manual use.
+  - Manifest safety flags record `network_calls=false`,
+    `sair_submission=false`, `auto_submission=false`,
+    `pari_executed=false`, `magma_executed=false`,
+    `exact_group_labels_parsed=false`, `exact_group_claims=false`, and
+    `dry_run_preparation_only=true`.
+- Caveat: this smoke only prepares local verifier inputs. It does not verify
+  candidates, parse exact group labels, contact SAIR, make network calls, or
+  submit anything.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -1238,7 +1288,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Add safe offline exact-verifier preparation workflow.
+- [done] Add safe offline exact-verifier preparation workflow.
   - [done] Add a preparation-only CLI that reads review-batch directories,
     validates `verification_batch.jsonl`, `verification_coefficients.txt`, and
     `manifest.json`, and refuses malformed coefficient exports.
@@ -1253,7 +1303,7 @@ down further as they become active.
     validation, script generation, manifest safety flags, and unavailable
     verifier handling.
   - [done] Document the workflow in README/NOTES/TODO.
-  - [pending] Smoke it against
+  - [done] Smoke it against
     `/tmp/igp24_r4_review_batch_20260704`.
 - [done] Add safe human-review tooling for exported shortlists.
   - [done] Add a review/export-only CLI that reads shortlist export
@@ -1407,7 +1457,7 @@ down further as they become active.
 - [done] Manually review the exported r4 shortlist and choose a small batch
   for offline exact-verifier experiments, keeping any SAIR submission explicit
   and human-controlled.
-- [in_progress] Prepare manual offline exact-verifier inputs for
+- [done] Prepare manual offline exact-verifier inputs for
   `/tmp/igp24_r4_review_batch_20260704`, record local tool availability, and
   keep any SAIR submission explicit and human-controlled.
 - [pending] Run manual offline exact-verifier experiments only after local
