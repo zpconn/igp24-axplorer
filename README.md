@@ -437,12 +437,34 @@ discarded because it exceeded the tokenizer vocabulary and failed at
 | t10 top12 | 2041 | 1888 | 153 | 1288 | 753 | 9953.439 | 9177.150 |
 | t11 open top-k | 2043 | 1833 | 210 | 2030 | 13 | 9956.519 | 8900.449 |
 
-Recommendation: do not start a longer fixed-template run yet. Use
-`fixed_template_t11_open_topk` for the next short diversity-preserving GPU
-export comparison, preferably across 2-3 seeds with the raw export diagnostic
-run immediately after each export. The best next code change is a true
-dedup-aware export cap/stop policy, since duplicate collapse is visible before
-CPU scoring.
+The follow-up `fixed_template_t11_open_topk` multi-seed validation used fresh
+seeds `2401`, `2402`, and `2403` with the same export-only discipline and raw
+diagnostics after each export. All three GPU exports loaded CUDA and avoided
+GPU-phase CPU scoring/local search/dataset updates.
+
+| seed | gpu_s | max/avg gpu util | decoded | raw unique | raw dupes | scored | valid | rejected | best | mean |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2401 | 156.4 | 99.0% / 82.7% | 2043 | 675 | 1368 | skipped | - | - | - | - |
+| 2402 | 154.5 | 99.0% / 82.7% | 2037 | 1217 | 820 | 2037 | 1910 | 127 | 9958.729 | 9301.895 |
+| 2403 | 147.8 | 99.0% / 81.8% | 2026 | 1088 | 938 | 2026 | 1913 | 113 | 9952.131 | 9367.702 |
+
+The merged scored review across `seed2201_t09_clean`,
+`seed2302_t09_baseline`, `seed2302_t11_open`, `seed2402_t11_open`, and
+`seed2403_t11_open` found 10200 scored rows, 9486 valid records, 6822 unique
+canonical hashes, 3378 duplicate hash records, and only four cross-seed shared
+hashes. The best overall proxy score remained from `seed2201_t09_clean`
+at 9964.435; the best fresh `t11_open` result was seed `2402` at 9958.729.
+The report is:
+
+```text
+/tmp/igp24_gpu_t11_open_multiseed_20260704/merged_scored_review/merged_dedup_report.md
+```
+
+Recommendation: do not start a longer fixed-template run yet.
+`fixed_template_t11_open_topk` can work very well on some seeds, but it is not
+stable enough across fresh seeds. The best next code change is a dedup-aware
+export cap/stop policy or live uniqueness monitor, since duplicate collapse is
+visible before CPU scoring.
 
 ## Run A Small Smoke Job
 

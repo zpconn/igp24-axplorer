@@ -433,12 +433,22 @@ found the best single proxy score in that comparison, but validity and mean
 score dropped: 1833 valid / 210 rejected and mean score 8900.449, versus the
 baseline seed `2302` at 2031 valid / 16 rejected and mean score 9845.475.
 
-The immediate recommendation is still not to run a longer fixed-template job.
-Instead, use `fixed_template_t11_open_topk` for another short 2-3 seed
-diversity-preserving comparison, with the raw export diagnostic run after
-each export. If code changes are next, a true dedup-aware export cap or stop
-policy is now well justified, because duplicate collapse is visible before
-any CPU scoring happens.
+The follow-up fresh-seed validation showed that `fixed_template_t11_open_topk`
+is useful but not stable. Seeds `2401`, `2402`, and `2403` all used the same
+short export-only CUDA path, avoided GPU-phase CPU scoring/local search, and
+hit 99% max monitored GPU utilization. Raw export diagnostics found 675, 1217,
+and 1088 canonical unique hashes, with 1368, 820, and 938 duplicate records.
+Seed `2401` was skipped for CPU scoring because it collapsed too heavily.
+CPU score-all on seeds `2402` and `2403` found best scores 9958.729 and
+9952.131, with 1217 and 1088 unique scored hashes. The merged review across
+the prior clean seed `2201`, the seed `2302` baseline/intervention, and the
+fresh scored seeds found 6822 unique hashes out of 10200 scored rows. The best
+overall score still came from seed `2201`, while the best fresh `t11_open`
+candidate ranked third in the merged report.
+
+Do not start a longer fixed-template job yet. The next code step should be a
+dedup-aware export cap/stop policy or live uniqueness monitor, because the
+duplicate collapse is visible before any CPU scoring happens.
 
 ## Why Random Polynomials Are Limited
 

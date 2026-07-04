@@ -1113,23 +1113,52 @@ results change.
         seed `2302`/seed `2201` uniqueness regime. Do not run a longer
         fixed-template job yet; implement dedup-aware export control or live
         uniqueness monitoring next.
-    - [in_progress] Update README, NOTES, and TODO with commands, artifacts,
+    - [done] Update README, NOTES, and TODO with commands, artifacts,
       metrics, stability interpretation, and next action.
-    - [pending] Run final verification, confirm Stage 4 remains present,
+      - Result: README and NOTES now record the fresh-seed validation table,
+        merged review summary, artifact path, and recommendation to implement
+        dedup-aware export control before any longer fixed-template run.
+    - [done] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
+      - Focused split/export tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 35 passed in 1.18s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 76 passed in 1.58s.
+      - Compileall:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks passed for `igp24_gpu_sampler_probe.py`,
+        `igp24_score_sample_export.py`, `igp24_merge_scored_exports.py`, and
+        `igp24_export_diversity_diagnostic.py`.
+      - Import check passed:
+        `imports ok True True True True True True`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3132.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active `python3` processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 76 passed in 1.68s after the per-run diversity diagnostic
-    and entropy intervention work.
+  - Latest result: 76 passed in 1.58s after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run focused split/export tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
-  - Latest result: 35 passed in 1.26s after the per-run diversity diagnostic
-    and entropy intervention work.
+  - Latest result: 35 passed in 1.18s after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after the per-run diversity diagnostic and entropy
-    intervention work.
+  - Latest result: passed after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -1142,17 +1171,19 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after the per-run diversity diagnostic and entropy
-    intervention work; helper exposes `--diversity_seed`,
+  - Latest result: passed after the multi-seed
+    `fixed_template_t11_open_topk` stability validation; helper exposes
+    `--diversity_seed`,
     `fixed_template_t10_top12`, and `fixed_template_t11_open_topk`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after the per-run diversity diagnostic and entropy
-    intervention work.
+  - Latest result: passed after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py --help`.
-  - Latest result: passed after adding the merge helper.
+  - Latest result: passed after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py --help`.
-  - Latest result: passed after adding the raw export diversity diagnostic
-    helper.
+  - Latest result: passed after the multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - [done] Run an import check proving `train`, the environment registry,
   `igp24`, and the split/merge helpers remain discoverable.
   - Latest command:
