@@ -10,13 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   multi-seed fixed-template GPU export scale-up work.
-- Active focus: testing whether the diversity-preserving short
-  fixed-template GPU export scales across multiple seeds before any single
-  longer GPU export. The plan is three short export-only CUDA runs, separate
-  CPU score-all handoffs with local search disabled, and a dedup-aware merged
-  review. Keep CPU proxy-search, shortlist export, and exact-tool prep
-  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
-  execution, no SAIR/network calls, and no auto-submission behavior.
+- Active focus: multi-seed fixed-template GPU export scale-up is complete and
+  final commit/push is in progress. Three short export-only CUDA seeds added
+  fresh cross-seed hashes with zero pairwise overlap, but per-seed diversity
+  was unstable. Improve per-run diversity or add dedup-aware export controls
+  before any longer fixed-template GPU export. Keep CPU proxy-search,
+  shortlist export, and exact-tool prep primary. This remains proxy-only: no
+  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
+  auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -720,20 +721,48 @@ results change.
         `/tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review/merged_dedup_report.md`,
         and
         `/tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review/top_deduped_candidates.jsonl`.
-    - [pending] Update README, TODO, and any relevant notes with commands,
+    - [done] Update README, TODO, and any relevant notes with commands,
       results, interpretation, and next recommendation.
-    - [pending] Run final verification, confirm Stage 4 remains present,
-      audit GPU/process state, commit, and push.
+      - Result: README now documents `--diversity_seed`, the merge helper,
+        exact three-seed GPU export commands, CPU score-all commands, merge
+        command, per-seed metrics, merged dedup metrics, and interpretation.
+        `NOTES_IGP24.md` now records the same planning conclusion: multi-seed
+        fixed-template export adds fresh cross-seed hashes, but per-run
+        diversity is seed-sensitive and should be improved before a longer
+        fixed-template export.
+    - [done] Run final verification, confirm Stage 4 remains present, and
+      audit GPU/process state.
+      - Result: focused tests passed with 31 passed in 1.08s; full pytest
+        passed with 72 passed in 1.52s; compileall passed for `train.py`,
+        `src`, `tests`, and `scripts`; GPU probe, score helper, and merge
+        helper `--help` checks passed; import check passed for `train`,
+        `igp24`, score helper, probe helper, and merge helper; `git diff
+        --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 2698.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active `python3` processes.
+      - Cleanup: generated `__pycache__` directories from compile/test runs
+        were removed; follow-up `find . -type d -name __pycache__` returned
+        no paths.
+      - Literal `python -m pytest` remains blocked with `/bin/bash: line 1:
+        python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
+    - [in_progress] Commit and push final docs/results state.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 68 passed in 1.57s after the GPU diversity sweep work.
+  - Latest result: 72 passed in 1.52s after the multi-seed fixed-template
+    scale-up work.
 - [done] Run focused split/export tests:
-  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`.
-  - Latest result: 27 passed in 1.10s after the GPU diversity sweep work.
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py`.
+  - Latest result: 31 passed in 1.08s after the multi-seed fixed-template
+    scale-up work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after the GPU diversity sweep work.
+  - Latest result: passed after the multi-seed fixed-template scale-up work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -746,14 +775,17 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after the GPU diversity sweep work.
+  - Latest result: passed after the multi-seed fixed-template scale-up work;
+    helper exposes `--diversity_seed`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after the GPU diversity sweep work.
-- [done] Run an import check proving `square`, `isosceles`, `sphere`, and
-  `igp24` remain discoverable.
+  - Latest result: passed after the multi-seed fixed-template scale-up work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py --help`.
+  - Latest result: passed after adding the merge helper.
+- [done] Run an import check proving `train`, the environment registry,
+  `igp24`, and the split/merge helpers remain discoverable.
   - Latest command:
-    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'))"`
-  - Latest result: `imports ok True True True`.
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'), hasattr(merge, 'merge_sources'))"`
+  - Latest result: `imports ok True True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
 - [done] If local dependency issues block the literal command, record the

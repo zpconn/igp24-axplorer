@@ -396,6 +396,26 @@ The next GPU step should test diversity-preserving scale-up, such as multiple
 short fixed-template seeds with dedup-aware CPU merge/review, before trying
 another single longer export.
 
+That multi-seed fixed-template check added an opt-in `--diversity_seed`
+override and a proxy-only `scripts/igp24_merge_scored_exports.py` helper for
+scored export directories. Seeds `2301`, `2302`, and `2303` each ran the
+`fixed_template_t09_top9` export-only variant with a 900-second cap, loaded
+CUDA cleanly, avoided GPU-phase CPU scoring/local search/dataset updates, and
+reached 99% max monitored GPU utilization. Their CPU score-all handoffs kept
+local search disabled.
+
+The merged result across the three scored directories was 6130 scored rows,
+5895 valid proxy-scored records, 235 rejected records, 2356 unique canonical
+hashes, 3774 duplicate hash records, best score 9955.382, and mean score
+9542.663. Cross-seed overlap was zero for all seed pairs, so additional seeds
+did add fresh canonical hashes. The warning is internal stability: seed `2301`
+kept 1132 unique hashes, while seeds `2302` and `2303` kept only 452 and 772.
+This beats the duplicate-heavy medium baseline on unique count, but it does
+not yet justify a longer fixed-template run without improving per-run
+diversity or adding dedup-aware export controls. The earlier seed `2201` short
+fixed-template sweep remains the cleanest single short diversity result at
+2039 unique hashes out of 2047 scored rows.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

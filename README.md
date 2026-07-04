@@ -289,6 +289,99 @@ duplicates more. Do not switch back to an integrated GPU train/sample/score
 loop; keep CPU proxy-search, shortlist export, and exact-tool prep as the main
 pipeline.
 
+The next multi-seed fixed-template check added `--diversity_seed` to the
+diversity helper and a merge helper for scored export directories. The three
+bounded GPU export-only commands were:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t09_top9 \
+  --diversity_seed 2301 \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t09_top9 \
+  --diversity_seed 2302 \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t09_top9 \
+  --diversity_seed 2303 \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+```
+
+The matching CPU score-all handoffs used local search disabled:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2301.jsonl \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2302.jsonl \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2303.jsonl \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all \
+  --score_all true \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+Merge scored export directories with:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all \
+  /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all \
+  --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review \
+  --top_n 25
+```
+
+All three GPU phases used CUDA, avoided GPU-phase CPU scoring/local search, and
+hit 99% max monitored GPU utilization. Seed `2301` also showed about 98% live
+GPU utilization and 10.9 GiB in use in `nvidia-smi`.
+
+| seed | gpu_s | decoded | cpu_s | valid | rejected | unique_hashes | dup_hash_records | best | mean |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2301 | 150.6 | 2040 | 70.7 | 1881 | 159 | 1132 | 908 | 9955.382 | 9150.606 |
+| 2302 | 152.2 | 2047 | 64.3 | 2031 | 16 | 452 | 1595 | 9951.923 | 9845.475 |
+| 2303 | 148.3 | 2043 | 69.4 | 1983 | 60 | 772 | 1271 | 9954.908 | 9630.741 |
+
+The merged dedup review scored 6130 rows, found 5895 valid records, 235
+rejected records, 2356 unique canonical hashes, and 3774 duplicate hash
+records. Pairwise cross-seed overlap was zero for all seed pairs. That means
+multi-seed fixed-template export adds fresh canonical hashes and beats the
+duplicate-heavy medium baseline on unique count, but per-seed diversity is
+unstable. The earlier seed `2201` short fixed-template run remains the
+cleanest single short export at 2039 unique hashes out of 2047 scored rows.
+
 ## Run A Small Smoke Job
 
 ```bash
