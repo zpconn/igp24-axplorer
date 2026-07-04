@@ -9,12 +9,13 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  safe review-batch tooling work.
-- Active focus: safe human-review/triage tooling for the proxy-only r4
-  shortlist is implemented, smoke-tested, and ready for later manual offline
-  exact-verifier experiments. The next step must still avoid SAIR
-  auto-submission and keep any exact group claims tied to recorded verifier
-  provenance.
+  safe offline-verifier preparation workflow work.
+- Active focus: add a safe offline exact-verifier preparation workflow for
+  `/tmp/igp24_r4_review_batch_20260704`. This should validate the current
+  proxy-only review batch, emit manual PARI/MAGMA input artifacts, record local
+  tool availability, and keep SAIR/network/submission behavior out of scope.
+  Exact `24Tt` labels must remain absent unless a local verifier is explicitly
+  run and raw provenance is recorded.
 
 ## Stage 0: Scaffold
 
@@ -139,6 +140,13 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before safe offline-verifier preparation
+    workflow work.
+- 2026-07-04: `python3 -c "import shutil; print('gp', shutil.which('gp')); print('magma', shutil.which('magma'))"`
+  - Result: `gp None`; `magma None`. Local exact verifier binaries are not on
+    PATH at setup time, so the first smoke should remain dry-run/preparation
+    only and record the blocker.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe review-batch tooling work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_review_shortlist.py`
@@ -1218,6 +1226,22 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Add safe offline exact-verifier preparation workflow.
+  - [pending] Add a preparation-only CLI that reads review-batch directories,
+    validates `verification_batch.jsonl`, `verification_coefficients.txt`, and
+    `manifest.json`, and refuses malformed coefficient exports.
+  - [pending] Emit `offline_verification_manifest.json`, `pari_input.gp`,
+    `magma_input.m`, and `verification_plan.md` for manual local verifier runs.
+  - [pending] Probe local PARI/GP and MAGMA availability without installing or
+    downloading anything, and record unavailable-tool blockers.
+  - [pending] Gate any local verifier execution behind explicit opt-in flags,
+    keep dry-run/preparation as the default, and never add SAIR/network or
+    auto-submission behavior.
+  - [pending] Add fast fixture-based tests for batch loading, coefficient
+    validation, script generation, manifest safety flags, and unavailable
+    verifier handling.
+  - [pending] Document the workflow in README/NOTES/TODO and smoke it against
+    `/tmp/igp24_r4_review_batch_20260704`.
 - [done] Add safe human-review tooling for exported shortlists.
   - [done] Add a review/export-only CLI that reads shortlist export
     directories and optionally follows `source_ledger_path` to richer ledger
@@ -1370,6 +1394,9 @@ down further as they become active.
 - [done] Manually review the exported r4 shortlist and choose a small batch
   for offline exact-verifier experiments, keeping any SAIR submission explicit
   and human-controlled.
-- [pending] Run manual offline exact-verifier experiments on
-  `/tmp/igp24_r4_review_batch_20260704`, record verifier provenance and
-  outputs, and keep any SAIR submission explicit and human-controlled.
+- [in_progress] Prepare manual offline exact-verifier inputs for
+  `/tmp/igp24_r4_review_batch_20260704`, record local tool availability, and
+  keep any SAIR submission explicit and human-controlled.
+- [pending] Run manual offline exact-verifier experiments only after local
+  PARI/MAGMA tooling is available, record verifier provenance and outputs, and
+  keep any SAIR submission explicit and human-controlled.
