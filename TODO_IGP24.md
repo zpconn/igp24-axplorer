@@ -281,11 +281,39 @@ results change.
     parsing/reporting, and safety flags.
     - Result: focused tests passed: 18 passed in 1.36s across the GPU helper
       and sample-export tests.
-  - [pending] Run a short capped split-workflow smoke, not a 30-60 minute job,
+  - [done] Run a short capped split-workflow smoke, not a 30-60 minute job,
     and audit artifact paths, record counts, GPU utilization if practical, and
     scoring-consumption results.
-  - [pending] Update README, NOTES, and TODO with the decoupling result and
+    - GPU export command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+    - GPU export result: return code 0, no timeout, no interruption, runtime
+      16.8s, `device: cuda`, two finite eval points, final train/test loss
+      about `0.909` / `0.729`, max monitored GPU utilization 91.0%, average
+      monitored GPU utilization 11.125%, and max monitored GPU memory
+      4887 MiB.
+    - Export artifact:
+      `/tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl`
+      with 256 unscored model-sample rows, all 256 decoded to coefficient
+      vectors; `sample_requested_total=0`, `sample_valid_total=0`, and
+      `model_sample_ledger_records=0` because CPU scoring/local search was
+      avoided during GPU sampling.
+    - CPU scoring command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export --max_records 64 --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+    - CPU scoring result: read 256 exported rows, selected 64, decoded 64
+      inputs, scored 64 through the proxy scorer, found 56 valid and
+      8 rejected records, local search disabled. Scored output:
+      `/tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export/scored_samples.jsonl`.
+    - Interpretation: the GPU can now produce auditable unscored sample
+      exports and the CPU proxy helper can consume them separately. This is a
+      real decoupling step, but a medium 30-60 minute GPU run should still wait
+      until the split path gets batching/queueing ergonomics and a larger short
+      export/scoring smoke.
+  - [done] Update README, NOTES, and TODO with the decoupling result and
     whether a later medium GPU run is justified.
+    - Result: README and NOTES now document the `sample_export_split` GPU
+      smoke, the separate CPU scoring helper command, artifact paths, record
+      counts, safety boundary, and recommendation to run a larger short split
+      smoke before any medium GPU run.
 
 ## Tests And Checks
 
@@ -342,6 +370,29 @@ results change.
   - Result: passed after adding the split GPU sample-export workflow.
 - 2026-07-04: `git diff --check`
   - Result: passed after adding the split GPU sample-export workflow.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split --output_dir /tmp/igp24_gpu_sample_export_split_20260704 --timeout_seconds 600 --monitor_interval_seconds 1`
+  - Result: passed outside the managed sandbox in 16.8s with return code 0,
+    no timeout, no interruption, `device: cuda`, two finite eval points, max
+    monitored GPU utilization 91.0%, average monitored GPU utilization
+    11.125%, max monitored GPU memory 4887 MiB, final train/test loss about
+    `0.909` / `0.729`, 256 unscored sample-export rows, 256 decoded
+    coefficient vectors, and no post-training CPU scoring/local search.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl --output_dir /tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export --max_records 64 --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+  - Result: passed; read 256 exported rows, selected 64, decoded 64 inputs,
+    scored 64 through the CPU proxy scorer, found 56 valid and 8 rejected
+    records, and kept local search disabled.
+- 2026-07-04: audited
+  `/tmp/igp24_gpu_sample_export_split_20260704/gpu_sampler_probe_summary.json`
+  and `/tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export/score_summary.json`.
+  - Result: export rows include raw `token_ids`, 24 decoded coefficients,
+    appended leading coefficient exports, `score=null`, `scoring_status=unscored`,
+    `local_search_status=not_run`, `verification_status=not_run`, and safety
+    flags for no exact verifiers, no SAIR/network calls, and no submission.
+    Scored rows record `source_export_path`, `source_sample_index`,
+    proxy-scored verification status, local search disabled, and the same
+    no-network/no-submission safety boundary.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py`
   - Result: 10 passed in 0.03s after adding the train-only utilization probe

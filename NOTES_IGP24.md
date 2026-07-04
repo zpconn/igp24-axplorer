@@ -268,6 +268,32 @@ next architecture step is to decouple GPU training/sampling from CPU scoring
 before any medium-length GPU run; CPU proxy-search, shortlist export, and
 exact-tool preparation remain the primary pipeline meanwhile.
 
+That decoupling now has a first opt-in implementation. `train.py` supports
+`--sample_export_only true` with `--sample_export_path`, which runs the normal
+training epoch and then writes raw model-generated token sequences plus decoded
+coefficient vectors to JSONL. It deliberately does not call `do_score`, does
+not run local search, does not update the train/test datasets, does not run
+PARI/MAGMA/SAIR, and does not make any network or submission calls. Export rows
+are explicitly marked `scoring_status=unscored`, `local_search_status=not_run`,
+and `verification_status=not_run`.
+
+The GPU helper has a `sample_export_split` mode for a short monitored smoke. On
+2026-07-04, `/tmp/igp24_gpu_sample_export_split_20260704` completed in
+16.8 seconds with `device: cuda`, two finite eval points, final train/test loss
+about `0.909` / `0.729`, max monitored GPU utilization 91%, average monitored
+utilization 11.125%, and 256 decoded unscored sample-export rows. The export
+artifact was
+`/tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl`.
+
+The separate CPU helper `scripts/igp24_score_sample_export.py` consumed that
+export with local search disabled, scoring 64 selected rows through the proxy
+scorer and producing 56 valid and 8 rejected records under
+`/tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export`. This proves
+that GPU sampling and CPU scoring can be run as separate auditable phases.
+However, this is still a small smoke, not evidence for a medium 30-60 minute
+GPU run. The next GPU-facing step should improve batching/queueing ergonomics
+and run a larger short split smoke before any medium training/sampling job.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

@@ -97,6 +97,44 @@ earlier sampler path was CPU-bound by scoring/local search. The next GPU step
 should decouple GPU training/sampling from CPU scoring before any medium
 30-60 minute run.
 
+The first split workflow is now available as an opt-in export path. It trains
+and samples on CUDA, then writes unscored model samples without proxy scoring,
+local search, or dataset updates:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split \
+  --output_dir /tmp/igp24_gpu_sample_export_split_20260704 \
+  --timeout_seconds 600 \
+  --monitor_interval_seconds 1
+```
+
+The 2026-07-04 split smoke completed in 16.8s with `device: cuda`, max
+monitored GPU utilization 91%, and 256 decoded unscored sample-export rows at:
+
+```text
+/tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl
+```
+
+Score exported samples later on the CPU proxy path:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py \
+  /tmp/igp24_gpu_sample_export_split_20260704/gpu_model_sample_export.jsonl \
+  --output_dir /tmp/igp24_gpu_sample_export_split_20260704/cpu_scored_export \
+  --max_records 64 \
+  --coeff_bound 4 \
+  --prime_limit 11 \
+  --exact_score_timeout 2 \
+  --local_search false \
+  --max_local_search_steps 0
+```
+
+That CPU handoff smoke scored 64 exported rows, found 56 valid proxy-scored
+records and 8 rejected records, with local search disabled. This proves the
+split is usable, but a medium 30-60 minute GPU run should still wait for a
+larger short export/scoring smoke and better batching/queueing ergonomics.
+
 ## Run A Small Smoke Job
 
 ```bash
