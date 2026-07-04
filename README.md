@@ -382,6 +382,68 @@ duplicate-heavy medium baseline on unique count, but per-seed diversity is
 unstable. The earlier seed `2201` short fixed-template run remains the
 cleanest single short export at 2039 unique hashes out of 2047 scored rows.
 
+The follow-up per-run diagnostic added a raw export diversity helper:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py \
+  EXPORT_1.jsonl EXPORT_2.jsonl \
+  --labels run1 run2 \
+  --output_dir /tmp/igp24_export_diversity_diagnostic_20260704/example \
+  --checkpoint_interval 256 \
+  --top_n 10
+```
+
+This helper reads model sample-export JSONL files before CPU scoring and
+reports decoded rows, exact coefficient uniqueness, translation-canonical hash
+uniqueness, token-sequence uniqueness, top duplicate groups, per-batch counts,
+and checkpoint trajectories. It does not score candidates, run local search,
+call exact verifiers, call SAIR/network APIs, or submit anything.
+
+On the existing fixed-template exports, the diagnostic showed that duplicate
+collapse was already present in raw token/coefficient output: seed `2302` had
+452 unique exact coefficient vectors out of 2047 decoded rows, matching its
+452 canonical hashes after CPU scoring. It was not mainly a
+translation-canonicalization artifact.
+
+Two opt-in fixed-template entropy interventions were then compared on the same
+duplicate-heavy seed `2302`:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t10_top12 \
+  --diversity_seed 2302 \
+  --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t10_top12_seed2302 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_diversity \
+  --diversity_variant fixed_template_t11_open_topk \
+  --diversity_seed 2302 \
+  --output_dir /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+```
+
+Both GPU phases used CUDA, avoided GPU-phase CPU scoring/local search, and hit
+99% max monitored GPU utilization. A preliminary `top_k=32` variant was
+discarded because it exceeded the tokenizer vocabulary and failed at
+`torch.topk`; use `fixed_template_t10_top12` for the bounded top-k variant.
+
+| variant | scored | valid | rejected | unique_hashes | dup_hash_records | best | mean |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| baseline t09 top9 | 2047 | 2031 | 16 | 452 | 1595 | 9951.923 | 9845.475 |
+| t10 top12 | 2041 | 1888 | 153 | 1288 | 753 | 9953.439 | 9177.150 |
+| t11 open top-k | 2043 | 1833 | 210 | 2030 | 13 | 9956.519 | 8900.449 |
+
+Recommendation: do not start a longer fixed-template run yet. Use
+`fixed_template_t11_open_topk` for the next short diversity-preserving GPU
+export comparison, preferably across 2-3 seeds with the raw export diagnostic
+run immediately after each export. The best next code change is a true
+dedup-aware export cap/stop policy, since duplicate collapse is visible before
+CPU scoring.
+
 ## Run A Small Smoke Job
 
 ```bash

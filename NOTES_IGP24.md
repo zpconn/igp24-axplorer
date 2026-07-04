@@ -416,6 +416,30 @@ diversity or adding dedup-aware export controls. The earlier seed `2201` short
 fixed-template sweep remains the cleanest single short diversity result at
 2039 unique hashes out of 2047 scored rows.
 
+The per-run diversity diagnosis added a raw export diagnostic helper that
+operates before CPU scoring. It confirmed that the duplicate-heavy
+fixed-template seeds were collapsing in the model output itself: exact decoded
+coefficient duplicates, translation-canonical duplicates, and token-sequence
+duplicates were effectively the same counts. Seed `2302`, for example, had
+452 unique exact coefficient vectors out of 2047 decoded rows before scoring,
+matching the 452 canonical hashes after CPU scoring.
+
+Two entropy interventions on the same seed `2302` made the tradeoff clear.
+`fixed_template_t10_top12` improved uniqueness to 1288 unique hashes out of
+2041 scored rows but still had 753 duplicate records. The more aggressive
+`fixed_template_t11_open_topk` recovered seed-`2201`-like diversity: 2030
+unique hashes out of 2043 scored rows and only 13 duplicate records. It also
+found the best single proxy score in that comparison, but validity and mean
+score dropped: 1833 valid / 210 rejected and mean score 8900.449, versus the
+baseline seed `2302` at 2031 valid / 16 rejected and mean score 9845.475.
+
+The immediate recommendation is still not to run a longer fixed-template job.
+Instead, use `fixed_template_t11_open_topk` for another short 2-3 seed
+diversity-preserving comparison, with the raw export diagnostic run after
+each export. If code changes are next, a true dedup-aware export cap or stop
+policy is now well justified, because duplicate collapse is visible before
+any CPU scoring happens.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

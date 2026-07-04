@@ -10,14 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   per-run GPU export diversity diagnostic work.
-- Active focus: diagnosing and improving per-run fixed-template GPU export
-  diversity before any longer fixed-template GPU export. The current plan is
-  to add a raw export diversity diagnostic, compare the clean seed `2201`
-  against duplicate-heavy seeds `2301`-`2303`, then run two short opt-in
-  fixed-template entropy interventions against the known duplicate-heavy
-  behavior. Keep CPU proxy-search, shortlist export, and exact-tool prep
-  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
-  execution, no SAIR/network calls, and no auto-submission behavior.
+- Active focus: per-run fixed-template GPU export diversity diagnosis and
+  entropy intervention comparison are complete; final verification and push
+  are in progress. `fixed_template_t11_open_topk` recovered strong per-run
+  diversity on duplicate-heavy seed `2302`, but with a validity/mean-score
+  tradeoff. Do not start a longer fixed-template run yet. Keep CPU
+  proxy-search, shortlist export, and exact-tool prep primary. This remains
+  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
+  calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -920,22 +920,50 @@ results change.
         changes code, the highest-leverage control is a true dedup-aware
         export cap/stop policy, since duplicate collapse is visible in raw
         token/coefficient outputs before scoring.
-    - [pending] Update README, NOTES, and TODO with commands, artifacts,
+    - [done] Update README, NOTES, and TODO with commands, artifacts,
       metrics, interpretation, and next action.
-    - [pending] Run final verification, confirm Stage 4 remains present,
-      audit GPU/process state, cleanup generated caches, commit, and push.
+      - Result: README now documents the raw export diagnostic helper, the
+        diagnostic finding that duplicate-heavy seeds repeat exact
+        token/coefficient outputs before scoring, the bounded entropy
+        intervention commands, the `top_k=32` trap, the comparison table, and
+        the next recommendation. `NOTES_IGP24.md` records the planning
+        conclusion: `fixed_template_t11_open_topk` is the best short
+        diversity-preserving next configuration, while a future dedup-aware
+        export cap/stop policy is the highest-leverage code control.
+    - [done] Run final verification, confirm Stage 4 remains present, audit
+      GPU/process state, and cleanup generated caches.
+      - Result: focused tests passed with 35 passed in 1.26s; full pytest
+        passed with 76 passed in 1.68s; compileall passed for `train.py`,
+        `src`, `tests`, and `scripts`; diagnostic, GPU probe, score helper,
+        and merge helper `--help` checks passed; import check passed for
+        `train`, `igp24`, score helper, probe helper, merge helper, and
+        diagnostic helper; `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 2907.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active `python3` processes.
+      - Cleanup: generated `__pycache__` directories from compile/test runs
+        were removed; follow-up `find . -type d -name __pycache__` returned
+        no paths.
+      - Literal `python -m pytest` remains blocked with `/bin/bash: line 1:
+        python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
+    - [in_progress] Commit and push final verified state.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 72 passed in 1.52s after the multi-seed fixed-template
-    scale-up work.
+  - Latest result: 76 passed in 1.68s after the per-run diversity diagnostic
+    and entropy intervention work.
 - [done] Run focused split/export tests:
-  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py`.
-  - Latest result: 31 passed in 1.08s after the multi-seed fixed-template
-    scale-up work.
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
+  - Latest result: 35 passed in 1.26s after the per-run diversity diagnostic
+    and entropy intervention work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after the multi-seed fixed-template scale-up work.
+  - Latest result: passed after the per-run diversity diagnostic and entropy
+    intervention work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -948,17 +976,22 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after the multi-seed fixed-template scale-up work;
-    helper exposes `--diversity_seed`.
+  - Latest result: passed after the per-run diversity diagnostic and entropy
+    intervention work; helper exposes `--diversity_seed`,
+    `fixed_template_t10_top12`, and `fixed_template_t11_open_topk`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after the multi-seed fixed-template scale-up work.
+  - Latest result: passed after the per-run diversity diagnostic and entropy
+    intervention work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py --help`.
   - Latest result: passed after adding the merge helper.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py --help`.
+  - Latest result: passed after adding the raw export diversity diagnostic
+    helper.
 - [done] Run an import check proving `train`, the environment registry,
   `igp24`, and the split/merge helpers remain discoverable.
   - Latest command:
-    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'), hasattr(merge, 'merge_sources'))"`
-  - Latest result: `imports ok True True True True`.
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; import scripts.igp24_export_diversity_diagnostic as diag; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_diversity_command'), 'fixed_template_t11_open_topk' in probe.DIVERSITY_EXPORT_VARIANTS, hasattr(merge, 'merge_sources'), hasattr(diag, 'build_summary'))"`
+  - Latest result: `imports ok True True True True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
 - [done] If local dependency issues block the literal command, record the
