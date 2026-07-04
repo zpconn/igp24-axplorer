@@ -652,13 +652,74 @@ results change.
         `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_sampler_probe_report.md`,
         and
         `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2303.jsonl`.
-    - [pending] Score each export on the CPU proxy path with
+    - [done] Score each export on the CPU proxy path with
       `--score_all true`, `--local_search false`, and
       `--max_local_search_steps 0`.
-    - [pending] Merge the three scored JSONLs and report total scored,
+      - Seed `2301` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2301.jsonl --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2301` CPU score result: return code 0, runtime 70.714s,
+        `selection_mode=all_explicit`, 2048 rows read/selected, 2040
+        decoded/scored, 8 skipped decode, 1881 valid proxy-scored, 159
+        rejected, 1132 unique canonical hashes, 908 duplicate hash records,
+        best score 9955.382, mean score 9150.606, local search disabled.
+      - Seed `2301` CPU artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all/split_workflow_manifest.json`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all/split_workflow_report.md`.
+      - Seed `2302` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2302.jsonl --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2302` CPU score result: return code 0, runtime 64.256s,
+        `selection_mode=all_explicit`, 2048 rows read/selected, 2047
+        decoded/scored, 1 skipped decode, 2031 valid proxy-scored, 16
+        rejected, 452 unique canonical hashes, 1595 duplicate hash records,
+        best score 9951.923, mean score 9845.475, local search disabled.
+      - Seed `2302` CPU artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all/split_workflow_manifest.json`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all/split_workflow_report.md`.
+      - Seed `2303` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2303.jsonl --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2303` CPU score result: return code 0, runtime 69.415s,
+        `selection_mode=all_explicit`, 2048 rows read/selected, 2043
+        decoded/scored, 5 skipped decode, 1983 valid proxy-scored, 60
+        rejected, 772 unique canonical hashes, 1271 duplicate hash records,
+        best score 9954.908, mean score 9630.741, local search disabled.
+      - Seed `2303` CPU artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all/split_workflow_manifest.json`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all/split_workflow_report.md`.
+    - [done] Merge the three scored JSONLs and report total scored,
       valid/rejected, unique hashes, duplicate hash records, cross-seed
       overlap, best/mean proxy score, top hash-deduped candidates, and
       artifact paths.
+      - Merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/cpu_scored_export_all /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/cpu_scored_export_all /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/cpu_scored_export_all --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review --top_n 25`
+      - Combined merge result: 6130 scored records, 5895 valid
+        proxy-scored, 235 rejected, 2356 unique canonical hashes, 3774
+        duplicate hash records, 981 duplicated canonical hashes, best score
+        9955.382, mean score 9542.663.
+      - Cross-seed overlap: 0 shared canonical hashes for `2301` vs `2302`,
+        0 for `2301` vs `2303`, 0 for `2302` vs `2303`, and 0 hashes seen
+        in multiple seed sources.
+      - Interpretation: multi-seed fixed-template exports do add fresh
+        canonical hashes across seeds and beat the duplicate-heavy medium
+        baseline on unique hashes (2356 unique / 6130 scored vs 384 unique /
+        8192 scored). However, internal per-seed diversity is seed-sensitive:
+        seed `2301` kept 1132 unique hashes, while seeds `2302` and `2303`
+        produced only 452 and 772 unique hashes. The single earlier
+        fixed-template seed `2201` remains the cleanest short diversity run
+        at 2039 unique / 2047 scored.
+      - Merge artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/merged_dedup_review/top_deduped_candidates.jsonl`.
     - [pending] Update README, TODO, and any relevant notes with commands,
       results, interpretation, and next recommendation.
     - [pending] Run final verification, confirm Stage 4 remains present,
