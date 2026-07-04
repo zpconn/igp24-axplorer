@@ -4,6 +4,7 @@ from scripts.igp24_gpu_sampler_probe import (
     DIVERSITY_EXPORT_VARIANTS,
     build_recommendation,
     build_sampler_command,
+    build_sample_export_dedup_command,
     build_sample_export_diversity_command,
     build_sample_export_split_command,
     build_sample_export_split_medium_command,
@@ -269,6 +270,41 @@ def test_build_sample_export_diversity_command_accepts_seed_override(tmp_path):
     assert command[command.index("--max_local_search_steps") + 1] == "0"
 
 
+def test_build_sample_export_dedup_command_is_opt_in_and_bounded(tmp_path):
+    config = build_sample_export_dedup_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        diversity_variant="fixed_template_t11_open_topk",
+        diversity_seed=2401,
+        unique_target=512,
+        max_attempts=2048,
+        progress_interval=128,
+    )
+    command = config["command"]
+
+    assert config["probe_mode"] == "sample_export_split_dedup"
+    assert config["post_train_cpu_sampling_scoring_avoided"]
+    assert config["diversity_seed"] == "2401"
+    assert config["dedup_unique_target"] == 512
+    assert config["dedup_max_attempts"] == 2048
+    assert command[command.index("--cpu") + 1] == "false"
+    assert command[command.index("--sample_export_only") + 1] == "true"
+    assert command[command.index("--sample_export_dedup") + 1] == "true"
+    assert command[command.index("--sample_export_unique_target") + 1] == "512"
+    assert command[command.index("--sample_export_max_attempts") + 1] == "2048"
+    assert command[command.index("--sample_export_progress_interval") + 1] == "128"
+    assert command[command.index("--num_samples_from_model") + 1] == "2048"
+    assert command[command.index("--always_search") + 1] == "false"
+    assert command[command.index("--max_local_search_steps") + 1] == "0"
+    assert config["caps"]["sample_export_unique_target"] == 512
+    assert config["caps"]["sample_export_max_attempts"] == 2048
+    assert "dedup" in config["sample_export_path"]
+    assert all("sair" not in str(part).lower() for part in command)
+    assert all("magma" not in str(part).lower() for part in command)
+    assert all("pari" not in str(part).lower() for part in command)
+
+
 def test_summarize_sample_export_reads_safety_flags(tmp_path):
     path = tmp_path / "samples.jsonl"
     path.write_text(
@@ -307,9 +343,54 @@ def test_summarize_sample_export_reads_safety_flags(tmp_path):
     assert summary["sample_export_records"] == 2
     assert summary["sample_export_decoded_records"] == 1
     assert summary["sample_export_invalid_decode_records"] == 1
+    assert summary["sample_export_dedup_enabled"] is False
+    assert summary["sample_export_duplicate_decoded_records_skipped"] == 0
     assert summary["sample_export_scoring_avoided"]
     assert summary["sample_export_local_search_avoided"]
     assert summary["sample_export_exact_verifiers_avoided"]
+
+
+def test_summarize_sample_export_reads_dedup_sidecar(tmp_path):
+    path = tmp_path / "samples.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "sample_index": 0,
+                "decoded": True,
+                "safety": {
+                    "scored": False,
+                    "local_search_run": False,
+                    "runs_exact_verifiers": False,
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    summary_path = path.with_suffix(path.suffix + ".summary.json")
+    summary_path.write_text(
+        json.dumps(
+            {
+                "attempted_samples": 5,
+                "attempt_budget": 8,
+                "deduplication_enabled": True,
+                "duplicate_decoded_records_skipped": 4,
+                "stop_reason": "unique_target_reached",
+                "unique_decoded_coefficients": 1,
+                "unique_target": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    summary = summarize_sample_export(path)
+
+    assert summary["sample_export_summary_path"] == str(summary_path)
+    assert summary["sample_export_attempted_samples"] == 5
+    assert summary["sample_export_attempt_budget"] == 8
+    assert summary["sample_export_dedup_enabled"] is True
+    assert summary["sample_export_duplicate_decoded_records_skipped"] == 4
+    assert summary["sample_export_stop_reason"] == "unique_target_reached"
 
 
 def test_build_recommendation_advances_only_with_valid_model_samples():

@@ -129,6 +129,7 @@ def sample_and_score(model, args, stoi, itos, env, temp, temp_span=0):
 def build_sample_export_record(
     *,
     sample_index: int,
+    export_index: int | None = None,
     batch_index: int,
     batch_row: int,
     token_ids: list[int],
@@ -136,12 +137,15 @@ def build_sample_export_record(
     args: Any,
     temperature: float,
     top_k: int | None,
+    dedup_enabled: bool = False,
+    unique_decoded_index: int | None = None,
 ) -> dict[str, Any]:
     exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
     return {
         "schema_version": 1,
         "record_type": "igp24_model_sample_export",
         "sample_index": int(sample_index),
+        "export_index": int(sample_index if export_index is None else export_index),
         "batch_index": int(batch_index),
         "batch_row": int(batch_row),
         "env_name": getattr(args, "env_name", None),
@@ -168,6 +172,12 @@ def build_sample_export_record(
             "generation_preset": getattr(args, "igp24_generation_preset", None),
             "sample_export_only": True,
         },
+        "deduplication": {
+            "enabled": bool(dedup_enabled),
+            "key_type": "decoded_coefficients",
+            "unique_decoded_index": unique_decoded_index,
+            "duplicate_decoded_coefficients": False,
+        },
         "safety": {
             "proxy_only": True,
             "scored": False,
@@ -180,6 +190,10 @@ def build_sample_export_record(
     }
 
 
+def sample_export_summary_path(export_path: Path) -> Path:
+    return export_path.with_suffix(export_path.suffix + ".summary.json")
+
+
 def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_path=None):
     if export_path is None:
         raise ValueError("sample export path is required")
@@ -188,25 +202,49 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     export_path.parent.mkdir(parents=True, exist_ok=True)
 
     sample_batch_size = args.gen_batch_size
-    total = int(args.num_samples_from_model)
-    batch_counts = [sample_batch_size] * (total // sample_batch_size)
-    remainder = total % sample_batch_size
-    if remainder:
-        batch_counts.append(remainder)
+    requested_total = int(args.num_samples_from_model)
+    max_attempts_arg = int(getattr(args, "sample_export_max_attempts", 0) or 0)
+    attempt_budget = max_attempts_arg if max_attempts_arg > 0 else requested_total
+    unique_target = int(getattr(args, "sample_export_unique_target", 0) or 0)
+    dedup_enabled = bool(getattr(args, "sample_export_dedup", False) or unique_target > 0)
+    progress_interval = int(getattr(args, "sample_export_progress_interval", 0) or 0)
+    controlled_export = dedup_enabled or unique_target > 0 or max_attempts_arg > 0
 
     top_k = args.top_k if args.top_k != -1 else None
+    attempted_samples = 0
     records_written = 0
     decoded_records = 0
     invalid_decode_records = 0
+    decoded_attempts = 0
+    invalid_decode_attempts = 0
+    duplicate_decoded_records_skipped = 0
+    seen_decoded_coefficients: dict[tuple[int, ...], int] = {}
+    stop_reason = "no_attempts_requested" if attempt_budget <= 0 else None
 
     logger.info(f"Export-only model sampling to {export_path}")
+    if controlled_export:
+        logger.info(
+            "Export-only dedup controls: enabled=%s unique_target=%s attempt_budget=%s progress_interval=%s",
+            dedup_enabled,
+            unique_target,
+            attempt_budget,
+            progress_interval,
+        )
     with export_path.open("w", encoding="utf-8") as handle:
-        for batch_index, batch_size in enumerate(batch_counts):
+        batch_index = 0
+        while attempted_samples < attempt_budget:
+            if unique_target > 0 and len(seen_decoded_coefficients) >= unique_target:
+                stop_reason = "unique_target_reached"
+                break
+
+            batch_size = min(sample_batch_size, attempt_budget - attempted_samples)
+            if batch_size <= 0:
+                break
             if temp_span > 0:
                 curr_temp = temp + 0.1 * np.random.randint(temp_span + 1)
             else:
                 curr_temp = temp
-            logger.info(f"{records_written} / {total} samples generated for export")
+            logger.info(f"{attempted_samples} / {attempt_budget} samples attempted for export")
 
             X_init = torch.empty((batch_size, 1), dtype=torch.long)
             X_init[:, 0] = stoi["BOS"]
@@ -220,17 +258,45 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
             ).cpu().numpy()
 
             for batch_row in range(batch_numpy.shape[0]):
+                if unique_target > 0 and len(seen_decoded_coefficients) >= unique_target:
+                    stop_reason = "unique_target_reached"
+                    break
+
+                sample_index = attempted_samples
+                attempted_samples += 1
                 token_ids = [int(token) for token in batch_numpy[batch_row].tolist()]
                 decoded = env.tokenizer.decode(batch_numpy[batch_row])
                 decoded_coefficients = None
+                unique_decoded_index = None
                 if decoded is not None:
                     decoded_coefficients = [int(coefficient) for coefficient in decoded.coefficients]
+                    decoded_attempts += 1
+                    decoded_key = tuple(decoded_coefficients)
+                    if decoded_key in seen_decoded_coefficients:
+                        if dedup_enabled:
+                            duplicate_decoded_records_skipped += 1
+                            if progress_interval > 0 and attempted_samples % progress_interval == 0:
+                                logger.info(
+                                    "Export-only dedup progress: attempts=%s/%s records_written=%s unique_decoded=%s duplicate_skipped=%s invalid_decode=%s",
+                                    attempted_samples,
+                                    attempt_budget,
+                                    records_written,
+                                    len(seen_decoded_coefficients),
+                                    duplicate_decoded_records_skipped,
+                                    invalid_decode_attempts,
+                                )
+                            continue
+                    else:
+                        unique_decoded_index = len(seen_decoded_coefficients)
+                        seen_decoded_coefficients[decoded_key] = sample_index
                     decoded_records += 1
                 else:
+                    invalid_decode_attempts += 1
                     invalid_decode_records += 1
 
                 record = build_sample_export_record(
-                    sample_index=records_written,
+                    sample_index=sample_index,
+                    export_index=records_written,
                     batch_index=batch_index,
                     batch_row=batch_row,
                     token_ids=token_ids,
@@ -238,23 +304,68 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     args=args,
                     temperature=curr_temp,
                     top_k=top_k,
+                    dedup_enabled=dedup_enabled,
+                    unique_decoded_index=unique_decoded_index,
                 )
                 handle.write(json.dumps(record, sort_keys=True) + "\n")
                 records_written += 1
 
-    logger.info(
-        "Export-only model sampling wrote %s records to %s; decoded=%s invalid_decode=%s",
-        records_written,
-        export_path,
-        decoded_records,
-        invalid_decode_records,
-    )
-    return {
+                if progress_interval > 0 and attempted_samples % progress_interval == 0:
+                    logger.info(
+                        "Export-only dedup progress: attempts=%s/%s records_written=%s unique_decoded=%s duplicate_skipped=%s invalid_decode=%s",
+                        attempted_samples,
+                        attempt_budget,
+                        records_written,
+                        len(seen_decoded_coefficients),
+                        duplicate_decoded_records_skipped,
+                        invalid_decode_attempts,
+                    )
+
+            batch_index += 1
+
+    if stop_reason is None:
+        if unique_target > 0 and len(seen_decoded_coefficients) >= unique_target:
+            stop_reason = "unique_target_reached"
+        elif dedup_enabled or max_attempts_arg > 0:
+            stop_reason = "attempt_budget_exhausted"
+        else:
+            stop_reason = "completed_requested_samples"
+
+    summary_path = sample_export_summary_path(export_path) if controlled_export else None
+    summary = {
         "export_path": str(export_path),
+        "summary_path": str(summary_path) if summary_path is not None else None,
         "records_written": records_written,
+        "requested_samples": requested_total,
+        "attempt_budget": attempt_budget,
+        "attempted_samples": attempted_samples,
+        "decoded_attempts": decoded_attempts,
+        "invalid_decode_attempts": invalid_decode_attempts,
         "decoded_records": decoded_records,
         "invalid_decode_records": invalid_decode_records,
+        "deduplication_enabled": dedup_enabled,
+        "deduplication_key_type": "decoded_coefficients",
+        "unique_target": unique_target,
+        "unique_decoded_coefficients": len(seen_decoded_coefficients),
+        "duplicate_decoded_records_skipped": duplicate_decoded_records_skipped,
+        "stop_reason": stop_reason,
+        "progress_interval": progress_interval,
         "scoring_avoided": True,
         "local_search_avoided": True,
         "dataset_update_avoided": True,
     }
+    if summary_path is not None:
+        summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    logger.info(
+        "Export-only model sampling wrote %s records to %s; attempts=%s decoded=%s invalid_decode=%s unique_decoded=%s duplicate_skipped=%s stop_reason=%s",
+        records_written,
+        export_path,
+        attempted_samples,
+        decoded_records,
+        invalid_decode_records,
+        len(seen_decoded_coefficients),
+        duplicate_decoded_records_skipped,
+        stop_reason,
+    )
+    return summary

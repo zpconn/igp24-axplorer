@@ -1,4 +1,7 @@
 import argparse
+import json
+
+import torch
 
 from scripts.igp24_score_sample_export import (
     build_report,
@@ -9,7 +12,7 @@ from scripts.igp24_score_sample_export import (
     score_export_records,
     summarize_scored_records,
 )
-from src.evaluator import build_sample_export_record
+from src.evaluator import build_sample_export_record, sample_and_export
 
 
 def test_build_sample_export_record_marks_unscored_and_safe():
@@ -46,6 +49,76 @@ def test_build_sample_export_record_marks_unscored_and_safe():
     assert not record["safety"]["runs_exact_verifiers"]
     assert not record["safety"]["calls_sair"]
     assert not record["safety"]["auto_submits"]
+
+
+def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coefficient):
+            self.coefficients = [coefficient] + [0] * 23
+
+    class DummyTokenizer:
+        def decode(self, row):
+            coefficient = int(row[0])
+            if coefficient < 0:
+                return None
+            return DummyDecoded(coefficient)
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.values = [1, 1, 2, 3, 4, 5]
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            values = self.values[self.offset : self.offset + batch_size]
+            self.offset += batch_size
+            return torch.tensor([[value] + [0] * (length - 1) for value in values], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="dedup_export_test",
+        exp_id="run",
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=4,
+        num_samples_from_model=6,
+        sample_export_dedup=True,
+        sample_export_unique_target=2,
+        sample_export_max_attempts=6,
+        sample_export_progress_interval=1,
+        top_k=-1,
+        igp24_generation_strategy="fixed_sparse_template",
+        igp24_generation_preset="none",
+    )
+    export_path = tmp_path / "samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.1,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+    sidecar = json.loads((tmp_path / "samples.jsonl.summary.json").read_text(encoding="utf-8"))
+
+    assert summary["stop_reason"] == "unique_target_reached"
+    assert summary["attempted_samples"] == 3
+    assert summary["records_written"] == 2
+    assert summary["unique_decoded_coefficients"] == 2
+    assert summary["duplicate_decoded_records_skipped"] == 1
+    assert sidecar["stop_reason"] == "unique_target_reached"
+    assert [record["sample_index"] for record in records] == [0, 2]
+    assert [record["export_index"] for record in records] == [0, 1]
+    assert [record["deduplication"]["unique_decoded_index"] for record in records] == [0, 1]
+    assert all(record["deduplication"]["enabled"] for record in records)
+    assert all(not record["safety"]["scored"] for record in records)
 
 
 def test_extract_decoded_coefficients_accepts_decoded_or_exported():

@@ -9,16 +9,15 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  multi-seed `fixed_template_t11_open_topk` stability validation.
-- Active focus: do not start a longer fixed-template GPU run yet.
-  Multi-seed validation showed `fixed_template_t11_open_topk` is not stable
-  across fresh short export-only seeds: seed `2302` had near-clean raw
-  diversity, but seeds `2401`, `2402`, and `2403` produced only 675, 1217,
-  and 1088 canonical unique hashes. Keep CPU proxy-search, shortlist export,
-  and exact-tool prep primary. The next GPU/code step should be a dedup-aware
-  export cap/stop policy or live uniqueness monitor, still proxy-only with no
-  exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
-  auto-submission behavior.
+  opt-in dedup-aware GPU sample-export control work.
+- Active focus: implement a conservative opt-in dedup-aware GPU export mode
+  before any longer fixed-template GPU run. Multi-seed validation showed
+  `fixed_template_t11_open_topk` is not stable across fresh short export-only
+  seeds: seed `2302` had near-clean raw diversity, but seeds `2401`, `2402`,
+  and `2403` produced only 675, 1217, and 1088 canonical unique hashes. Keep
+  CPU proxy-search, shortlist export, and exact-tool prep primary. This work
+  remains proxy-only with no exact `24Tt` labels, no MAGMA/PARI execution, no
+  SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -1146,6 +1145,51 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Implement opt-in dedup-aware GPU sample-export control.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+      GPU probe helper, raw export diagnostic helper, score helper, merge
+      helper, and focused tests.
+      - Result: the existing `--sample_export_only` path already avoids CPU
+        proxy scoring, local search, exact tools, SAIR/network, and dataset
+        updates during GPU sampling, but it writes every decoded duplicate.
+        The smallest safe change is default-off uniqueness accounting in
+        `sample_and_export`, with probe-helper flags for a bounded dedup-aware
+        smoke.
+    - [done] Add default-off export controls for a target number of
+      unique decoded coefficient vectors, a maximum attempt budget, periodic
+      uniqueness progress logging, duplicate-skipped counters, and explicit
+      stop reasons.
+      - Result: `train.py` now exposes default-off
+        `--sample_export_dedup`, `--sample_export_unique_target`,
+        `--sample_export_max_attempts`, and
+        `--sample_export_progress_interval`. `src/evaluator.py` keeps the
+        normal export behavior unchanged unless those controls are enabled;
+        the opt-in path skips duplicate decoded coefficient tuples, records
+        attempted samples, unique decoded count, skipped duplicates, and
+        `stop_reason`, and writes a sidecar summary JSON.
+      - Result: `scripts/igp24_gpu_sampler_probe.py` now exposes
+        `--probe_mode sample_export_split_dedup`, reusing the bounded
+        export-only CUDA shape with `--diversity_variant`,
+        `--diversity_seed`, `--dedup_unique_target`,
+        `--dedup_max_attempts`, and `--dedup_progress_interval`.
+    - [done] Add focused tests for command construction, uniqueness
+      accounting, stop reasons, and report fields.
+      - Result:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+        passed with 31 tests in 1.14s.
+      - Result:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src/evaluator.py scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+        passed.
+      - Result: `git diff --check` passed.
+    - [pending] Update README, NOTES, and TODO with CLI usage and
+      interpretation.
+    - [pending] Run a short bounded GPU export-only smoke with the new mode,
+      raw export diagnostics immediately afterward, and bounded CPU scoring
+      only if diagnostics justify it.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 

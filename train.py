@@ -82,6 +82,30 @@ def get_parser():
         default="",
         help="JSONL path for --sample_export_only; defaults to dump_path/model_samples_epoch_<n>.jsonl",
     )
+    parser.add_argument(
+        "--sample_export_dedup",
+        type=bool_flag,
+        default="false",
+        help="opt-in: skip duplicate decoded coefficient vectors while exporting model samples",
+    )
+    parser.add_argument(
+        "--sample_export_unique_target",
+        type=int,
+        default=0,
+        help="opt-in: stop export after this many unique decoded coefficient vectors; 0 disables the target",
+    )
+    parser.add_argument(
+        "--sample_export_max_attempts",
+        type=int,
+        default=0,
+        help="opt-in: maximum model-sample attempts for export; 0 uses --num_samples_from_model",
+    )
+    parser.add_argument(
+        "--sample_export_progress_interval",
+        type=int,
+        default=256,
+        help="progress-log interval for opt-in dedup-aware sample export controls",
+    )
 
     return parser
 

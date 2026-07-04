@@ -42,6 +42,7 @@ PROBE_MODE_TRAIN_ONLY = "train_only_utilization"
 PROBE_MODE_SAMPLE_EXPORT = "sample_export_split"
 PROBE_MODE_SAMPLE_EXPORT_MEDIUM = "sample_export_split_medium"
 PROBE_MODE_SAMPLE_EXPORT_DIVERSITY = "sample_export_split_diversity"
+PROBE_MODE_SAMPLE_EXPORT_DEDUP = "sample_export_split_dedup"
 DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
     "fixed_template_t09_top9": {
         "seed": "2201",
@@ -123,6 +124,7 @@ def parse_train_log(text: str) -> dict[str, Any]:
         "epoch_count": len(re.findall(r"==== Starting Epoch", text)),
         "train_only_skip_logged": "Train-only mode. Skipping sampling, scoring, local search, and dataset update" in text,
         "sample_export_only_logged": "Export-only model sampling" in text,
+        "sample_export_dedup_progress_logged": "Export-only dedup progress" in text,
         "eval_losses": eval_losses,
         "step_losses": step_losses,
         "cuda_memory": cuda_memory,
@@ -194,12 +196,25 @@ def summarize_sample_export(path: Path) -> dict[str, Any]:
     records = read_jsonl(path)
     decoded = [record for record in records if record.get("decoded")]
     safety = [record.get("safety") or {} for record in records]
+    summary_path = path.with_suffix(path.suffix + ".summary.json")
+    export_summary: dict[str, Any] = {}
+    if summary_path.exists():
+        export_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    dedup = export_summary if export_summary else {}
     return {
         "sample_export_path": str(path),
         "sample_export_exists": path.exists(),
+        "sample_export_summary_path": str(summary_path) if summary_path.exists() else None,
         "sample_export_records": len(records),
         "sample_export_decoded_records": len(decoded),
         "sample_export_invalid_decode_records": len(records) - len(decoded),
+        "sample_export_attempted_samples": dedup.get("attempted_samples", len(records)),
+        "sample_export_unique_decoded_coefficients": dedup.get("unique_decoded_coefficients"),
+        "sample_export_duplicate_decoded_records_skipped": dedup.get("duplicate_decoded_records_skipped", 0),
+        "sample_export_dedup_enabled": bool(dedup.get("deduplication_enabled", False)),
+        "sample_export_unique_target": dedup.get("unique_target"),
+        "sample_export_attempt_budget": dedup.get("attempt_budget"),
+        "sample_export_stop_reason": dedup.get("stop_reason"),
         "sample_export_first_indices": [record.get("sample_index") for record in records[:10]],
         "sample_export_scoring_avoided": all(not flags.get("scored", True) for flags in safety) if records else False,
         "sample_export_local_search_avoided": all(not flags.get("local_search_run", True) for flags in safety) if records else False,
@@ -847,6 +862,141 @@ def build_sample_export_diversity_command(
     }
 
 
+def build_sample_export_dedup_command(
+    *,
+    python_executable: str,
+    output_dir: Path,
+    run_id: str,
+    diversity_variant: str,
+    diversity_seed: int | str | None = None,
+    unique_target: int = 512,
+    max_attempts: int = 2048,
+    progress_interval: int = 128,
+) -> dict[str, Any]:
+    if diversity_variant not in DIVERSITY_EXPORT_VARIANTS:
+        raise ValueError(f"unknown diversity variant: {diversity_variant}")
+
+    variant = DIVERSITY_EXPORT_VARIANTS[diversity_variant]
+    seed = str(diversity_seed) if diversity_seed is not None else str(variant["seed"])
+    seed_suffix = f"_seed{seed}" if diversity_seed is not None else ""
+    exp_name = f"igp24_gpu_sample_export_dedup_{diversity_variant}{seed_suffix}_u{unique_target}_a{max_attempts}"
+    dump_root = output_dir / f"gpu_sample_export_dedup_{diversity_variant}{seed_suffix}_dump"
+    ledger_path = output_dir / f"gpu_sample_export_dedup_{diversity_variant}{seed_suffix}_initial_candidates.jsonl"
+    sample_export_path = output_dir / f"gpu_model_sample_export_dedup_{diversity_variant}{seed_suffix}_u{unique_target}_a{max_attempts}.jsonl"
+    train_log_path = dump_root / exp_name / run_id / "train.log"
+    cmd = [
+        python_executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        exp_name,
+        "--dump_path",
+        str(dump_root),
+        "--exp_id",
+        run_id,
+        "--seed",
+        seed,
+        "--coeff_bound",
+        "4",
+        "--gensize",
+        "512",
+        "--pop_size",
+        "384",
+        "--ntest",
+        "16",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "1200",
+        "--num_eval_steps",
+        "300",
+        "--num_samples_from_model",
+        str(max_attempts),
+        "--batch_size",
+        "512",
+        "--n_layer",
+        "8",
+        "--n_head",
+        "8",
+        "--n_embd",
+        "768",
+        "--max_len",
+        "24",
+        "--temperature",
+        variant["temperature"],
+        "--top_k",
+        variant["top_k"],
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "11",
+        "--exact_score_timeout",
+        "2",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        str(sample_export_path),
+        "--sample_export_dedup",
+        "true",
+        "--sample_export_unique_target",
+        str(unique_target),
+        "--sample_export_max_attempts",
+        str(max_attempts),
+        "--sample_export_progress_interval",
+        str(progress_interval),
+        "--igp24_generation_strategy",
+        variant["generation_strategy"],
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+    return {
+        "probe_mode": PROBE_MODE_SAMPLE_EXPORT_DEDUP,
+        "diversity_variant": diversity_variant,
+        "diversity_seed": seed,
+        "dedup_unique_target": int(unique_target),
+        "dedup_max_attempts": int(max_attempts),
+        "dedup_progress_interval": int(progress_interval),
+        "command": cmd,
+        "command_text": command_text(cmd),
+        "dump_root": str(dump_root),
+        "ledger_path": str(ledger_path),
+        "sample_export_path": str(sample_export_path),
+        "train_log_path": str(train_log_path),
+        "exp_name": exp_name,
+        "exp_id": run_id,
+        "caps": {
+            "timeout_seconds": 900,
+            "max_epochs": 1,
+            "max_steps_per_epoch": 1200,
+            "num_eval_steps": 300,
+            "num_samples_from_model_per_epoch": int(max_attempts),
+            "sample_export_unique_target": int(unique_target),
+            "sample_export_max_attempts": int(max_attempts),
+            "sample_export_progress_interval": int(progress_interval),
+            "batch_size": 512,
+            "n_layer": 8,
+            "n_head": 8,
+            "n_embd": 768,
+            "temperature": float(variant["temperature"]),
+            "top_k": int(variant["top_k"]),
+            "generation_strategy": variant["generation_strategy"],
+            "seed": int(seed),
+        },
+        "post_train_cpu_sampling_scoring_avoided": True,
+    }
+
+
 def load_baseline_summary(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -927,6 +1077,7 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
         PROBE_MODE_SAMPLE_EXPORT,
         PROBE_MODE_SAMPLE_EXPORT_MEDIUM,
         PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
+        PROBE_MODE_SAMPLE_EXPORT_DEDUP,
     }
     train_log = run.get("train_log") or {}
     eval_losses = train_log.get("eval_losses") or []
@@ -1069,6 +1220,9 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Probe mode: `{summary.get('probe_mode', run.get('probe_mode', PROBE_MODE_SAMPLER))}`",
         f"- Diversity variant: `{run.get('diversity_variant')}`",
         f"- Diversity seed: `{run.get('diversity_seed')}`",
+        f"- Dedup unique target: `{run.get('sample_export_unique_target')}`",
+        f"- Dedup attempt budget: `{run.get('sample_export_attempt_budget')}`",
+        f"- Dedup stop reason: `{run.get('sample_export_stop_reason')}`",
         "- Safety: proxy-only; no exact verifier execution, SAIR calls, network calls, or submission.",
         "",
         "## Probes",
@@ -1105,6 +1259,25 @@ def build_report(summary: dict[str, Any]) -> str:
                 str(run.get("model_sample_ledger_records")),
                 str(run.get("ledger_records")),
                 str(run.get("metadata_complete")),
+            ]
+        )
+        + " |",
+        "",
+        "## Sample Export Dedup",
+        "",
+        "| dedup_enabled | attempted | written | decoded_written | unique_decoded | duplicate_skipped | stop_reason | summary |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        "| "
+        + " | ".join(
+            [
+                str(run.get("sample_export_dedup_enabled")),
+                str(run.get("sample_export_attempted_samples")),
+                str(run.get("sample_export_records")),
+                str(run.get("sample_export_decoded_records")),
+                str(run.get("sample_export_unique_decoded_coefficients")),
+                str(run.get("sample_export_duplicate_decoded_records_skipped")),
+                str(run.get("sample_export_stop_reason")),
+                str(run.get("sample_export_summary_path")),
             ]
         )
         + " |",
@@ -1159,13 +1332,15 @@ def get_parser() -> argparse.ArgumentParser:
             PROBE_MODE_SAMPLE_EXPORT,
             PROBE_MODE_SAMPLE_EXPORT_MEDIUM,
             PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
+            PROBE_MODE_SAMPLE_EXPORT_DEDUP,
         ],
         default=PROBE_MODE_SAMPLER,
         help=(
             "sampler keeps the original train/sample probe; train_only_utilization isolates GPU-side training; "
             "sample_export_split exports unscored model samples after CUDA training; "
             "sample_export_split_medium runs a bounded longer export-only sampler; "
-            "sample_export_split_diversity runs a bounded named diversity variant"
+            "sample_export_split_diversity runs a bounded named diversity variant; "
+            "sample_export_split_dedup runs a bounded named variant with decoded-coefficient dedup export controls"
         ),
     )
     parser.add_argument(
@@ -1178,8 +1353,11 @@ def get_parser() -> argparse.ArgumentParser:
         "--diversity_seed",
         type=int,
         default=None,
-        help="optional seed override for --probe_mode sample_export_split_diversity",
+        help="optional seed override for diversity/dedup sample-export probe modes",
     )
+    parser.add_argument("--dedup_unique_target", type=int, default=512, help="unique decoded coefficient target for sample_export_split_dedup")
+    parser.add_argument("--dedup_max_attempts", type=int, default=2048, help="maximum export attempts for sample_export_split_dedup")
+    parser.add_argument("--dedup_progress_interval", type=int, default=128, help="progress-log interval for sample_export_split_dedup")
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
 
@@ -1197,8 +1375,11 @@ def main() -> int:
         "output_dir": str(args.output_dir),
         "run_id": run_id,
         "probe_mode": args.probe_mode,
-        "diversity_variant": args.diversity_variant if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY else None,
-        "diversity_seed": args.diversity_seed if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY else None,
+        "diversity_variant": args.diversity_variant if args.probe_mode in {PROBE_MODE_SAMPLE_EXPORT_DIVERSITY, PROBE_MODE_SAMPLE_EXPORT_DEDUP} else None,
+        "diversity_seed": args.diversity_seed if args.probe_mode in {PROBE_MODE_SAMPLE_EXPORT_DIVERSITY, PROBE_MODE_SAMPLE_EXPORT_DEDUP} else None,
+        "dedup_unique_target": args.dedup_unique_target if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
+        "dedup_max_attempts": args.dedup_max_attempts if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
+        "dedup_progress_interval": args.dedup_progress_interval if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
         "safety": {
             "proxy_only": True,
             "runs_exact_verifiers": False,
@@ -1249,6 +1430,17 @@ def main() -> int:
                 run_id=run_id,
                 diversity_variant=args.diversity_variant,
                 diversity_seed=args.diversity_seed,
+            )
+        elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP:
+            command_config = build_sample_export_dedup_command(
+                python_executable=args.python_executable,
+                output_dir=args.output_dir,
+                run_id=run_id,
+                diversity_variant=args.diversity_variant,
+                diversity_seed=args.diversity_seed,
+                unique_target=args.dedup_unique_target,
+                max_attempts=args.dedup_max_attempts,
+                progress_interval=args.dedup_progress_interval,
             )
         else:
             command_config = build_sampler_command(
