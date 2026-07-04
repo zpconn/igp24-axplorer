@@ -162,9 +162,16 @@ results change.
     - Result: the next probe should reuse the existing CUDA/NVML probes and
       ledger summary logic, but needs a more explicit sampler-train command,
       timeout, and loss/memory/sample-log parser than the tiny smoke helper.
-  - [pending] Add a reproducible short sampler-probe helper if useful.
-  - [pending] Add tests only for pure command construction, log parsing, and
+  - [done] Add a reproducible short sampler-probe helper if useful.
+    - Result: `scripts/igp24_gpu_sampler_probe.py` wraps a
+      capped two-epoch CUDA train/sample command, summarizes the ledger and
+      train log, and writes a JSON/Markdown report.
+  - [done] Add tests only for pure command construction, log parsing, and
     report/recommendation logic.
+    - Result: `tests/test_igp24_gpu_sampler_probe.py` covers sample-section
+      parsing, train-log loss/memory parsing, model-sample ledger filtering,
+      capped command construction, baseline loading, and recommendation logic
+      without requiring GPU hardware.
   - [pending] Run a capped roughly 5-10 minute GPU training/sampling probe
     under `/tmp/igp24_gpu_sampler_probe_20260704`.
   - [pending] Record CUDA/PyTorch status, runtime, loss/eval behavior, CUDA
@@ -189,6 +196,8 @@ results change.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
+  - Latest result: passed after adding the short GPU sampler probe helper.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -202,6 +211,16 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before short controlled GPU sampler probe work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py`
+  - Result: 6 passed in 0.02s after adding the short GPU sampler probe helper.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper exposes output directory, repo root, Python
+    executable, timeout, run id, baseline summary, and strict mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after adding the short GPU sampler probe helper.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU-readiness and training-smoke work.
 - 2026-07-04: `python -m pytest`
