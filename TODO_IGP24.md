@@ -10,9 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   Stage 2 `target_r=4` structured-family work.
-- Active focus: add and benchmark a new `target_r=4`-friendly structured
-  generation family that is distinct from `four_real_seed`; `quartic_lift` is
-  implemented and benchmarked, with final verification pending.
+- Active focus: Stage 2 `quartic_lift` r4 structured-family work is complete.
+  Keep `preset_r4` unchanged until a larger r4 mix comparison justifies
+  retuning.
 
 ## Stage 0: Scaffold
 
@@ -117,9 +117,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 21 passed in 0.62s after r4 mix validation work.
+  - Latest result: 22 passed in 0.68s after `quartic_lift` work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after r4 mix validation work.
+  - Latest result: passed after `quartic_lift` work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -166,6 +166,16 @@ results change.
   - Result: all six sampled `quartic_lift` run ledgers included
     `strategy='quartic_lift'`, the quartic-lift seed template, core support
     `[0,6,12,18]`, quartic coefficients, and perturbation coefficients.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 22 passed in 0.68s after `quartic_lift` work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after `quartic_lift` work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper mentions `quartic_lift`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `target_r=4` preset validation.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -746,7 +756,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Add a `target_r=4` quartic-lift structured family.
+- [done] Add a `target_r=4` quartic-lift structured family.
   - [done] Probe bounded quartic-in-`x^6` templates with small perturbations.
   - [done] Implement a distinct `quartic_lift` generation strategy with
     ledger metadata.
