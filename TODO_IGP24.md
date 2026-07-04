@@ -244,6 +244,31 @@ down further as they become active.
   comparisons justify them.
 - [pending] Keep SAIR submission explicit and manual; never auto-submit.
 
+### Stage 4: Competition Packaging And Reproducibility
+
+- [pending] Curate a final set of externally verified candidates with exact
+  group/signature metadata and verifier provenance.
+- [pending] Produce reproducible run manifests for any candidates promoted to
+  submission consideration:
+  - [pending] source commit,
+  - [pending] command line,
+  - [pending] random seeds,
+  - [pending] environment details,
+  - [pending] ledger record hashes,
+  - [pending] verifier outputs.
+- [pending] Add leaderboard-aware reporting once exact verification exists:
+  - [pending] best candidates by target,
+  - [pending] discriminant comparisons,
+  - [pending] duplicate/canonical-equivalence checks,
+  - [pending] rejected-candidate audit trail.
+- [pending] Build safe manual submission packaging for SAIR:
+  - [pending] export-only by default,
+  - [pending] explicit human review checklist,
+  - [pending] no automatic submission path,
+  - [pending] no API keys in logs or artifacts.
+- [pending] Archive benchmark, training, and verification artifacts needed for
+  post-competition reproducibility.
+
 ## Recommended Next Tasks
 
 - [done] Implement configurable generation strategies and tests.
