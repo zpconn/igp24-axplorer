@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  split workflow hardening work.
+  score-all split handoff validation.
 - Latest focus complete: the GPU sample-export -> CPU proxy-scoring workflow
   has now been validated on a full short-run handoff: 1024 exported rows, 1023
   decoded rows, and all decoded rows scored through the separate CPU proxy
@@ -428,9 +428,10 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 63 passed in 1.56s after split workflow hardening.
+  - Latest result: 64 passed in 1.49s after score-all split handoff
+    validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after split workflow hardening.
+  - Latest result: passed after score-all split handoff validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -443,9 +444,9 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after split workflow hardening.
+  - Latest result: passed after score-all split handoff validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after split workflow hardening.
+  - Latest result: passed after score-all split handoff validation.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Latest command:
@@ -486,6 +487,33 @@ results change.
     115 rejected, 1022 unique canonical hashes, 1 duplicate hash record,
     local search disabled, and split manifest/report written under
     `/tmp/igp24_gpu_sample_export_split_score_all_20260704/cpu_scored_export_all`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 23 passed in 1.08s after score-all split handoff validation.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 64 passed in 1.49s after score-all split handoff validation.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after score-all split handoff validation.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed after score-all split handoff validation.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed after score-all split handoff validation.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_command'))"`
+  - Result: `imports ok True True True`.
+- 2026-07-04: `git diff --check`
+  - Result: passed after score-all split handoff validation.
+- 2026-07-04:
+  `grep -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+  - Result: Stage 4 remains present at line 2210.
+- 2026-07-04: `nvidia-smi`
+  - Result: RTX 5090 visible; no running GPU processes listed after the
+    score-all split handoff.
+- 2026-07-04: `ps -C python3 -o pid=,etime=,pcpu=,pmem=,args=`
+  - Result: no active `python3` processes after final checks.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 22 passed in 1.15s after adding split manifest/report,
