@@ -10,10 +10,10 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   second r4 preset confirmation work.
-- Active focus: second CPU-only `target_r=4` confirmation is complete.
-  Evidence still splits yield, average proxy quality, and peak score, so
-  `preset_r4` remains unchanged pending either higher-budget proxy evidence or
-  exact-verifier export work.
+- Active focus: second CPU-only `target_r=4` confirmation and final checks
+  are complete. Evidence still splits yield, average proxy quality, and peak
+  score, so `preset_r4` remains unchanged pending either higher-budget proxy
+  evidence or exact-verifier export work.
 
 ## Stage 0: Scaffold
 
@@ -118,12 +118,12 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 22 passed in 0.77s after larger r4 dual-quality
-    confirmation work.
+  - Latest result: 22 passed in 0.68s after second r4 preset confirmation
+    work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after larger r4 dual-quality confirmation work.
+  - Latest result: passed after second r4 preset confirmation work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
-  - Latest result: passed after larger r4 dual-quality confirmation work.
+  - Latest result: passed after second r4 preset confirmation work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -166,6 +166,20 @@ results change.
     single proxy score at 10214.148; `mix_r4_dual_yield` remained a middle
     tradeoff at 0.694 match rate and 10129.761 average mean; `preset_r4`
     trailed at 0.585 match rate and 10108.354 average mean.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 22 passed in 0.68s after second r4 preset confirmation work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories; follow-up search
+    found none.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `mix_r4_dual_quality`
     confirmation work.
