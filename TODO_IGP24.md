@@ -151,6 +151,19 @@ results change.
     repo-root path setup and reran successfully; CLI documents shortlist input,
     output directory, batch size, sort key, strategy cap/minimum, source-ledger
     following, and repo-root options.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py /tmp/igp24_r4_shortlist_20260704 --batch_size 8 --min_strategies 2 --per_strategy_cap 6 --output_dir /tmp/igp24_r4_review_batch_20260704`
+  - Result: passed; loaded 25 shortlist records and selected 8 review records.
+    Top score was 10214.147570701043. Strategy counts were `quartic_lift`: 6
+    and `four_real_seed`: 2.
+- 2026-07-04: audited `/tmp/igp24_r4_review_batch_20260704`.
+  - Result: `review_report.md`, `verification_batch.jsonl`,
+    `verification_coefficients.txt`, and `manifest.json` exist. The batch has
+    8 rows, 8 unique canonical hashes, all exported coefficient vectors have
+    length 25 and end in fixed leading coefficient 1, every row records source
+    ledger and source shortlist paths, `verified_group_label` is null for every
+    row, and manifest safety flags record proxy-only/review-export-only with no
+    verifier execution, submission, network calls, or exact group claims.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe shortlist/export helper work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_shortlist.py`
@@ -1133,6 +1146,39 @@ Interpretation:
   for later human-reviewed offline exact verification and does not certify any
   exact group label.
 
+### 2026-07-04 R4 Review Batch Smoke
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_review_batch_20260704`.
+- Input shortlist: `/tmp/igp24_r4_shortlist_20260704`.
+- Selection criteria: top proxy score, batch size 8, at least 2 strategies
+  where available, and a per-strategy cap of 6.
+- Output files:
+  - `/tmp/igp24_r4_review_batch_20260704/review_report.md`
+  - `/tmp/igp24_r4_review_batch_20260704/verification_batch.jsonl`
+  - `/tmp/igp24_r4_review_batch_20260704/verification_coefficients.txt`
+  - `/tmp/igp24_r4_review_batch_20260704/manifest.json`
+- Loaded shortlist records: 25.
+- Selected records: 8.
+- Unique canonical hashes: 8.
+- Top score: 10214.147570701043.
+- Strategy counts:
+  - `quartic_lift`: 6.
+  - `four_real_seed`: 2.
+- Audit:
+  - All exported coefficient vectors have length 25 and end in the fixed
+    leading coefficient 1.
+  - Every row records both `source_ledger_path` and `source_shortlist_path`.
+  - Every review record keeps `verified_group_label=null` and an explicit
+    proxy-only caveat.
+  - Manifest safety flags record `proxy_only=true`,
+    `review_export_only=true`, `verifier_executed=false`,
+    `submission_executed=false`, `network_calls=false`, and
+    `exact_group_claims=false`.
+- Caveat: this is a human-review batch for later offline exact-verifier
+  experiments. It did not run PARI, MAGMA, SAIR, network calls, exact group
+  verification, or any submission path.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -1154,7 +1200,7 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [in_progress] Add safe human-review tooling for exported shortlists.
+- [done] Add safe human-review tooling for exported shortlists.
   - [done] Add a review/export-only CLI that reads shortlist export
     directories and optionally follows `source_ledger_path` to richer ledger
     records.
@@ -1168,7 +1214,7 @@ down further as they become active.
     proxy-only safety flags.
   - [done] Document the review-batch command and safety boundary in
     README/NOTES/TODO.
-  - [pending] Run and audit an r4 review-batch smoke export from the existing
+  - [done] Run and audit an r4 review-batch smoke export from the existing
     `/tmp/igp24_r4_shortlist_20260704` shortlist.
 - [done] Add safe batch export/shortlist helpers for verifier input
   files.
@@ -1303,6 +1349,9 @@ down further as they become active.
 - [done] Add safe batch export/shortlist helpers for top proxy candidates
   from the strongest r4 strategies so later offline exact verification can
   inspect them without adding any automatic SAIR submission path.
-- [in_progress] Manually review the exported r4 shortlist and choose a small batch
+- [done] Manually review the exported r4 shortlist and choose a small batch
   for offline exact-verifier experiments, keeping any SAIR submission explicit
   and human-controlled.
+- [pending] Run manual offline exact-verifier experiments on
+  `/tmp/igp24_r4_review_batch_20260704`, record verifier provenance and
+  outputs, and keep any SAIR submission explicit and human-controlled.
