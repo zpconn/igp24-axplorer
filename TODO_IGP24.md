@@ -9,11 +9,11 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  second r4 preset confirmation work.
-- Active focus: second CPU-only `target_r=4` confirmation and final checks
-  are complete. Evidence still splits yield, average proxy quality, and peak
-  score, so `preset_r4` remains unchanged pending either higher-budget proxy
-  evidence or exact-verifier export work.
+  safe shortlist/export helper work.
+- Active focus: add safe batch export/shortlist tooling for top proxy-scored
+  candidates from existing ledgers and benchmark directories. This must remain
+  export-only for later human-reviewed offline exact verification; no verifier
+  execution, exact `24Tt` claim, SAIR call, or auto-submission path.
 
 ## Stage 0: Scaffold
 
@@ -135,6 +135,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before safe shortlist/export helper work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before second r4 preset confirmation work.
 - 2026-07-04:
@@ -1066,6 +1068,17 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Add safe batch export/shortlist helpers for verifier input
+  files.
+  - [pending] Add an export-only CLI that reads benchmark directories and/or
+    ledger JSONL files without running MAGMA/PARI/SAIR or network calls.
+  - [pending] Support target-r filtering, generation-strategy filtering,
+    top-N limits, canonical-hash deduplication, and score sorting.
+  - [pending] Emit an audit manifest, JSONL shortlist, and coefficient export
+    suitable for later human-reviewed offline verifier input.
+  - [pending] Add fast fixture-based tests for filtering, deduplication,
+    sorting, manifest creation, and coefficient export shape.
+  - [pending] Document usage and the safety boundary in README/NOTES/TODO.
 - [done] Run second direct r4 preset confirmation.
   - [done] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
     across `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`,
@@ -1183,6 +1196,6 @@ down further as they become active.
   `mix_r4_dual_quality` before retuning `preset_r4`.
 - [done] Run a second confirmation that directly compares `quartic_lift`,
   `mix_r4_dual_yield`, and current `preset_r4` before changing the r4 preset.
-- [pending] Add safe batch export/shortlist helpers for top proxy candidates
+- [in_progress] Add safe batch export/shortlist helpers for top proxy candidates
   from the strongest r4 strategies so later offline exact verification can
   inspect them without adding any automatic SAIR submission path.
