@@ -226,6 +226,14 @@ write a markdown review report plus verifier-input coefficient files. This is
 still not exact verification; it is a human triage artifact for later manual
 offline verifier runs.
 
+The offline-verification preparation helper sits after review-batch triage and
+before any exact verifier or human-controlled SAIR packaging. Its default mode
+validates the review-batch artifacts, writes manual PARI/GP and MAGMA input
+scripts, and records local tool availability in a manifest. It does not run
+SAIR, make network calls, submit candidates, or promote exact group labels.
+If local PARI/GP or MAGMA execution is requested explicitly, raw output must be
+kept as provenance before any later exact-label claim is made.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

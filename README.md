@@ -241,6 +241,24 @@ The helper writes `review_report.md`, `verification_batch.jsonl`,
 `source_ledger_path` values to enrich records, but it still only reads and
 writes local files. It does not run exact verifiers or submit anything.
 
+## Prepare Offline Verification
+
+Use the offline verification helper to validate a review batch and write manual
+PARI/GP and MAGMA input files:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_r4_review_batch_20260704 \
+  --output_dir /tmp/igp24_r4_offline_verify
+```
+
+By default this is preparation-only. It writes
+`offline_verification_manifest.json`, `pari_input.gp`, `magma_input.m`, and
+`verification_plan.md`, records whether `gp` or `magma` are available locally,
+and does not run exact verification. Local verifier execution requires explicit
+`--run_pari` or `--run_magma` flags. SAIR submission and network calls are out
+of scope.
+
 ## Recent Smoke Result
 
 The current smoke run used CPU-only mixed generation:

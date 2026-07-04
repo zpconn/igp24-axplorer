@@ -127,6 +127,9 @@ results change.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after adding the safe review-batch helper.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
+  - Latest result: passed after adding the safe offline-verifier preparation
+    helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
@@ -147,6 +150,15 @@ results change.
   - Result: `gp None`; `magma None`. Local exact verifier binaries are not on
     PATH at setup time, so the first smoke should remain dry-run/preparation
     only and record the blocker.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+  - Result: 5 passed in 0.03s after adding the offline-verifier preparation
+    helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
+  - Result: passed after adding the offline-verifier preparation helper.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`
+  - Result: passed; CLI documents review-batch input, output directory,
+    explicit `--run_pari`/`--run_magma` opt-ins, executable names, timeout, and
+    repo-root options.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe review-batch tooling work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_review_shortlist.py`
@@ -1227,20 +1239,21 @@ down further as they become active.
 ### Stage 2: Structured Families And Exact-Tool Prep
 
 - [in_progress] Add safe offline exact-verifier preparation workflow.
-  - [pending] Add a preparation-only CLI that reads review-batch directories,
+  - [done] Add a preparation-only CLI that reads review-batch directories,
     validates `verification_batch.jsonl`, `verification_coefficients.txt`, and
     `manifest.json`, and refuses malformed coefficient exports.
-  - [pending] Emit `offline_verification_manifest.json`, `pari_input.gp`,
+  - [done] Emit `offline_verification_manifest.json`, `pari_input.gp`,
     `magma_input.m`, and `verification_plan.md` for manual local verifier runs.
-  - [pending] Probe local PARI/GP and MAGMA availability without installing or
+  - [done] Probe local PARI/GP and MAGMA availability without installing or
     downloading anything, and record unavailable-tool blockers.
-  - [pending] Gate any local verifier execution behind explicit opt-in flags,
+  - [done] Gate any local verifier execution behind explicit opt-in flags,
     keep dry-run/preparation as the default, and never add SAIR/network or
     auto-submission behavior.
-  - [pending] Add fast fixture-based tests for batch loading, coefficient
+  - [done] Add fast fixture-based tests for batch loading, coefficient
     validation, script generation, manifest safety flags, and unavailable
     verifier handling.
-  - [pending] Document the workflow in README/NOTES/TODO and smoke it against
+  - [done] Document the workflow in README/NOTES/TODO.
+  - [pending] Smoke it against
     `/tmp/igp24_r4_review_batch_20260704`.
 - [done] Add safe human-review tooling for exported shortlists.
   - [done] Add a review/export-only CLI that reads shortlist export
