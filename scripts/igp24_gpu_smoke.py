@@ -265,7 +265,7 @@ def inspect_train_log(path: Path) -> dict[str, Any]:
             "line_count": 0,
         }
     text = path.read_text(encoding="utf-8", errors="replace")
-    device_matches = re.findall(r"^device:\s*(.+)$", text, flags=re.MULTILINE)
+    device_matches = re.findall(r"\bdevice:\s*([^\n\r]+)", text)
     return {
         "exists": True,
         "logged_device": device_matches[-1].strip() if device_matches else None,

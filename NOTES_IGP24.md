@@ -284,3 +284,9 @@ smoke only when PyTorch reports CUDA. GPU training can become a parallel sampler
 path after a clean smoke, but CPU proxy search, shortlist export, and manual
 offline-verifier preparation remain the main candidate pipeline until longer
 evidence justifies changing that plan.
+
+The 2026-07-04 smoke under `/tmp/igp24_gpu_smoke_20260704` found an
+RTX 5090, PyTorch `2.12.1+cu130` with CUDA available, a passing CPU baseline,
+and a passing tiny GPU train with `device: cuda` and CUDA memory logging. The
+recommendation is to run both in parallel: keep CPU proxy-search and exact-tool
+prep primary while using GPU training as an additional sampler path.

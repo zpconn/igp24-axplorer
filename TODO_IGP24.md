@@ -10,11 +10,13 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   GPU-readiness and training-smoke work.
-- Active focus: add a small GPU-readiness milestone that verifies CUDA/PyTorch
-  availability, runs a tiny IGP24 CPU data-generation baseline and a tiny GPU
-  training smoke, and documents when GPU training should become the main path.
-  This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
-  SAIR/network calls, and no auto-submission behavior.
+- Active focus: GPU-readiness smoke is complete. The RTX 5090 and PyTorch CUDA
+  path work outside the managed sandbox, the tiny CPU baseline and tiny GPU
+  training smoke both returned 0, and the recommendation is to run both in
+  parallel: keep CPU proxy-search and exact-tool prep primary while using GPU
+  training as an additional sampler path. This remains proxy-only: no exact
+  `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and no
+  auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -109,15 +111,19 @@ results change.
 - [done] Run a small reproducible CPU-only generation smoke.
 - [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
-- [in_progress] Add a small GPU-readiness and training-smoke milestone.
+- [done] Add a small GPU-readiness and training-smoke milestone.
   - [done] Inspect and document current `train.py` CUDA support.
     - Result: `--cpu true` forces CPU; otherwise `train.py` selects MPS when
       available and CUDA after that, moves the model and training/evaluation
       batches to `args.device`, and logs CUDA memory during epochs. It does
       not preflight `torch.cuda.is_available()`, so the smoke must probe
       PyTorch CUDA before running GPU training.
-  - [pending] Confirm `nvidia-smi` GPU visibility and PyTorch CUDA
+  - [done] Confirm `nvidia-smi` GPU visibility and PyTorch CUDA
     availability.
+    - Result: outside the managed sandbox, `nvidia-smi` saw an
+      NVIDIA GeForce RTX 5090 with 32607 MiB and driver 596.49; PyTorch
+      `2.12.1+cu130` reported `cuda_available=True` and device
+      `NVIDIA GeForce RTX 5090`.
   - [done] Add a lightweight GPU-smoke helper only if it improves
     reproducibility of command execution and artifact summaries.
     - Result: `scripts/igp24_gpu_smoke.py` writes
@@ -128,12 +134,21 @@ results change.
       construction, train-log inspection, ledger summary, and recommendation
       logic without requiring GPU hardware.
   - [done] Update README and NOTES with when to use GPU training.
-  - [pending] Run a tiny CPU data-generation baseline and a tiny GPU-enabled
+  - [done] Run a tiny CPU data-generation baseline and a tiny GPU-enabled
     training smoke under `/tmp/igp24_gpu_smoke_20260704`.
-  - [pending] Compare return codes, runtimes, valid candidates, ledger record
+    - Result: CPU baseline return code 0 in 2.39s; GPU train return code 0 in
+      3.88s.
+  - [done] Compare return codes, runtimes, valid candidates, ledger record
     counts, metadata completeness, and whether GPU was actually used.
-  - [pending] Document whether to keep CPU proxy-search primary, switch to GPU
+    - Result: CPU baseline had 7 valid examples, 12 ledger rows, complete
+      metadata, and logged `device: cpu`; GPU train had 4 valid examples after
+      one tiny training epoch, 12 ledger rows, complete metadata, logged
+      `device: cuda`, logged CUDA memory, and `gpu_used=True`.
+  - [done] Document whether to keep CPU proxy-search primary, switch to GPU
     training, or run both in parallel.
+    - Recommendation: run both in parallel. Keep CPU proxy-search, shortlist
+      export, and exact-tool prep as the main candidate pipeline; use GPU
+      training as a parallel sampler path for a controlled longer run.
 - [done] Add a reusable per-strategy benchmark helper.
   - [done] Add `scripts/igp24_benchmark.py` to run short CPU-only `train.py`
     jobs and summarize JSONL ledgers.
@@ -171,6 +186,39 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU-readiness and training-smoke work.
+- 2026-07-04: `nvidia-smi`
+  - Result: RTX 5090 visible, driver 596.49, CUDA 13.2, 32607 MiB total GPU
+    memory. No active compute process was listed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else None)"`
+  - Result outside the managed sandbox:
+    `2.12.1+cu130 True NVIDIA GeForce RTX 5090`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --output_dir /tmp/igp24_gpu_smoke_20260704 --timeout_seconds 180`
+  - Result inside the managed sandbox: diagnostic report was written, but
+    `nvidia-smi` returned 255 and PyTorch reported CUDA unavailable because GPU
+    access was blocked by the operating system. Reran outside the managed
+    sandbox for authoritative CUDA/NVML results.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --output_dir /tmp/igp24_gpu_smoke_20260704 --timeout_seconds 180`
+  - Result outside the managed sandbox: passed; report written to
+    `/tmp/igp24_gpu_smoke_20260704/gpu_smoke_report.md`.
+  - Probe result: `nvidia-smi` return code 0, RTX 5090, 32607 MiB, driver
+    596.49; PyTorch `2.12.1+cu130`, CUDA available, CUDA tensor smoke true.
+  - CPU baseline: return code 0, 2.39s, 7 valid examples, 12 ledger rows,
+    metadata complete, logged `device: cpu`.
+  - GPU train: return code 0, 3.88s, 4 valid examples after one tiny training
+    epoch, 12 ledger rows, metadata complete, logged `device: cuda`, logged
+    CUDA memory, `gpu_used=True`.
+  - Recommendation: run CPU proxy-search and GPU training in parallel; do not
+    replace the CPU proxy/exact-tool-prep pipeline from this tiny smoke.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_smoke.py`
+  - Result: 6 passed in 0.01s after fixing train-log device parsing for
+    prefixed logger lines.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_smoke.py tests/test_igp24_gpu_smoke.py`
+  - Result: passed after fixing train-log device parsing.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_smoke.py`
   - Result: 6 passed in 0.02s after adding the GPU readiness helper.
@@ -1411,6 +1459,38 @@ Interpretation:
   justified here. Exact verification remains unrun because local PARI/GP and
   MAGMA are unavailable.
 
+### 2026-07-04 GPU Readiness Smoke
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_gpu_smoke_20260704`.
+- Artifacts:
+  - `/tmp/igp24_gpu_smoke_20260704/gpu_smoke_summary.json`
+  - `/tmp/igp24_gpu_smoke_20260704/gpu_smoke_report.md`
+  - `/tmp/igp24_gpu_smoke_20260704/cpu_candidates.jsonl`
+  - `/tmp/igp24_gpu_smoke_20260704/gpu_candidates.jsonl`
+- Probe result outside the managed sandbox:
+  - GPU: NVIDIA GeForce RTX 5090, 32607 MiB, driver 596.49.
+  - PyTorch: `2.12.1+cu130`, CUDA available, CUDA tensor smoke true,
+    device `NVIDIA GeForce RTX 5090`.
+- Smoke comparison:
+
+| Run | Return Code | Runtime | Valid Candidates | Ledger Rows | Metadata Complete | Logged Device | GPU Used |
+| --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| CPU baseline | 0 | 2.39s | 7 | 12 | true | `cpu` | false |
+| GPU train | 0 | 3.88s | 4 | 12 | true | `cuda` | true |
+
+Interpretation:
+
+- This machine can run the IGP24 Axplorer training path on CUDA outside the
+  managed sandbox. The tiny GPU train exercised model placement, training
+  batches, evaluation, sampling, CUDA memory logging, and ledger metadata.
+- The managed sandbox can block NVML/CUDA access for child processes; use an
+  unsandboxed run when the goal is to measure GPU hardware behavior.
+- Do not switch away from CPU proxy-search wholesale from this tiny smoke.
+  Run both in parallel: CPU proxy generation/search remains the main candidate
+  pipeline, while GPU training is now a viable parallel sampler path for a
+  controlled longer run.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -1424,6 +1504,9 @@ Interpretation:
   stdout/stderr.
 - Initial benchmark attempts showed that fixed `--seed` did not control NumPy
   generation. Fixed by seeding NumPy in `IGP24Environment`.
+- GPU/NVML/CUDA checks can differ between the managed sandbox and an
+  unsandboxed process. The authoritative 2026-07-04 GPU smoke was run outside
+  the managed sandbox and proved PyTorch CUDA on the RTX 5090.
 
 ## Future Stages
 
@@ -1602,9 +1685,12 @@ down further as they become active.
 - [pending] Use fixed-support sparse templates as an opt-in diversity/yield
   probe only; do not promote to defaults or presets without larger proxy runs
   and later exact verifier evidence.
-- [pending] Run a small GPU training smoke before treating model training as a
+- [done] Run a small GPU training smoke before treating model training as a
   main path; keep CPU proxy-search primary unless CUDA/PyTorch and tiny
   training both work cleanly.
+- [pending] Run a controlled longer GPU sampler experiment, while keeping CPU
+  proxy-search, shortlist export, and exact-tool prep primary until longer GPU
+  evidence justifies changing the plan.
 - [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
 - [done] Run a larger r4 comparison or benchmark-only mix that combines

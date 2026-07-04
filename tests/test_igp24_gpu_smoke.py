@@ -72,7 +72,11 @@ def test_inspect_train_log_and_summarize_train_result(tmp_path):
         encoding="utf-8",
     )
     log = tmp_path / "train.log"
-    log.write_text("device: cuda\nMemory allocated: 1.00MB, reserved: 2.00MB\n", encoding="utf-8")
+    log.write_text(
+        "INFO - 07/04/26 11:21:29 - 0:00:01 - device: cuda\n"
+        "INFO - 07/04/26 11:21:29 - 0:00:01 - Memory allocated: 1.00MB, reserved: 2.00MB\n",
+        encoding="utf-8",
+    )
     result = {
         "returncode": 0,
         "runtime_seconds": 1.25,

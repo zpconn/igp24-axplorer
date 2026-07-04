@@ -71,6 +71,12 @@ available. It writes `gpu_smoke_summary.json` and `gpu_smoke_report.md` under
 the output directory. Keep CPU proxy-search primary unless that report proves
 PyTorch CUDA works and the training log shows `device: cuda`.
 
+Current result on this machine, from 2026-07-04: the RTX 5090 is visible,
+PyTorch `2.12.1+cu130` reports CUDA available, the tiny CPU baseline and tiny
+GPU training smoke both returned 0, and the GPU train log shows `device: cuda`.
+Use GPU training as a parallel sampler path; keep CPU proxy-search, shortlist
+export, and exact-tool prep as the main candidate pipeline.
+
 ## Run A Small Smoke Job
 
 ```bash
