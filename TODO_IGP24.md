@@ -10,8 +10,9 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   larger `mix_r4_dual_quality` confirmation work.
-- Active focus: run a larger CPU-only `target_r=4` confirmation benchmark to
-  decide whether `preset_r4` should retune to the dual-quality mix.
+- Active focus: larger `mix_r4_dual_quality` confirmation is complete.
+  Evidence is mixed, so `preset_r4` remains unchanged pending more targeted
+  confirmation.
 
 ## Stage 0: Scaffold
 
@@ -133,6 +134,24 @@ results change.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `mix_r4_dual_quality`
     confirmation work.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies preset_r4,four_real_seed,quartic_lift,mix_r4_dual_quality,mix_r4_dual_yield,mix_r4_dual_balanced --seeds 901,902,903,904,905,906,907,908,909,910,911,912 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_r4_dual_quality_confirm_20260704`
+  - Result: passed; 72 CPU-only `target_r=4` confirmation runs completed in
+    289.85 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_r4_dual_quality_confirm_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result:
+    `72 True True ['four_real_seed', 'mix_r4_dual_balanced', 'mix_r4_dual_quality', 'mix_r4_dual_yield', 'preset_r4', 'quartic_lift'] [4]`
+    and `1282 2049 1317`.
+- 2026-07-04: inspected all confirmation dual-mix ledgers for mix metadata.
+  - Result: 1,027 dual-label ledger records checked, no mixed-weight metadata
+    mismatches. Observed strategy mix was `dual_yield`: 244
+    `four_real_seed`, 91 `quartic_lift`; `dual_quality`: 244
+    `quartic_lift`, 98 `four_real_seed`; `dual_balanced`: 162
+    `quartic_lift`, 146 `four_real_seed`, 42 `sparse`.
+- 2026-07-04: checked `resolve_generation_preset('r4', 'uniform', 'uniform:1')`.
+  - Result: `preset_r4` still resolves to `mixed` with
+    `four_real_seed:0.8,sparse:0.2`; no preset retune was applied.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before benchmark-only dual-family r4 mix work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -829,6 +848,63 @@ Interpretation:
   benchmark with one seed block. The evidence justifies a larger confirmation
   run, likely centered on `mix_r4_dual_quality`, before retuning any preset.
 
+### 2026-07-04 R4 Dual-quality Confirmation
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_dual_quality_confirm_20260704`.
+- Summary files:
+  - `/tmp/igp24_r4_dual_quality_confirm_20260704/summary.json`
+  - `/tmp/igp24_r4_dual_quality_confirm_20260704/summary.jsonl`
+  - `/tmp/igp24_r4_dual_quality_confirm_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: current `preset_r4`, explicit `four_real_seed`, explicit
+    `quartic_lift`, `mix_r4_dual_quality`, `mix_r4_dual_yield`, and
+    `mix_r4_dual_balanced`.
+  - Target: `target_r=4`.
+  - Seeds: `901`, `902`, `903`, `904`, `905`, `906`, `907`, `908`, `909`,
+    `910`, `911`, `912`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 289.85 seconds.
+- All 72 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 72.
+  - Valid candidates: 1,282.
+  - Ledger records: 2,049.
+  - Target-r matching records: 1,317.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - All 1,027 dual-label ledger records checked had the expected mixed
+    weights.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 12 | 4.19s | 216 | 352 | 241 | 0.688 | 10195.219 | 10195.219 | 10126.379 | 10201.043 | 0.361 |
+| `mix_r4_dual_balanced` | `r=4` | 12 | 4.03s | 215 | 350 | 212 | 0.609 | 10198.942 | 10198.942 | 10117.771 | 10207.509 | 0.407 |
+| `mix_r4_dual_quality` | `r=4` | 12 | 3.95s | 214 | 342 | 218 | 0.639 | 10203.367 | 10203.367 | 10125.458 | 10207.509 | 0.377 |
+| `mix_r4_dual_yield` | `r=4` | 12 | 4.09s | 214 | 335 | 229 | 0.683 | 10199.688 | 10199.688 | 10128.913 | 10206.711 | 0.385 |
+| `preset_r4` | `r=4` | 12 | 4.19s | 213 | 348 | 206 | 0.590 | 10193.351 | 10193.351 | 10109.302 | 10202.793 | 0.384 |
+| `quartic_lift` | `r=4` | 12 | 3.71s | 210 | 322 | 211 | 0.650 | 10204.553 | 10204.553 | 10129.814 | 10214.148 | 0.366 |
+
+Interpretation:
+
+- `mix_r4_dual_quality` again beat current `preset_r4` on average match rate
+  and score metrics, but it was not the strongest confirmed option overall.
+- Explicit `quartic_lift` beat `mix_r4_dual_quality` on match rate, average
+  best score, average mean score, and best single proxy score in this seed
+  block.
+- `mix_r4_dual_yield` nearly matched explicit `four_real_seed` on match rate
+  and beat `mix_r4_dual_quality` on average mean score.
+- This is mixed evidence for retuning specifically to
+  `four_real_seed:0.25,quartic_lift:0.75`. The larger run confirms that the
+  current `preset_r4` is probably stale, but it does not cleanly confirm the
+  dual-quality mix as the new preset.
+- Decision: keep `preset_r4` unchanged for now. The next retuning step should
+  directly compare `quartic_lift`, `mix_r4_dual_yield`, and current `preset_r4`
+  on a second 12-seed block or add a quartic-heavy preset candidate before
+  changing the user-facing preset.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -852,13 +928,13 @@ down further as they become active.
 
 - [in_progress] Confirm whether `preset_r4` should retune to
   `mix_r4_dual_quality`.
-  - [pending] Run a larger 12-seed CPU-only `target_r=4` confirmation across
+  - [done] Run a larger 12-seed CPU-only `target_r=4` confirmation across
     `preset_r4`, `four_real_seed`, `quartic_lift`, and dual r4 mix labels.
-  - [pending] Audit return codes, metadata completeness, expected row count,
+  - [done] Audit return codes, metadata completeness, expected row count,
     and mix metadata in ledgers.
-  - [pending] Decide whether `mix_r4_dual_quality` clearly beats current
+  - [done] Decide whether `mix_r4_dual_quality` clearly beats current
     `preset_r4` on match rate and average score metrics.
-  - [pending] If evidence is strong, retune `preset_r4`; otherwise document why
+  - [done] If evidence is strong, retune `preset_r4`; otherwise document why
     it remains unchanged.
 - [done] Test benchmark-only r4 dual-family mixes.
   - [done] Add helper-only labels combining `four_real_seed`,
@@ -952,5 +1028,7 @@ down further as they become active.
 - [done] Run a larger r4 comparison or benchmark-only mix that combines
   `four_real_seed` yield with `quartic_lift` peak proxy quality before changing
   `preset_r4`.
-- [pending] Run a larger confirmation benchmark centered on
+- [done] Run a larger confirmation benchmark centered on
   `mix_r4_dual_quality` before retuning `preset_r4`.
+- [pending] Run a second confirmation that directly compares `quartic_lift`,
+  `mix_r4_dual_yield`, and current `preset_r4` before changing the r4 preset.

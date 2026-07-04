@@ -191,6 +191,16 @@ score, but had lower target-r yield. These dual-family results are promising
 enough to justify a larger confirmation run, but they are still proxy-only and
 do not by themselves justify changing `preset_r4`.
 
+The larger 12-seed confirmation made the preset decision less simple.
+`mix_r4_dual_quality` again beat the current `preset_r4` on match rate and
+average score metrics, but explicit `quartic_lift` beat it on match rate,
+average best score, average mean score, and best single proxy score in that
+seed block. This suggests the existing `preset_r4` is probably stale, but the
+specific `four_real_seed:0.25,quartic_lift:0.75` retune was not confirmed
+cleanly enough to promote. Keep `preset_r4` unchanged until a second
+confirmation compares `quartic_lift`, `mix_r4_dual_yield`, and the current
+preset directly.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
