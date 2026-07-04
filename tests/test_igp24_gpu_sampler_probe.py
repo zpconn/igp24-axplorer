@@ -1,8 +1,10 @@
 import json
 
 from scripts.igp24_gpu_sampler_probe import (
+    DIVERSITY_EXPORT_VARIANTS,
     build_recommendation,
     build_sampler_command,
+    build_sample_export_diversity_command,
     build_sample_export_split_command,
     build_sample_export_split_medium_command,
     build_train_only_utilization_command,
@@ -202,6 +204,44 @@ def test_build_sample_export_split_medium_command_is_bounded_export_only(tmp_pat
     assert all("pari" not in str(part).lower() for part in command)
 
 
+def test_build_sample_export_diversity_commands_are_bounded_export_only(tmp_path):
+    configs = [
+        build_sample_export_diversity_command(
+            python_executable="python3",
+            output_dir=tmp_path / variant,
+            run_id="run",
+            diversity_variant=variant,
+        )
+        for variant in DIVERSITY_EXPORT_VARIANTS
+    ]
+
+    assert {config["diversity_variant"] for config in configs} == set(DIVERSITY_EXPORT_VARIANTS)
+    strategies = {
+        config["diversity_variant"]: config["command"][config["command"].index("--igp24_generation_strategy") + 1]
+        for config in configs
+    }
+    assert strategies["fixed_template_t09_top9"] == "fixed_sparse_template"
+    assert strategies["mixed_t12_open_topk"] == "mixed"
+    for config in configs:
+        command = config["command"]
+        assert config["probe_mode"] == "sample_export_split_diversity"
+        assert config["post_train_cpu_sampling_scoring_avoided"]
+        assert config["caps"]["timeout_seconds"] == 900
+        assert config["caps"]["max_epochs"] == 1
+        assert config["caps"]["num_samples_from_model_per_epoch"] == 2048
+        assert config["caps"]["max_steps_per_epoch"] == 1200
+        assert command[command.index("--cpu") + 1] == "false"
+        assert command[command.index("--sample_export_only") + 1] == "true"
+        assert command[command.index("--num_samples_from_model") + 1] == "2048"
+        assert command[command.index("--always_search") + 1] == "false"
+        assert command[command.index("--max_local_search_steps") + 1] == "0"
+        assert command[command.index("--process_pool") + 1] == "false"
+        assert "--sample_export_path" in command
+        assert all("sair" not in str(part).lower() for part in command)
+        assert all("magma" not in str(part).lower() for part in command)
+        assert all("pari" not in str(part).lower() for part in command)
+
+
 def test_summarize_sample_export_reads_safety_flags(tmp_path):
     path = tmp_path / "samples.jsonl"
     path.write_text(
@@ -358,6 +398,36 @@ def test_build_recommendation_for_sample_export_split_medium():
                     "eval_losses": [
                         {"step": 600, "train_loss": 2.0, "test_loss": 2.1},
                         {"step": 1200, "train_loss": 1.8, "test_loss": 1.9},
+                    ],
+                    "sample_valid_total": 0,
+                },
+            }
+        },
+    }
+
+    assert build_recommendation(base)["action"] == "consume_exported_samples_with_cpu_proxy_helper"
+
+
+def test_build_recommendation_for_sample_export_diversity_variant():
+    base = {
+        "probe_mode": "sample_export_split_diversity",
+        "probes": {"torch_cuda": {"parsed": {"cuda_available": True}}},
+        "runs": {
+            "gpu_sampler_probe": {
+                "probe_mode": "sample_export_split_diversity",
+                "diversity_variant": "mixed_t12_open_topk",
+                "returncode": 0,
+                "timed_out": False,
+                "interrupted": False,
+                "gpu_used": True,
+                "post_train_cpu_sampling_scoring_avoided": True,
+                "sample_export_records": 2048,
+                "sample_export_decoded_records": 1900,
+                "model_sample_ledger_records": 0,
+                "train_log": {
+                    "eval_losses": [
+                        {"step": 300, "train_loss": 2.0, "test_loss": 2.1},
+                        {"step": 600, "train_loss": 1.8, "test_loss": 1.9},
                     ],
                     "sample_valid_total": 0,
                 },

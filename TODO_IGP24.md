@@ -9,14 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  medium export-only split workflow work.
-- Active focus: bounded medium GPU export-only split workflow completed and
-  final verification passed; commit/push is in progress. The medium GPU phase
-  loaded the RTX 5090 well, but CPU scoring showed weak sample diversity, so
-  the next GPU step should improve diversity before longer runs. Keep CPU
-  proxy-search, shortlist export, and exact-tool prep primary. This remains
-  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
-  calls, and no auto-submission behavior.
+  GPU export diversity work.
+- Active focus: improve GPU export sample diversity before any longer GPU
+  runs. The medium GPU phase loaded the RTX 5090 well, but CPU scoring showed
+  weak sample diversity, so this pass should add and run a bounded opt-in
+  diversity comparison. Keep CPU proxy-search, shortlist export, and
+  exact-tool prep primary. This remains proxy-only: no exact `24Tt` labels,
+  no MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
+  behavior.
 
 ## Stage 0: Scaffold
 
@@ -500,6 +500,35 @@ results change.
       diversity before longer GPU runs; do not return to integrated GPU
       train/sample/score, and keep CPU proxy-search plus exact-tool prep
       primary.
+- [in_progress] Improve GPU export sample diversity before longer runs.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect TODO, README, NOTES, `scripts/igp24_gpu_sampler_probe.py`,
+    `scripts/igp24_score_sample_export.py`, `train.py`, `src/evaluator.py`,
+    and relevant tests.
+    - Result: normal `train.py` behavior remains unchanged; the smallest
+      useful next step is an explicit diversity-focused export-only helper
+      mode with named short-run variants, followed by separate CPU score-all
+      handoffs with local search disabled.
+  - [done] Add an opt-in diversity export helper mode and focused
+    pure command/report tests.
+    - Result: added `sample_export_split_diversity` with two named
+      export-only variants: `fixed_template_t09_top9` and
+      `mixed_t12_open_topk`. Both keep `--sample_export_only true`,
+      `--always_search false`, `--max_local_search_steps 0`,
+      `--process_pool false`, one epoch, 1200 training steps, 2048 requested
+      export samples, and a 900s intended timeout cap.
+    - Focused checks: 27 passed in 2.29s across GPU helper and sample-export
+      tests; helper `--help` exposes the new mode/variants; compileall passed
+      for the edited helper/test files; `git diff --check` passed.
+  - [pending] Run at least two short diversity export variants with explicit
+    timeout caps.
+  - [pending] Score each export separately on the CPU proxy path with local
+    search disabled.
+  - [pending] Update README, NOTES, and TODO with commands, artifact paths,
+    GPU utilization, valid/rejected counts, unique/duplicate hash counts,
+    best/mean score, comparison to the duplicate-heavy medium baseline, and
+    next recommendation.
 
 ## Tests And Checks
 
@@ -550,6 +579,8 @@ results change.
   - Result: already up to date before score-all split handoff validation.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before medium export-only split workflow work.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before GPU export diversity work.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 25 passed in 1.27s after adding bounded medium export-only mode.
@@ -587,6 +618,19 @@ results change.
     7808 duplicate hash records, local search disabled, and split
     manifest/report written under
     `/tmp/igp24_gpu_sample_export_split_medium_retuned_20260704/cpu_scored_export_all`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 27 passed in 2.29s after adding the diversity export helper mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper now exposes
+    `--probe_mode ... sample_export_split_diversity` and
+    `--diversity_variant {fixed_template_t09_top9,mixed_t12_open_topk}`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after adding the diversity export helper mode.
+- 2026-07-04: `git diff --check`
+  - Result: passed after adding the diversity export helper mode.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 25 passed in 1.08s after the medium split final checks.

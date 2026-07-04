@@ -41,6 +41,21 @@ PROBE_MODE_SAMPLER = "sampler"
 PROBE_MODE_TRAIN_ONLY = "train_only_utilization"
 PROBE_MODE_SAMPLE_EXPORT = "sample_export_split"
 PROBE_MODE_SAMPLE_EXPORT_MEDIUM = "sample_export_split_medium"
+PROBE_MODE_SAMPLE_EXPORT_DIVERSITY = "sample_export_split_diversity"
+DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
+    "fixed_template_t09_top9": {
+        "seed": "2201",
+        "temperature": "0.9",
+        "top_k": "9",
+        "generation_strategy": "fixed_sparse_template",
+    },
+    "mixed_t12_open_topk": {
+        "seed": "2202",
+        "temperature": "1.2",
+        "top_k": "-1",
+        "generation_strategy": "mixed",
+    },
+}
 STRICT_SUCCESS_ACTIONS = {
     "proceed_to_medium_30_60_minute_gpu_run_later",
     "decouple_gpu_training_from_cpu_scoring",
@@ -702,6 +717,119 @@ def build_sample_export_split_medium_command(
     }
 
 
+def build_sample_export_diversity_command(
+    *,
+    python_executable: str,
+    output_dir: Path,
+    run_id: str,
+    diversity_variant: str,
+) -> dict[str, Any]:
+    if diversity_variant not in DIVERSITY_EXPORT_VARIANTS:
+        raise ValueError(f"unknown diversity variant: {diversity_variant}")
+
+    variant = DIVERSITY_EXPORT_VARIANTS[diversity_variant]
+    exp_name = f"igp24_gpu_sample_export_diversity_{diversity_variant}"
+    dump_root = output_dir / f"gpu_sample_export_diversity_{diversity_variant}_dump"
+    ledger_path = output_dir / f"gpu_sample_export_diversity_{diversity_variant}_initial_candidates.jsonl"
+    sample_export_path = output_dir / f"gpu_model_sample_export_diversity_{diversity_variant}.jsonl"
+    train_log_path = dump_root / exp_name / run_id / "train.log"
+    cmd = [
+        python_executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        exp_name,
+        "--dump_path",
+        str(dump_root),
+        "--exp_id",
+        run_id,
+        "--seed",
+        variant["seed"],
+        "--coeff_bound",
+        "4",
+        "--gensize",
+        "512",
+        "--pop_size",
+        "384",
+        "--ntest",
+        "16",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "1200",
+        "--num_eval_steps",
+        "300",
+        "--num_samples_from_model",
+        "2048",
+        "--batch_size",
+        "512",
+        "--n_layer",
+        "8",
+        "--n_head",
+        "8",
+        "--n_embd",
+        "768",
+        "--max_len",
+        "24",
+        "--temperature",
+        variant["temperature"],
+        "--top_k",
+        variant["top_k"],
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "11",
+        "--exact_score_timeout",
+        "2",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        str(sample_export_path),
+        "--igp24_generation_strategy",
+        variant["generation_strategy"],
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+    return {
+        "probe_mode": PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
+        "diversity_variant": diversity_variant,
+        "command": cmd,
+        "command_text": command_text(cmd),
+        "dump_root": str(dump_root),
+        "ledger_path": str(ledger_path),
+        "sample_export_path": str(sample_export_path),
+        "train_log_path": str(train_log_path),
+        "exp_name": exp_name,
+        "exp_id": run_id,
+        "caps": {
+            "timeout_seconds": 900,
+            "max_epochs": 1,
+            "max_steps_per_epoch": 1200,
+            "num_eval_steps": 300,
+            "num_samples_from_model_per_epoch": 2048,
+            "batch_size": 512,
+            "n_layer": 8,
+            "n_head": 8,
+            "n_embd": 768,
+            "temperature": float(variant["temperature"]),
+            "top_k": int(variant["top_k"]),
+            "generation_strategy": variant["generation_strategy"],
+        },
+        "post_train_cpu_sampling_scoring_avoided": True,
+    }
+
+
 def load_baseline_summary(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -746,6 +874,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
     return {
         "status": "completed",
         "probe_mode": command_config.get("probe_mode", PROBE_MODE_SAMPLER),
+        "diversity_variant": command_config.get("diversity_variant"),
         "returncode": command_result.get("returncode"),
         "timed_out": command_result.get("timed_out"),
         "interrupted": command_result.get("interrupted", False),
@@ -776,7 +905,11 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
     run = summary.get("runs", {}).get("gpu_sampler_probe") or {}
     probe_mode = run.get("probe_mode", summary.get("probe_mode", PROBE_MODE_SAMPLER))
     is_train_only = probe_mode == PROBE_MODE_TRAIN_ONLY
-    is_sample_export = probe_mode in {PROBE_MODE_SAMPLE_EXPORT, PROBE_MODE_SAMPLE_EXPORT_MEDIUM}
+    is_sample_export = probe_mode in {
+        PROBE_MODE_SAMPLE_EXPORT,
+        PROBE_MODE_SAMPLE_EXPORT_MEDIUM,
+        PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
+    }
     train_log = run.get("train_log") or {}
     eval_losses = train_log.get("eval_losses") or []
     final_eval = eval_losses[-1] if eval_losses else {}
@@ -916,6 +1049,7 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Created UTC: `{summary.get('created_at_utc')}`",
         f"- Output directory: `{summary.get('output_dir')}`",
         f"- Probe mode: `{summary.get('probe_mode', run.get('probe_mode', PROBE_MODE_SAMPLER))}`",
+        f"- Diversity variant: `{run.get('diversity_variant')}`",
         "- Safety: proxy-only; no exact verifier execution, SAIR calls, network calls, or submission.",
         "",
         "## Probes",
@@ -1000,13 +1134,26 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--monitor_interval_seconds", type=float, default=2.0)
     parser.add_argument(
         "--probe_mode",
-        choices=[PROBE_MODE_SAMPLER, PROBE_MODE_TRAIN_ONLY, PROBE_MODE_SAMPLE_EXPORT, PROBE_MODE_SAMPLE_EXPORT_MEDIUM],
+        choices=[
+            PROBE_MODE_SAMPLER,
+            PROBE_MODE_TRAIN_ONLY,
+            PROBE_MODE_SAMPLE_EXPORT,
+            PROBE_MODE_SAMPLE_EXPORT_MEDIUM,
+            PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
+        ],
         default=PROBE_MODE_SAMPLER,
         help=(
             "sampler keeps the original train/sample probe; train_only_utilization isolates GPU-side training; "
             "sample_export_split exports unscored model samples after CUDA training; "
-            "sample_export_split_medium runs a bounded longer export-only sampler"
+            "sample_export_split_medium runs a bounded longer export-only sampler; "
+            "sample_export_split_diversity runs a bounded named diversity variant"
         ),
+    )
+    parser.add_argument(
+        "--diversity_variant",
+        choices=sorted(DIVERSITY_EXPORT_VARIANTS),
+        default="mixed_t12_open_topk",
+        help="named variant for --probe_mode sample_export_split_diversity",
     )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
@@ -1025,6 +1172,7 @@ def main() -> int:
         "output_dir": str(args.output_dir),
         "run_id": run_id,
         "probe_mode": args.probe_mode,
+        "diversity_variant": args.diversity_variant if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY else None,
         "safety": {
             "proxy_only": True,
             "runs_exact_verifiers": False,
@@ -1067,6 +1215,13 @@ def main() -> int:
                 python_executable=args.python_executable,
                 output_dir=args.output_dir,
                 run_id=run_id,
+            )
+        elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY:
+            command_config = build_sample_export_diversity_command(
+                python_executable=args.python_executable,
+                output_dir=args.output_dir,
+                run_id=run_id,
+                diversity_variant=args.diversity_variant,
             )
         else:
             command_config = build_sampler_command(
