@@ -132,6 +132,13 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before benchmark-only dual-family r4 mix work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
+  - Result: 6 passed in 0.01s after adding benchmark-only dual r4 mix labels.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts tests`
+  - Result: passed after adding benchmark-only dual r4 mix labels.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper mentions `mix_r4_dual_yield`,
+    `mix_r4_dual_quality`, and `mix_r4_dual_balanced`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before Stage 2 `target_r=4`
     structured-family work.
@@ -758,9 +765,9 @@ down further as they become active.
 ### Stage 2: Structured Families And Exact-Tool Prep
 
 - [in_progress] Test benchmark-only r4 dual-family mixes.
-  - [pending] Add helper-only labels combining `four_real_seed`,
+  - [done] Add helper-only labels combining `four_real_seed`,
     `quartic_lift`, and optional sparse diversity.
-  - [pending] Add focused benchmark-helper tests for dual-mix label
+  - [done] Add focused benchmark-helper tests for dual-mix label
     resolution.
   - [pending] Run a bounded CPU-only `target_r=4` comparison against
     `four_real_seed`, `quartic_lift`, `preset_r4`, and the dual labels.

@@ -85,6 +85,13 @@ def test_resolve_benchmark_strategy_accepts_preset_labels():
     assert resolve_benchmark_strategy("mix_r4_yield") == ("mixed", "none", "four_real_seed:1.0")
     assert resolve_benchmark_strategy("mix_r4_balanced") == ("mixed", "none", "four_real_seed:0.8,sparse:0.2")
     assert resolve_benchmark_strategy("mix_r4_diverse") == ("mixed", "none", "four_real_seed:0.6,sparse:0.4")
+    assert resolve_benchmark_strategy("mix_r4_dual_yield") == ("mixed", "none", "four_real_seed:0.75,quartic_lift:0.25")
+    assert resolve_benchmark_strategy("mix_r4_dual_quality") == ("mixed", "none", "four_real_seed:0.25,quartic_lift:0.75")
+    assert resolve_benchmark_strategy("mix_r4_dual_balanced") == (
+        "mixed",
+        "none",
+        "four_real_seed:0.45,quartic_lift:0.45,sparse:0.10",
+    )
 
 
 def test_aggregate_results_groups_strategy_and_target():

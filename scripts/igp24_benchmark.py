@@ -36,6 +36,9 @@ MIXED_VARIANT_WEIGHTS = {
     "mix_r4_yield": "four_real_seed:1.0",
     "mix_r4_balanced": "four_real_seed:0.8,sparse:0.2",
     "mix_r4_diverse": "four_real_seed:0.6,sparse:0.4",
+    "mix_r4_dual_yield": "four_real_seed:0.75,quartic_lift:0.25",
+    "mix_r4_dual_quality": "four_real_seed:0.25,quartic_lift:0.75",
+    "mix_r4_dual_balanced": "four_real_seed:0.45,quartic_lift:0.45,sparse:0.10",
 }
 
 
@@ -357,7 +360,9 @@ def get_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated generation strategies, including quartic_lift; "
             "use preset_r0/preset_r2/preset_r4 for presets or "
-            "mix_r4_yield/mix_r4_balanced/mix_r4_diverse for benchmark-only r4 mix variants"
+            "benchmark-only r4 mix labels such as mix_r4_yield, "
+            "mix_r4_balanced, mix_r4_diverse, mix_r4_dual_yield, "
+            "mix_r4_dual_quality, and mix_r4_dual_balanced"
         ),
     )
     parser.add_argument("--seeds", default="101", help="Comma-separated integer seeds")
