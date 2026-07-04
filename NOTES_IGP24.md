@@ -268,3 +268,19 @@ Later stages should add targeted candidate families such as:
 The project environment is defined in `environment.yml`. SymPy is required for
 the exact polynomial utilities. GPU and PyTorch installation details can be
 machine-specific; avoid hard-coding CUDA assumptions in project code.
+
+## GPU Training Readiness
+
+`train.py` already has a device path for training: `--cpu true` forces CPU,
+while `--cpu false` selects MPS when available and otherwise selects CUDA. The
+model, training batches, and sampling start tensors are moved to that device,
+and CUDA runs log allocated/reserved memory during epochs. The script does not
+preflight `torch.cuda.is_available()`, so run
+`scripts/igp24_gpu_smoke.py` before treating GPU training as active.
+
+The GPU smoke is still proxy-only. It checks `nvidia-smi`, checks PyTorch CUDA,
+runs a tiny CPU data-generation baseline, and runs a tiny GPU-enabled training
+smoke only when PyTorch reports CUDA. GPU training can become a parallel sampler
+path after a clean smoke, but CPU proxy search, shortlist export, and manual
+offline-verifier preparation remain the main candidate pipeline until longer
+evidence justifies changing that plan.

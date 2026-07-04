@@ -52,6 +52,25 @@ micromamba activate env_axplorer
 If your machine needs a custom PyTorch or CUDA setup, install that separately
 for your hardware.
 
+## GPU Smoke
+
+GPU use is for model training and sampling only. The IGP24 scoring, local
+search, shortlist export, and offline-verifier preparation paths remain
+CPU/proxy workflows unless explicitly changed later.
+
+Run the readiness helper before making GPU training a main path:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py \
+  --output_dir /tmp/igp24_gpu_smoke_20260704
+```
+
+The helper records `nvidia-smi`, PyTorch CUDA availability, a tiny CPU
+data-generation baseline, and a tiny GPU-enabled `train.py` run when CUDA is
+available. It writes `gpu_smoke_summary.json` and `gpu_smoke_report.md` under
+the output directory. Keep CPU proxy-search primary unless that report proves
+PyTorch CUDA works and the training log shows `device: cuda`.
+
 ## Run A Small Smoke Job
 
 ```bash

@@ -110,11 +110,24 @@ results change.
 - [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
 - [in_progress] Add a small GPU-readiness and training-smoke milestone.
-  - [pending] Inspect and document current `train.py` CUDA support.
+  - [done] Inspect and document current `train.py` CUDA support.
+    - Result: `--cpu true` forces CPU; otherwise `train.py` selects MPS when
+      available and CUDA after that, moves the model and training/evaluation
+      batches to `args.device`, and logs CUDA memory during epochs. It does
+      not preflight `torch.cuda.is_available()`, so the smoke must probe
+      PyTorch CUDA before running GPU training.
   - [pending] Confirm `nvidia-smi` GPU visibility and PyTorch CUDA
     availability.
-  - [pending] Add a lightweight GPU-smoke helper only if it improves
+  - [done] Add a lightweight GPU-smoke helper only if it improves
     reproducibility of command execution and artifact summaries.
+    - Result: `scripts/igp24_gpu_smoke.py` writes
+      `gpu_smoke_summary.json` and `gpu_smoke_report.md`, keep all runs
+      proxy-only, and skip GPU training when PyTorch CUDA is unavailable.
+  - [done] Add focused tests for pure parsing/reporting logic.
+    - Result: `tests/test_igp24_gpu_smoke.py` covers probe parsing, command
+      construction, train-log inspection, ledger summary, and recommendation
+      logic without requiring GPU hardware.
+  - [done] Update README and NOTES with when to use GPU training.
   - [pending] Run a tiny CPU data-generation baseline and a tiny GPU-enabled
     training smoke under `/tmp/igp24_gpu_smoke_20260704`.
   - [pending] Compare return codes, runtimes, valid candidates, ledger record
@@ -143,6 +156,8 @@ results change.
     helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after adding `fixed_sparse_template`.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
+  - Latest result: passed after adding the GPU readiness helper.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -156,6 +171,16 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before GPU-readiness and training-smoke work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_smoke.py`
+  - Result: 6 passed in 0.02s after adding the GPU readiness helper.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`
+  - Result: passed; helper exposes output directory, repo root, timeout,
+    fixed run id, forced GPU train, and strict-mode options.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_gpu_smoke.py tests/test_igp24_gpu_smoke.py`
+  - Result: passed after adding the GPU readiness helper and tests.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before fixed-support sparse template generation
     work.
