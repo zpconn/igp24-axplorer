@@ -10,8 +10,8 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   larger target-r benchmark work.
-- Active focus: run a larger CPU-only target real-root-count benchmark before
-  changing generation defaults again.
+- Active focus: interpret the larger CPU-only target real-root-count benchmark
+  before changing generation defaults again.
 
 ## Stage 0: Scaffold
 
@@ -57,13 +57,13 @@ results change.
   - [done] Summarize target-r match count, match rate, and best matching
     score.
   - [done] Run short untargeted vs `target_r=2` comparison.
-- [in_progress] Run larger per-strategy target real-root-count comparisons
+- [done] Run larger per-strategy target real-root-count comparisons
   across `target_r=none,0,2,4`.
   - [done] Add aggregate strategy/target reporting to the benchmark
     helper so multi-seed runs are easier to audit.
-  - [pending] Run the larger CPU-only benchmark with at least `sparse`,
+  - [done] Run the larger CPU-only benchmark with at least `sparse`,
     `structured`, and `mixed`.
-  - [pending] Record commands, artifact paths, result tables, and
+  - [done] Record commands, artifact paths, result tables, and
     interpretation before considering any default tuning.
 
 ## Stage 1: Local Search
@@ -111,6 +111,15 @@ results change.
   - Result: 5 passed in 0.02s after adding aggregate benchmark summaries.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts tests`
   - Result: passed after adding aggregate benchmark summaries.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed after adding aggregate benchmark summaries.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured,mixed --seeds 301,302,303,304 --target_rs none,0,2,4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_target_r_bench_larger_20260704`
+  - Result: passed; 48 larger CPU-only target-r benchmark runs completed in
+    193.26 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_target_r_bench_larger_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['target_r'] for r in data}, key=lambda x: -1 if x is None else x)); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data))"`
+  - Result: `48 True True [None, 0, 2, 4]` and `864 1561`.
 - 2026-07-04: `git pull --ff-only`
   - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
 - 2026-07-04: `git pull --ff-only`
@@ -277,6 +286,64 @@ Interpretation:
 - No new generation default change is warranted from this small target-r run
   alone; use larger target-r benchmarks before tuning again.
 
+### 2026-07-04 Larger Target-r CPU Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_target_r_bench_larger_20260704`.
+- Summary files:
+  - `/tmp/igp24_target_r_bench_larger_20260704/summary.json`
+  - `/tmp/igp24_target_r_bench_larger_20260704/summary.jsonl`
+  - `/tmp/igp24_target_r_bench_larger_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: `sparse`, `structured`, `mixed`.
+  - Targets: untargeted, `target_r=0`, `target_r=2`, and `target_r=4`.
+  - Seeds: `301`, `302`, `303`, `304`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 193.26 seconds.
+- All 48 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 48.
+  - Valid candidates: 864.
+  - Ledger records: 1,561.
+  - All summary records included complete score/generation/local-search
+    metadata.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `mixed` | `r=0` | 4 | 4.95s | 72 | 135 | 41 | 0.303 | 10210.117 | 10210.117 | 10061.147 | 10222.117 | 0.424 |
+| `mixed` | `r=2` | 4 | 4.97s | 72 | 135 | 92 | 0.680 | 10208.197 | 10208.197 | 10127.371 | 10213.260 | 0.417 |
+| `mixed` | `r=4` | 4 | 4.88s | 72 | 135 | 28 | 0.209 | 10201.770 | 10201.770 | 10042.195 | 10205.289 | 0.431 |
+| `mixed` | untargeted | 4 | 4.96s | 72 | 135 | NA | NA | 9963.787 | NA | 9931.598 | 9972.117 | 0.417 |
+| `sparse` | `r=0` | 4 | 3.63s | 72 | 135 | 33 | 0.246 | 10196.939 | 10196.939 | 10053.043 | 10204.853 | 0.417 |
+| `sparse` | `r=2` | 4 | 3.70s | 72 | 134 | 100 | 0.745 | 10202.643 | 10202.643 | 10139.115 | 10208.544 | 0.430 |
+| `sparse` | `r=4` | 4 | 3.78s | 72 | 137 | 26 | 0.191 | 10192.821 | 10192.821 | 10041.827 | 10207.005 | 0.426 |
+| `sparse` | untargeted | 4 | 4.03s | 72 | 137 | NA | NA | 9955.183 | NA | 9932.331 | 9958.544 | 0.419 |
+| `structured` | `r=0` | 4 | 3.26s | 72 | 120 | 60 | 0.501 | 10215.071 | 10215.071 | 10108.438 | 10216.978 | 0.364 |
+| `structured` | `r=2` | 4 | 3.16s | 72 | 119 | 75 | 0.629 | 10213.416 | 10213.416 | 10128.951 | 10216.622 | 0.413 |
+| `structured` | `r=4` | 4 | 3.25s | 72 | 119 | 4 | 0.034 | 10126.258 | 10204.226 | 10017.312 | 10209.825 | 0.424 |
+| `structured` | untargeted | 4 | 3.28s | 72 | 120 | NA | NA | 9965.160 | NA | 9942.122 | 9966.978 | 0.389 |
+
+Interpretation:
+
+- `structured` looks best for `target_r=0` in this run: strongest average
+  best score, strongest average mean score, and the highest `r=0` match rate.
+- `sparse` still looks best for reliably hitting `target_r=2`: highest match
+  rate at 0.745 and the strongest `r=2` average mean score.
+- `structured` found the strongest `r=2` peak and average best scores, so a
+  larger `r=2` run should probably compare `sparse` reliability against
+  `structured` peak quality rather than picking only one.
+- `target_r=4` remains weak for the current families. `mixed` and `sparse`
+  found some matching records, but match rates stayed low; `structured` nearly
+  missed this target entirely.
+- Untargeted results still favor `structured` on average score, while `mixed`
+  found the best single untargeted candidate in this batch.
+- No global generation default change is justified from this proxy-only run.
+  A practical next tuning step would be target-specific run presets, especially
+  `structured` for `r=0`, `sparse` plus `structured` for `r=2`, and new
+  `r=4`-friendly families before retuning `mixed`.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -355,5 +422,11 @@ down further as they become active.
 - [done] Run and document a short CPU-only generation benchmark.
 - [done] Run per-strategy comparisons with equal `gensize` and fixed seeds.
 - [done] Run short per-strategy comparisons including target real-root counts.
-- [pending] Run larger per-strategy target-r comparisons before further tuning
+- [done] Run larger per-strategy target-r comparisons before further tuning
   defaults.
+- [pending] Add target-specific benchmark presets or docs for promising
+  strategy/target pairs.
+- [pending] Design new `target_r=4`-friendlier generation families before
+  retuning mixed defaults for that target.
+- [pending] Run a longer focused `target_r=2` comparison between `sparse` and
+  `structured`.

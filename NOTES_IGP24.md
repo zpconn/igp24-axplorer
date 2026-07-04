@@ -109,6 +109,21 @@ untargeted scoring and `target_r=2` showed:
 The target-r data is useful for reporting and experiment planning, but it is
 still proxy scoring. It does not imply any exact `24Tt` label.
 
+A larger CPU-only target-r comparison with seeds `301,302,303,304`,
+`gensize=18`, `pop_size=8`, and targets `none,0,2,4` sharpened the stage-1
+picture without changing that caveat. `structured` looked strongest for
+`target_r=0`, with the best average best score, average mean score, and match
+rate among the tested strategies. `sparse` remained the most reliable way to
+hit `target_r=2`, while `structured` produced better `r=2` peak and average
+best scores. Current families are weak for `target_r=4`: `mixed` and `sparse`
+found some matching records, but match rates stayed low, and `structured`
+almost never hit the target. Untargeted scoring still favored `structured` on
+average score.
+
+This argues against a single global default retune. The next useful step is
+target-specific presets or run recommendations, plus new `r=4`-friendlier
+families before trying to tune `mixed` weights for that target.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

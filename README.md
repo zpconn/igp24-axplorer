@@ -122,9 +122,9 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
 ```
 
 The helper runs `train.py`, writes per-run ledgers under the output directory,
-and produces `summary.json` plus `summary.jsonl` with valid-candidate counts,
-ledger counts, scores, runtimes, strategy mix, and local-search acceptance
-statistics.
+and produces `summary.json`, `summary.jsonl`, and `aggregate_summary.json`.
+These include valid-candidate counts, ledger counts, scores, runtimes, strategy
+mix, target-r match rates, and local-search acceptance statistics.
 
 To compare target real-root counts, pass one or more targets with `--target_rs`.
 Use `none` for untargeted runs:
@@ -132,21 +132,22 @@ Use `none` for untargeted runs:
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
   --strategies sparse,structured,mixed \
-  --seeds 201,202 \
-  --target_rs none,2 \
+  --seeds 301,302,303,304 \
+  --target_rs none,0,2,4 \
   --coeff_bound 4 \
-  --gensize 12 \
-  --pop_size 6 \
+  --gensize 18 \
+  --pop_size 8 \
   --ntest 2 \
   --gen_batch_size 2 \
-  --max_local_search_steps 3 \
+  --max_local_search_steps 4 \
   --prime_limit 11 \
   --exact_score_timeout 3 \
-  --output_dir /tmp/igp24_target_r_bench
+  --output_dir /tmp/igp24_target_r_bench_larger
 ```
 
 Target-r summaries include match counts, match rates, and best matching scores
-when a target is supplied.
+when a target is supplied. The aggregate summary groups repeated seeds by
+strategy and target.
 
 ## Recent Smoke Result
 
