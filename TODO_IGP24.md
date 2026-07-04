@@ -142,6 +142,16 @@ results change.
     and all non-support perturbations produced 131 valid records with 79 at
     `r=4`. This justifies implementing a bounded `quartic_lift` strategy for
     comparison.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
+  - Result: 22 passed in 0.85s after adding `quartic_lift`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src tests scripts`
+  - Result: passed after adding `quartic_lift`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed after adding `quartic_lift`.
+- 2026-07-04: `quartic_lift` template probe through
+  `IGP24DataPoint._quartic_lift_templates()` at `coeff_bound=4`.
+  - Result: bounded templates are `(1,2,1,1)` with quartic coefficients
+    `[2,1,-3,-1,1]` and `(1,3,1,1)` with `[3,2,-4,-2,1]`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `target_r=4` preset validation.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -673,9 +683,9 @@ down further as they become active.
 
 - [in_progress] Add a `target_r=4` quartic-lift structured family.
   - [done] Probe bounded quartic-in-`x^6` templates with small perturbations.
-  - [pending] Implement a distinct `quartic_lift` generation strategy with
+  - [done] Implement a distinct `quartic_lift` generation strategy with
     ledger metadata.
-  - [pending] Add deterministic generation and metadata tests.
+  - [done] Add deterministic generation and metadata tests.
   - [pending] Benchmark `quartic_lift` against `mixed`, `four_real_seed`, and
     `preset_r4`.
   - [pending] Document whether it improves target-r yield, peak proxy score,

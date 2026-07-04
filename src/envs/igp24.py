@@ -22,7 +22,15 @@ from src.utils import bool_flag
 
 logger = logging.getLogger(__name__)
 
-IGP24_GENERATION_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed"]
+IGP24_GENERATION_STRATEGIES = [
+    "uniform",
+    "low_height",
+    "sparse",
+    "lower_degree",
+    "structured",
+    "four_real_seed",
+    "quartic_lift",
+]
 DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "uniform": 0.10,
     "low_height": 0.20,
@@ -30,6 +38,7 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "lower_degree": 0.20,
     "structured": 0.25,
     "four_real_seed": 0.0,
+    "quartic_lift": 0.0,
 }
 IGP24_GENERATION_PRESETS = {
     "none": {
@@ -295,6 +304,45 @@ class IGP24DataPoint(DataPoint):
         return tuple(coeffs)
 
     @classmethod
+    def _quartic_lift_templates(cls):
+        bound = max(1, int(cls.COEFF_BOUND))
+        templates = []
+        for a in range(1, bound + 1):
+            for b in range(a + 1, bound + 1):
+                for c in range(1, bound + 1):
+                    for d in range(c, bound + 1):
+                        y3 = c + d - a - b
+                        y2 = (a * b) + (c * d) - ((a + b) * (c + d))
+                        y1 = (a * b * (c + d)) - (c * d * (a + b))
+                        y0 = a * b * c * d
+                        y_coefficients = (y0, y1, y2, y3)
+                        if y0 != 0 and all(abs(value) <= bound for value in y_coefficients):
+                            templates.append((a, b, c, d, y_coefficients))
+        return templates
+
+    @staticmethod
+    def _quartic_lift_core_support():
+        return (0, 6, 12, 18)
+
+    @classmethod
+    def _quartic_lift_coefficients(cls):
+        templates = cls._quartic_lift_templates()
+        if not templates:
+            return cls._sparse_coefficients()
+
+        _, _, _, _, y_coefficients = templates[int(np.random.randint(len(templates)))]
+        coeffs = [0] * DEGREE
+        for exponent, coefficient in zip(cls._quartic_lift_core_support(), y_coefficients):
+            coeffs[exponent] = int(coefficient)
+
+        perturbable = [index for index in range(DEGREE) if index not in cls._quartic_lift_core_support()]
+        perturb_count = int(np.random.choice([1, 2, 3], p=[0.5, 0.35, 0.15]))
+        perturb_count = min(perturb_count, len(perturbable))
+        for index in np.random.choice(perturbable, size=perturb_count, replace=False):
+            coeffs[int(index)] = cls._nonzero_random_int(1)
+        return tuple(coeffs)
+
+    @classmethod
     def _select_generation_strategy(cls):
         strategy = cls.GENERATION_STRATEGY
         if strategy != "mixed":
@@ -318,6 +366,8 @@ class IGP24DataPoint(DataPoint):
             return cls._structured_coefficients(), strategy
         if strategy == "four_real_seed":
             return cls._four_real_seed_coefficients(), strategy
+        if strategy == "quartic_lift":
+            return cls._quartic_lift_coefficients(), strategy
         raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
 
     @classmethod
@@ -391,6 +441,29 @@ class IGP24DataPoint(DataPoint):
                     "target_r_heuristic": 4,
                     "seed_template": "perturbed_(x^2-a)(x^2-b)(x^20+1)",
                     "perturbation": "one_to_three_odd_coefficients",
+                }
+            )
+        if self.generation_strategy == "quartic_lift":
+            core_support = self._quartic_lift_core_support()
+            perturbations = {
+                str(index): int(self.coefficients[index])
+                for index in range(DEGREE)
+                if index not in core_support and self.coefficients[index] != 0
+            }
+            generation_metadata.update(
+                {
+                    "target_r_heuristic": 4,
+                    "seed_template": "perturbed_(y-a)(y-b)(y+c)(y+d)_with_y=x^6",
+                    "quartic_lift_core_support": list(core_support),
+                    "quartic_lift_coefficients_y": [
+                        int(self.coefficients[0]),
+                        int(self.coefficients[6]),
+                        int(self.coefficients[12]),
+                        int(self.coefficients[18]),
+                        1,
+                    ],
+                    "perturbation": "one_to_three_non_core_coefficients",
+                    "perturbation_coefficients": perturbations,
                 }
             )
         record = analysis_to_record(

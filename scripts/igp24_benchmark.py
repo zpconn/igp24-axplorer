@@ -21,7 +21,16 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_STRATEGIES = ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed", "mixed"]
+DEFAULT_STRATEGIES = [
+    "uniform",
+    "low_height",
+    "sparse",
+    "lower_degree",
+    "structured",
+    "four_real_seed",
+    "quartic_lift",
+    "mixed",
+]
 DEFAULT_PRESETS = ["none", "r0", "r2", "r4"]
 MIXED_VARIANT_WEIGHTS = {
     "mix_r4_yield": "four_real_seed:1.0",
