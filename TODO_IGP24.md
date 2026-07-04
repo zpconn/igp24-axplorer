@@ -9,16 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  short controlled GPU sampler probe work.
-- Active focus: run a short controlled GPU sampler probe, capped well below a
-  30-60 minute run, to decide whether a medium GPU training run is justified.
-  Keep CPU proxy-search, shortlist export, and exact-tool prep primary unless
-  the short probe provides stronger evidence. Current finding: CUDA placement
-  works and model sampling can produce valid proxy candidates, but live
-  observation showed the GPU sitting near zero utilization during the sampler
-  probe, so a 30-60 minute run is not justified yet. This remains proxy-only:
-  no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network calls, and
-  no auto-submission behavior.
+  train-only GPU utilization diagnosis work.
+- Active focus: diagnose why the current GPU sampler probe did not
+  meaningfully load the RTX 5090, then run a short utilization-focused probe
+  that isolates GPU-side training from CPU-side sampling, scoring, and local
+  search. Keep CPU proxy-search, shortlist export, and exact-tool prep primary
+  unless this short probe gives stronger evidence. Do not start a 30-60 minute
+  run yet. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
+  execution, no SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -196,6 +194,25 @@ results change.
       explicitly targets nontrivial GPU utilization, for example more
       GPU-side model/batch work and less CPU-side scoring pressure. Keep CPU
       proxy-search and exact-tool prep primary.
+- [in_progress] Diagnose GPU utilization with CPU sampling/scoring isolated.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect `train.py`, `src/trainer.py`, `src/evaluator.py`, the GPU
+    sampler helper, tests, README, NOTES, and this TODO.
+    - Result: model and train/eval batches are moved to `args.device`, but
+      each normal epoch immediately enters CPU-heavy sampling, detokenization,
+      scoring, local search, and dataset update work. A train-only opt-in path
+      is the smallest clean way to isolate GPU-side training.
+  - [pending] Add the smallest safe opt-in train-only path if needed.
+  - [pending] Add or adjust a helper mode for a capped utilization-focused
+    train-only GPU probe.
+  - [pending] Add focused tests only for pure command construction and
+    recommendation/reporting logic.
+  - [pending] Run the capped train-only utilization probe, below 10 minutes.
+  - [pending] Record device/CUDA status, runtime/timeout, max/average GPU
+    utilization, max CUDA memory, train/eval loss behavior, whether
+    sampling/scoring/local search was avoided, and whether any longer GPU run
+    is justified.
 
 ## Tests And Checks
 
