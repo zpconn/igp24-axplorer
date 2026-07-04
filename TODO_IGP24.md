@@ -52,6 +52,11 @@ results change.
   - [done] Keep `target_t` metadata-only unless exact external verification
     is actually performed.
   - [done] Keep invalid rejection reasons explicit and stable.
+- [in progress] Add target real-root-count benchmark reporting.
+  - [done] Extend benchmark helper with `--target_rs`.
+  - [done] Summarize target-r match count, match rate, and best matching
+    score.
+  - [pending] Run short untargeted vs `target_r=2` comparison.
 
 ## Stage 1: Local Search
 
@@ -78,8 +83,7 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 16 passed in 0.68s after benchmark helper, valid-count
-    parser, mixed-weight, and seed-reset tests.
+  - Latest result: 17 passed in 0.86s after target-r benchmark summary tests.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
   - Latest result: passed with `scripts` included.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
@@ -95,6 +99,14 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: fast-forwarded README update from `f60e285` to `9b00f3d`.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before target-r benchmark work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 17 passed in 0.86s after adding target-r benchmark summary tests.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after adding target-r benchmark helper support.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; `--target_rs` is listed in the helper usage.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
   - Result: 13 passed in 1.04s for the initial benchmark helper.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
