@@ -10,12 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   split workflow hardening work.
-- Active focus: harden the GPU sample-export -> CPU proxy-scoring workflow
-  with a combined audit manifest/report, duplicate/hash summaries, and a
-  larger short split smoke. Keep CPU proxy-search, shortlist export, and
-  exact-tool prep primary. Do not start a medium 30-60 minute GPU run yet.
-  This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution,
-  no SAIR/network calls, and no auto-submission behavior.
+- Latest focus complete: the GPU sample-export -> CPU proxy-scoring workflow
+  now writes a combined audit manifest/report, records duplicate/hash
+  summaries, and has a larger short split smoke with 1024 exported rows and a
+  512-row CPU scoring subset. Keep CPU proxy-search, shortlist export, and
+  exact-tool prep primary. Do one more short split smoke before any medium
+  30-60 minute GPU run. This remains proxy-only: no exact `24Tt` labels, no
+  MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
+  behavior.
 
 ## Stage 0: Scaffold
 
@@ -380,9 +382,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 59 passed in 1.57s after GPU sample-export split work.
+  - Latest result: 63 passed in 1.56s after split workflow hardening.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after GPU sample-export split work.
+  - Latest result: passed after split workflow hardening.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -395,13 +397,14 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
   - Latest result: passed after GPU readiness smoke work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`.
-  - Latest result: passed after adding `sample_export_split` probe mode.
+  - Latest result: passed after split workflow hardening.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`.
-  - Latest result: passed after adding the CPU sample-export scoring helper.
+  - Latest result: passed after split workflow hardening.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
-  - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
-  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+  - Latest command:
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_command'))"`
+  - Latest result: `imports ok True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
 - [done] If local dependency issues block the literal command, record the
@@ -448,6 +451,33 @@ results change.
     450 valid, 62 rejected, 512 unique canonical hashes, 0 duplicate hash
     records, local search disabled, and split manifest/report written under
     `/tmp/igp24_gpu_sample_export_split_larger_20260704/cpu_scored_export`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 63 passed in 1.56s after split workflow hardening.
+- 2026-07-04: `python -m pytest -q`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`; use
+    the recorded `python3` command on this shell.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after split workflow hardening.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed after split workflow hardening.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py --help`
+  - Result: passed after split workflow hardening.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_split_command'))"`
+  - Result: `imports ok True True True`.
+- 2026-07-04: `git diff --check`
+  - Result: passed after split workflow hardening.
+- 2026-07-04:
+  `grep -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+  - Result: Stage 4 remains present at line 2115.
+- 2026-07-04: `nvidia-smi`
+  - Result: RTX 5090 visible; no running GPU processes listed after the larger
+    split smoke.
+- 2026-07-04: `ps -C python3 -o pid=,etime=,pcpu=,pmem=,args=`
+  - Result: no active `python3` processes after final checks.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 18 passed in 1.36s after adding export-only model sampling,
