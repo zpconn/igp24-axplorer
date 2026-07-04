@@ -242,6 +242,26 @@ def test_build_sample_export_diversity_commands_are_bounded_export_only(tmp_path
         assert all("pari" not in str(part).lower() for part in command)
 
 
+def test_build_sample_export_diversity_command_accepts_seed_override(tmp_path):
+    config = build_sample_export_diversity_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        diversity_variant="fixed_template_t09_top9",
+        diversity_seed=2301,
+    )
+
+    command = config["command"]
+    assert command[command.index("--seed") + 1] == "2301"
+    assert config["diversity_seed"] == "2301"
+    assert config["caps"]["seed"] == 2301
+    assert "seed2301" in config["sample_export_path"]
+    assert "seed2301" in config["command_text"]
+    assert command[command.index("--sample_export_only") + 1] == "true"
+    assert command[command.index("--always_search") + 1] == "false"
+    assert command[command.index("--max_local_search_steps") + 1] == "0"
+
+
 def test_summarize_sample_export_reads_safety_flags(tmp_path):
     path = tmp_path / "samples.jsonl"
     path.write_text(

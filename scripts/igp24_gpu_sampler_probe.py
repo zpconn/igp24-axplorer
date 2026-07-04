@@ -723,15 +723,18 @@ def build_sample_export_diversity_command(
     output_dir: Path,
     run_id: str,
     diversity_variant: str,
+    diversity_seed: int | str | None = None,
 ) -> dict[str, Any]:
     if diversity_variant not in DIVERSITY_EXPORT_VARIANTS:
         raise ValueError(f"unknown diversity variant: {diversity_variant}")
 
     variant = DIVERSITY_EXPORT_VARIANTS[diversity_variant]
-    exp_name = f"igp24_gpu_sample_export_diversity_{diversity_variant}"
-    dump_root = output_dir / f"gpu_sample_export_diversity_{diversity_variant}_dump"
-    ledger_path = output_dir / f"gpu_sample_export_diversity_{diversity_variant}_initial_candidates.jsonl"
-    sample_export_path = output_dir / f"gpu_model_sample_export_diversity_{diversity_variant}.jsonl"
+    seed = str(diversity_seed) if diversity_seed is not None else str(variant["seed"])
+    seed_suffix = f"_seed{seed}" if diversity_seed is not None else ""
+    exp_name = f"igp24_gpu_sample_export_diversity_{diversity_variant}{seed_suffix}"
+    dump_root = output_dir / f"gpu_sample_export_diversity_{diversity_variant}{seed_suffix}_dump"
+    ledger_path = output_dir / f"gpu_sample_export_diversity_{diversity_variant}{seed_suffix}_initial_candidates.jsonl"
+    sample_export_path = output_dir / f"gpu_model_sample_export_diversity_{diversity_variant}{seed_suffix}.jsonl"
     train_log_path = dump_root / exp_name / run_id / "train.log"
     cmd = [
         python_executable,
@@ -745,7 +748,7 @@ def build_sample_export_diversity_command(
         "--exp_id",
         run_id,
         "--seed",
-        variant["seed"],
+        seed,
         "--coeff_bound",
         "4",
         "--gensize",
@@ -804,6 +807,7 @@ def build_sample_export_diversity_command(
     return {
         "probe_mode": PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
         "diversity_variant": diversity_variant,
+        "diversity_seed": seed,
         "command": cmd,
         "command_text": command_text(cmd),
         "dump_root": str(dump_root),
@@ -825,6 +829,7 @@ def build_sample_export_diversity_command(
             "temperature": float(variant["temperature"]),
             "top_k": int(variant["top_k"]),
             "generation_strategy": variant["generation_strategy"],
+            "seed": int(seed),
         },
         "post_train_cpu_sampling_scoring_avoided": True,
     }
@@ -875,6 +880,7 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "status": "completed",
         "probe_mode": command_config.get("probe_mode", PROBE_MODE_SAMPLER),
         "diversity_variant": command_config.get("diversity_variant"),
+        "diversity_seed": command_config.get("diversity_seed"),
         "returncode": command_result.get("returncode"),
         "timed_out": command_result.get("timed_out"),
         "interrupted": command_result.get("interrupted", False),
@@ -1050,6 +1056,7 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Output directory: `{summary.get('output_dir')}`",
         f"- Probe mode: `{summary.get('probe_mode', run.get('probe_mode', PROBE_MODE_SAMPLER))}`",
         f"- Diversity variant: `{run.get('diversity_variant')}`",
+        f"- Diversity seed: `{run.get('diversity_seed')}`",
         "- Safety: proxy-only; no exact verifier execution, SAIR calls, network calls, or submission.",
         "",
         "## Probes",
@@ -1155,6 +1162,12 @@ def get_parser() -> argparse.ArgumentParser:
         default="mixed_t12_open_topk",
         help="named variant for --probe_mode sample_export_split_diversity",
     )
+    parser.add_argument(
+        "--diversity_seed",
+        type=int,
+        default=None,
+        help="optional seed override for --probe_mode sample_export_split_diversity",
+    )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
 
@@ -1173,6 +1186,7 @@ def main() -> int:
         "run_id": run_id,
         "probe_mode": args.probe_mode,
         "diversity_variant": args.diversity_variant if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY else None,
+        "diversity_seed": args.diversity_seed if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DIVERSITY else None,
         "safety": {
             "proxy_only": True,
             "runs_exact_verifiers": False,
@@ -1222,6 +1236,7 @@ def main() -> int:
                 output_dir=args.output_dir,
                 run_id=run_id,
                 diversity_variant=args.diversity_variant,
+                diversity_seed=args.diversity_seed,
             )
         else:
             command_config = build_sampler_command(

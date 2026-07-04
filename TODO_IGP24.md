@@ -9,14 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  GPU export diversity work.
-- Active focus: GPU export diversity comparison completed; final commit/push
-  is in progress. The fixed-template short diversity variant greatly improved
-  uniqueness versus the duplicate-heavy medium baseline, while the
-  mixed/high-temp variant traded diversity for validity and proxy score. Keep
-  CPU proxy-search, shortlist export, and exact-tool prep primary. This
-  remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
-  SAIR/network calls, and no auto-submission behavior.
+  multi-seed fixed-template GPU export scale-up work.
+- Active focus: testing whether the diversity-preserving short
+  fixed-template GPU export scales across multiple seeds before any single
+  longer GPU export. The plan is three short export-only CUDA runs, separate
+  CPU score-all handoffs with local search disabled, and a dedup-aware merged
+  review. Keep CPU proxy-search, shortlist export, and exact-tool prep
+  primary. This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI
+  execution, no SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -586,6 +586,43 @@ results change.
       should test diversity-preserving scale-up, such as multiple short
       fixed-template seeds with dedup-aware CPU merge/review, before another
       single longer export.
+  - [in_progress] Test diversity-preserving fixed-template scale-up across
+    multiple short GPU seeds before any single longer export.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, probe/scoring helpers, `train.py`,
+      `src/evaluator.py`, and relevant tests.
+      - Result: Stage 4 remains present; normal `train.py` and integrated
+        train/sample/score defaults should stay unchanged. The smallest useful
+        workflow is an opt-in seed override for the existing diversity export
+        helper plus a proxy-only merge helper for scored export directories.
+    - [done] Add a bounded opt-in diversity seed override and a
+      dedup-aware scored-export merge helper.
+      - Result: `sample_export_split_diversity` now accepts
+        `--diversity_seed`; overridden seeds are threaded into the CUDA
+        command, summary, report, caps, and artifact names. Added
+        `scripts/igp24_merge_scored_exports.py` to merge scored export
+        directories without running exact verifiers, network calls, or
+        submissions.
+    - [done] Run focused tests, helper help checks, and compile/import
+      checks before the first periodic commit.
+      - Result: focused tests passed with 31 passed in 2.31s; compileall
+        passed for the edited helper/test files; GPU probe `--help` exposes
+        `--diversity_seed`; merge helper `--help` passed; import check passed
+        for the probe and merge helper.
+    - [pending] Run three short fixed-template GPU export-only seeds
+      (`2301`, `2302`, `2303`) with explicit timeout caps.
+    - [pending] Score each export on the CPU proxy path with
+      `--score_all true`, `--local_search false`, and
+      `--max_local_search_steps 0`.
+    - [pending] Merge the three scored JSONLs and report total scored,
+      valid/rejected, unique hashes, duplicate hash records, cross-seed
+      overlap, best/mean proxy score, top hash-deduped candidates, and
+      artifact paths.
+    - [pending] Update README, TODO, and any relevant notes with commands,
+      results, interpretation, and next recommendation.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, commit, and push.
 
 ## Tests And Checks
 
@@ -623,6 +660,9 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before multi-seed fixed-template GPU export
+    scale-up work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before short controlled GPU sampler probe work.
 - 2026-07-04: `git pull --ff-only`
