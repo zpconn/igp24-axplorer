@@ -1420,20 +1420,46 @@ results change.
         and `2402` validation table, the zero-duplicate diagnostics/scored
         outputs, and the recommendation that any medium dedup-aware run remain
         a bounded target/budget experiment with stop-reason auditing.
-    - [pending] Run final verification, confirm Stage 4 remains present,
+    - [done] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
+      - Focused split/export tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 38 passed in 1.22s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 79 passed in 1.62s.
+      - Compileall:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks passed for `igp24_gpu_sampler_probe.py`,
+        `igp24_score_sample_export.py`, `igp24_merge_scored_exports.py`, and
+        `igp24_export_diversity_diagnostic.py`.
+      - Import check passed:
+        `imports ok True True True True True True`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3429.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active `python3` processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 79 passed in 1.61s after opt-in dedup-aware export
-    control work.
+  - Latest result: 79 passed in 1.62s after larger dedup-aware export
+    validation.
 - [done] Run focused split/export tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
-  - Latest result: 38 passed in 1.23s after opt-in dedup-aware export
-    control work.
+  - Latest result: 38 passed in 1.22s after larger dedup-aware export
+    validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after opt-in dedup-aware export control work.
+  - Latest result: passed after larger dedup-aware export validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
