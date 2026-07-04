@@ -29,6 +29,7 @@ DEFAULT_STRATEGIES = [
     "structured",
     "four_real_seed",
     "quartic_lift",
+    "fixed_sparse_template",
     "mixed",
 ]
 DEFAULT_PRESETS = ["none", "r0", "r2", "r4"]
@@ -358,7 +359,8 @@ def get_parser() -> argparse.ArgumentParser:
         "--strategies",
         default=",".join(DEFAULT_STRATEGIES),
         help=(
-            "Comma-separated generation strategies, including quartic_lift; "
+            "Comma-separated generation strategies, including quartic_lift "
+            "and fixed_sparse_template; "
             "use preset_r0/preset_r2/preset_r4 for presets or "
             "benchmark-only r4 mix labels such as mix_r4_yield, "
             "mix_r4_balanced, mix_r4_diverse, mix_r4_dual_yield, "

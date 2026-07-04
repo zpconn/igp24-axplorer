@@ -131,7 +131,7 @@ results change.
   - Latest result: passed after adding the safe offline-verifier preparation
     helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
-  - Latest result: passed after safe offline-verifier preparation helper work.
+  - Latest result: passed after adding `fixed_sparse_template`.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -146,6 +146,13 @@ results change.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before fixed-support sparse template generation
     work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`
+  - Result: 24 passed in 1.16s after adding `fixed_sparse_template`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src/envs/igp24.py scripts/igp24_benchmark.py tests/test_igp24.py tests/test_igp24_benchmark.py`
+  - Result: passed after adding `fixed_sparse_template`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed; helper documents `fixed_sparse_template` as a direct
+    benchmark strategy alongside `quartic_lift`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe offline-verifier preparation
     workflow work.
@@ -1311,15 +1318,15 @@ down further as they become active.
 ### Stage 2: Structured Families And Exact-Tool Prep
 
 - [in_progress] Add an opt-in fixed-support sparse template generation family.
-  - [pending] Add a `fixed_sparse_template` strategy distinct from random
+  - [done] Add a `fixed_sparse_template` strategy distinct from random
     `sparse`, using a small hand-auditable set of support templates.
-  - [pending] Keep the strategy opt-in only; do not change default mixed
+  - [done] Keep the strategy opt-in only; do not change default mixed
     weights, default generation behavior, or `preset_r4`.
-  - [pending] Record ledger metadata for template name, support indices,
+  - [done] Record ledger metadata for template name, support indices,
     coefficient bound, and any target-r intent.
-  - [pending] Add focused tests for coefficient shape, template metadata,
+  - [done] Add focused tests for coefficient shape, template metadata,
     deterministic generation, CLI strategy validity, and unchanged defaults.
-  - [pending] Document the strategy in README/NOTES/TODO.
+  - [done] Document the strategy in README/NOTES/TODO.
   - [pending] Run a bounded CPU-only benchmark against `sparse` and
     `structured`, including at least `target_r=2`, and interpret proxy-only
     results without retuning defaults.

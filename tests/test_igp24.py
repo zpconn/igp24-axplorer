@@ -7,7 +7,9 @@ sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
 from src.envs.igp24 import (
+    DEFAULT_MIXED_STRATEGY_WEIGHTS,
     IGP24DataPoint,
+    IGP24_GENERATION_STRATEGIES,
     format_mixed_strategy_weights,
     parse_mixed_strategy_weights,
     resolve_generation_preset,
@@ -189,7 +191,16 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
     IGP24DataPoint.COEFF_BOUND = 5
     IGP24DataPoint.SPARSE_TERMS = 4
     IGP24DataPoint.LOW_HEIGHT_BOUND = 2
-    for strategy in ["uniform", "low_height", "sparse", "lower_degree", "structured", "four_real_seed", "quartic_lift"]:
+    for strategy in [
+        "uniform",
+        "low_height",
+        "sparse",
+        "lower_degree",
+        "structured",
+        "four_real_seed",
+        "quartic_lift",
+        "fixed_sparse_template",
+    ]:
         np_seed = {
             "uniform": 11,
             "low_height": 12,
@@ -198,6 +209,7 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
             "structured": 15,
             "four_real_seed": 16,
             "quartic_lift": 17,
+            "fixed_sparse_template": 18,
         }[strategy]
         np.random.seed(np_seed)
         IGP24DataPoint.GENERATION_STRATEGY = strategy
@@ -224,6 +236,33 @@ def test_generation_strategies_are_bounded_and_metadata_is_set():
             assert coeffs[12] != 0
             assert coeffs[18] != 0
             assert any(coeffs[index] != 0 for index in range(DEGREE) if index not in core_support)
+        if strategy == "fixed_sparse_template":
+            details = IGP24DataPoint.LAST_GENERATION_DETAILS
+            support = details["fixed_sparse_support"]
+            assert details["fixed_sparse_template_name"]
+            assert 0 in support
+            assert sorted(index for index, coeff in enumerate(coeffs) if coeff != 0) == sorted(support)
+            assert set(details["fixed_sparse_coefficients"]) == {str(index) for index in support}
+
+
+def test_fixed_sparse_template_generation_is_deterministic_and_cli_selectable(tmp_path):
+    params = _igp24_params(tmp_path, seed=4242, strategy="fixed_sparse_template")
+    build_env(params)
+    first_coeffs, first_strategy = IGP24DataPoint._generate_coefficients()
+    first_details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+
+    build_env(params)
+    second_coeffs, second_strategy = IGP24DataPoint._generate_coefficients()
+    second_details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+
+    assert "fixed_sparse_template" in IGP24_GENERATION_STRATEGIES
+    assert first_strategy == "fixed_sparse_template"
+    assert second_strategy == "fixed_sparse_template"
+    assert first_coeffs == second_coeffs
+    assert first_details == second_details
+    assert len(first_coeffs) == DEGREE
+    assert max(abs(c) for c in first_coeffs) <= params.coeff_bound
+    assert sorted(index for index, coeff in enumerate(first_coeffs) if coeff != 0) == sorted(first_details["fixed_sparse_support"])
 
 
 def test_mixed_strategy_weights_are_normalized_and_selectable():
@@ -233,6 +272,7 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert weights["sparse"] == 0.0
     assert weights["four_real_seed"] == 0.0
     assert weights["quartic_lift"] == 0.0
+    assert weights["fixed_sparse_template"] == 0.0
     assert "structured:0.7500" in format_mixed_strategy_weights(weights)
 
     IGP24DataPoint.GENERATION_STRATEGY = "mixed"
@@ -242,8 +282,23 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert observed == "quartic_lift"
     assert len(coeffs) == DEGREE
 
+    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("fixed_sparse_template:1")
+    np.random.seed(101)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    assert observed == "fixed_sparse_template"
+    assert len(coeffs) == DEGREE
+
 
 def test_generation_presets_resolve_explicitly_without_changing_default():
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["uniform"] == 0.10
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["low_height"] == 0.20
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["sparse"] == 0.25
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["lower_degree"] == 0.20
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["structured"] == 0.25
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["four_real_seed"] == 0.0
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["quartic_lift"] == 0.0
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["fixed_sparse_template"] == 0.0
+
     no_preset = resolve_generation_preset(
         "none",
         "sparse",
@@ -269,6 +324,7 @@ def test_generation_presets_resolve_explicitly_without_changing_default():
     assert r4["target_r_intent"] == 4
     assert r4["resolved_mixed_strategy_weights"]["four_real_seed"] == 0.8
     assert r4["resolved_mixed_strategy_weights"]["sparse"] == 0.2
+    assert r4["resolved_mixed_strategy_weights"]["fixed_sparse_template"] == 0.0
 
 
 def test_environment_applies_generation_preset_and_keeps_seed_determinism(tmp_path):
@@ -422,6 +478,58 @@ def test_quartic_lift_ledger_metadata_identifies_template_and_perturbations(tmp_
     assert latest["generation_metadata"]["quartic_lift_coefficients_y"] == [2, 1, -3, -1, 1]
     assert latest["generation_metadata"]["perturbation_coefficients"] == {"1": 1}
     assert "y=x^6" in latest["generation_metadata"]["seed_template"]
+
+
+def test_fixed_sparse_template_ledger_metadata_identifies_support(tmp_path):
+    IGP24DataPoint._update_class_params(
+        {
+            "COEFF_BOUND": 5,
+            "TARGET_R": 2,
+            "TARGET_T": None,
+            "PRIME_LIMIT": 7,
+            "MAX_LOCAL_SEARCH_STEPS": 0,
+            "DISCRIMINANT_WEIGHT": 1.0,
+            "HEIGHT_WEIGHT": 1.0,
+            "CYCLE_DIVERSITY_WEIGHT": 5.0,
+            "EXACT_SCORE_TIMEOUT": 0.0,
+            "LEDGER_PATH": str(tmp_path / "fixed_sparse_template_ledger.jsonl"),
+            "WRITE_LEDGER": True,
+            "EXPERIMENT_NAME": "pytest",
+            "SEED": 4242,
+            "TRANSLATION_RADIUS": 2,
+            "KNOWN_HASHES": set(),
+            "GENERATION_STRATEGY": "fixed_sparse_template",
+            "SPARSE_TERMS": 4,
+            "LOW_HEIGHT_BOUND": 2,
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("fixed_sparse_template:1"),
+            "GENERATION_PRESET": "none",
+            "GENERATION_PRESET_TARGET_R": None,
+            "LAST_GENERATION_DETAILS": {
+                "fixed_sparse_template_name": "r2_even_spine",
+                "fixed_sparse_support": [0, 2, 4, 6, 12, 18, 22],
+                "fixed_sparse_coefficients": {"0": -2},
+                "target_r_heuristic": 2,
+            },
+            "ALWAYS_SEARCH": False,
+            "REDEEM_ONLY": False,
+        }
+    )
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=VALID, generation_strategy="fixed_sparse_template")
+    datapoint.generation_details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+    datapoint.calc_score()
+    records = CandidateLedger(tmp_path / "fixed_sparse_template_ledger.jsonl").records()
+
+    assert records
+    latest = records[-1]
+    metadata = latest["generation_metadata"]
+    assert metadata["strategy"] == "fixed_sparse_template"
+    assert metadata["fixed_sparse_template_name"] == "r2_even_spine"
+    assert metadata["fixed_sparse_support"] == [0, 2, 4, 6, 12, 18, 22]
+    assert metadata["fixed_sparse_coefficients"] == {"0": -2}
+    assert metadata["fixed_sparse_coefficient_bound"] == 5
+    assert metadata["target_r_heuristic"] == 2
+    assert metadata["fixed_sparse_extra_nonzero_indices"] == []
+    assert metadata["seed_template"] == "fixed_support_sparse_integer_coefficients"
 
 
 def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path):

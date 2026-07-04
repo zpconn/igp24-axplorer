@@ -77,12 +77,12 @@ Useful IGP24-specific generation flags:
 --igp24_generation_preset none
 --igp24_sparse_terms 4
 --igp24_low_height_bound 3
---igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00,quartic_lift:0.00
+--igp24_mixed_strategy_weights uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00,quartic_lift:0.00,fixed_sparse_template:0.00
 ```
 
 `--igp24_generation_strategy` can be `mixed`, `uniform`, `low_height`,
 `sparse`, `lower_degree`, `structured`, `four_real_seed`, or
-`quartic_lift`.
+`quartic_lift`, or `fixed_sparse_template`.
 
 The strategies are:
 
@@ -95,10 +95,14 @@ The strategies are:
   with small odd perturbations.
 - `quartic_lift`: an experimental `target_r=4`-oriented quartic-in-`x^6`
   seed with small off-support perturbations.
+- `fixed_sparse_template`: an opt-in sparse family that chooses from a small
+  hand-auditable set of fixed coefficient supports before sampling bounded
+  nonzero coefficients.
 - `mixed`: a weighted mix of the above.
 
-The default `mixed` weights keep `four_real_seed` and `quartic_lift` at zero
-weight. Use them explicitly when running `target_r=4` experiments.
+The default `mixed` weights keep `four_real_seed`, `quartic_lift`, and
+`fixed_sparse_template` at zero weight. Use them explicitly when running
+targeted experiments.
 
 Target-specific presets are opt-in with `--igp24_generation_preset`. The
 default `none` preserves the explicit strategy and weight settings. Available
@@ -201,6 +205,10 @@ These labels are benchmark-only conveniences. Use `preset_r4` for the actual
 opt-in generation preset, `four_real_seed` directly when r4 yield is the main
 priority, or the dual labels to compare `four_real_seed` yield with
 `quartic_lift` peak proxy quality.
+
+For fixed-support sparse experiments, include `fixed_sparse_template` directly
+in `--strategies`, for example alongside `sparse` and `structured` for
+`target_r=2` comparisons.
 
 ## Export Proxy Shortlists
 

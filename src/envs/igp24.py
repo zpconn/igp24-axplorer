@@ -30,6 +30,7 @@ IGP24_GENERATION_STRATEGIES = [
     "structured",
     "four_real_seed",
     "quartic_lift",
+    "fixed_sparse_template",
 ]
 DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "uniform": 0.10,
@@ -39,6 +40,7 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "structured": 0.25,
     "four_real_seed": 0.0,
     "quartic_lift": 0.0,
+    "fixed_sparse_template": 0.0,
 }
 IGP24_GENERATION_PRESETS = {
     "none": {
@@ -196,6 +198,7 @@ class IGP24DataPoint(DataPoint):
     MIXED_STRATEGY_WEIGHTS = DEFAULT_MIXED_STRATEGY_WEIGHTS.copy()
     GENERATION_PRESET = "none"
     GENERATION_PRESET_TARGET_R = None
+    LAST_GENERATION_DETAILS = {}
 
     def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None):
         super().__init__()
@@ -205,9 +208,11 @@ class IGP24DataPoint(DataPoint):
         self.coefficients = tuple(validate_coefficients(coeffs)) if coeffs is not None else tuple([0] * DEGREE)
         self.analysis = None
         self.generation_strategy = generation_strategy or "manual"
+        self.generation_details = {}
         self.local_search_stats = {}
         if init:
             self.coefficients, self.generation_strategy = self._generate_coefficients()
+            self.generation_details = dict(self.LAST_GENERATION_DETAILS)
             self.calc_features()
             self.calc_score()
 
@@ -342,6 +347,47 @@ class IGP24DataPoint(DataPoint):
             coeffs[int(index)] = cls._nonzero_random_int(1)
         return tuple(coeffs)
 
+    @staticmethod
+    def _fixed_sparse_templates():
+        return (
+            {
+                "name": "r2_even_spine",
+                "support": (0, 2, 4, 6, 12, 18, 22),
+                "target_r_heuristic": 2,
+            },
+            {
+                "name": "divisor_ladder_3",
+                "support": (0, 3, 6, 9, 12, 15, 18, 21),
+                "target_r_heuristic": None,
+            },
+            {
+                "name": "low_high_bridge",
+                "support": (0, 1, 2, 5, 8, 13, 17, 23),
+                "target_r_heuristic": None,
+            },
+            {
+                "name": "r2_tail_bridge",
+                "support": (0, 1, 4, 7, 12, 16, 20, 23),
+                "target_r_heuristic": 2,
+            },
+        )
+
+    @classmethod
+    def _fixed_sparse_template_coefficients(cls):
+        templates = cls._fixed_sparse_templates()
+        template = templates[int(np.random.randint(len(templates)))]
+        support = tuple(int(index) for index in template["support"])
+        coeffs = [0] * DEGREE
+        for index in support:
+            coeffs[index] = cls._nonzero_random_int(cls.COEFF_BOUND)
+        cls.LAST_GENERATION_DETAILS = {
+            "fixed_sparse_template_name": template["name"],
+            "fixed_sparse_support": list(support),
+            "fixed_sparse_coefficients": {str(index): int(coeffs[index]) for index in support},
+            "target_r_heuristic": template["target_r_heuristic"],
+        }
+        return tuple(coeffs)
+
     @classmethod
     def _select_generation_strategy(cls):
         strategy = cls.GENERATION_STRATEGY
@@ -353,6 +399,7 @@ class IGP24DataPoint(DataPoint):
 
     @classmethod
     def _generate_coefficients(cls):
+        cls.LAST_GENERATION_DETAILS = {}
         strategy = cls._select_generation_strategy()
         if strategy == "uniform":
             return cls._uniform_coefficients(), strategy
@@ -368,6 +415,8 @@ class IGP24DataPoint(DataPoint):
             return cls._four_real_seed_coefficients(), strategy
         if strategy == "quartic_lift":
             return cls._quartic_lift_coefficients(), strategy
+        if strategy == "fixed_sparse_template":
+            return cls._fixed_sparse_template_coefficients(), strategy
         raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
 
     @classmethod
@@ -466,6 +515,33 @@ class IGP24DataPoint(DataPoint):
                     "perturbation_coefficients": perturbations,
                 }
             )
+        if self.generation_strategy == "fixed_sparse_template":
+            details = dict(self.generation_details)
+            support = [int(index) for index in details.get("fixed_sparse_support", [])]
+            if not support:
+                support = [index for index, coefficient in enumerate(self.coefficients) if coefficient != 0]
+            support_set = set(support)
+            extra_nonzero = [
+                index
+                for index, coefficient in enumerate(self.coefficients)
+                if coefficient != 0 and index not in support_set
+            ]
+            generation_metadata.update(
+                {
+                    "fixed_sparse_template_name": details.get("fixed_sparse_template_name", "manual_or_unknown"),
+                    "fixed_sparse_support": support,
+                    "fixed_sparse_coefficients": {
+                        str(index): int(self.coefficients[index])
+                        for index in support
+                        if 0 <= index < DEGREE and self.coefficients[index] != 0
+                    },
+                    "fixed_sparse_extra_nonzero_indices": extra_nonzero,
+                    "fixed_sparse_coefficient_bound": int(self.COEFF_BOUND),
+                    "seed_template": "fixed_support_sparse_integer_coefficients",
+                }
+            )
+            if details.get("target_r_heuristic") is not None:
+                generation_metadata["target_r_heuristic"] = int(details["target_r_heuristic"])
         record = analysis_to_record(
             self.analysis,
             self.score,
@@ -677,6 +753,7 @@ class IGP24DataPoint(DataPoint):
             "MIXED_STRATEGY_WEIGHTS": dict(cls.MIXED_STRATEGY_WEIGHTS),
             "GENERATION_PRESET": cls.GENERATION_PRESET,
             "GENERATION_PRESET_TARGET_R": cls.GENERATION_PRESET_TARGET_R,
+            "LAST_GENERATION_DETAILS": dict(cls.LAST_GENERATION_DETAILS),
         }
 
 

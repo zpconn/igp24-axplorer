@@ -182,6 +182,14 @@ score and best single proxy score in that batch. This makes it a promising
 quality-oriented r4 family, but one proxy-only run is not enough to change the
 default mixed weights or the balanced `r4` preset.
 
+The next Stage-2 generation addition is `fixed_sparse_template`. Unlike the
+existing random `sparse` generator, it samples from a small catalog of fixed
+coefficient supports, then assigns bounded nonzero integer coefficients on
+that support. This makes the seed family easier to audit and compare in
+benchmarks. It remains opt-in and has zero default mixed weight; its metadata
+records the template name, support indices, coefficient bound, and any
+target-r heuristic.
+
 A follow-up benchmark tested helper-only mixes combining `four_real_seed` and
 `quartic_lift`. The quality-leaning mix
 `four_real_seed:0.25,quartic_lift:0.75` had the best tradeoff in that bounded
