@@ -10,14 +10,12 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   split workflow hardening work.
-- Latest focus complete: the GPU sample-export -> CPU proxy-scoring workflow
-  now writes a combined audit manifest/report, records duplicate/hash
-  summaries, and has a larger short split smoke with 1024 exported rows and a
-  512-row CPU scoring subset. Keep CPU proxy-search, shortlist export, and
-  exact-tool prep primary. Do one more short split smoke before any medium
-  30-60 minute GPU run. This remains proxy-only: no exact `24Tt` labels, no
-  MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
-  behavior.
+- Active focus: validate the GPU sample-export -> CPU proxy-scoring workflow
+  on a full short-run handoff by scoring all decoded exported rows, not just a
+  capped subset. Keep CPU proxy-search, shortlist export, and exact-tool prep
+  primary. Do not start a medium 30-60 minute GPU run yet. This remains
+  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
+  calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -378,6 +376,26 @@ results change.
     - Result: docs record the larger split smoke and recommend one more short
       split smoke, preferably all-row scoring or a small target-setting
       comparison, before any medium 30-60 minute GPU run.
+- [in_progress] Validate the split workflow with all decoded export rows
+  scored in a short handoff.
+  - [done] Pull latest before starting.
+    - Result: `git pull --ff-only` was already up to date.
+  - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+    `scripts/igp24_gpu_sampler_probe.py`, `scripts/igp24_score_sample_export.py`,
+    and relevant tests.
+    - Result: the opt-in export path remains isolated from normal `train.py`
+      behavior, and `scripts/igp24_score_sample_export.py` already records
+      `selection_mode=all_explicit` when `--score_all true` is used.
+  - [done] Add or tighten focused tests for all-row scoring/report behavior.
+    - Result: added a score-all regression test proving all exported records
+      are selected, `score_all` stays true, `max_records` stays unset, and the
+      split manifest records `selection_mode=all_explicit`.
+  - [pending] Run a short GPU export smoke around the current 1024-row scale.
+  - [pending] Score all decoded export rows with `--score_all true`,
+    `--local_search false`, and `--max_local_search_steps 0`.
+  - [pending] Update README, NOTES, and TODO with exact commands, artifact
+    paths, counts, interpretation, and whether a later medium GPU run is
+    justified.
 
 ## Tests And Checks
 
@@ -421,6 +439,12 @@ results change.
   - Result: already up to date before GPU sample-export decoupling work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before split workflow hardening work.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before score-all split handoff validation.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
+  - Result: 23 passed in 2.42s after adding score-all manifest regression
+    coverage.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 22 passed in 1.15s after adding split manifest/report,

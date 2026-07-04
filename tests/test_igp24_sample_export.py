@@ -96,6 +96,52 @@ def test_score_export_records_consumes_decoded_samples_without_local_search():
     assert all(record["generation_metadata"]["strategy"] == "model_sample_export" for record in scored)
 
 
+def test_score_all_mode_selects_every_exported_record_and_manifest_records_mode():
+    args = argparse.Namespace(
+        coeff_bound=4,
+        target_r=None,
+        target_t=None,
+        prime_limit=5,
+        max_local_search_steps=0,
+        discriminant_weight=1.0,
+        height_weight=1.0,
+        cycle_diversity_weight=5.0,
+        exact_score_timeout=1.0,
+        exp_name="test_score_export_all",
+        seed=123,
+        translation_radius=1,
+        max_records=None,
+        score_all=True,
+        local_search=False,
+    )
+    records = [
+        {"sample_index": 0, "decoded_coefficients": [1] + [0] * 23, "temperature": 0.9, "top_k": 9, "device": "cuda"},
+        {"sample_index": 1, "decoded_coefficients": [0, 1] + [0] * 22, "temperature": 0.9, "top_k": 9, "device": "cuda"},
+        {"sample_index": 2, "decoded_coefficients": None, "temperature": 0.9, "top_k": 9, "device": "cuda"},
+    ]
+
+    scored, summary = score_export_records(records, args=args, source_path="samples.jsonl")
+    manifest = build_split_manifest(
+        score_summary=summary,
+        gpu_summary=None,
+        gpu_summary_path=None,
+        source_commit="abc123",
+        score_command="python3 scripts/igp24_score_sample_export.py --score_all true",
+    )
+
+    assert summary["records_read"] == 3
+    assert summary["records_selected"] == 3
+    assert summary["selection_mode"] == "all_explicit"
+    assert summary["score_all"] is True
+    assert summary["max_records"] is None
+    assert summary["skipped_decode_records"] == 1
+    assert summary["scored_records"] == len(scored)
+    assert manifest["cpu_phase"]["selection_mode"] == "all_explicit"
+    assert manifest["cpu_phase"]["max_records"] is None
+    assert manifest["cpu_phase"]["records_selected"] == 3
+    assert "--score_all true" in manifest["commands"]["cpu_score"]
+
+
 def test_summarize_scored_records_counts_duplicate_hashes():
     records = [
         {"canonical_hash": "a", "score": 10.0, "verification_status": "proxy_scored"},
