@@ -108,9 +108,9 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 18 passed in 0.65s after `four_real_seed` work.
+  - Latest result: 21 passed in 0.66s after target-specific preset work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after `four_real_seed` work.
+  - Latest result: passed after target-specific preset work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -143,6 +143,16 @@ results change.
   - Result: 125 preset ledger records included `generation_preset='r4'`,
     `preset_target_r=4`, `resolved_generation_strategy='mixed'`, and resolved
     mixed weights `four_real_seed:0.8,sparse:0.2`.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 21 passed in 0.66s after target-specific preset work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed after target-specific preset work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed after target-specific preset work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before `target_r=4` generation work.
 - 2026-07-04: local scorer probe for odd-perturbed
