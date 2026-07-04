@@ -610,8 +610,48 @@ results change.
         passed for the edited helper/test files; GPU probe `--help` exposes
         `--diversity_seed`; merge helper `--help` passed; import check passed
         for the probe and merge helper.
-    - [pending] Run three short fixed-template GPU export-only seeds
+    - [done] Run three short fixed-template GPU export-only seeds
       (`2301`, `2302`, `2303`) with explicit timeout caps.
+      - Seed `2301` command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t09_top9 --diversity_seed 2301 --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2301` result: return code 0, no timeout, runtime 150.639s,
+        `device: cuda`, 4 finite eval points, final train/test loss about
+        `0.418` / `1.635`, max monitored GPU utilization 99.0%, average
+        monitored GPU utilization 81.027%, max CUDA reserved 242 MiB, 2048
+        export rows, 2040 decoded rows, and GPU-side CPU scoring/local
+        search/dataset update avoided. During the run, `nvidia-smi` also
+        showed about 98% GPU utilization and about 10958 MiB in use.
+      - Seed `2301` artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_sampler_probe_report.md`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2301/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2301.jsonl`.
+      - Seed `2302` command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t09_top9 --diversity_seed 2302 --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2302` result: return code 0, no timeout, runtime 152.238s,
+        `device: cuda`, 4 finite eval points, final train/test loss about
+        `0.298` / `2.087`, max monitored GPU utilization 99.0%, average
+        monitored GPU utilization 80.0%, max CUDA reserved 242 MiB, 2048
+        export rows, 2047 decoded rows, and GPU-side CPU scoring/local
+        search/dataset update avoided.
+      - Seed `2302` artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_sampler_probe_report.md`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2302/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2302.jsonl`.
+      - Seed `2303` command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t09_top9 --diversity_seed 2303 --output_dir /tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2303` result: return code 0, no timeout, runtime 148.275s,
+        `device: cuda`, 4 finite eval points, final train/test loss about
+        `0.434` / `1.829`, max monitored GPU utilization 99.0%, average
+        monitored GPU utilization 81.653%, max CUDA reserved 242 MiB, 2048
+        export rows, 2043 decoded rows, and GPU-side CPU scoring/local
+        search/dataset update avoided.
+      - Seed `2303` artifacts:
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_sampler_probe_report.md`,
+        and
+        `/tmp/igp24_gpu_multiseed_fixed_template_20260704/seed2303/gpu_model_sample_export_diversity_fixed_template_t09_top9_seed2303.jsonl`.
     - [pending] Score each export on the CPU proxy path with
       `--score_all true`, `--local_search false`, and
       `--max_local_search_steps 0`.
