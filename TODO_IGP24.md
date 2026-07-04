@@ -10,8 +10,8 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   target-specific preset work.
-- Active focus: add opt-in target-specific generation presets without changing
-  default generation behavior.
+- Active focus: opt-in target-specific generation presets are implemented and
+  the first `r4` preset benchmark is documented.
 
 ## Stage 0: Scaffold
 
@@ -51,14 +51,14 @@ results change.
   - [done] Add focused generation, metadata, and determinism tests.
   - [done] Benchmark against current `sparse` and `mixed` baselines on
     `target_r=4`.
-- [in_progress] Add opt-in target-specific generation presets.
+- [done] Add opt-in target-specific generation presets.
   - [done] Add `--igp24_generation_preset` with `none`, `r0`, `r2`,
     and `r4` choices.
   - [done] Preserve default behavior when no preset is selected.
   - [done] Record preset name, target-r intent, resolved strategy, and
     resolved mixed weights in ledger metadata.
   - [done] Add focused preset tests and benchmark helper support.
-  - [pending] Benchmark the `r4` preset against baseline `mixed` and explicit
+  - [done] Benchmark the `r4` preset against baseline `mixed` and explicit
     `four_real_seed`.
 
 ## Stage 1: Scoring And Metadata
@@ -131,6 +131,18 @@ results change.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
   - Result: passed; helper documents `preset_r0`, `preset_r2`, and
     `preset_r4` benchmark labels.
+- 2026-07-04:
+  `/usr/bin/time -f 'elapsed_seconds %e' env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies mixed,four_real_seed,preset_r4 --seeds 501,502,503,504 --target_rs 4 --coeff_bound 4 --gensize 18 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_r4_preset_bench_20260704`
+  - Result: passed; 12 CPU-only `target_r=4` preset benchmark runs completed
+    in 53.88 seconds wall-clock.
+- 2026-07-04:
+  `python3 -c "import json; p='/tmp/igp24_r4_preset_bench_20260704/summary.json'; data=json.load(open(p)); print(len(data), all(r['returncode']==0 for r in data), all(r.get('metadata_complete') for r in data), sorted({r['strategy'] for r in data}), sorted({r['target_r'] for r in data})); print(sum(r.get('valid_candidates') or 0 for r in data), sum(r.get('ledger_records') or 0 for r in data), sum(r.get('target_r_match_count') or 0 for r in data))"`
+  - Result: `12 True True ['four_real_seed', 'mixed', 'preset_r4'] [4]`
+    and `215 379 180`.
+- 2026-07-04: inspected `preset_r4` benchmark ledgers for metadata.
+  - Result: 125 preset ledger records included `generation_preset='r4'`,
+    `preset_target_r=4`, `resolved_generation_strategy='mixed'`, and resolved
+    mixed weights `four_real_seed:0.8,sparse:0.2`.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before `target_r=4` generation work.
 - 2026-07-04: local scorer probe for odd-perturbed
@@ -464,6 +476,57 @@ Interpretation:
   include `four_real_seed` for `target_r=4`, but it needs a larger run and
   eventually exact external verification before promotion.
 
+### 2026-07-04 R4 Preset Benchmark
+
+- Command: see command log above.
+- Output directory: `/tmp/igp24_r4_preset_bench_20260704`.
+- Summary files:
+  - `/tmp/igp24_r4_preset_bench_20260704/summary.json`
+  - `/tmp/igp24_r4_preset_bench_20260704/summary.jsonl`
+  - `/tmp/igp24_r4_preset_bench_20260704/aggregate_summary.json`
+- Configuration:
+  - Strategies: baseline `mixed`, explicit `four_real_seed`, and
+    `preset_r4`.
+  - Preset resolution: `preset_r4` runs as `--igp24_generation_strategy mixed`
+    and `--igp24_generation_preset r4`, resolving to
+    `four_real_seed:0.8,sparse:0.2`.
+  - Target: `target_r=4`.
+  - Seeds: `501`, `502`, `503`, `504`.
+  - `coeff_bound=4`, `gensize=18`, `pop_size=8`,
+    `max_local_search_steps=4`, `prime_limit=11`.
+  - CPU-only, `process_pool=false`, no MAGMA/PARI/SAIR/CUDA.
+- Wall-clock runtime: 53.88 seconds.
+- All 12 runs returned code 0.
+- Artifact audit:
+  - Summary rows: 12.
+  - Valid candidates: 215.
+  - Ledger records: 379.
+  - Target-r matching records: 180.
+  - All summary records included complete score/generation/local-search
+    metadata.
+  - `preset_r4` ledger records included preset name, target-r intent, resolved
+    strategy, and resolved mixed weights.
+
+| Strategy | Target | Runs | Avg Runtime | Valid Total | Ledger Records | Match Total | Avg Match Rate | Avg Best | Avg Best Match | Avg Mean | Best | Local Acceptance |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `four_real_seed` | `r=4` | 4 | 4.27s | 71 | 123 | 89 | 0.728 | 10193.071 | 10193.071 | 10132.778 | 10195.370 | 0.364 |
+| `mixed` | `r=4` | 4 | 5.05s | 72 | 131 | 28 | 0.213 | 10195.711 | 10195.711 | 10047.644 | 10201.811 | 0.442 |
+| `preset_r4` | `r=4` | 4 | 4.00s | 72 | 125 | 63 | 0.503 | 10198.249 | 10198.249 | 10096.563 | 10203.117 | 0.406 |
+
+Interpretation:
+
+- `preset_r4` improved over baseline `mixed` on `r=4` match rate and average
+  mean score, while preserving some sparse diversity.
+- Explicit `four_real_seed` still had the strongest `r=4` match rate in this
+  bounded run: 0.728 versus 0.503 for `preset_r4`.
+- `preset_r4` found the best single score and strongest average best score in
+  this batch, so the sparse-diversity blend may help peak quality even though
+  it dilutes target-r yield.
+- The preset did not beat explicit `four_real_seed` on target-r match rate; do
+  not promote it as strictly better. Treat it as a named convenience preset
+  with a yield/quality tradeoff that needs larger validation.
+- Default generation remains unchanged because presets are opt-in.
+
 ## Blockers / Environment Notes
 
 - The previous stage-0 run used a temporary dependency target at
@@ -546,9 +609,9 @@ down further as they become active.
   defaults.
 - [done] Add an experimental `target_r=4`-friendlier `four_real_seed`
   generation family.
-- [pending] Add target-specific benchmark presets or docs for promising
+- [done] Add target-specific benchmark presets or docs for promising
   strategy/target pairs.
 - [pending] Run a larger `target_r=4` validation with `four_real_seed`,
-  `sparse`, and tuned target-specific mixes before promoting presets.
+  `preset_r4`, and tuned target-specific mixes before promoting presets.
 - [pending] Run a longer focused `target_r=2` comparison between `sparse` and
   `structured`.

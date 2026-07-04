@@ -93,7 +93,7 @@ the `mixed` strategy now weights sparse and structured generation more heavily
 than uniform generation, while keeping all strategies active:
 
 ```text
-uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
+uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25,four_real_seed:0.00
 ```
 
 This weighting is a stage-1 heuristic only. It should be revisited after larger
@@ -136,6 +136,26 @@ rate to 0.792, versus 0.200 for `mixed` and 0.164 for `sparse`. It also
 improved average mean score, but `sparse` still found the best single candidate
 score in that batch. Treat this as evidence that the family is useful for
 target-yield, not as proof that it is best for final candidate quality.
+
+Target-specific presets are now available through the opt-in
+`--igp24_generation_preset` flag. The `none` preset preserves explicit
+strategy and mixed-weight settings. The current named presets are:
+
+- `r0`: use `structured` generation, matching the strongest `r=0` short-run
+  evidence,
+- `r2`: use a sparse/structured mixed strategy,
+- `r4`: use a mixed strategy weighted toward `four_real_seed` with sparse
+  diversity.
+
+Preset metadata is recorded in ledger rows, including the preset name,
+target-r intent, resolved strategy, and resolved mixed weights. A bounded
+`target_r=4` comparison over baseline `mixed`, explicit `four_real_seed`, and
+`preset_r4` showed the intended tradeoff: `preset_r4` improved over baseline
+`mixed` on match rate and average score, and found the best single proxy score
+in the batch, but explicit `four_real_seed` still had the stronger `r=4` match
+rate. This means the preset is a useful convenience and diversity experiment,
+not a replacement for explicit `four_real_seed` when target-r yield is the only
+goal.
 
 ## Why Random Polynomials Are Limited
 
