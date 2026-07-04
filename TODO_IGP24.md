@@ -9,10 +9,11 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  larger `mix_r4_dual_quality` confirmation work.
-- Active focus: larger `mix_r4_dual_quality` confirmation and final checks
-  are complete. Evidence is mixed, so `preset_r4` remains unchanged pending
-  more targeted confirmation.
+  second r4 preset confirmation work.
+- Active focus: run the second CPU-only `target_r=4` confirmation directly
+  comparing current `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`, and
+  controls on fresh disjoint seeds before deciding whether to retune
+  `preset_r4`.
 
 ## Stage 0: Scaffold
 
@@ -134,6 +135,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before second r4 preset confirmation work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `mix_r4_dual_quality`
     confirmation work.
@@ -944,6 +947,17 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
+- [in_progress] Run second direct r4 preset confirmation.
+  - [pending] Run a fresh disjoint-seed CPU-only `target_r=4` comparison
+    across `preset_r4`, `quartic_lift`, `mix_r4_dual_yield`,
+    `mix_r4_dual_quality`, `four_real_seed`, and
+    `mix_r4_dual_balanced`.
+  - [pending] Audit return codes, expected summary row count, metadata
+    completeness, aggregate fields, and dual-mix ledger metadata.
+  - [pending] Decide whether `preset_r4` should remain unchanged, retune
+    toward `quartic_lift`, or retune to the dual-yield mix.
+  - [pending] If retuning, update focused tests plus README/NOTES/TODO; if
+    not retuning, document the tradeoff and next task.
 - [done] Confirm whether `preset_r4` should retune to
   `mix_r4_dual_quality`.
   - [done] Run a larger 12-seed CPU-only `target_r=4` confirmation across
@@ -1048,5 +1062,5 @@ down further as they become active.
   `preset_r4`.
 - [done] Run a larger confirmation benchmark centered on
   `mix_r4_dual_quality` before retuning `preset_r4`.
-- [pending] Run a second confirmation that directly compares `quartic_lift`,
+- [in_progress] Run a second confirmation that directly compares `quartic_lift`,
   `mix_r4_dual_yield`, and current `preset_r4` before changing the r4 preset.
