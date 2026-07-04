@@ -1189,9 +1189,58 @@ results change.
         `--probe_mode sample_export_split_dedup`, the new `train.py` export
         flags, the sidecar `EXPORT.jsonl.summary.json`, and the key summary
         fields for interpreting duplicate avoidance.
-    - [pending] Run a short bounded GPU export-only smoke with the new mode,
+    - [done] Run a short bounded GPU export-only smoke with the new mode,
       raw export diagnostics immediately afterward, and bounded CPU scoring
       only if diagnostics justify it.
+      - First in-sandbox command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2401 --dedup_unique_target 512 --dedup_max_attempts 2048 --dedup_progress_interval 128 --output_dir /tmp/igp24_gpu_dedup_export_20260704/seed2401 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Result: sandboxed NVML/CUDA access was blocked, so the helper wrote
+        a skipped GPU summary with PyTorch CUDA unavailable in that context.
+        The same bounded command was rerun outside the sandbox for actual GPU
+        validation.
+      - GPU dedup smoke command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2401 --dedup_unique_target 512 --dedup_max_attempts 2048 --dedup_progress_interval 128 --output_dir /tmp/igp24_gpu_dedup_export_20260704/seed2401 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - GPU dedup smoke result: return code 0, no timeout, runtime
+        147.243s, `device: cuda`, four finite eval points, final train/test
+        loss about `0.323` / `1.951`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 80.736%, max CUDA reserved 242
+        MiB, and GPU-phase CPU scoring/local search/dataset update avoided.
+      - Dedup export result: target 512 unique decoded coefficient vectors
+        reached after 1439 attempts out of a 2048-attempt budget; 516 rows
+        written, 512 decoded rows, 4 invalid decode rows, 512 unique decoded
+        coefficient vectors, 923 duplicate decoded rows skipped, and
+        `stop_reason=unique_target_reached`.
+      - Raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u512_a2048.jsonl --labels seed2401_t11_open_dedup_u512 --output_dir /tmp/igp24_gpu_dedup_export_20260704/seed2401/export_diversity_diagnostic --checkpoint_interval 128 --top_n 10`
+      - Raw diagnostic result: return code 0, 516 rows read, 512 decoded,
+        4 invalid decode, 512 exact unique coefficient vectors, 0 exact
+        duplicate records, 512 canonical unique hashes, 0 canonical duplicate
+        records, 512 token unique sequences, and 0 token duplicate records.
+      - CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u512_a2048.jsonl --output_dir /tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - CPU score result: return code 0, runtime 19.968s,
+        `selection_mode=all_explicit`, 516 rows read/selected, 512 decoded
+        input rows, 4 skipped decode, 512 scored, 501 valid, 11 rejected, 512
+        unique canonical hashes, 0 duplicate hash records, best score
+        9954.661, mean score 9708.264, and local search disabled.
+      - Interpretation: the dedup-aware export reduced duplicate waste on
+        the known duplicate-heavy `t11_open` seed `2401`. The prior full raw
+        export wrote 2048 rows with 2043 decoded, 675 unique, and 1368
+        duplicate records. The new opt-in export stopped after 1439 attempts,
+        wrote 516 audit rows, reached 512 decoded uniques, skipped 923
+        duplicate decoded attempts, and had zero duplicates in the raw
+        diagnostic and scored output.
+      - Artifacts:
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u512_a2048.jsonl`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u512_a2048.jsonl.summary.json`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/export_diversity_diagnostic/export_diversity_report.md`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all/scored_samples.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all/split_workflow_manifest.json`.
     - [pending] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
 

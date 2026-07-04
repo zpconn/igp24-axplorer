@@ -508,6 +508,18 @@ Important summary fields are `attempted_samples`, `records_written`,
 or a clear `attempt_budget_exhausted` result with fewer duplicate rows written
 than the raw diagnostic would otherwise report.
 
+The first bounded dedup-aware smoke used duplicate-heavy
+`fixed_template_t11_open_topk` seed `2401` with target 512 and budget 2048. It
+completed in 147.2s on CUDA, reached the unique target after 1439 attempts,
+wrote 516 rows, decoded 512 rows, skipped 923 duplicate decoded attempts, and
+recorded `stop_reason=unique_target_reached`. The raw diagnostic found 512
+exact/canonical/token uniques and zero duplicate records. CPU score-all with
+local search disabled scored 512 rows, found 501 valid records, 11 rejected
+records, 512 unique hashes, zero duplicate hash records, best score 9954.661,
+and mean score 9708.264. This confirms the opt-in control reduces duplicate
+export waste on the known bad seed without changing exact-tool or submission
+safety.
+
 ## Run A Small Smoke Job
 
 ```bash

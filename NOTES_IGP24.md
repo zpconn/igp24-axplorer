@@ -471,6 +471,19 @@ The success condition is not an exact-label claim; it is evidence that the
 export file avoids repeated decoded rows and records a clear stop reason before
 any CPU scoring or local search happens.
 
+The first smoke used `fixed_template_t11_open_topk` seed `2401`,
+`--dedup_unique_target 512`, and `--dedup_max_attempts 2048`. The GPU phase
+completed in 147.2 seconds on CUDA with 99% max monitored utilization and
+stopped with `stop_reason=unique_target_reached` after 1439 attempts. It wrote
+516 rows: 512 decoded unique coefficient vectors and four invalid decodes,
+while skipping 923 duplicate decoded attempts. The raw diversity diagnostic
+confirmed zero exact, canonical, or token duplicate records in the written
+export. CPU score-all with local search disabled scored 512 rows, found 501
+valid records, 11 rejected records, 512 unique hashes, and zero duplicate hash
+records. Compared with the earlier seed-`2401` full raw export, which wrote
+2048 rows with only 675 unique decoded/canonical outputs and 1368 duplicate
+records, the dedup-aware mode materially reduced duplicate export waste.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.
