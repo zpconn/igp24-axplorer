@@ -10,12 +10,12 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   safe offline-verifier preparation workflow work.
-- Active focus: add a safe offline exact-verifier preparation workflow for
-  `/tmp/igp24_r4_review_batch_20260704`. This should validate the current
-  proxy-only review batch, emit manual PARI/MAGMA input artifacts, record local
-  tool availability, and keep SAIR/network/submission behavior out of scope.
-  Exact `24Tt` labels must remain absent unless a local verifier is explicitly
-  run and raw provenance is recorded.
+- Active focus: safe offline exact-verifier preparation workflow for
+  `/tmp/igp24_r4_review_batch_20260704` is implemented, smoke-tested, and
+  ready for a future machine with local PARI/GP or MAGMA installed. The current
+  machine has neither `gp` nor `magma` on PATH, so exact verification remains
+  unrun and no exact `24Tt` labels are claimed. SAIR/network/submission
+  behavior remains out of scope.
 
 ## Stage 0: Scaffold
 
@@ -120,9 +120,10 @@ results change.
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 28 passed in 0.92s after safe review-batch helper work.
+  - Latest result: 33 passed in 0.95s after safe offline-verifier preparation
+    helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after safe review-batch helper work.
+  - Latest result: passed after safe offline-verifier preparation helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
@@ -131,7 +132,7 @@ results change.
   - Latest result: passed after adding the safe offline-verifier preparation
     helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
-  - Latest result: passed after safe review-batch helper work.
+  - Latest result: passed after safe offline-verifier preparation helper work.
 - [done] Run an import check proving `square`, `isosceles`, `sphere`, and
   `igp24` remain discoverable.
   - Command: `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
@@ -174,6 +175,25 @@ results change.
     record no network calls, no SAIR submission, no auto-submission, no exact
     group-label parsing, and no exact group claims. No `*raw_output*` files
     were created.
+- 2026-07-04: `python -m pytest`
+  - Result: blocked with `/bin/bash: line 1: python: command not found`.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+  - Result: 33 passed in 0.95s after safe offline-verifier preparation helper
+    work.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`
+  - Result: passed.
+- 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`
+  - Result: passed.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -c "from src.envs import ENVS; print(sorted(ENVS))"`
+  - Result: `['igp24', 'isosceles', 'sphere', 'square']`.
+- 2026-07-04: `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+  - Result: cleaned generated `__pycache__` directories; follow-up search
+    found none.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before safe review-batch tooling work.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_review_shortlist.py`
