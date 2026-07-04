@@ -9,15 +9,16 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  opt-in dedup-aware GPU sample-export control work.
-- Active focus: implement a conservative opt-in dedup-aware GPU export mode
-  before any longer fixed-template GPU run. Multi-seed validation showed
-  `fixed_template_t11_open_topk` is not stable across fresh short export-only
-  seeds: seed `2302` had near-clean raw diversity, but seeds `2401`, `2402`,
-  and `2403` produced only 675, 1217, and 1088 canonical unique hashes. Keep
-  CPU proxy-search, shortlist export, and exact-tool prep primary. This work
-  remains proxy-only with no exact `24Tt` labels, no MAGMA/PARI execution, no
-  SAIR/network calls, and no auto-submission behavior.
+  larger dedup-aware GPU sample-export validation.
+- Active focus: validate whether opt-in dedup-aware GPU export scales beyond
+  the first 512-unique smoke before any longer fixed-template GPU run. The
+  first `sample_export_split_dedup` smoke on duplicate-heavy
+  `fixed_template_t11_open_topk` seed `2401` reached 512 decoded uniques after
+  1439 attempts and skipped 923 duplicate decoded attempts. This run tests a
+  larger 1024-unique target with a 4096-attempt budget, remains proxy-only,
+  and keeps CPU proxy-search, shortlist export, and exact-tool prep primary.
+  No exact `24Tt` labels, MAGMA/PARI execution, SAIR/network calls, or
+  auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -1269,6 +1270,71 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Validate larger dedup-aware GPU sample-export scaling.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+      GPU probe helper, raw export diagnostic helper, score helper, merge
+      helper, and focused tests.
+      - Result: `sample_export_split_dedup` is already implemented as an
+        opt-in helper mode with default-off `train.py` flags; the larger
+        validation can run without code changes. The first run should use
+        duplicate-heavy seed `2401`, target 1024 unique decoded coefficient
+        vectors, 4096 attempt budget, and raw diagnostic immediately after
+        export.
+    - [done] Run seed `2401` larger dedup-aware export-only GPU
+      validation and raw diagnostic.
+      - GPU dedup scale command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2401 --dedup_unique_target 1024 --dedup_max_attempts 4096 --dedup_progress_interval 256 --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2401 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - GPU dedup scale result: return code 0, no timeout, runtime
+        147.031s, `device: cuda`, four finite eval points, final train/test
+        loss about `0.538` / `1.532`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 81.347%, max CUDA reserved 242
+        MiB, and GPU-phase CPU scoring/local search/dataset update avoided.
+      - Dedup export result: target 1024 unique decoded coefficient vectors
+        reached after 1219 attempts out of a 4096-attempt budget; 1036 rows
+        written, 1024 decoded rows, 12 invalid decode rows, 1024 unique
+        decoded coefficient vectors, 183 duplicate decoded rows skipped, and
+        `stop_reason=unique_target_reached`.
+      - Raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u1024_a4096.jsonl --labels seed2401_t11_open_dedup_u1024 --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2401/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Raw diagnostic result: return code 0, 1036 rows read, 1024 decoded,
+        12 invalid decode, 1024 exact unique coefficient vectors, 0 exact
+        duplicate records, 1024 canonical unique hashes, 0 canonical
+        duplicate records, 1024 token unique sequences, and 0 token duplicate
+        records.
+      - CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u1024_a4096.jsonl --output_dir /tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - CPU score result: return code 0, runtime 38.107s,
+        `selection_mode=all_explicit`, 1036 rows read/selected, 1024 decoded
+        input rows, 12 skipped decode, 1024 scored, 909 valid, 115 rejected,
+        1024 unique canonical hashes, 0 duplicate hash records, best score
+        9952.933, mean score 8807.756, and local search disabled.
+      - Interpretation: the larger target successfully scales past the
+        512-unique smoke on seed `2401`: it reached 1024 uniques well before
+        the 4096-attempt cap and still wrote a zero-duplicate raw/scored
+        export. Compared with the 512-unique smoke, it needed fewer attempts
+        per unique in this run but had lower validity/mean score after CPU
+        scoring.
+      - Artifacts:
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u1024_a4096.jsonl`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2401_u1024_a4096.jsonl.summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/export_diversity_diagnostic/export_diversity_report.md`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all/scored_samples.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all/split_workflow_manifest.json`.
+    - [in_progress] Decide whether a second seed such as `2402` is useful
+      within the bounded plan.
+    - [pending] Merge scored larger-dedup outputs with relevant baselines if
+      multiple scored outputs exist.
+    - [pending] Update README, NOTES, and TODO with larger-target results and
+      recommendation.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
