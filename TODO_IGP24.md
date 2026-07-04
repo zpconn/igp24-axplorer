@@ -9,13 +9,12 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  fixed-support sparse template generation work.
-- Active focus: opt-in `fixed_sparse_template` generation family is
-  implemented, tested, documented, and benchmarked against `sparse` and
-  `structured` on `target_r=2`. It remains proxy-only and is not promoted to
-  any default or preset. Exact verification is still blocked locally because
-  `gp` and `magma` are unavailable, no exact `24Tt` labels are claimed, and no
-  SAIR/network/submission behavior was added.
+  GPU-readiness and training-smoke work.
+- Active focus: add a small GPU-readiness milestone that verifies CUDA/PyTorch
+  availability, runs a tiny IGP24 CPU data-generation baseline and a tiny GPU
+  training smoke, and documents when GPU training should become the main path.
+  This remains proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no
+  SAIR/network calls, and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -110,6 +109,18 @@ results change.
 - [done] Run a small reproducible CPU-only generation smoke.
 - [done] Record exact command, runtime, valid candidate count, best score, and
   ledger path below.
+- [in_progress] Add a small GPU-readiness and training-smoke milestone.
+  - [pending] Inspect and document current `train.py` CUDA support.
+  - [pending] Confirm `nvidia-smi` GPU visibility and PyTorch CUDA
+    availability.
+  - [pending] Add a lightweight GPU-smoke helper only if it improves
+    reproducibility of command execution and artifact summaries.
+  - [pending] Run a tiny CPU data-generation baseline and a tiny GPU-enabled
+    training smoke under `/tmp/igp24_gpu_smoke_20260704`.
+  - [pending] Compare return codes, runtimes, valid candidates, ledger record
+    counts, metadata completeness, and whether GPU was actually used.
+  - [pending] Document whether to keep CPU proxy-search primary, switch to GPU
+    training, or run both in parallel.
 - [done] Add a reusable per-strategy benchmark helper.
   - [done] Add `scripts/igp24_benchmark.py` to run short CPU-only `train.py`
     jobs and summarize JSONL ledgers.
@@ -143,6 +154,8 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before GPU-readiness and training-smoke work.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before fixed-support sparse template generation
     work.
@@ -1564,6 +1577,9 @@ down further as they become active.
 - [pending] Use fixed-support sparse templates as an opt-in diversity/yield
   probe only; do not promote to defaults or presets without larger proxy runs
   and later exact verifier evidence.
+- [pending] Run a small GPU training smoke before treating model training as a
+  main path; keep CPU proxy-search primary unless CUDA/PyTorch and tiny
+  training both work cleanly.
 - [done] Add one more `target_r=4` structured family before retuning the
   balanced `preset_r4` weights again.
 - [done] Run a larger r4 comparison or benchmark-only mix that combines
