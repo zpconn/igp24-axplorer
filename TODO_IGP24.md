@@ -9,10 +9,9 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  larger `target_r=4` preset tradeoff validation.
-- Active focus: larger `target_r=4` preset tradeoff validation is complete.
-  Keep `preset_r4` at the balanced `four_real_seed:0.8,sparse:0.2` blend for
-  now; explicit `four_real_seed` remains the better high-yield r4 option.
+  Stage 2 `target_r=4` structured-family work.
+- Active focus: add and benchmark a new `target_r=4`-friendly structured
+  generation family that is distinct from `four_real_seed`.
 
 ## Stage 0: Scaffold
 
@@ -131,6 +130,18 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before Stage 2 `target_r=4`
+    structured-family work.
+- 2026-07-04: local scorer probe for quartic-lift templates
+  `(y-a)(y-b)(y+c)(y+d)` with `y=x^6` and small off-support perturbations at
+  `coeff_bound=4`.
+  - Result: two bounded root templates were available. In 200-sample probes,
+    odd perturbations produced 149 valid records with 77 at `r=4`,
+    near-multiple perturbations produced 147 valid records with 73 at `r=4`,
+    and all non-support perturbations produced 131 valid records with 79 at
+    `r=4`. This justifies implementing a bounded `quartic_lift` strategy for
+    comparison.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before larger `target_r=4` preset validation.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_benchmark.py`
@@ -660,7 +671,16 @@ down further as they become active.
 
 ### Stage 2: Structured Families And Exact-Tool Prep
 
-- [pending] Add more structured polynomial families:
+- [in_progress] Add a `target_r=4` quartic-lift structured family.
+  - [done] Probe bounded quartic-in-`x^6` templates with small perturbations.
+  - [pending] Implement a distinct `quartic_lift` generation strategy with
+    ledger metadata.
+  - [pending] Add deterministic generation and metadata tests.
+  - [pending] Benchmark `quartic_lift` against `mixed`, `four_real_seed`, and
+    `preset_r4`.
+  - [pending] Document whether it improves target-r yield, peak proxy score,
+    or diversity before changing any preset/default.
+- [in_progress] Add more structured polynomial families:
   - [pending] sparse families with fixed support templates,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
