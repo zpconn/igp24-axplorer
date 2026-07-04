@@ -64,6 +64,12 @@ def get_parser():
     parser.add_argument("--exp_id", type=str, default="", help="Experiment ID")
     parser.add_argument("--cpu", type=bool_flag, default="false", help="run on cpu only")
     parser.add_argument("--data_generation_only", type=bool_flag, default="false", help="only generate data and exit")
+    parser.add_argument(
+        "--train_only",
+        type=bool_flag,
+        default="false",
+        help="train for each epoch without post-epoch sampling, scoring, or dataset updates",
+    )
 
     return parser
 
@@ -173,6 +179,16 @@ if __name__ == "__main__":
             del batch_loader
         log_resources(f"Epoch {epoch} AFTER_TRAIN")
         force_release_memory()
+
+        if args.train_only:
+            logger.info("Train-only mode. Skipping sampling, scoring, local search, and dataset update for this epoch.")
+            n_epoch += 1
+            with open(epoch_file, "w") as f:
+                f.write(str(n_epoch))
+            with open(temp_file, "w") as f:
+                f.write(str(temperature))
+            write_important_metrics(metrics, n_epoch, metric_file)
+            continue
 
         logger.info(f"Sample with temperature {temperature} to {temperature+0.1*args.temp_span}")
         if args.device == "cuda":

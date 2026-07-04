@@ -203,11 +203,21 @@ results change.
       each normal epoch immediately enters CPU-heavy sampling, detokenization,
       scoring, local search, and dataset update work. A train-only opt-in path
       is the smallest clean way to isolate GPU-side training.
-  - [pending] Add the smallest safe opt-in train-only path if needed.
-  - [pending] Add or adjust a helper mode for a capped utilization-focused
+  - [done] Add the smallest safe opt-in train-only path if needed.
+    - Result: added non-default `--train_only`; normal epochs still sample,
+      score, local-search, and update datasets unless this flag is explicitly
+      true.
+  - [done] Add or adjust a helper mode for a capped utilization-focused
     train-only GPU probe.
-  - [pending] Add focused tests only for pure command construction and
+    - Result: extended `scripts/igp24_gpu_sampler_probe.py` with
+      `--probe_mode train_only_utilization`, a larger CUDA training workload,
+      `--num_samples_from_model 0`, `--train_only true`, and utilization
+      reporting for max/average GPU utilization.
+  - [done] Add focused tests only for pure command construction and
     recommendation/reporting logic.
+    - Result: added tests for train-only command construction, train-only log
+      parsing, and train-only recommendation actions. Focused test run passed:
+      10 passed in 0.03s.
   - [pending] Run the capped train-only utilization probe, below 10 minutes.
   - [pending] Record device/CUDA status, runtime/timeout, max/average GPU
     utilization, max CUDA memory, train/eval loss behavior, whether
@@ -247,6 +257,22 @@ results change.
 
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before short controlled GPU sampler probe work.
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before train-only GPU utilization diagnosis
+    work.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py`
+  - Result: 10 passed in 0.03s after adding the train-only utilization probe
+    mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --help`
+  - Result: passed; helper now exposes
+    `--probe_mode {sampler,train_only_utilization}`.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py scripts/igp24_gpu_sampler_probe.py tests/test_igp24_gpu_sampler_probe.py`
+  - Result: passed after adding `--train_only` and train-only probe mode.
+- 2026-07-04: `git diff --check`
+  - Result: passed after adding the train-only utilization probe mode.
 - 2026-07-04: `python -m pytest`
   - Result: blocked with `/bin/bash: line 1: python: command not found`.
 - 2026-07-04: `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
