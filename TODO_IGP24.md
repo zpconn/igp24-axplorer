@@ -521,9 +521,25 @@ results change.
     - Focused checks: 27 passed in 2.29s across GPU helper and sample-export
       tests; helper `--help` exposes the new mode/variants; compileall passed
       for the edited helper/test files; `git diff --check` passed.
-  - [pending] Run at least two short diversity export variants with explicit
+  - [done] Run at least two short diversity export variants with explicit
     timeout caps.
-  - [pending] Score each export separately on the CPU proxy path with local
+    - Fixed-template command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t09_top9 --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704 --timeout_seconds 900 --monitor_interval_seconds 2`
+    - Fixed-template GPU result: return code 0, no timeout, runtime
+      148.684s, `device: cuda`, 4 finite eval points, final train/test loss
+      about `0.670` / `0.732`, max monitored GPU utilization 99.0%,
+      average monitored GPU utilization 80.808%, max monitored GPU memory
+      about 10310 MiB, 2048 export rows, 2047 decoded rows, and GPU-side CPU
+      scoring/local search/dataset update avoided.
+    - Mixed/high-temp command:
+      `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant mixed_t12_open_topk --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704 --timeout_seconds 900 --monitor_interval_seconds 2`
+    - Mixed/high-temp GPU result: return code 0, no timeout, runtime
+      152.369s, `device: cuda`, 4 finite eval points, final train/test loss
+      about `0.265` / `2.829`, max monitored GPU utilization 99.0%,
+      average monitored GPU utilization 80.135%, max monitored GPU memory
+      about 10310 MiB, 2048 export rows, 2030 decoded rows, and GPU-side CPU
+      scoring/local search/dataset update avoided.
+  - [in_progress] Score each export separately on the CPU proxy path with local
     search disabled.
   - [pending] Update README, NOTES, and TODO with commands, artifact paths,
     GPU utilization, valid/rejected counts, unique/duplicate hash counts,
@@ -631,6 +647,20 @@ results change.
   - Result: passed after adding the diversity export helper mode.
 - 2026-07-04: `git diff --check`
   - Result: passed after adding the diversity export helper mode.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t09_top9 --output_dir /tmp/igp24_gpu_sample_export_diversity_fixed_20260704 --timeout_seconds 900 --monitor_interval_seconds 2`
+  - Result: completed in 148.684s with return code 0, no timeout,
+    `device: cuda`, 4 finite eval points, max monitored GPU utilization
+    99.0%, average monitored GPU utilization 80.808%, max monitored GPU
+    memory about 10310 MiB, 2048 export rows, 2047 decoded rows, and
+    GPU-side CPU scoring/local search/dataset update avoided.
+- 2026-07-04:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant mixed_t12_open_topk --output_dir /tmp/igp24_gpu_sample_export_diversity_mixed_20260704 --timeout_seconds 900 --monitor_interval_seconds 2`
+  - Result: completed in 152.369s with return code 0, no timeout,
+    `device: cuda`, 4 finite eval points, max monitored GPU utilization
+    99.0%, average monitored GPU utilization 80.135%, max monitored GPU
+    memory about 10310 MiB, 2048 export rows, 2030 decoded rows, and
+    GPU-side CPU scoring/local search/dataset update avoided.
 - 2026-07-04:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py`
   - Result: 25 passed in 1.08s after the medium split final checks.
