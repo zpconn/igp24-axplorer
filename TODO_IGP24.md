@@ -9,15 +9,16 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
-  per-run GPU export diversity diagnostic work.
-- Active focus: per-run fixed-template GPU export diversity diagnosis and
-  entropy intervention comparison are complete; final verification and push
-  are in progress. `fixed_template_t11_open_topk` recovered strong per-run
-  diversity on duplicate-heavy seed `2302`, but with a validity/mean-score
-  tradeoff. Do not start a longer fixed-template run yet. Keep CPU
-  proxy-search, shortlist export, and exact-tool prep primary. This remains
-  proxy-only: no exact `24Tt` labels, no MAGMA/PARI execution, no SAIR/network
-  calls, and no auto-submission behavior.
+  multi-seed `fixed_template_t11_open_topk` stability validation.
+- Active focus: validating whether `fixed_template_t11_open_topk` is stable
+  across fresh short GPU export-only seeds before any longer fixed-template
+  run. The plan is three short CUDA export-only runs for seeds `2401`,
+  `2402`, and `2403`, raw export diagnostics immediately after each export,
+  CPU score-all only after diagnostics confirm the exports are worth scoring,
+  and a merged dedup review. Keep CPU proxy-search, shortlist export, and
+  exact-tool prep primary. This remains proxy-only: no exact `24Tt` labels,
+  no MAGMA/PARI execution, no SAIR/network calls, and no auto-submission
+  behavior.
 
 ## Stage 0: Scaffold
 
@@ -951,6 +952,114 @@ results change.
         python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
     - [in_progress] Commit and push final verified state.
+  - [in_progress] Validate `fixed_template_t11_open_topk` across multiple
+    short GPU export-only seeds.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, GPU probe helper, raw export
+      diagnostic helper, score helper, merge helper, `train.py`,
+      `src/evaluator.py`, and relevant tests.
+      - Result: existing opt-in helper already supports
+        `fixed_template_t11_open_topk` with `--diversity_seed`; raw export
+        diagnostic already reports decoded rows, exact unique coefficient
+        vectors, canonical unique hashes, token unique sequences, duplicate
+        records, top duplicate groups, and checkpoint trajectory. No code
+        changes are needed before the validation run.
+    - [done] Run short export-only GPU seeds `2401`, `2402`, and
+      `2403`, with raw export diagnostics immediately after each export.
+      - Seed `2401` GPU command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t11_open_topk --diversity_seed 2401 --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2401` GPU result: return code 0, no timeout, runtime
+        156.373s, `device: cuda`, 4 finite eval points, final train/test
+        loss about `0.369` / `2.075`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 82.658%, max CUDA reserved 242
+        MiB, 2048 export rows, 2043 decoded rows, and GPU-side CPU
+        scoring/local search/dataset update avoided. Live `nvidia-smi`
+        during the run showed about 98% GPU utilization and about 10559 MiB
+        in use.
+      - Seed `2401` diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2401.jsonl --labels seed2401_t11_open --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2401` diagnostic result: return code 0, runtime 42.280s,
+        2048 rows read, 2043 decoded, 5 invalid decode, 675 exact unique
+        coefficient vectors, 1368 exact duplicate records, 675 canonical
+        unique hashes, 1368 canonical duplicate records, 675 unique token
+        sequences, and 1368 token duplicate records.
+      - Interpretation: seed `2401` is a duplicate-heavy failure case for
+        `fixed_template_t11_open_topk`, so the intervention is not
+        automatically stable across seeds. Continue the bounded seed sweep,
+        but do not score this export unless later comparison requires it.
+      - Seed `2401` artifacts:
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2401.jsonl`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/export_diversity_diagnostic/export_diversity_summary.json`,
+        and
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2401/export_diversity_diagnostic/export_diversity_report.md`.
+      - Seed `2402` GPU command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t11_open_topk --diversity_seed 2402 --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2402` GPU result: return code 0, no timeout, runtime
+        154.531s, `device: cuda`, 4 finite eval points, final train/test
+        loss about `0.431` / `1.642`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 82.733%, max CUDA reserved 242
+        MiB, 2048 export rows, 2037 decoded rows, and GPU-side CPU
+        scoring/local search/dataset update avoided.
+      - Seed `2402` diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2402.jsonl --labels seed2402_t11_open --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2402` diagnostic result: return code 0, runtime 47.360s,
+        2048 rows read, 2037 decoded, 11 invalid decode, 1217 exact unique
+        coefficient vectors, 820 exact duplicate records, 1217 canonical
+        unique hashes, 820 canonical duplicate records, 1217 unique token
+        sequences, and 820 token duplicate records.
+      - Interpretation: seed `2402` is a partial diversity recovery but not
+        seed-`2201`/seed-`2302 t11_open` quality; continue the bounded sweep
+        before deciding whether CPU scoring is useful.
+      - Seed `2402` artifacts:
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2402.jsonl`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/export_diversity_diagnostic/export_diversity_summary.json`,
+        and
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/export_diversity_diagnostic/export_diversity_report.md`.
+      - Seed `2403` GPU command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_diversity --diversity_variant fixed_template_t11_open_topk --diversity_seed 2403 --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2403` GPU result: return code 0, no timeout, runtime
+        147.805s, `device: cuda`, 4 finite eval points, final train/test
+        loss about `0.434` / `1.808`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 81.750%, max CUDA reserved 242
+        MiB, 2048 export rows, 2026 decoded rows, and GPU-side CPU
+        scoring/local search/dataset update avoided.
+      - Seed `2403` diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2403.jsonl --labels seed2403_t11_open --output_dir /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2403` diagnostic result: return code 0, runtime 45.994s,
+        2048 rows read, 2026 decoded, 22 invalid decode, 1088 exact unique
+        coefficient vectors, 938 exact duplicate records, 1088 canonical
+        unique hashes, 938 canonical duplicate records, 1088 unique token
+        sequences, and 938 token duplicate records.
+      - Seed `2403` artifacts:
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/gpu_model_sample_export_diversity_fixed_template_t11_open_topk_seed2403.jsonl`,
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/export_diversity_diagnostic/export_diversity_summary.json`,
+        and
+        `/tmp/igp24_gpu_t11_open_multiseed_20260704/seed2403/export_diversity_diagnostic/export_diversity_report.md`.
+      - Export diagnostic interpretation: `fixed_template_t11_open_topk`
+        is not stable across the fresh seed block. Prior seed `2302` had
+        2030 unique / 2043 decoded and only 13 duplicates, but fresh seeds
+        `2401`, `2402`, and `2403` had only 675, 1217, and 1088 canonical
+        unique hashes with 1368, 820, and 938 duplicates respectively.
+    - [in_progress] Decide from diagnostics which exports are worth CPU
+      score-all, then score necessary exports with local search disabled.
+      - Decision: skip CPU scoring seed `2401` because raw export diversity
+        collapsed badly. Score seeds `2402` and `2403` because they have
+        partial recovery above 1000 unique raw/canonical outputs and can
+        clarify validity/score tradeoffs.
+    - [pending] Merge scored outputs and compare against prior clean seed
+      `2201`, duplicate-heavy baseline seed `2302`, and intervention seed
+      `2302` where useful.
+    - [pending] Update README, NOTES, and TODO with commands, artifacts,
+      metrics, stability interpretation, and next action.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
@@ -999,6 +1108,9 @@ results change.
 
 ## Command Log
 
+- 2026-07-04: `git pull --ff-only`
+  - Result: already up to date before multi-seed
+    `fixed_template_t11_open_topk` stability validation.
 - 2026-07-04: `git pull --ff-only`
   - Result: already up to date before per-run GPU export diversity
     diagnostic work.
