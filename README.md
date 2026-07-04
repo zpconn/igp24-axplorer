@@ -31,7 +31,7 @@ Exact `24Tt` labels require later verification with external tooling such as
 PARI, MAGMA, or SAIR infrastructure. The current modular factorization data is
 only proxy evidence.
 
-Current stage-1 features:
+Current features:
 
 - configurable coefficient generation strategies,
 - exact SymPy prefilters for basic polynomial validity,
@@ -150,7 +150,7 @@ when a target is supplied.
 
 ## Recent Smoke Result
 
-The current stage-1 smoke run used CPU-only mixed generation:
+The current smoke run used CPU-only mixed generation:
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 train.py \
