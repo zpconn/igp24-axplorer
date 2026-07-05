@@ -9,17 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  seed triage/diversity diagnostic work.
-- Active focus: add and validate a cheap seed triage workflow before spending
-  more long GPU time. Prior bounded multi-seed dedup validation showed seeds
-  `2404` and `2405` are productive 1024-unique seeds, while optional seed
-  `2406` exhausted its 4096-attempt budget at 852 uniques. The current task
-  adds a small target-256 / max-attempts-1024 export-only triage helper and
-  compares its recommendations against known full-run outcomes for seeds
-  `2404`, `2405`, `2406`, and duplicate-heavy `2402`. CPU proxy-search,
-  shortlist export, and exact-tool prep remain primary. No exact `24Tt`
-  labels, MAGMA/PARI execution, SAIR/network calls, or auto-submission
-  behavior.
+  offline MAGMA verifier workflow work.
+- Active focus: add a safe offline MAGMA verification workflow for reviewed
+  shortlists and coefficient/JSONL inputs without putting MAGMA in
+  `train.py`, GPU sampling, or CPU proxy-scoring hot paths. The workflow must
+  keep proxy-only labels separate from exact verified labels, use strict
+  timeouts and caching, write auditable result/report artifacts, and degrade
+  cleanly to dry-run/blocker reporting when MAGMA is unavailable. No SAIR or
+  network calls and no auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -1951,6 +1948,45 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Add safe offline MAGMA verification workflow for reviewed
+    IGP24 candidates.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, verifier stubs,
+      `scripts/igp24_offline_verify.py`, shortlist/review helpers,
+      score/merge helpers, and relevant tests.
+      - Result: the existing offline helper validates review batches and
+        writes manual PARI/MAGMA scripts, but it does not yet emit
+        per-candidate MAGMA result JSONL, exact-label parse results, cache
+        entries, timeout/unavailable statuses, or a verifier report. The new
+        workflow should extend this helper and preserve all training/GPU/proxy
+        defaults. Stage 4 remains present.
+    - [done] Extend the offline helper with MAGMA availability
+      detection, per-candidate dry-run/run records, strict timeouts, cache
+      reuse, parser logic, summary/report artifacts, and support for review
+      directories plus candidate/coefficient files.
+      - Implementation: `scripts/igp24_offline_verify.py` now accepts a
+        review-batch directory, candidate JSONL, or coefficient text file;
+        writes `magma_verification_results.jsonl`,
+        `magma_verification_summary.json`, `magma_verification_report.md`,
+        `magma_verification_cache.json`, per-candidate MAGMA scripts, and raw
+        output files; and records statuses including `dry_run`, `unavailable`,
+        `timeout`, `parse_error`, `invalid_input`, and `verified`.
+      - Safety: MAGMA execution remains explicit via `--run_magma`, uses a
+        per-candidate timeout, preserves proxy labels separately from exact
+        labels, and does not touch `train.py`, GPU sampling, CPU proxy
+        scoring, SAIR, network, or submission paths.
+    - [done] Add focused tests for command construction, parser behavior,
+      cache reuse, timeout/unavailable handling, and report generation without
+      requiring MAGMA.
+      - Focused tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 8 passed in 1.19s.
+    - [pending] Run tiny validation: check MAGMA availability, run a dry-run
+      or 1-3 candidate MAGMA validation with a short timeout, and record the
+      result/blocker and artifacts.
+    - [pending] Update README/NOTES, run full verification, confirm Stage 4,
+      audit GPU/process state, cleanup caches, commit, and push.
 
 ## Tests And Checks
 
