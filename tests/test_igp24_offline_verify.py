@@ -46,6 +46,13 @@ def _record(canonical_hash="a", coeff0=1):
         "source_shortlist_path": "/tmp/shortlist.jsonl",
         "verification_status": "proxy_scored",
         "verified_group_label": None,
+        "non_generic_score": 900.0 + coeff0,
+        "non_generic_flags": ["exact_composed_support", "no_long_cycle_witness_in_sample"],
+        "non_generic_evidence": {
+            "square_discriminant": False,
+            "block_structure": {"exact_block_divisors": [2], "best_near_block_divisor": 2, "best_near_block_off_terms": 0},
+            "modular_factorization": {"frobenius_parity_counts": {"even": 3}, "has_long_cycle_witness": False},
+        },
     }
 
 
@@ -351,6 +358,10 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     )
 
     assert paths["offline_verification_manifest_json"] == output_dir / OFFLINE_MANIFEST_JSON
+    assert paths["verification_batch_jsonl"] == output_dir / "verification_batch.jsonl"
+    assert paths["verification_coefficients_txt"] == output_dir / "verification_coefficients.txt"
+    assert (output_dir / "verification_batch.jsonl").exists()
+    assert (output_dir / "verification_coefficients.txt").exists()
     assert (output_dir / PARI_INPUT_GP).exists()
     assert (output_dir / MAGMA_INPUT_M).exists()
     assert (output_dir / VERIFICATION_PLAN_MD).exists()
@@ -364,6 +375,12 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
 
     assert manifest["selected_records"] == 2
     assert manifest["selected_hashes"] == ["a", "b"]
+    assert manifest["output_files"]["verification_batch_jsonl"] == str(output_dir / "verification_batch.jsonl")
+    assert manifest["diagnostic_queue_summary"]["flag_counts"] == {
+        "exact_composed_support": 2,
+        "no_long_cycle_witness_in_sample": 2,
+    }
+    assert manifest["diagnostic_queue_summary"]["records_with_exact_composed_support"] == 2
     assert manifest["source_input_kind"] == "review_batch"
     assert not manifest["tool_availability"]["pari"]["available"]
     assert not manifest["tool_availability"]["magma"]["available"]
@@ -427,6 +444,10 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     results = [json.loads(line) for line in (manual_dir / ONLINE_MAGMA_RESULTS_JSONL).read_text(encoding="utf-8").splitlines()]
     summary = json.loads((manual_dir / ONLINE_MAGMA_SUMMARY_JSON).read_text(encoding="utf-8"))
     manifest = json.loads((output_dir / OFFLINE_MANIFEST_JSON).read_text(encoding="utf-8"))
+    template_rows = [
+        json.loads(line)
+        for line in (manual_dir / "online_magma_pasted_outputs_template.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     generated_script = next((manual_dir / "copy_paste_scripts").glob("*.m")).read_text(encoding="utf-8")
     report = (manual_dir / "online_magma_manual_report.md").read_text(encoding="utf-8")
 
@@ -441,12 +462,22 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     assert summary["queue_status"]["ready_for_manual_copy_paste_hashes"] == []
     assert summary["queue_status"]["proxy_only_candidate_hashes"] == []
     assert summary["queue_status"]["local_magma_status_counts"] == {"dry_run": 1}
+    assert summary["diagnostic_queue_summary"]["flag_counts"] == {
+        "exact_composed_support": 1,
+        "no_long_cycle_witness_in_sample": 1,
+    }
+    assert summary["diagnostic_queue_summary"]["manual_script_chunking"]["scripts_written"] == 1
+    assert summary["diagnostic_queue_summary"]["manual_script_chunking"]["all_scripts_under_calculator_limit"] is True
+    assert template_rows[0]["queue_index"] == 1
+    assert template_rows[0]["non_generic_flags"] == ["exact_composed_support", "no_long_cycle_witness_in_sample"]
+    assert template_rows[0]["script_bytes"] > 0
     assert summary["safety"]["network_calls_by_helper"] is False
     assert summary["safety"]["automated_online_submission"] is False
     assert "## Already Parsed Exact Labels" in report
     assert "## Ready For Manual Copy/Paste" in report
     assert "## Proxy-Only Queue Candidates" in report
     assert "## Local MAGMA Dry-Run Status" in report
+    assert "Diagnostic flag counts" in report
     assert "24T25000" in report
     assert manifest["online_magma_manual"]["verified_group_labels"] == ["24T25000"]
     assert manifest["safety"]["online_magma_automated_submission"] is False

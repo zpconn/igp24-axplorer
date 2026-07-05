@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -708,6 +709,94 @@ def _write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
             handle.write(json.dumps(record, sort_keys=True) + "\n")
 
 
+def _record_strategy(record: dict[str, Any]) -> str:
+    return str(record.get("source_strategy") or (record.get("generation_metadata") or {}).get("strategy") or "missing")
+
+
+def _record_flags(record: dict[str, Any]) -> list[str]:
+    flags = record.get("non_generic_flags")
+    if not isinstance(flags, list):
+        return []
+    return [str(flag) for flag in flags if str(flag)]
+
+
+def _record_evidence_summary(record: dict[str, Any]) -> dict[str, Any]:
+    evidence = record.get("non_generic_evidence") or {}
+    block = evidence.get("block_structure") or {}
+    modular = evidence.get("modular_factorization") or {}
+    return {
+        "square_discriminant": bool(evidence.get("square_discriminant")),
+        "exact_block_divisors": block.get("exact_block_divisors") or [],
+        "best_near_block_divisor": block.get("best_near_block_divisor"),
+        "best_near_block_off_terms": block.get("best_near_block_off_terms"),
+        "frobenius_parity_counts": modular.get("frobenius_parity_counts") or {},
+        "has_long_cycle_witness": modular.get("has_long_cycle_witness"),
+    }
+
+
+def _has_flag_or_evidence(record: dict[str, Any], flag: str, evidence_key: str | None = None) -> bool:
+    flags = set(_record_flags(record))
+    if flag in flags:
+        return True
+    if evidence_key is None:
+        return False
+    evidence = record.get("non_generic_evidence") or {}
+    return bool(evidence.get(evidence_key))
+
+
+def _diagnostic_queue_summary(records: list[dict[str, Any]], script_sizes: dict[str, int] | None = None) -> dict[str, Any]:
+    flag_counts: Counter[str] = Counter()
+    strategy_counts: Counter[str] = Counter()
+    records_with_exact_block = 0
+    records_with_long_cycle_absent = 0
+    for record in records:
+        flags = _record_flags(record)
+        flag_counts.update(flags)
+        strategy_counts[_record_strategy(record)] += 1
+        evidence_summary = _record_evidence_summary(record)
+        if "exact_composed_support" in flags or evidence_summary["exact_block_divisors"]:
+            records_with_exact_block += 1
+        if "no_long_cycle_witness_in_sample" in flags or evidence_summary["has_long_cycle_witness"] is False:
+            records_with_long_cycle_absent += 1
+
+    script_sizes = script_sizes or {}
+    max_script_bytes = max(script_sizes.values(), default=None)
+    return {
+        "strategy_counts": dict(sorted(strategy_counts.items())),
+        "flag_counts": dict(sorted(flag_counts.items())),
+        "records_with_any_non_generic_flags": sum(1 for record in records if _record_flags(record)),
+        "records_with_square_discriminant": sum(
+            1 for record in records if _has_flag_or_evidence(record, "square_discriminant_excludes_s24", "square_discriminant")
+        ),
+        "records_with_exact_composed_support": records_with_exact_block,
+        "records_with_near_composed_support": sum(1 for record in records if "near_composed_support" in _record_flags(record)),
+        "records_with_all_sampled_frobenius_even": sum(
+            1 for record in records if "all_sampled_frobenius_even" in _record_flags(record)
+        ),
+        "records_with_no_long_cycle_witness": records_with_long_cycle_absent,
+        "manual_script_chunking": {
+            "mode": "one_candidate_per_script",
+            "scripts_written": len(script_sizes) if script_sizes else 0,
+            "max_script_bytes": max_script_bytes,
+            "calculator_max_input_bytes": ONLINE_MAGMA_MAX_INPUT_BYTES,
+            "all_scripts_under_calculator_limit": max_script_bytes is None or max_script_bytes < ONLINE_MAGMA_MAX_INPUT_BYTES,
+        },
+    }
+
+
+def _write_verification_batch_exports(records: list[dict[str, Any]], output_dir: Path) -> dict[str, Path]:
+    batch_path = output_dir / VERIFICATION_BATCH_JSONL
+    coefficients_path = output_dir / VERIFICATION_COEFFICIENTS_TXT
+    _write_jsonl(batch_path, records)
+    with coefficients_path.open("w", encoding="utf-8") as handle:
+        for record in records:
+            handle.write(json.dumps(record.get("exported_coefficients"), separators=(",", ":")) + "\n")
+    return {
+        "verification_batch_jsonl": batch_path,
+        "verification_coefficients_txt": coefficients_path,
+    }
+
+
 def select_records_by_candidate_hash(
     records: list[dict[str, Any]],
     candidate_hashes: list[str] | None,
@@ -1108,6 +1197,7 @@ def build_online_magma_manual_summary(
     command: list[str],
     source_commit: str | None,
     pasted_output_paths: list[Path] | None,
+    script_sizes: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     counts: dict[str, int] = {}
     for result in results:
@@ -1135,6 +1225,7 @@ def build_online_magma_manual_summary(
         "status_counts": dict(sorted(counts.items())),
         "verified_records": len(verified),
         "verified_group_labels": sorted({str(result.get("verified_group_label")) for result in verified}),
+        "diagnostic_queue_summary": _diagnostic_queue_summary(records, script_sizes=script_sizes),
         "queue_status": {
             "already_parsed_exact_label_hashes": [
                 result.get("candidate_hash") for result in verified if result.get("candidate_hash")
@@ -1188,6 +1279,10 @@ def _score_text(value: Any) -> str:
     return f"{float(value):.6f}" if value is not None else ""
 
 
+def _flags_text(record: dict[str, Any]) -> str:
+    return ",".join(_record_flags(record))
+
+
 def _online_script_path(summary: dict[str, Any], record: dict[str, Any], *, index: int) -> str:
     script_dir = summary.get("output_files", {}).get("online_magma_copy_paste_scripts_dir")
     if not script_dir:
@@ -1210,6 +1305,8 @@ def build_online_magma_manual_report(
         if record.get("canonical_hash") not in verified_hashes and not record.get("verified_group_label")
     ]
     local_status_counts = (summary.get("queue_status") or {}).get("local_magma_status_counts") or {}
+    diagnostic_summary = summary.get("diagnostic_queue_summary") or {}
+    chunking = diagnostic_summary.get("manual_script_chunking") or {}
     lines = [
         "# IGP24 Online MAGMA Manual Report",
         "",
@@ -1225,6 +1322,9 @@ def build_online_magma_manual_report(
         f"- Already parsed exact labels: {len(verified_results)}",
         f"- Ready for manual copy/paste: {len(ready_records)}",
         f"- Local MAGMA status counts: `{json.dumps(local_status_counts, sort_keys=True)}`",
+        f"- Diagnostic strategy counts: `{json.dumps(diagnostic_summary.get('strategy_counts', {}), sort_keys=True)}`",
+        f"- Diagnostic flag counts: `{json.dumps(diagnostic_summary.get('flag_counts', {}), sort_keys=True)}`",
+        f"- Manual script chunking: `{json.dumps(chunking, sort_keys=True)}`",
         "",
         "Manual flow:",
         "1. Open the calculator URL in a browser.",
@@ -1264,12 +1364,12 @@ def build_online_magma_manual_report(
             "",
             "## Ready For Manual Copy/Paste",
             "",
-            "| queue | hash | score | r | strategy | script |",
-            "| ---: | --- | ---: | ---: | --- | --- |",
+            "| queue | hash | non-generic | score | r | strategy | flags | script |",
+            "| ---: | --- | ---: | ---: | ---: | --- | --- | --- |",
         ]
     )
     if not ready_records:
-        lines.append("|  |  |  |  |  |  |")
+        lines.append("|  |  |  |  |  |  |  |  |")
     for index, record in enumerate(records, start=1):
         if record not in ready_records:
             continue
@@ -1279,9 +1379,11 @@ def build_online_magma_manual_report(
                 [
                     str(index),
                     f"`{_short_hash(record.get('canonical_hash'))}`",
+                    _score_text(record.get("non_generic_score")),
                     _score_text(record.get("score")),
                     str(record.get("real_root_count") if record.get("real_root_count") is not None else ""),
                     f"`{record.get('source_strategy') or ''}`",
+                    _flags_text(record),
                     f"`{_online_script_path(summary, record, index=index)}`",
                 ]
             )
@@ -1292,12 +1394,12 @@ def build_online_magma_manual_report(
             "",
             "## Proxy-Only Queue Candidates",
             "",
-            "| queue | hash | score | r | height | source ledger |",
-            "| ---: | --- | ---: | ---: | ---: | --- |",
+            "| queue | hash | non-generic | score | r | height | flags | source ledger |",
+            "| ---: | --- | ---: | ---: | ---: | ---: | --- | --- |",
         ]
     )
     if not proxy_only_records:
-        lines.append("|  |  |  |  |  |  |")
+        lines.append("|  |  |  |  |  |  |  |  |")
     for index, record in enumerate(records, start=1):
         if record not in proxy_only_records:
             continue
@@ -1308,9 +1410,11 @@ def build_online_magma_manual_report(
                 [
                     str(index),
                     f"`{_short_hash(record.get('canonical_hash'))}`",
+                    _score_text(record.get("non_generic_score")),
                     _score_text(record.get("score")),
                     str(record.get("real_root_count") if record.get("real_root_count") is not None else ""),
                     str(record.get("coefficient_height") if record.get("coefficient_height") is not None else ""),
+                    _flags_text(record),
                     f"`{ledger_name}`",
                 ]
             )
@@ -1358,15 +1462,29 @@ def write_online_magma_manual_artifacts(
     script_dir.mkdir(parents=True, exist_ok=True)
 
     template_rows: list[dict[str, Any]] = []
+    script_sizes: dict[str, int] = {}
     for index, record in enumerate(selected_records, start=1):
         hash_text = safe_filename(str(record.get("canonical_hash") or f"candidate_{index:04d}"), fallback=f"candidate_{index:04d}")
         script_path = script_dir / f"{index:04d}_{hash_text}.m"
-        script_path.write_text(build_online_magma_manual_input(record), encoding="utf-8")
+        script_text = build_online_magma_manual_input(record)
+        script_path.write_text(script_text, encoding="utf-8")
+        script_bytes = len(script_text.encode("utf-8"))
+        canonical_hash = str(record.get("canonical_hash") or "")
+        script_sizes[canonical_hash] = script_bytes
         template_rows.append(
             {
                 "schema_version": ONLINE_MAGMA_MANUAL_SCHEMA_VERSION,
+                "queue_index": index,
                 "candidate_hash": record.get("canonical_hash"),
+                "short_hash": _short_hash(record.get("canonical_hash")),
+                "score": record.get("score"),
+                "non_generic_score": record.get("non_generic_score"),
+                "real_root_count": record.get("real_root_count"),
+                "source_strategy": _record_strategy(record),
+                "non_generic_flags": _record_flags(record),
+                "diagnostic_evidence_summary": _record_evidence_summary(record),
                 "script_path": str(script_path),
+                "script_bytes": script_bytes,
                 "calculator_url": ONLINE_MAGMA_CALCULATOR_URL,
                 "pasted_output": "",
                 "note": "Paste exactly one manually returned online MAGMA calculator output here; do not batch-submit.",
@@ -1389,6 +1507,7 @@ def write_online_magma_manual_artifacts(
         command=command,
         source_commit=source_commit,
         pasted_output_paths=pasted_output_paths,
+        script_sizes=script_sizes,
     )
     summary_path = manual_dir / ONLINE_MAGMA_SUMMARY_JSON
     report_path = manual_dir / ONLINE_MAGMA_REPORT_MD
@@ -1724,8 +1843,11 @@ def build_manifest(
         "magma_discovery": (tool_availability.get("magma") or {}).get("discovery", {}),
         "magma_rerun_guidance": magma_guidance,
         "execution": execution,
+        "diagnostic_queue_summary": _diagnostic_queue_summary(records),
         "output_files": {
             "offline_verification_manifest_json": str(output_dir / OFFLINE_MANIFEST_JSON),
+            "verification_batch_jsonl": str(output_dir / VERIFICATION_BATCH_JSONL),
+            "verification_coefficients_txt": str(output_dir / VERIFICATION_COEFFICIENTS_TXT),
             "pari_input_gp": str(output_dir / PARI_INPUT_GP),
             "magma_input_m": str(output_dir / MAGMA_INPUT_M),
             "verification_plan_md": str(output_dir / VERIFICATION_PLAN_MD),
@@ -1776,6 +1898,7 @@ def write_outputs(
     online_magma_pasted_outputs: list[Path] | None = None,
 ) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
+    batch_paths = _write_verification_batch_exports(records, output_dir)
     pari_path = output_dir / PARI_INPUT_GP
     magma_path = output_dir / MAGMA_INPUT_M
     pari_path.write_text(build_pari_input(records), encoding="utf-8")
@@ -1890,6 +2013,7 @@ def write_outputs(
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return {
         "offline_verification_manifest_json": manifest_path,
+        **batch_paths,
         "pari_input_gp": pari_path,
         "magma_input_m": magma_path,
         "verification_plan_md": plan_path,

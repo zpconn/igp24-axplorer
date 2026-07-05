@@ -9,12 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  non-generic Galois diagnostic work.
-- Active focus: pivot from high proxy-score generic `S_24` candidates toward
-  non-generic Galois proxy evidence. The full six-candidate manual online
-  Magma queue now parses as `24T25000`, so exact-result provenance has been
-  preserved and a new proxy-only diagnostic helper ranks square-discriminant,
-  composed-support, sparse, and modular-pattern evidence. MAGMA/PARI/SAIR
+  non-generic exact-verification queue work.
+- Active focus: turn the new proxy-only non-generic diagnostic shortlist into
+  a complete manual exact-verification queue, preserving candidate order,
+  hashes, coefficients, diagnostic flags, and safety separation between proxy
+  evidence and exact labels. The prior six-candidate manual online Magma queue
+  parsed as `24T25000`, so the next decision point is whether the new
+  square-discriminant/composed-support shortlist yields genuinely non-generic
+  labels or just a different route back to generic `S_24`. MAGMA/PARI/SAIR
   remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
   automatic network/submission paths. Dry-run remains the default; local MAGMA
   execution still requires explicit `--run_magma`.
@@ -2407,6 +2409,79 @@ results change.
         - Result: no matching Python processes printed.
       - Cleanup:
         removed generated `__pycache__` directories from the repo.
+  - [in_progress] Build the complete manual exact-verification queue for the
+    non-generic diagnostic shortlist.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Read TODO, README, NOTES, non-generic diagnostic helper, offline
+      verifier helper, shortlist/review helpers, tests, and the current
+      diagnostic artifacts under `/tmp/igp24_non_generic_diagnostic_20260705`.
+      - Result: artifacts were present; no diagnostic regeneration was needed.
+        The shortlist has 25 rows, all proxy-only.
+      - Audit summary from
+        `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_report.md`:
+        24 `quartic_lift` rows and 1 `sparse` row; all 25 have
+        `exact_composed_support`, `near_composed_support`, and
+        `no_long_cycle_witness_in_sample`; 18 have
+        `square_discriminant_excludes_s24` and
+        `very_near_square_discriminant`; 19 have
+        `all_sampled_frobenius_even`; 17 have `very_sparse_support`; 8 have
+        `sparse_support`.
+    - [done] Generate all-candidate manual-online MAGMA queue artifacts
+      from the diagnostic shortlist, preserving order, hashes, coefficients,
+      diagnostic flags, and proxy/exact separation.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl --output_dir /tmp/igp24_non_generic_manual_queue_20260705 --timeout_seconds 5 --online_magma_manual`
+      - Result: 25 records loaded from `candidate_jsonl`; local
+        `pari_available=False`, `magma_available=False`,
+        `pari_executed=False`, `magma_executed=False`; local MAGMA status
+        counts `{"dry_run": 25}`.
+      - Queue artifacts:
+        `/tmp/igp24_non_generic_manual_queue_20260705/offline_verification_manifest.json`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/verification_batch.jsonl`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/verification_coefficients.txt`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/magma_verification_results.jsonl`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/copy_paste_scripts`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/online_magma_pasted_outputs_template.jsonl`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/online_magma_manual_results.jsonl`,
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/online_magma_manual_summary.json`,
+        and
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/online_magma_manual_report.md`.
+      - Artifact counts: 25 copied batch records, 25 coefficient rows, 25
+        local MAGMA dry-run rows, 25 manual-online template rows, 25
+        per-candidate copy/paste scripts, and 0 parsed manual-online results.
+      - Script-size audit: one candidate per script; max script size 841 bytes,
+        below the observed 50000 byte calculator input cap, so no extra chunk
+        grouping was required.
+    - [done] Preserve and parse any matching manually pasted MAGMA outputs
+      already present in `/tmp` or `data/igp24`; otherwise record that all 25
+      rows remain ready for manual copy/paste exact verification.
+      - Result: scanning `/tmp/igp24_online_magma_manual_output_*_20260705.xml`
+        and `data/igp24/online_magma_manual_output_*_20260705.xml` found 0
+        matching candidate hashes for the 25 diagnostic rows. No exact labels
+        were parsed for this queue yet; all 25 remain ready for manual
+        copy/paste exact verification.
+    - [done] Improve helper/report ergonomics if needed for the all-queue
+      workflow, keeping the helper manual-only and file-only.
+      - Implementation: `scripts/igp24_offline_verify.py` now writes
+        `verification_batch.jsonl` and `verification_coefficients.txt` for all
+        input kinds, including direct candidate JSONL inputs.
+      - Implementation: online manual template rows now include queue index,
+        short hash, proxy score, non-generic score, real-root count, source
+        strategy, diagnostic flags, a compact evidence summary, script path,
+        and script byte count.
+      - Implementation: online manual summary/report now record diagnostic
+        strategy counts, diagnostic flag counts, and one-candidate-per-script
+        size/chunking status.
+      - Focused tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 13 passed in 1.31s.
+      - Focused compile:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
+        - Result: passed.
+    - [pending] Update README, NOTES, and TODO with queue coverage, exact
+      labels if any, local MAGMA status, and the recommended next search
+      family decision.
 
 ## Tests And Checks
 
