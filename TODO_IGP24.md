@@ -10,15 +10,18 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
   bounded multi-seed 1024-unique dedup-aware GPU export validation.
-- Active focus: test whether multiple bounded 1024-unique dedup-aware fresh
-  seeds are a better next path than another larger single-seed target.
-  Duplicate-heavy `fixed_template_t11_open_topk` seed `2402` failed the
-  1536-unique target under an 8192-attempt budget, so the current validation
-  uses fresh seeds `2404` and `2405` first with 1024 unique targets and
-  4096-attempt budgets. GPU phases remain export-only/proxy-only. CPU
-  proxy-search, shortlist export, and exact-tool prep remain primary. No exact
-  `24Tt` labels, MAGMA/PARI execution, SAIR/network calls, or
-  auto-submission behavior.
+- Active focus: bounded multi-seed 1024-unique dedup-aware validation is
+  complete. Required fresh seeds `2404` and `2405` both reached 1024 unique
+  decoded coefficients under 4096-attempt budgets and added 2046 net unique
+  canonical hashes from 2048 scored rows over the previous seven-source
+  review. Optional seed `2406` exhausted its budget at 852 uniques, proving
+  seed sensitivity remains, but still contributed clean partial coverage.
+  Conclusion: bounded smaller multi-seed dedup exports are a better immediate
+  coverage path than another larger single-seed target; next work should run a
+  few more bounded fresh seeds or add seed triage/diversity diagnostics before
+  spending longer runs. CPU proxy-search, shortlist export, and exact-tool
+  prep remain primary. No exact `24Tt` labels, MAGMA/PARI execution,
+  SAIR/network calls, or auto-submission behavior.
 
 ## Stage 0: Scaffold
 
@@ -1583,7 +1586,7 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
-  - [in_progress] Run bounded multi-seed 1024-unique dedup-aware GPU export
+  - [done] Run bounded multi-seed 1024-unique dedup-aware GPU export
     validation.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -1808,20 +1811,47 @@ results change.
         recommendation to continue bounded fresh-seed sampling or add a seed
         triage/diversity diagnostic before spending longer runs on
         duplicate-heavy seeds.
-    - [pending] Run final verification, confirm Stage 4 remains present,
+    - [done] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
+      - Focused split/export tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 38 passed in 1.21s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 79 passed in 1.64s.
+      - Compileall:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks passed for `igp24_gpu_sampler_probe.py`,
+        `igp24_score_sample_export.py`, `igp24_merge_scored_exports.py`, and
+        `igp24_export_diversity_diagnostic.py`.
+      - Import check passed:
+        `imports ok True True True True True True`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3821 after this final
+          status update.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -C python3.12
+        -o pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__ -prune -print` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 79 passed in 1.62s after larger dedup-aware export
+  - Latest result: 79 passed in 1.64s after multi-seed dedup-aware export
     validation.
 - [done] Run focused split/export tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
-  - Latest result: 38 passed in 1.22s after larger dedup-aware export
+  - Latest result: 38 passed in 1.21s after multi-seed dedup-aware export
     validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after larger dedup-aware export validation.
+  - Latest result: passed after multi-seed dedup-aware export validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
