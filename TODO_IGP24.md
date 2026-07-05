@@ -10,15 +10,16 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-04, `git pull --ff-only` -> already up to date before
   bounded 1536-unique dedup-aware GPU export stress testing.
-- Active focus: test whether opt-in dedup-aware GPU export remains useful at a
-  bounded 1536-unique target before any true longer GPU run. Prior
-  `sample_export_split_dedup` validation reached 1024 uniques on seed `2402`,
-  but needed 3255 attempts and skipped 2229 duplicate decoded attempts. The
-  current run uses duplicate-heavy `fixed_template_t11_open_topk` seed `2402`,
-  target 1536 unique decoded coefficient vectors, an 8192-attempt budget, and
-  a 1200-second timeout. It remains export-only/proxy-only and keeps CPU
-  proxy-search, shortlist export, and exact-tool prep primary. No exact
-  `24Tt` labels, MAGMA/PARI execution, SAIR/network calls, or auto-submission
+- Active focus: bounded 1536-unique dedup-aware stress testing is complete.
+  Duplicate-heavy `fixed_template_t11_open_topk` seed `2402` stayed GPU-bound
+  but exhausted the 8192-attempt budget at 1040 unique decoded coefficient
+  vectors after skipping 7143 duplicate decoded attempts. The written export
+  and scored output were still zero-duplicate, but the 1536 target is not a
+  good next single-seed target for this setting. Next GPU sampling work should
+  prefer several bounded smaller dedup-aware seeds or a sampler-diversity
+  change before another larger single-seed target. CPU proxy-search,
+  shortlist export, and exact-tool prep remain primary. No exact `24Tt`
+  labels, MAGMA/PARI execution, SAIR/network calls, or auto-submission
   behavior.
 
 ## Stage 0: Scaffold
@@ -1555,8 +1556,35 @@ results change.
         attempt budget, and the recommendation to prefer several bounded
         smaller dedup-aware seeds or a sampler-diversity change before trying
         another larger single-seed target.
-    - [pending] Run final verification, confirm Stage 4 remains present,
+    - [done] Run final verification, confirm Stage 4 remains present,
       audit GPU/process state, cleanup generated caches, commit, and push.
+      - Focused split/export tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 38 passed in 1.16s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 79 passed in 1.56s.
+      - Compileall:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks passed for `igp24_gpu_sampler_probe.py`,
+        `igp24_score_sample_export.py`, `igp24_merge_scored_exports.py`, and
+        `igp24_export_diversity_diagnostic.py`.
+      - Import check passed:
+        `imports ok True True True True True True`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3566 after this final
+          status update.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 idle after the
+        run with no running compute processes; `ps -C python3 -C python3.12
+        -o pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__ -prune -print` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
