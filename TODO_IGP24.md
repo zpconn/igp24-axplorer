@@ -9,19 +9,17 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  bounded multi-seed 1024-unique dedup-aware GPU export validation.
-- Active focus: bounded multi-seed 1024-unique dedup-aware validation is
-  complete. Required fresh seeds `2404` and `2405` both reached 1024 unique
-  decoded coefficients under 4096-attempt budgets and added 2046 net unique
-  canonical hashes from 2048 scored rows over the previous seven-source
-  review. Optional seed `2406` exhausted its budget at 852 uniques, proving
-  seed sensitivity remains, but still contributed clean partial coverage.
-  Conclusion: bounded smaller multi-seed dedup exports are a better immediate
-  coverage path than another larger single-seed target; next work should run a
-  few more bounded fresh seeds or add seed triage/diversity diagnostics before
-  spending longer runs. CPU proxy-search, shortlist export, and exact-tool
-  prep remain primary. No exact `24Tt` labels, MAGMA/PARI execution,
-  SAIR/network calls, or auto-submission behavior.
+  seed triage/diversity diagnostic work.
+- Active focus: add and validate a cheap seed triage workflow before spending
+  more long GPU time. Prior bounded multi-seed dedup validation showed seeds
+  `2404` and `2405` are productive 1024-unique seeds, while optional seed
+  `2406` exhausted its 4096-attempt budget at 852 uniques. The current task
+  adds a small target-256 / max-attempts-1024 export-only triage helper and
+  compares its recommendations against known full-run outcomes for seeds
+  `2404`, `2405`, `2406`, and duplicate-heavy `2402`. CPU proxy-search,
+  shortlist export, and exact-tool prep remain primary. No exact `24Tt`
+  labels, MAGMA/PARI execution, SAIR/network calls, or auto-submission
+  behavior.
 
 ## Stage 0: Scaffold
 
@@ -1840,6 +1838,54 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Add cheap seed triage/diversity diagnostic for
+    dedup-aware GPU exports.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, `train.py`, `src/evaluator.py`,
+      GPU probe helper, raw export diagnostic helper, score helper, merge
+      helper, and relevant tests.
+      - Result: the triage workflow can reuse the existing
+        `sample_export_split_dedup` helper mode and its generated
+        `gpu_sampler_probe_summary.json` plus export sidecar
+        `EXPORT.jsonl.summary.json`; no normal defaults, mixed weights,
+        `preset_r4`, or ordinary `train.py` behavior need to change. Stage 4
+        remains present.
+    - [done] Add triage helper script and focused tests for pure
+      parsing/reporting/threshold logic.
+      - Implementation: added `scripts/igp24_seed_triage.py`. It runs
+        `scripts/igp24_gpu_sampler_probe.py --probe_mode
+        sample_export_split_dedup` per seed with default target 256,
+        max attempts 1024, progress interval 128, and
+        `fixed_template_t11_open_topk`; it writes
+        `seed_triage_summary.json`, `seed_triage_report.md`, and
+        `seed_triage_records.jsonl`.
+      - Default recommendation thresholds:
+        promote if target is reached with attempts/unique `<= 1.75` and
+        duplicate skip rate `<= 0.40`; reject if attempt budget is exhausted
+        far below target, attempts/unique `>= 3.0`, or duplicate skip rate
+        `>= 0.65`; otherwise mark ambiguous.
+      - Focused tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py`
+        - Result: 5 passed in 0.04s.
+      - Combined helper tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py`
+        - Result: 26 passed in 0.05s.
+      - Help check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_seed_triage.py --help`
+        - Result: passed.
+    - [in_progress] Run triage on known seeds `2404`, `2405`, `2406`, and
+      duplicate-heavy `2402`, then compare recommendations against known
+      full-run outcomes.
+      - Triage command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_seed_triage.py --seeds 2404 2405 2406 2402 --output_dir /tmp/igp24_seed_triage_20260705 --unique_target 256 --max_attempts 1024 --progress_interval 128 --timeout_seconds 900 --monitor_interval_seconds 2 --known_outcome 2404=good_full_run_seed --known_outcome 2405=acceptable_full_run_seed --known_outcome 2406=duplicate_heavy_full_run_seed --known_outcome 2402=duplicate_heavy_larger_target_seed`
+      - Intended metrics: attempted samples, unique decoded count,
+        duplicate skipped count, invalid decode count, stop reason,
+        attempts per unique, duplicate skip rate, recommendation, and
+        comparison to known full-run outcomes.
+    - [pending] Update README/NOTES if the triage workflow or recommendation
+      changes, run final verification, confirm Stage 4 remains present, audit
+      GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
