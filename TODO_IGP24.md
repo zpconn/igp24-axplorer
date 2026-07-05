@@ -14,13 +14,18 @@ results change.
   complete manual exact-verification queue under
   `/tmp/igp24_non_generic_manual_queue_20260705`. Candidate order, hashes,
   coefficients, diagnostic flags, and proxy/exact separation are preserved.
-  No matching manually pasted MAGMA outputs have been found for these rows
-  yet, so the next decision point is manual exact verification of the top
-  square-discriminant/composed-support candidates before changing search
+  A local exact-algebra structure audit under
+  `/tmp/igp24_non_generic_structure_audit_20260705` confirmed the 18
+  square-discriminant claims and all 25 exact composed-support claims with no
+  refutations. No matching manually pasted MAGMA outputs have been found for
+  these rows yet, so the next decision point is still manual exact
+  verification of the top structure-audit priority rows before changing search
   family or spending on a large GPU run. MAGMA/PARI/SAIR remain out of
   `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
   network/submission paths. Dry-run remains the default; local MAGMA execution
   still requires explicit `--run_magma`.
+- Current task: document and validate the local structure-audit helper/results,
+  then commit and push the refreshed README/TODO/NOTES handoff.
 
 ## Stage 0: Scaffold
 
@@ -2522,6 +2527,67 @@ results change.
         `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
         - Result: no matching Python processes printed.
       - Cleanup: generated `__pycache__` directories were removed.
+  - [in_progress] Locally audit the 25-row non-generic manual queue structure
+    before any larger search or GPU run.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Read TODO, README, NOTES, non-generic diagnostic helper, offline
+      verifier helper, polynomial utilities, tests, and the current manual
+      queue artifacts under `/tmp/igp24_non_generic_manual_queue_20260705`.
+      - Result: the queue artifacts are present, including
+        `verification_batch.jsonl`, `verification_coefficients.txt`,
+        local MAGMA dry-run rows, and 25 manual-online copy/paste scripts.
+    - [done] Add a local exact-algebra structure audit helper that
+      recomputes discriminants, confirms square-discriminant flags, confirms
+      exact composed support, extracts base polynomials `g(y)`, groups
+      structural families, and emits a compact manual verification priority
+      order.
+      - Implementation: `scripts/igp24_queue_structure_audit.py` reads the
+        manual queue JSONL, performs exact SymPy-side algebra only, writes
+        JSONL/JSON/Markdown artifacts, and records safety flags showing no
+        MAGMA/PARI/SAIR/network/training/GPU/CPU-search execution.
+      - Tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_queue_structure_audit.py`
+        - Result: 6 passed in 0.21s.
+      - Compile/help checks:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_queue_structure_audit.py tests/test_igp24_queue_structure_audit.py`
+        and
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py --help`
+        - Result: both passed.
+    - [done] Run the local structure audit on the full 25-row queue.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_non_generic_manual_queue_20260705/verification_batch.jsonl --output_dir /tmp/igp24_non_generic_structure_audit_20260705 --priority_limit 10`
+      - Result: 25 records loaded and audited; square-discriminant claim
+        counts `{"confirmed": 18, "not_claimed": 7}`; exact-composed claim
+        counts `{"confirmed": 25}`; zero square-claim refutations; zero
+        exact-composed refutations.
+      - Structural families: 24 records have primary exact block divisor 2
+        and base degree 12; one record has primary exact block divisor 3 and
+        base degree 8. Strategy counts are `{"quartic_lift": 24, "sparse": 1}`.
+      - Artifacts:
+        `/tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl`,
+        `/tmp/igp24_non_generic_structure_audit_20260705/manual_priority.jsonl`,
+        `/tmp/igp24_non_generic_structure_audit_20260705/manual_priority_hashes.txt`,
+        `/tmp/igp24_non_generic_structure_audit_20260705/structure_summary.json`,
+        and
+        `/tmp/igp24_non_generic_structure_audit_20260705/structure_report.md`.
+      - Priority order for manual exact verification:
+        1. queue 1, `65e40c41647afd86d081cf9cdbbea9cb391a5071e5bec8f8c14f985daa8b6b55`
+        2. queue 19, `27eaf2acac9f94a78fdec065fdf8a8f4c1c6b27816716eea04b3ea41c25dba8b`
+        3. queue 6, `5b9dee86211ecd506d2cac86cc6461ae8610105d6ad4dbf6a0cde8b302e17343`
+        4. queue 2, `2dadebc8c716261688e8ab4d682b137d5c8fe667bf8a89b36a2fef9be031c521`
+        5. queue 3, `3bae032a47336af98dcd9206399f013f9e8a8c7a9504ef94fb0c9899ec111b14`
+        6. queue 4, `eacca9cf7c601ea27316fa032202c3e4d9d36d0951df7437012564ca1e81551e`
+        7. queue 5, `e3d43c52a095f636492b7a12ffd771ebd11d34686379c31bcdbd258c1128686a`
+        8. queue 7, `071ac330291fe82639d13e992017109bdd235d21d135c209d05488c21cfa3bcd`
+        9. queue 8, `bfbd15116a58a07c05c2a62989fc62a538d643c8ba082e4ff4c1e0d8ba456b1e`
+        10. queue 9, `be3b30d3564a75ab1a0623d2793ea00a0f92150b1985fca9c0b21b16f6b85882`
+      - Interpretation: this confirms local algebraic structure only. Exact
+        `24Tt` labels remain unknown until manual/local exact Galois
+        verification is performed outside this helper.
+    - [in_progress] Update README/NOTES/TODO with the structure-audit handoff,
+      then run full validation, confirm Stage 4 remains present, audit GPU and
+      Python process state, clean caches, commit, and push.
 
 ## Tests And Checks
 
@@ -2534,6 +2600,9 @@ results change.
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
   - Latest result: 13 passed in 1.31s after non-generic manual-queue
     ergonomics work.
+- [done] Run focused local structure-audit tests:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_queue_structure_audit.py`.
+  - Latest result: 6 passed in 0.21s after queue structure-audit work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
@@ -2553,6 +2622,8 @@ results change.
     `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`.
   - Latest result: passed after non-generic manual queue work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py --help`.
+  - Latest result: passed after queue structure-audit work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
