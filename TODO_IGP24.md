@@ -1982,11 +1982,34 @@ results change.
       - Focused tests:
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
         - Result: 8 passed in 1.19s.
-    - [pending] Run tiny validation: check MAGMA availability, run a dry-run
+    - [done] Run tiny validation: check MAGMA availability, run a dry-run
       or 1-3 candidate MAGMA validation with a short timeout, and record the
       result/blocker and artifacts.
-    - [pending] Update README/NOTES, run full verification, confirm Stage 4,
+      - Availability check: `command -v magma`
+        - Result: return code 1; MAGMA is not available on PATH.
+      - Existing review batch used for validation:
+        `/tmp/igp24_r4_review_batch_20260704`.
+      - Dry-run validation command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_offline_magma_validation_20260705 --max_records 3 --timeout_seconds 5`
+      - Result: return code 0; loaded 8 review records, selected 3 for MAGMA
+        artifacts, `pari_available=False`, `magma_available=False`,
+        `pari_executed=False`, `magma_executed=False`, and
+        `magma_status_counts={"dry_run": 3}`. This records the exact blocker
+        without running a large verifier batch.
+      - Artifacts:
+        `/tmp/igp24_offline_magma_validation_20260705/offline_verification_manifest.json`,
+        `/tmp/igp24_offline_magma_validation_20260705/verification_plan.md`,
+        `/tmp/igp24_offline_magma_validation_20260705/magma_verification_results.jsonl`,
+        `/tmp/igp24_offline_magma_validation_20260705/magma_verification_summary.json`,
+        `/tmp/igp24_offline_magma_validation_20260705/magma_verification_report.md`,
+        `/tmp/igp24_offline_magma_validation_20260705/magma_verification_cache.json`,
+        and `/tmp/igp24_offline_magma_validation_20260705/magma_candidate_scripts`.
+    - [in_progress] Update README/NOTES, run full verification, confirm Stage 4,
       audit GPU/process state, cleanup caches, commit, and push.
+      - Result so far: README and NOTES now document the offline MAGMA
+        workflow, dry-run defaults, explicit `--run_magma`, status meanings,
+        cache/report artifacts, and the no-hot-loop/no-network/no-submission
+        safety boundary.
 
 ## Tests And Checks
 

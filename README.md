@@ -807,21 +807,42 @@ writes local files. It does not run exact verifiers or submit anything.
 
 ## Prepare Offline Verification
 
-Use the offline verification helper to validate a review batch and write manual
-PARI/GP and MAGMA input files:
+Use the offline verification helper to validate a review batch, candidate
+JSONL, or coefficient text file. By default it is a dry run: it writes manual
+PARI/GP and MAGMA input files plus per-candidate MAGMA scripts and result
+artifacts, but it does not execute MAGMA unless explicitly requested.
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
   /tmp/igp24_r4_review_batch_20260704 \
-  --output_dir /tmp/igp24_r4_offline_verify
+  --output_dir /tmp/igp24_r4_offline_verify \
+  --max_records 3 \
+  --timeout_seconds 5
 ```
 
-By default this is preparation-only. It writes
-`offline_verification_manifest.json`, `pari_input.gp`, `magma_input.m`, and
-`verification_plan.md`, records whether `gp` or `magma` are available locally,
-and does not run exact verification. Local verifier execution requires explicit
-`--run_pari` or `--run_magma` flags. SAIR submission and network calls are out
-of scope.
+It writes `offline_verification_manifest.json`, `pari_input.gp`,
+`magma_input.m`, `verification_plan.md`, `magma_verification_results.jsonl`,
+`magma_verification_summary.json`, `magma_verification_report.md`,
+`magma_verification_cache.json`, and per-candidate scripts/raw-output
+directories. Each result row records one exact-verification status, such as
+`dry_run`, `unavailable`, `timeout`, `parse_error`, `invalid_input`, or
+`verified`. Proxy-only labels remain separate from exact `verified_group_label`
+values.
+
+To run local MAGMA on a very small batch, first confirm the tool is installed,
+then use an explicit timeout-bound command:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_r4_review_batch_20260704 \
+  --output_dir /tmp/igp24_r4_magma_verify_small \
+  --run_magma \
+  --max_records 3 \
+  --timeout_seconds 30
+```
+
+MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
+SAIR submission and network calls remain out of scope.
 
 ## Recent Smoke Result
 

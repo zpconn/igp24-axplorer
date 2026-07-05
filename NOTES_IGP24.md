@@ -234,13 +234,23 @@ write a markdown review report plus verifier-input coefficient files. This is
 still not exact verification; it is a human triage artifact for later manual
 offline verifier runs.
 
-The offline-verification preparation helper sits after review-batch triage and
-before any exact verifier or human-controlled SAIR packaging. Its default mode
-validates the review-batch artifacts, writes manual PARI/GP and MAGMA input
-scripts, and records local tool availability in a manifest. It does not run
-SAIR, make network calls, submit candidates, or promote exact group labels.
-If local PARI/GP or MAGMA execution is requested explicitly, raw output must be
-kept as provenance before any later exact-label claim is made.
+The offline-verification helper sits after review-batch triage and before any
+human-controlled SAIR packaging. Its default mode now validates a review-batch
+directory, candidate JSONL, or coefficient text file; writes manual PARI/GP and
+MAGMA input scripts; writes per-candidate MAGMA scripts; records local tool
+availability; and emits `magma_verification_results.jsonl`,
+`magma_verification_summary.json`, `magma_verification_report.md`, and a
+`magma_verification_cache.json` cache. Default runs are dry runs, so they
+produce `dry_run` status rows and do not execute MAGMA.
+
+Exact MAGMA execution is explicit through `--run_magma`, local-only, and
+bounded by a per-candidate timeout. Result rows keep proxy status and exact
+status separate: proxy `verification_status` remains the cheap scoring status,
+while exact labels appear only as `verified_group_label` on rows with
+`status=verified` and parseable MAGMA provenance. Other per-candidate statuses
+include `unavailable`, `timeout`, `parse_error`, and `invalid_input`. This
+workflow does not run inside `train.py`, GPU sampling, or CPU proxy scoring,
+and it still does not call SAIR, make network calls, or submit candidates.
 
 ## GPU Training Utilization Diagnosis
 

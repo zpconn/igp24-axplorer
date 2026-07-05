@@ -270,6 +270,10 @@ def load_review_batch(review_batch: str | Path) -> tuple[list[dict[str, Any]], P
         item = dict(record)
         item["canonical_hash"] = str(canonical_hash)
         item["exported_coefficients"] = record_coefficients
+        item["coefficient_sha256"] = coefficients_sha256(record_coefficients)
+        item["source_input_path"] = str(review_dir)
+        item["source_input_kind"] = "review_batch"
+        item["input_index"] = index
         item["offline_verification_status"] = "prepared_unverified"
         item["verified_group_label"] = None
         validated.append(item)
