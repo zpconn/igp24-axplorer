@@ -10,16 +10,17 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
   non-generic exact-verification queue work.
-- Active focus: turn the new proxy-only non-generic diagnostic shortlist into
-  a complete manual exact-verification queue, preserving candidate order,
-  hashes, coefficients, diagnostic flags, and safety separation between proxy
-  evidence and exact labels. The prior six-candidate manual online Magma queue
-  parsed as `24T25000`, so the next decision point is whether the new
-  square-discriminant/composed-support shortlist yields genuinely non-generic
-  labels or just a different route back to generic `S_24`. MAGMA/PARI/SAIR
-  remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
-  automatic network/submission paths. Dry-run remains the default; local MAGMA
-  execution still requires explicit `--run_magma`.
+- Active focus: the 25-row proxy-only non-generic diagnostic shortlist has a
+  complete manual exact-verification queue under
+  `/tmp/igp24_non_generic_manual_queue_20260705`. Candidate order, hashes,
+  coefficients, diagnostic flags, and proxy/exact separation are preserved.
+  No matching manually pasted MAGMA outputs have been found for these rows
+  yet, so the next decision point is manual exact verification of the top
+  square-discriminant/composed-support candidates before changing search
+  family or spending on a large GPU run. MAGMA/PARI/SAIR remain out of
+  `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
+  network/submission paths. Dry-run remains the default; local MAGMA execution
+  still requires explicit `--run_magma`.
 
 ## Stage 0: Scaffold
 
@@ -2409,7 +2410,7 @@ results change.
         - Result: no matching Python processes printed.
       - Cleanup:
         removed generated `__pycache__` directories from the repo.
-  - [in_progress] Build the complete manual exact-verification queue for the
+  - [done] Build the complete manual exact-verification queue for the
     non-generic diagnostic shortlist.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2493,11 +2494,39 @@ results change.
         `24T25000`, treat that as a data or diagnostic bug before trusting
         more proxy ranks. Do not start a large GPU training run for this
         branch until exact labels arrive.
+    - [done] Run final validation, confirm Stage 4, audit GPU/process state,
+      clean generated caches, and prepare final push.
+      - Full tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 97 passed in 3.71s.
+      - Full compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Help checks:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`
+        and
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`
+        - Result: both passed.
+      - `git diff --check`
+        - Result: passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4520 after this final
+          TODO update.
+      - GPU/process audit:
+        `nvidia-smi`
+        - Result: RTX 5090 visible; no running GPU processes listed; 2927 MiB
+          reported in use by display/driver state; instantaneous utilization
+          2%.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        - Result: no matching Python processes printed.
+      - Cleanup: generated `__pycache__` directories were removed.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 97 passed in 3.74s after non-generic diagnostic work.
+  - Latest result: 97 passed in 3.71s after non-generic manual queue work.
 - [done] Run focused non-generic diagnostic/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`.
   - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
@@ -2513,17 +2542,17 @@ results change.
   - Latest result: 19 passed in 1.28s for the focused offline/review/shortlist
     queue subset after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after non-generic diagnostic work.
+  - Latest result: passed after non-generic manual queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after non-generic diagnostic work; helper exposes
+  - Latest result: passed after non-generic manual queue work; helper exposes
     `--candidate_hash`, `--online_magma_manual`, and
     `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`.
-  - Latest result: passed after non-generic diagnostic work.
+  - Latest result: passed after non-generic manual queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
