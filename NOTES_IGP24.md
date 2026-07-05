@@ -287,6 +287,20 @@ the already parsed `24T25000` row, three additional high-score quartic-lift
 rows, and two `four_real_seed` rows for coverage. Its report separates the
 already parsed exact label, five ready-for-copy/paste scripts, five still
 proxy-only queue rows, and local MAGMA dry-run status (`{"dry_run": 6}`).
+All six queue outputs are now preserved under `data/igp24/` and parse as
+degree 24, irreducible, `24T25000` (`S_24`) in Magma V2.29-8. This is useful
+negative guidance: high proxy score plus mild structural perturbation is still
+landing in generic full symmetric group territory.
+
+The next proxy pivot is `scripts/igp24_non_generic_diagnostic.py`. It is a
+file-only helper that ranks existing ledger rows by non-generic evidence such
+as square discriminants, exact or near composed support, sparse support, and
+small-prime modular-pattern signals. The 2026-07-05 run under
+`/tmp/igp24_non_generic_diagnostic_20260705` diagnosed 1879 target-`r=4`
+records and selected 25 rows. All selected rows had exact composed support;
+18 had square discriminants, which excludes full `S_24` if the recorded
+discriminant is correct. These rows are still proxy-only until exact MAGMA or
+another local verifier confirms the Galois group.
 
 ## GPU Training Utilization Diagnosis
 

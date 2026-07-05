@@ -10,14 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
   manual-online MAGMA verification-queue work.
-- Active focus: manual free-online Magma verification queue is prepared while
-  local MAGMA remains unavailable. The helper can select deliberate
-  non-contiguous candidate hashes and the generated report separates already
-  parsed exact labels, ready-to-copy candidates, still-proxy-only queue rows,
-  and local MAGMA dry-run status. MAGMA/PARI/SAIR remain out of `train.py`,
-  GPU sampling, CPU proxy scoring, hot loops, and automatic network/submission
-  paths. Dry-run remains the default; local MAGMA execution still requires
-  explicit `--run_magma`.
+- Active focus: pivot from high proxy-score generic `S_24` candidates toward
+  non-generic Galois proxy evidence. The full six-candidate manual online
+  Magma queue now parses as `24T25000`, so exact-result provenance has been
+  preserved and a new proxy-only diagnostic helper ranks square-discriminant,
+  composed-support, sparse, and modular-pattern evidence. MAGMA/PARI/SAIR
+  remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
+  automatic network/submission paths. Dry-run remains the default; local MAGMA
+  execution still requires explicit `--run_magma`.
 
 ## Stage 0: Scaffold
 
@@ -2317,6 +2317,65 @@ results change.
         pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
       - Cleanup: generated `__pycache__` directories were removed; follow-up
         `find . -type d -name __pycache__ -prune -print` returned no paths.
+  - [in_progress] Pivot from generic `S_24` queue results toward
+    non-generic Galois proxy evidence.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Read TODO, README, NOTES, offline verifier helper, IGP24
+      environment/scoring code, shortlist/review helpers, and current manual
+      Magma queue artifacts.
+      - Result: the current queue artifacts and saved calculator XMLs show all
+        six selected candidates are exact `24T25000`, i.e. full symmetric
+        group `S_24`.
+    - [done] Preserve all six manual-online exact-result XML files in repo.
+      - Preserved files:
+        `data/igp24/online_magma_manual_output_70a542863f79_20260705.xml`,
+        `data/igp24/online_magma_manual_output_4bb12cfdfb23_20260705.xml`,
+        `data/igp24/online_magma_manual_output_8e105d4e1281_20260705.xml`,
+        `data/igp24/online_magma_manual_output_4882427239ef_20260705.xml`,
+        `data/igp24/online_magma_manual_output_2a5559600c07_20260705.xml`,
+        and `data/igp24/online_magma_manual_output_62df2639fa40_20260705.xml`.
+      - Parse command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_manual_magma_queue_preserved_20260705 --timeout_seconds 5 --online_magma_manual --online_magma_pasted_output data/igp24/online_magma_manual_output_70a542863f79_20260705.xml --online_magma_pasted_output data/igp24/online_magma_manual_output_4bb12cfdfb23_20260705.xml --online_magma_pasted_output data/igp24/online_magma_manual_output_8e105d4e1281_20260705.xml --online_magma_pasted_output data/igp24/online_magma_manual_output_4882427239ef_20260705.xml --online_magma_pasted_output data/igp24/online_magma_manual_output_2a5559600c07_20260705.xml --online_magma_pasted_output data/igp24/online_magma_manual_output_62df2639fa40_20260705.xml --candidate_hash 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb --candidate_hash 4bb12cfdfb235e11af7c51ea2b726aab2a5b3cfcd54b3d0a9f9f29f5f2525edf --candidate_hash 8e105d4e1281a6e161a818dc685d41f37172c2460d6d3a04d024dd2699c03968 --candidate_hash 4882427239ef073a626b0003e9da228b367b985488a1bcd0f569cc91d1fcb26e --candidate_hash 2a5559600c07d1a771ab56f2bcca07e123b6ab5f6844b3c9857a168c253bd1e0 --candidate_hash 62df2639fa4002233ee4fa8b17d9cf3f5746a708b71e71f864edc481780179d1`
+      - Result: 6 selected rows, 6 verified online manual results, verified
+        labels `["24T25000"]`, local `magma_available=False`, local
+        `magma_executed=False`, and local MAGMA rows remained dry-run.
+    - [done] Add a safe proxy-only non-generic diagnostic helper.
+      - Implementation: `scripts/igp24_non_generic_diagnostic.py` reads
+        existing ledgers and ranks records by non-generic proxy evidence:
+        square discriminants, exact/near composed support, sparse support,
+        sampled Frobenius parity, and missing long-cycle witnesses.
+      - Safety: the helper is file-only; it does not call PARI, MAGMA, SAIR,
+        network APIs, training, GPU sampling, CPU proxy scoring hot loops,
+        local search, or submission paths. It keeps exact labels separate from
+        proxy evidence.
+    - [done] Add focused diagnostic tests and run implementation checks.
+      - Focused tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py`
+        - Result: 5 passed in 0.02s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_non_generic_diagnostic.py tests/test_igp24_non_generic_diagnostic.py`
+        - Result: passed.
+      - Help check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`
+        - Result: passed.
+    - [done] Generate a first non-generic diagnostic shortlist artifact.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_r4_second_confirm_20260704 /tmp/igp24_r4_dual_quality_confirm_20260704 --target_r 4 --limit 25 --output_dir /tmp/igp24_non_generic_diagnostic_20260705`
+      - Result: loaded 4870 records, diagnosed 1879 target-`r=4` candidates,
+        selected 25 diagnostic rows, top non-generic proxy score 1988.966833.
+      - Flag counts:
+        `{"all_sampled_frobenius_even": 19, "exact_composed_support": 25, "near_composed_support": 25, "no_long_cycle_witness_in_sample": 25, "sparse_support": 8, "square_discriminant_excludes_s24": 18, "very_near_square_discriminant": 18, "very_sparse_support": 17}`.
+      - Interpretation: unlike the previous high-score exact queue, this
+        shortlist prioritizes structural evidence against full generic `S_24`;
+        18 rows have square discriminants and all 25 have exact composed
+        support. These remain proxy-only until exact verification.
+      - Artifacts:
+        `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_diagnostic.jsonl`,
+        `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl`,
+        `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_coefficients.txt`,
+        `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_summary.json`,
+        and `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_report.md`.
 
 ## Tests And Checks
 

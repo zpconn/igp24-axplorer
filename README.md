@@ -892,12 +892,33 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
 ```
 
 The observed free calculator constraints are a 60 second runtime cap, 50000
-byte input limit, and Magma V2.29-8. The first manual probe recorded candidate
-`70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb` as
-degree 24, irreducible, and `24T25000` with group text
-`Symmetric group G acting on a set of cardinality 24`; the calculator-reported
-runtime was 0.420s. Treat this as manually pasted exact-verifier provenance,
-separate from proxy labels and separate from local MAGMA availability.
+byte input limit, and Magma V2.29-8. The six-candidate manual queue recorded
+all selected candidates as degree 24, irreducible, and `24T25000` with group
+text `Symmetric group G acting on a set of cardinality 24`; runtimes were
+0.340-0.440s. Treat these as manually pasted exact-verifier provenance,
+separate from proxy labels and separate from local MAGMA availability. This is
+evidence that the previous high-proxy-score queue was finding generic `S_24`
+behavior.
+
+Use the non-generic diagnostic helper to pivot toward candidates with proxy
+evidence against full `S_24`, such as square discriminants, composed support,
+sparse structure, or weak modular-pattern evidence:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py \
+  /tmp/igp24_r4_second_confirm_20260704 \
+  /tmp/igp24_r4_dual_quality_confirm_20260704 \
+  --target_r 4 \
+  --limit 25 \
+  --output_dir /tmp/igp24_non_generic_diagnostic_20260705
+```
+
+This helper is proxy-only and writes `non_generic_diagnostic.jsonl`,
+`non_generic_shortlist.jsonl`, `non_generic_coefficients.txt`,
+`non_generic_summary.json`, and `non_generic_report.md`. The 2026-07-05 run
+diagnosed 1879 target-`r=4` candidates and selected 25 rows; all selected rows
+had exact composed support, and 18 had square discriminants, which excludes
+full `S_24` if the recorded discriminant is correct.
 
 MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
 SAIR submission and network calls remain out of scope.
