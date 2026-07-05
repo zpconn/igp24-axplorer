@@ -1649,11 +1649,62 @@ results change.
         `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2404/cpu_scored_export_all/split_workflow_manifest.json`,
         and
         `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2404/cpu_scored_export_all/split_workflow_report.md`.
-    - [pending] Run seed `2405` with the same bounded 1024-unique settings
-      and the same diagnostic/scoring gates.
-    - [pending] Decide whether optional seed `2406` is justified. Run it only
+    - [done] Run seed `2405` with the same bounded 1024-unique settings.
+      - Seed `2405` GPU dedup command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2405 --dedup_unique_target 1024 --dedup_max_attempts 4096 --dedup_progress_interval 256 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2405` GPU result: return code 0, no timeout, runtime
+        153.832s, `device: cuda`, four finite eval points, final train/test
+        loss about `0.429` / `1.619`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 81.493%, max monitored GPU memory
+        10602 MiB, max CUDA reserved 242 MiB, and GPU-phase CPU
+        scoring/local search/dataset update avoided.
+      - Seed `2405` dedup export result: target 1024 unique decoded
+        coefficient vectors reached after 1611 attempts out of a
+        4096-attempt budget; 1030 rows written, 1024 decoded rows, 6 invalid
+        decode rows, 1024 unique decoded coefficient vectors, 581 duplicate
+        decoded attempts skipped, and `stop_reason=unique_target_reached`.
+      - Live GPU observation while running: `nvidia-smi` showed a
+        `/python3.12` compute process at about 98% GPU utilization and about
+        10517-10520 MiB used.
+      - Seed `2405` export artifacts:
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2405_u1024_a4096.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2405_u1024_a4096.jsonl.summary.json`.
+    - [done] Run raw export diversity diagnostic and CPU-score seed
+      `2405` if the diagnostic justifies scoring.
+      - Seed `2405` raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2405_u1024_a4096.jsonl --labels seed2405_t11_open_dedup_u1024 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2405` raw diagnostic result: return code 0, 1030 rows read,
+        1024 decoded, 6 invalid decode, 1024 exact unique coefficient
+        vectors, 0 exact duplicate records, 1024 canonical unique hashes, 0
+        canonical duplicate records, 1024 token unique sequences, and 0 token
+        duplicate records.
+      - Seed `2405` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2405_u1024_a4096.jsonl --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2405` CPU score result: return code 0, runtime 39.032s,
+        `selection_mode=all_explicit`, 1030 rows read/selected, 1024 decoded
+        input rows, 6 skipped decode, 1024 scored, 929 valid, 95 rejected,
+        1024 unique canonical hashes, 0 duplicate hash records, best score
+        9950.674, mean score 9000.689, and local search disabled.
+      - Seed `2405` artifacts:
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/export_diversity_diagnostic/export_diversity_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all/score_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all/scored_samples.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all/split_workflow_manifest.json`.
+    - [done] Decide whether optional seed `2406` is justified. Run it only
       if seeds `2404` and `2405` both reach target cleanly, GPU state is good,
       and time remains.
+      - Decision: run optional seed `2406` with the same bounded settings.
+        Seeds `2404` and `2405` both reached the 1024 unique target, used CUDA
+        with good monitored GPU utilization, wrote zero-duplicate exports, and
+        scored cleanly.
+    - [in_progress] Run optional seed `2406` with the same bounded
+      1024-unique settings and diagnostic/scoring gates.
     - [pending] Merge scored outputs with relevant prior baselines and dedup
       runs, then compare marginal unique coverage, overlap, validity rate,
       best score, mean score, and attempts per unique across seeds.
