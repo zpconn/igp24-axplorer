@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  manual-online MAGMA verification-queue work.
+  non-generic Galois diagnostic work.
 - Active focus: pivot from high proxy-score generic `S_24` candidates toward
   non-generic Galois proxy evidence. The full six-candidate manual online
   Magma queue now parses as `24T25000`, so exact-result provenance has been
@@ -2317,7 +2317,7 @@ results change.
         pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
       - Cleanup: generated `__pycache__` directories were removed; follow-up
         `find . -type d -name __pycache__ -prune -print` returned no paths.
-  - [in_progress] Pivot from generic `S_24` queue results toward
+  - [done] Pivot from generic `S_24` queue results toward
     non-generic Galois proxy evidence.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2376,11 +2376,45 @@ results change.
         `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_coefficients.txt`,
         `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_summary.json`,
         and `/tmp/igp24_non_generic_diagnostic_20260705/non_generic_report.md`.
+    - [done] Run final validation, audit state, and clean generated caches.
+      - Focused diagnostic/review/shortlist tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`
+        - Result: 11 passed in 0.05s.
+      - Full tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 97 passed in 3.74s.
+      - Full compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Help checks:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`
+        and
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`
+        - Result: both passed.
+      - `git diff --check`
+        - Result: passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4405 after this final
+          TODO update.
+      - GPU/process audit:
+        `nvidia-smi`
+        - Result: RTX 5090 visible; no running GPU processes listed; 2944 MiB
+          reported in use by display/driver state; instantaneous utilization
+          6%.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        - Result: no matching Python processes printed.
+      - Cleanup:
+        removed generated `__pycache__` directories from the repo.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 92 passed in 3.75s after verification-queue work.
+  - Latest result: 97 passed in 3.74s after non-generic diagnostic work.
+- [done] Run focused non-generic diagnostic/review/shortlist tests:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`.
+  - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
 - [done] Run focused offline verifier tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
   - Latest result: 13 passed in 1.29s after verification-queue reporting
@@ -2393,15 +2427,17 @@ results change.
   - Latest result: 19 passed in 1.28s for the focused offline/review/shortlist
     queue subset after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after verification-queue work.
+  - Latest result: passed after non-generic diagnostic work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after verification-queue work; helper exposes
+  - Latest result: passed after non-generic diagnostic work; helper exposes
     `--candidate_hash`, `--online_magma_manual`, and
     `--online_magma_pasted_output`.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`.
+  - Latest result: passed after non-generic diagnostic work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
