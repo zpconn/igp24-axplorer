@@ -820,14 +820,15 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
   --timeout_seconds 5
 ```
 
-It writes `offline_verification_manifest.json`, `pari_input.gp`,
+It writes `offline_verification_manifest.json`, a copied
+`verification_batch.jsonl`, `verification_coefficients.txt`, `pari_input.gp`,
 `magma_input.m`, `verification_plan.md`, `magma_verification_results.jsonl`,
 `magma_verification_summary.json`, `magma_verification_report.md`,
 `magma_verification_cache.json`, and per-candidate scripts/raw-output
 directories. Each result row records one exact-verification status, such as
 `dry_run`, `unavailable`, `timeout`, `parse_error`, `invalid_input`, or
-`verified`. Proxy-only labels remain separate from exact `verified_group_label`
-values.
+`verified`. Proxy-only labels and non-generic diagnostic flags remain separate
+from exact `verified_group_label` values.
 
 MAGMA discovery checks PATH, an explicit `--magma_executable` path, a bounded
 set of common local install locations such as `/usr/local/bin/magma`,
@@ -867,6 +868,9 @@ requests to the online calculator and should not be used for automated batches.
 Use repeated `--candidate_hash` values when the exact-verification queue should
 pick a deliberate non-contiguous set from a review batch, for example to keep
 the highest proxy-score candidates while also including strategy coverage.
+For diagnostic shortlists, the manual template/report preserve queue index,
+hash, coefficients, proxy score, non-generic score, strategy, diagnostic flags,
+compact evidence summaries, and per-script byte counts.
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
@@ -919,6 +923,25 @@ This helper is proxy-only and writes `non_generic_diagnostic.jsonl`,
 diagnosed 1879 target-`r=4` candidates and selected 25 rows; all selected rows
 had exact composed support, and 18 had square discriminants, which excludes
 full `S_24` if the recorded discriminant is correct.
+
+Turn that full proxy-only diagnostic shortlist into a manual exact-verification
+queue with:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
+  --output_dir /tmp/igp24_non_generic_manual_queue_20260705 \
+  --timeout_seconds 5 \
+  --online_magma_manual
+```
+
+The current queue has 25 copied batch records, 25 coefficient rows, 25 local
+MAGMA dry-run rows, 25 manual-online template rows, and 25 one-candidate
+copy/paste scripts. All scripts are tiny, with max size 841 bytes versus the
+observed 50000 byte calculator cap, so no larger chunk grouping is needed.
+No matching manually pasted outputs were found for these 25 hashes in `/tmp`
+or `data/igp24`, so exact labels remain unparsed and all rows are ready for
+manual copy/paste verification.
 
 MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
 SAIR submission and network calls remain out of scope.

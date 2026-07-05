@@ -302,6 +302,29 @@ records and selected 25 rows. All selected rows had exact composed support;
 discriminant is correct. These rows are still proxy-only until exact MAGMA or
 another local verifier confirms the Galois group.
 
+The follow-up all-queue manual exact-verification handoff is under
+`/tmp/igp24_non_generic_manual_queue_20260705`. It was built directly from
+`non_generic_shortlist.jsonl` with `--online_magma_manual`, selected all 25
+diagnostic rows, and wrote a self-contained copied queue:
+`verification_batch.jsonl`, `verification_coefficients.txt`, local MAGMA
+dry-run results, one manual copy/paste script per candidate, a pasted-output
+template, summary JSON, and report. Local MAGMA was unavailable and not
+executed; all local exact rows are `dry_run`. A scan of
+`/tmp/igp24_online_magma_manual_output_*_20260705.xml` and
+`data/igp24/online_magma_manual_output_*_20260705.xml` found no matching
+candidate hashes for these 25 rows, so no exact labels have been parsed for
+this queue yet. All 25 rows remain ready for human copy/paste verification.
+
+This queue is now the decision point before changing search direction again.
+If exact verification confirms non-generic groups, expand the corresponding
+structured family, likely the composed-support/square-discriminant
+`quartic_lift` branch. If the supposedly square-discriminant rows parse as
+generic `24T25000`, treat that as a data or diagnostic bug to investigate
+before trusting more proxy ranks. Until exact labels arrive, do not spend a
+large GPU training run on this branch; the highest-signal next action is to
+manually verify the top queue rows and feed the exact labels back into the
+family choice.
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and

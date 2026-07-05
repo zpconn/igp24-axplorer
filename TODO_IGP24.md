@@ -2479,9 +2479,20 @@ results change.
       - Focused compile:
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
         - Result: passed.
-    - [pending] Update README, NOTES, and TODO with queue coverage, exact
+    - [done] Update README, NOTES, and TODO with queue coverage, exact
       labels if any, local MAGMA status, and the recommended next search
       family decision.
+      - README now documents the copied queue artifacts and the 25-row
+        non-generic manual-online queue.
+      - NOTES now records that no exact labels have been parsed for this queue
+        yet and that the highest-signal next action is manual exact
+        verification of the top rows before changing search direction.
+      - Recommended decision rule: if exact verification confirms non-generic
+        groups, expand the corresponding composed-support/square-discriminant
+        `quartic_lift` branch; if square-discriminant rows parse as generic
+        `24T25000`, treat that as a data or diagnostic bug before trusting
+        more proxy ranks. Do not start a large GPU training run for this
+        branch until exact labels arrive.
 
 ## Tests And Checks
 
@@ -2492,8 +2503,8 @@ results change.
   - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
 - [done] Run focused offline verifier tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
-  - Latest result: 13 passed in 1.29s after verification-queue reporting
-    work.
+  - Latest result: 13 passed in 1.31s after non-generic manual-queue
+    ergonomics work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
