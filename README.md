@@ -535,6 +535,35 @@ Recommendation: a later medium dedup-aware run is justified only as another
 bounded target/budget experiment with stop-reason auditing, not as an unbounded
 longer fixed-template run.
 
+A bounded 1536-unique stress test on seed `2402` used the same export-only
+dedup path with an 8192-attempt budget and a 1200-second timeout:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py \
+  --probe_mode sample_export_split_dedup \
+  --diversity_variant fixed_template_t11_open_topk \
+  --diversity_seed 2402 \
+  --dedup_unique_target 1536 \
+  --dedup_max_attempts 8192 \
+  --dedup_progress_interval 512 \
+  --output_dir /tmp/igp24_gpu_dedup_medium_20260704/seed2402 \
+  --timeout_seconds 1200 \
+  --monitor_interval_seconds 2
+```
+
+It stayed on CUDA and loaded the GPU well, but exhausted the attempt budget:
+8192 attempts, 1049 rows written, 1040 decoded/unique rows, 9 invalid decodes,
+7143 duplicate decoded attempts skipped, and
+`stop_reason=attempt_budget_exhausted`. The raw diagnostic still found zero
+exact/canonical/token duplicate records in the written export, and CPU
+score-all with local search disabled scored 1040 rows with 952 valid, 88
+rejected, 1040 unique hashes, best score 9958.729, and mean score 9081.130.
+
+Conclusion: the 1536 target is not a good next single-seed target for
+duplicate-heavy seed `2402` under this bounded budget. Prefer several bounded
+smaller dedup-aware seeds, or change sampler diversity, before trying another
+larger single-seed target.
+
 ## Run A Small Smoke Job
 
 ```bash

@@ -497,6 +497,23 @@ waste, but it does not remove seed sensitivity. Any medium dedup-aware export
 should keep a hard unique target, hard attempt budget, raw diagnostic, and
 explicit stop-reason audit.
 
+A bounded 1536-unique stress test on seed `2402` confirmed the stop controls
+work, but not that the larger target is useful. The export-only CUDA phase ran
+for 153.293 seconds with `device: cuda`, max monitored GPU utilization 99%,
+average utilization 81.093%, and max monitored GPU memory 10410 MiB. It
+exhausted the full 8192-attempt budget before reaching the 1536 target, wrote
+1049 rows, decoded 1040 written rows, skipped 7143 duplicate decoded attempts,
+had 9 invalid decodes, and recorded
+`stop_reason=attempt_budget_exhausted`. The written export was still clean:
+the raw diagnostic found 1040 exact/canonical/token uniques and zero duplicate
+records. CPU score-all with local search disabled scored 1040 rows, found 952
+valid and 88 rejected records, kept 1040 unique hashes with zero duplicate hash
+records, and reported best/mean proxy scores of 9958.729 / 9081.130. The merge
+with prior fixed-template and dedup runs kept the earlier
+`seed2402_t11_dedup1024` best score at 9966.150. The next GPU sampling step
+should not be a larger single-seed target on this setting; prefer several
+bounded smaller dedup-aware seeds or a sampler-diversity change first.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

@@ -1461,26 +1461,102 @@ results change.
         true, `sample_export_dedup` true, `always_search` false,
         `max_local_search_steps` 0, and avoids GPU-phase CPU scoring/local
         search/dataset updates.
-    - [in_progress] Run seed `2402` bounded 1536-unique dedup-aware
+    - [done] Run seed `2402` bounded 1536-unique dedup-aware
       export-only GPU stress test.
       - GPU dedup stress command:
         `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2402 --dedup_unique_target 1536 --dedup_max_attempts 8192 --dedup_progress_interval 512 --output_dir /tmp/igp24_gpu_dedup_medium_20260704/seed2402 --timeout_seconds 1200 --monitor_interval_seconds 2`
-      - Intended measurements: runtime, CUDA status, monitored GPU
-        utilization, attempts, rows written, decoded rows, unique decoded
-        count, duplicate skipped count, invalid decodes, and stop reason.
-    - [pending] Immediately run raw export diversity diagnostic and record
+      - GPU dedup stress result: return code 0, no timeout, runtime
+        153.293s, `device: cuda`, four finite eval points, final train/test
+        loss about `0.279` / `2.036`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 81.093%, max monitored GPU memory
+        10410 MiB, max CUDA reserved 242 MiB, and GPU-phase CPU
+        scoring/local search/dataset update avoided.
+      - Dedup export result: the 1536-unique target was not reached. The run
+        exhausted the 8192-attempt budget, wrote 1049 rows, decoded 1040
+        written rows, had 9 invalid decode rows, reached 1040 unique decoded
+        coefficient vectors, skipped 7143 duplicate decoded attempts, and
+        recorded `stop_reason=attempt_budget_exhausted`.
+      - Live GPU observation while running: `nvidia-smi` showed a `/python3.12`
+        compute process at about 98% GPU utilization and about 10380 MiB used.
+      - Export artifacts:
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1536_a8192.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1536_a8192.jsonl.summary.json`.
+    - [done] Immediately run raw export diversity diagnostic and record
       exact/canonical/token duplicate counts.
-    - [pending] CPU-score the export only if the diagnostic justifies it,
+      - Raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1536_a8192.jsonl --labels seed2402_t11_open_dedup_u1536 --output_dir /tmp/igp24_gpu_dedup_medium_20260704/seed2402/export_diversity_diagnostic --checkpoint_interval 512 --top_n 10`
+      - Raw diagnostic result: return code 0, runtime 25.300s, 1049 rows
+        read, 1040 decoded, 9 invalid decode, 1040 exact unique coefficient
+        vectors, 0 exact duplicate records, 1040 canonical unique hashes, 0
+        canonical duplicate records, 1040 token unique sequences, and 0 token
+        duplicate records.
+      - Raw diagnostic artifacts:
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/export_diversity_diagnostic/export_diversity_report.md`,
+        and
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/export_diversity_diagnostic/top_duplicate_groups.jsonl`.
+    - [done] CPU-score the export only if the diagnostic justifies it,
       using `--score_all true --local_search false
       --max_local_search_steps 0`.
-    - [pending] Merge any scored output with the relevant prior baselines and
+      - CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_medium_20260704/seed2402/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2402_u1536_a8192.jsonl --output_dir /tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - CPU score result: return code 0, runtime 38.627s,
+        `selection_mode=all_explicit`, 1049 rows read/selected, 1040 decoded
+        input rows, 9 skipped decode, 1040 scored, 952 valid, 88 rejected,
+        1040 unique canonical hashes, 0 duplicate hash records, best score
+        9958.729, mean score 9081.130, and local search disabled.
+      - CPU score artifacts:
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all/score_report.md`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all/scored_samples.jsonl`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all/split_workflow_manifest.json`,
+        and
+        `/tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all/split_workflow_report.md`.
+    - [done] Merge any scored output with the relevant prior baselines and
       dedup runs.
-    - [pending] Decide whether the 1536 target is viable under bounded
+      - Merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all --labels seed2201_t09_clean seed2302_t11_open seed2402_t11_open_full2048 seed2401_t11_dedup512 seed2401_t11_dedup1024 seed2402_t11_dedup1024 seed2402_t11_dedup1536 --output_dir /tmp/igp24_gpu_dedup_medium_20260704/merged_scored_review --top_n 25`
+      - Merge result: seven sources, 9727 scored rows, 8857 valid, 870
+        rejected, 8121 unique canonical hashes, 1606 duplicate hash records,
+        514 hashes seen in multiple sources, best score 9966.150, and mean
+        score 9033.726.
+      - New source comparison: `seed2402_t11_dedup1536` scored 1040 rows,
+        found 952 valid, 88 rejected, 1040 unique canonical hashes, 0
+        duplicate hash records, best score 9958.729, and mean score
+        9081.130.
+      - Overlap notes: `seed2402_t11_dedup1536` shared 341 hashes with the
+        prior `seed2402_t11_dedup1024` run and 278 hashes with
+        `seed2402_t11_open_full2048`. It had zero overlap with
+        `seed2201_t09_clean`, `seed2302_t11_open`, `seed2401_t11_dedup512`,
+        and `seed2401_t11_dedup1024`.
+      - Merge artifacts:
+        `/tmp/igp24_gpu_dedup_medium_20260704/merged_scored_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_dedup_medium_20260704/merged_scored_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_dedup_medium_20260704/merged_scored_review/top_deduped_candidates.jsonl`.
+    - [done] Decide whether the 1536 target is viable under bounded
       attempts or whether the next step should use multiple smaller dedup
       seeds.
-    - [pending] Update README/NOTES if the workflow recommendation changes,
-      run final verification, confirm Stage 4 remains present, audit
-      GPU/process state, cleanup generated caches, commit, and push.
+      - Decision: the 1536-unique target is not viable for seed `2402` under
+        an 8192-attempt bounded budget. The run stayed GPU-bound and produced
+        a clean scored export, but it exhausted the budget at 1040 uniques
+        after skipping 7143 duplicate decoded attempts. Do not run the
+        optional fresh seed `2404` in this goal because the required
+        condition, reaching target quickly with good GPU state, was not met.
+        The next GPU sampling goal should prefer several bounded smaller
+        dedup-aware seeds, or a sampler-diversity change before trying a
+        larger single-seed target again.
+    - [done] Update README/NOTES because the workflow recommendation changed.
+      - Result: README and NOTES now summarize the bounded 1536-unique stress
+        test, the clean zero-duplicate written/scored export, the exhausted
+        attempt budget, and the recommendation to prefer several bounded
+        smaller dedup-aware seeds or a sampler-diversity change before trying
+        another larger single-seed target.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
