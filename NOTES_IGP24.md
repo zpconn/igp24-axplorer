@@ -532,6 +532,27 @@ clean zero-duplicate scored coverage with best/mean scores 9963.539 /
 triage/diversity diagnostic before spending longer runs on duplicate-heavy
 seeds.
 
+The cheap seed triage diagnostic now runs the same dedup-aware split export
+path at target 256 / max attempts 1024 before any full 1024-unique seed run.
+The first loose threshold pass was too permissive and promoted all known
+seeds, so the default promote/reject thresholds were tightened: promote only
+when attempts/unique is at most 1.08 and duplicate skip rate is at most 0.05;
+reject when attempts/unique reaches 1.15 or duplicate skip rate reaches 0.12;
+otherwise mark the seed ambiguous. Re-summarizing the GPU artifacts with those
+thresholds matched the useful planning split:
+
+| seed | known outcome | attempts | unique | duplicate skipped | invalid | attempts/unique | duplicate skip rate | recommendation |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 2404 | good_full_run_seed | 256 | 256 | 0 | 0 | 1.000 | 0.000 | promote_seed_to_1024_run |
+| 2405 | acceptable_full_run_seed | 268 | 256 | 11 | 1 | 1.047 | 0.041 | promote_seed_to_1024_run |
+| 2406 | duplicate_heavy_full_run_seed | 297 | 256 | 41 | 0 | 1.160 | 0.138 | reject_seed_for_full_1024_run |
+| 2402 | duplicate_heavy_larger_target_seed | 284 | 256 | 20 | 8 | 1.109 | 0.072 | ambiguous_needs_more_evidence |
+
+This target-256 probe is a conservative gate, not a final duplicate guarantee.
+It is good enough to promote very clean seeds, reject clear early duplicate
+pressure, and keep gray-zone seeds from going straight to a full 1024-unique
+run. Ambiguous seeds should get an intermediate 512-unique dedup probe first.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

@@ -17,10 +17,10 @@ from scripts.igp24_seed_triage import (
 
 def _thresholds():
     return {
-        "promote_max_attempts_per_unique": 1.75,
-        "promote_max_duplicate_skip_rate": 0.40,
-        "reject_min_attempts_per_unique": 3.0,
-        "reject_min_duplicate_skip_rate": 0.65,
+        "promote_max_attempts_per_unique": 1.08,
+        "promote_max_duplicate_skip_rate": 0.05,
+        "reject_min_attempts_per_unique": 1.15,
+        "reject_min_duplicate_skip_rate": 0.12,
         "reject_max_unique_fraction_on_budget_exhausted": 0.90,
     }
 
@@ -60,8 +60,8 @@ def test_recommend_seed_promotes_rejects_and_marks_ambiguous():
             "unique_decoded_count": 256,
             "unique_target": 256,
             "stop_reason": "unique_target_reached",
-            "attempts_per_unique": 1.2,
-            "duplicate_skip_rate": 0.12,
+            "attempts_per_unique": 1.047,
+            "duplicate_skip_rate": 0.041,
         },
         thresholds,
     )
@@ -74,8 +74,8 @@ def test_recommend_seed_promotes_rejects_and_marks_ambiguous():
             "unique_decoded_count": 180,
             "unique_target": 256,
             "stop_reason": "attempt_budget_exhausted",
-            "attempts_per_unique": 5.68,
-            "duplicate_skip_rate": 0.78,
+            "attempts_per_unique": 4.2,
+            "duplicate_skip_rate": 0.72,
         },
         thresholds,
     )
@@ -88,13 +88,27 @@ def test_recommend_seed_promotes_rejects_and_marks_ambiguous():
             "unique_decoded_count": 256,
             "unique_target": 256,
             "stop_reason": "unique_target_reached",
-            "attempts_per_unique": 2.1,
-            "duplicate_skip_rate": 0.45,
+            "attempts_per_unique": 1.109,
+            "duplicate_skip_rate": 0.072,
         },
         thresholds,
     )
     assert ambiguous == RECOMMEND_AMBIGUOUS
     assert "not clearly low" in ambiguous_reason
+
+    early_duplicate_heavy, early_duplicate_heavy_reason = recommend_seed(
+        {
+            "returncode": 0,
+            "unique_decoded_count": 256,
+            "unique_target": 256,
+            "stop_reason": "unique_target_reached",
+            "attempts_per_unique": 1.160,
+            "duplicate_skip_rate": 0.138,
+        },
+        thresholds,
+    )
+    assert early_duplicate_heavy == RECOMMEND_REJECT
+    assert "high duplicate pressure" in early_duplicate_heavy_reason
 
 
 def test_load_seed_result_reads_probe_and_sidecar_summary(tmp_path):
@@ -106,15 +120,15 @@ def test_load_seed_result_reads_probe_and_sidecar_summary(tmp_path):
         json.dumps(
             {
                 "attempt_budget": 1024,
-                "attempted_samples": 402,
-                "decoded_attempts": 398,
-                "invalid_decode_attempts": 4,
-                "invalid_decode_records": 4,
-                "records_written": 260,
+                "attempted_samples": 268,
+                "decoded_attempts": 267,
+                "invalid_decode_attempts": 1,
+                "invalid_decode_records": 1,
+                "records_written": 257,
                 "decoded_records": 256,
                 "unique_target": 256,
                 "unique_decoded_coefficients": 256,
-                "duplicate_decoded_records_skipped": 142,
+                "duplicate_decoded_records_skipped": 11,
                 "stop_reason": "unique_target_reached",
                 "dataset_update_avoided": True,
             }
@@ -134,13 +148,13 @@ def test_load_seed_result_reads_probe_and_sidecar_summary(tmp_path):
                         "sample_export_path": str(export_path),
                         "sample_export_summary_path": str(sidecar_path),
                         "sample_export_attempt_budget": 1024,
-                        "sample_export_attempted_samples": 402,
-                        "sample_export_records": 260,
+                        "sample_export_attempted_samples": 268,
+                        "sample_export_records": 257,
                         "sample_export_decoded_records": 256,
-                        "sample_export_invalid_decode_records": 4,
+                        "sample_export_invalid_decode_records": 1,
                         "sample_export_unique_target": 256,
                         "sample_export_unique_decoded_coefficients": 256,
-                        "sample_export_duplicate_decoded_records_skipped": 142,
+                        "sample_export_duplicate_decoded_records_skipped": 11,
                         "sample_export_stop_reason": "unique_target_reached",
                         "sample_export_scoring_avoided": True,
                         "sample_export_local_search_avoided": True,
@@ -166,11 +180,11 @@ def test_load_seed_result_reads_probe_and_sidecar_summary(tmp_path):
 
     assert result["seed"] == 2405
     assert result["known_full_run_outcome"] == "acceptable_full_run_seed"
-    assert result["attempted_samples"] == 402
+    assert result["attempted_samples"] == 268
     assert result["unique_decoded_count"] == 256
-    assert result["duplicate_skipped_count"] == 142
-    assert result["attempts_per_unique"] == 402 / 256
-    assert result["duplicate_skip_rate"] == 142 / 398
+    assert result["duplicate_skipped_count"] == 11
+    assert result["attempts_per_unique"] == 268 / 256
+    assert result["duplicate_skip_rate"] == 11 / 267
     assert result["recommendation"] == RECOMMEND_PROMOTE
     assert result["scoring_avoided"] is True
     assert result["local_search_avoided"] is True

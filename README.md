@@ -587,6 +587,27 @@ single-seed target. Continue with a few more bounded fresh seeds or add a seed
 triage/diversity diagnostic before spending longer runs on duplicate-heavy
 seeds.
 
+Before spending a full 1024-unique export on a fresh seed, run the cheap
+dedup-aware seed triage helper:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_seed_triage.py \
+  --seeds 2404 2405 2406 2402 \
+  --output_dir /tmp/igp24_seed_triage_20260705 \
+  --unique_target 256 \
+  --max_attempts 1024 \
+  --progress_interval 128 \
+  --timeout_seconds 900 \
+  --monitor_interval_seconds 2
+```
+
+The calibrated target-256 probe promotes only very clean seeds, rejects clear
+early duplicate pressure, and marks the gray zone ambiguous. On known outcomes
+it promoted productive seeds `2404` and `2405`, rejected duplicate-heavy
+`2406`, and marked duplicate-heavy larger-target seed `2402` ambiguous instead
+of falsely promoting it. Treat ambiguous seeds as needing an intermediate
+512-unique dedup probe before any full 1024-unique export.
+
 ## Run A Small Smoke Job
 
 ```bash

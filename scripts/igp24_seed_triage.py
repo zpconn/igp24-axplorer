@@ -24,6 +24,11 @@ from scripts.igp24_gpu_smoke import command_text
 DEFAULT_OUTPUT_DIR = Path("/tmp/igp24_seed_triage_20260705")
 DEFAULT_SEEDS = [2404, 2405, 2406, 2402]
 DEFAULT_DIVERSITY_VARIANT = "fixed_template_t11_open_topk"
+DEFAULT_PROMOTE_MAX_ATTEMPTS_PER_UNIQUE = 1.08
+DEFAULT_PROMOTE_MAX_DUPLICATE_SKIP_RATE = 0.05
+DEFAULT_REJECT_MIN_ATTEMPTS_PER_UNIQUE = 1.15
+DEFAULT_REJECT_MIN_DUPLICATE_SKIP_RATE = 0.12
+DEFAULT_REJECT_MAX_UNIQUE_FRACTION_ON_BUDGET_EXHAUSTED = 0.90
 RECOMMEND_PROMOTE = "promote_seed_to_1024_run"
 RECOMMEND_REJECT = "reject_seed_for_full_1024_run"
 RECOMMEND_AMBIGUOUS = "ambiguous_needs_more_evidence"
@@ -417,11 +422,15 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip_existing", action="store_true", help="Reuse an existing per-seed GPU probe summary when present")
     parser.add_argument("--summarize_existing", action="store_true", help="Do not run GPU probes; summarize existing per-seed outputs only")
     parser.add_argument("--known_outcome", action="append", default=[], help="Optional SEED=LABEL full-run outcome for report comparison")
-    parser.add_argument("--promote_max_attempts_per_unique", type=float, default=1.75)
-    parser.add_argument("--promote_max_duplicate_skip_rate", type=float, default=0.40)
-    parser.add_argument("--reject_min_attempts_per_unique", type=float, default=3.0)
-    parser.add_argument("--reject_min_duplicate_skip_rate", type=float, default=0.65)
-    parser.add_argument("--reject_max_unique_fraction_on_budget_exhausted", type=float, default=0.90)
+    parser.add_argument("--promote_max_attempts_per_unique", type=float, default=DEFAULT_PROMOTE_MAX_ATTEMPTS_PER_UNIQUE)
+    parser.add_argument("--promote_max_duplicate_skip_rate", type=float, default=DEFAULT_PROMOTE_MAX_DUPLICATE_SKIP_RATE)
+    parser.add_argument("--reject_min_attempts_per_unique", type=float, default=DEFAULT_REJECT_MIN_ATTEMPTS_PER_UNIQUE)
+    parser.add_argument("--reject_min_duplicate_skip_rate", type=float, default=DEFAULT_REJECT_MIN_DUPLICATE_SKIP_RATE)
+    parser.add_argument(
+        "--reject_max_unique_fraction_on_budget_exhausted",
+        type=float,
+        default=DEFAULT_REJECT_MAX_UNIQUE_FRACTION_ON_BUDGET_EXHAUSTED,
+    )
     return parser
 
 
