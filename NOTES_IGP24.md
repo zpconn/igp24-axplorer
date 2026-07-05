@@ -315,6 +315,27 @@ executed; all local exact rows are `dry_run`. A scan of
 candidate hashes for these 25 rows, so no exact labels have been parsed for
 this queue yet. All 25 rows remain ready for human copy/paste verification.
 
+A local exact-algebra structure audit now sanity-checks the strongest
+non-generic claims before any more search or GPU spend. The helper
+`scripts/igp24_queue_structure_audit.py` recomputes discriminants, confirms
+whether those discriminants are integer squares, detects exact support of the
+form `f(x)=g(x^d)`, extracts the base polynomials `g(y)`, groups candidates by
+structural family, and writes a coverage-oriented manual verification order.
+It performs no MAGMA/PARI/SAIR calls, no network calls, no training, no GPU
+sampling, no CPU proxy-search loop, and no local search.
+
+The 2026-07-05 audit under
+`/tmp/igp24_non_generic_structure_audit_20260705` loaded and audited all 25
+queue rows. It confirmed all 18 square-discriminant claims and all 25 exact
+composed-support claims, with zero refuted claims. Structurally, 24 rows have
+primary exact block divisor 2 and base degree 12; one row has primary exact
+block divisor 3 and base degree 8. Strategy counts are `quartic_lift:24` and
+`sparse:1`. The recommended manual exact-verification order starts with queue
+rows `1, 19, 6, 2, 3, 4, 5, 7, 8, 9`; the full hash list is in
+`/tmp/igp24_non_generic_structure_audit_20260705/manual_priority_hashes.txt`.
+This audit confirms local algebraic structure only; exact `24Tt` labels remain
+unknown.
+
 This queue is now the decision point before changing search direction again.
 If exact verification confirms non-generic groups, expand the corresponding
 structured family, likely the composed-support/square-discriminant

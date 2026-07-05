@@ -943,6 +943,27 @@ No matching manually pasted outputs were found for these 25 hashes in `/tmp`
 or `data/igp24`, so exact labels remain unparsed and all rows are ready for
 manual copy/paste verification.
 
+Before manually pasting the queue into an exact verifier, run the local
+structure audit:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py \
+  /tmp/igp24_non_generic_manual_queue_20260705/verification_batch.jsonl \
+  --output_dir /tmp/igp24_non_generic_structure_audit_20260705 \
+  --priority_limit 10
+```
+
+The 2026-07-05 audit confirmed all 18 square-discriminant claims and all 25
+exact composed-support claims, with no refuted claims. It writes
+`structure_report.md`, `structure_summary.json`, `structure_audit.jsonl`, and a
+compact manual verification order at:
+
+```text
+/tmp/igp24_non_generic_structure_audit_20260705/manual_priority_hashes.txt
+```
+
+This is still local algebra only. It does not produce exact `24Tt` labels.
+
 MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
 SAIR submission and network calls remain out of scope.
 

@@ -24,8 +24,8 @@ results change.
   `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
   network/submission paths. Dry-run remains the default; local MAGMA execution
   still requires explicit `--run_magma`.
-- Current task: document and validate the local structure-audit helper/results,
-  then commit and push the refreshed README/TODO/NOTES handoff.
+- Current task: manually exact-verify the structure-audit priority queue rows
+  before changing search families or spending on a larger GPU run.
 
 ## Stage 0: Scaffold
 
@@ -2527,7 +2527,7 @@ results change.
         `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
         - Result: no matching Python processes printed.
       - Cleanup: generated `__pycache__` directories were removed.
-  - [in_progress] Locally audit the 25-row non-generic manual queue structure
+  - [done] Locally audit the 25-row non-generic manual queue structure
     before any larger search or GPU run.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2585,14 +2585,46 @@ results change.
       - Interpretation: this confirms local algebraic structure only. Exact
         `24Tt` labels remain unknown until manual/local exact Galois
         verification is performed outside this helper.
-    - [in_progress] Update README/NOTES/TODO with the structure-audit handoff,
-      then run full validation, confirm Stage 4 remains present, audit GPU and
-      Python process state, clean caches, commit, and push.
+    - [done] Update README/NOTES/TODO with the structure-audit handoff.
+      - Result: README now documents the exact audit command, artifact paths,
+        and confirmed local-structure counts. NOTES now records the
+        structural-family split and manual verification order. TODO keeps the
+        exact/proxy separation and Stage 4 future work intact.
+    - [done] Run full validation, confirm Stage 4 remains present, audit GPU
+      and Python process state, clean caches, commit, and push.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 103 passed in 3.78s.
+      - Full compile check:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Help checks:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py --help`,
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`,
+        and
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`
+        - Result: all passed.
+      - `git diff --check`
+        - Result: passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4623 after this final TODO
+          update.
+      - GPU/process audit:
+        `nvidia-smi`
+        - Result: RTX 5090 visible; no running GPU processes listed; 2990 MiB
+          reported in use by display/driver state; instantaneous utilization
+          4%.
+      - Python process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        - Result: no matching Python processes printed.
+      - Cleanup: generated `__pycache__` directories were removed and a
+        follow-up `find . -type d -name __pycache__ -print` printed nothing.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 97 passed in 3.71s after non-generic manual queue work.
+  - Latest result: 103 passed in 3.78s after queue structure-audit work.
 - [done] Run focused non-generic diagnostic/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`.
   - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
@@ -2611,17 +2643,17 @@ results change.
   - Latest result: 19 passed in 1.28s for the focused offline/review/shortlist
     queue subset after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after non-generic manual queue work.
+  - Latest result: passed after queue structure-audit work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after non-generic manual queue work; helper exposes
+  - Latest result: passed after queue structure-audit final validation; helper exposes
     `--candidate_hash`, `--online_magma_manual`, and
     `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`.
-  - Latest result: passed after non-generic manual queue work.
+  - Latest result: passed after queue structure-audit final validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py --help`.
   - Latest result: passed after queue structure-audit work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
