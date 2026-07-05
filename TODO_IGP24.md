@@ -2127,7 +2127,7 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
-  - [in_progress] Add safe manual free-online Magma calculator artifacts and
+  - [done] Add safe manual free-online Magma calculator artifacts and
     pasted-output parsing.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2192,11 +2192,50 @@ results change.
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
         - Result: passed.
       - Commit: `8840aa4 Add manual online MAGMA artifacts`.
+    - [done] Update README/NOTES/TODO and commit the parsed online result.
+      - Docs: README and NOTES now describe the manual free-online calculator
+        workflow, the 60s/50KB/V2.29-8 observed limits, and the first exact
+        `24T25000` parsed result.
+      - Commit: `2762a62 Record manual online MAGMA result`.
+    - [done] Run final verification, confirm Stage 4 remains present, audit
+      GPU/process state, cleanup caches, and prepare final push.
+      - Manual-online dry run:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_online_magma_manual_20260705 --max_records 3 --timeout_seconds 5 --online_magma_manual --online_magma_pasted_output data/igp24/online_magma_manual_output_70a542863f79_20260705.xml`
+        - Result: passed; local MAGMA unavailable/executed false; parsed one
+          verified manual-online exact label `24T25000`.
+      - Focused offline verifier tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 12 passed in 1.25s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 91 passed in 4.03s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`
+        - Result: passed; help exposes `--online_magma_manual` and
+          `--online_magma_pasted_output`.
+      - Import check: `train`, `ENVS`, offline verifier manual-online helpers,
+        and `MagmaVerifier` imported; expected attributes were present.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4218 after this final
+          status update.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 visible with no
+        running compute processes; `ps -C python3 -C python3.12 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed before the
+        final commit.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 89 passed in 3.48s after MAGMA discovery guidance work.
+  - Latest result: 91 passed in 4.03s after manual-online MAGMA work.
+- [done] Run focused offline verifier tests:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
+  - Latest result: 12 passed in 1.25s after manual-online MAGMA work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
@@ -2204,14 +2243,14 @@ results change.
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_review_shortlist.py tests/test_igp24_shortlist.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_sample_export.py`.
   - Latest result: 29 passed in 3.19s after MAGMA discovery guidance work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after MAGMA discovery guidance work.
+  - Latest result: passed after manual-online MAGMA work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after adding the safe review-batch helper.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after adding the safe offline-verifier preparation
-    helper.
+  - Latest result: passed after manual-online MAGMA work; helper exposes
+    `--online_magma_manual` and `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
@@ -2231,6 +2270,11 @@ results change.
   - Latest command:
     `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_score_sample_export as score; import scripts.igp24_gpu_sampler_probe as probe; import scripts.igp24_merge_scored_exports as merge; import scripts.igp24_export_diversity_diagnostic as diag; print('imports ok', 'igp24' in ENVS, hasattr(score, 'build_split_manifest'), hasattr(probe, 'build_sample_export_dedup_command'), 'sample_export_split_dedup' in probe.get_parser().format_help(), hasattr(merge, 'merge_sources'), hasattr(diag, 'build_summary'))"`
   - Latest result: `imports ok True True True True True True`.
+- [done] Run an import check proving the offline verifier manual-online
+  helpers remain discoverable.
+  - Latest command:
+    `PYTHONPATH=/tmp/igp24_pydeps python3 -c "import train; from src.envs import ENVS; import scripts.igp24_offline_verify as offline; from src.igp24.verifiers.magma import MagmaVerifier; print('imports ok', 'igp24' in ENVS, hasattr(offline, 'build_online_magma_manual_input'), hasattr(offline, 'parse_online_magma_pasted_output'), hasattr(offline, 'write_online_magma_manual_artifacts'), hasattr(MagmaVerifier(), 'is_available'))"`
+  - Latest result: `imports ok True True True True True`.
 - [blocked] Run literal `python -m pytest`, or record the blocker.
   - Latest result: blocked with `/bin/bash: line 1: python: command not found`.
 - [done] If local dependency issues block the literal command, record the
