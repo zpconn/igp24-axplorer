@@ -9,9 +9,13 @@ from scripts.igp24_offline_verify import (
     MAGMA_RESULTS_JSONL,
     MAGMA_SUMMARY_JSON,
     OFFLINE_MANIFEST_JSON,
+    ONLINE_MAGMA_MANUAL_DIR,
+    ONLINE_MAGMA_RESULTS_JSONL,
+    ONLINE_MAGMA_SUMMARY_JSON,
     PARI_INPUT_GP,
     VERIFICATION_PLAN_MD,
     ReviewBatchError,
+    build_online_magma_manual_input,
     build_magma_command,
     build_magma_guidance,
     build_magma_input,
@@ -22,6 +26,7 @@ from scripts.igp24_offline_verify import (
     load_review_batch,
     load_verification_input,
     parse_magma_output,
+    parse_online_magma_pasted_output,
     run_magma_verification,
     write_cache,
     write_outputs,
@@ -103,18 +108,22 @@ def test_build_pari_and_magma_inputs_include_manual_exact_steps():
     assert "abc" in magma
     assert "IsIrreducible" in magma
     assert "GaloisGroup" in magma
+    assert "Signature(f)" not in magma
 
 
 def test_build_magma_verification_input_command_and_parser(tmp_path):
     record = _record("abc", 1)
     script = build_magma_verification_input(record, timeout_seconds=7)
+    online_script = build_online_magma_manual_input(record)
     command = build_magma_command("/usr/bin/magma", tmp_path / "candidate.m")
     parsed = parse_magma_output(
         "\n".join(
             [
+                "IGP24_BEGIN abc",
                 "IGP24_DEGREE 24",
                 "IGP24_IS_IRREDUCIBLE true",
                 "IGP24_SIGNATURE 4 10",
+                "IGP24_GALOIS_GROUP Symmetric group G acting on a set of cardinality 24",
                 "IGP24_TRANSITIVE_GROUP_ID 12",
             ]
         )
@@ -123,12 +132,38 @@ def test_build_magma_verification_input_command_and_parser(tmp_path):
     assert "GaloisGroup(f)" in script
     assert "TransitiveGroupIdentification(G)" in script
     assert "IGP24_TRANSITIVE_GROUP_ID" in script
+    assert "Signature(f)" not in script
+    assert "Signature(f)" not in online_script
+    assert "do not batch-submit" in online_script
     assert command == ["/usr/bin/magma", str(tmp_path / "candidate.m")]
     assert parsed["parse_status"] == "verified"
     assert parsed["verified_group_label"] == "24T12"
     assert parsed["signature_r"] == 4
+    assert parsed["candidate_hash"] == "abc"
+    assert parsed["galois_group_text"] == "Symmetric group G acting on a set of cardinality 24"
     assert parsed["degree"] == 24
     assert parsed["is_irreducible"] is True
+
+
+def test_parse_online_magma_pasted_output_records_exact_label_and_headers():
+    pasted_xml = """<?xml version=\"1.0\"?>
+<calculator><headers><max_time>60</max_time><max_input>50000</max_input><seed>52682226</seed><version>2.29-8</version><time>0.420</time><memory>32.09MB</memory></headers><results><line>IGP24_BEGIN 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line><line>IGP24_DEGREE 24</line><line>IGP24_IS_IRREDUCIBLE true</line><line>IGP24_GALOIS_GROUP Symmetric group G acting on a set of cardinality 24</line><line>Order = 2^22 * 3^10 * 5^4 * 7^3 * 11^2 * 13 * 17 * 19 * 23</line><line>IGP24_TRANSITIVE_GROUP_ID 25000</line><line>IGP24_END 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line></results></calculator>"""
+
+    parsed = parse_online_magma_pasted_output(
+        pasted_xml,
+        expected_candidate_hash="70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb",
+    )
+
+    assert parsed["status"] == "verified"
+    assert parsed["verified_group_label"] == "24T25000"
+    assert parsed["degree"] == 24
+    assert parsed["is_irreducible"] is True
+    assert parsed["galois_group_text"] == "Symmetric group G acting on a set of cardinality 24"
+    assert parsed["transitive_group_id"] == 25000
+    assert parsed["magma_version"] == "V2.29-8"
+    assert parsed["magma_runtime_seconds"] == 0.420
+    assert parsed["provenance"]["manual_probe"] is True
+    assert parsed["safety"]["automated_online_submission"] is False
 
 
 def test_discover_magma_executable_checks_path_common_and_extra_patterns(tmp_path):
@@ -339,3 +374,57 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     assert not manifest["safety"]["magma_executed"]
     assert not manifest["safety"]["exact_group_labels_parsed"]
     assert not manifest["safety"]["exact_group_claims"]
+
+
+def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tmp_path):
+    candidate_hash = "70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb"
+    review_dir = tmp_path / "review"
+    records = [_record(candidate_hash, 1)]
+    _write_review_batch(review_dir, records)
+    loaded, loaded_dir, source_manifest = load_review_batch(review_dir)
+    pasted_xml = """<?xml version=\"1.0\"?>
+<calculator><headers><max_time>60</max_time><max_input>50000</max_input><seed>52682226</seed><version>2.29-8</version><time>0.420</time><memory>32.09MB</memory></headers><results><line>IGP24_BEGIN 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line><line>IGP24_DEGREE 24</line><line>IGP24_IS_IRREDUCIBLE true</line><line>IGP24_GALOIS_GROUP Symmetric group G acting on a set of cardinality 24</line><line>IGP24_TRANSITIVE_GROUP_ID 25000</line><line>IGP24_END 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line></results></calculator>"""
+    pasted_path = tmp_path / "online_pasted_outputs.jsonl"
+    pasted_path.write_text(
+        json.dumps({"candidate_hash": candidate_hash, "pasted_output": pasted_xml}) + "\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "offline"
+
+    paths = write_outputs(
+        records=loaded,
+        input_path=loaded_dir,
+        input_kind="review_batch",
+        source_review_manifest=source_manifest,
+        output_dir=output_dir,
+        command=["python3", "scripts/igp24_offline_verify.py"],
+        source_commit="abc123",
+        pari_executable="definitely_missing_gp",
+        magma_executable="definitely_missing_magma",
+        run_pari=False,
+        run_magma=False,
+        timeout_seconds=5,
+        max_records=1,
+        magma_common_search_patterns=[],
+        online_magma_manual=True,
+        online_magma_pasted_outputs=[pasted_path],
+    )
+
+    manual_dir = output_dir / ONLINE_MAGMA_MANUAL_DIR
+    results = [json.loads(line) for line in (manual_dir / ONLINE_MAGMA_RESULTS_JSONL).read_text(encoding="utf-8").splitlines()]
+    summary = json.loads((manual_dir / ONLINE_MAGMA_SUMMARY_JSON).read_text(encoding="utf-8"))
+    manifest = json.loads((output_dir / OFFLINE_MANIFEST_JSON).read_text(encoding="utf-8"))
+    generated_script = next((manual_dir / "copy_paste_scripts").glob("*.m")).read_text(encoding="utf-8")
+
+    assert paths["online_magma_results_jsonl"] == manual_dir / ONLINE_MAGMA_RESULTS_JSONL
+    assert "Signature(f)" not in generated_script
+    assert results[0]["status"] == "verified"
+    assert results[0]["verified_group_label"] == "24T25000"
+    assert results[0]["magma_version"] == "V2.29-8"
+    assert results[0]["magma_runtime_seconds"] == 0.420
+    assert summary["verified_group_labels"] == ["24T25000"]
+    assert summary["safety"]["network_calls_by_helper"] is False
+    assert summary["safety"]["automated_online_submission"] is False
+    assert manifest["online_magma_manual"]["verified_group_labels"] == ["24T25000"]
+    assert manifest["safety"]["online_magma_automated_submission"] is False
+    assert manifest["safety"]["magma_executed"] is False
