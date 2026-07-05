@@ -860,6 +860,41 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
   --timeout_seconds 30
 ```
 
+If local MAGMA is unavailable, the helper can prepare a manual free-online
+Magma calculator handoff. This mode writes one copy/paste script per selected
+candidate plus a JSONL template for pasting returned output. It does not submit
+requests to the online calculator and should not be used for automated batches.
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_r4_review_batch_20260704 \
+  --output_dir /tmp/igp24_online_magma_manual_20260705 \
+  --max_records 3 \
+  --timeout_seconds 5 \
+  --online_magma_manual
+```
+
+After manually pasting one generated script into the calculator and saving the
+returned output, parse it with:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_r4_review_batch_20260704 \
+  --output_dir /tmp/igp24_online_magma_manual_20260705 \
+  --max_records 3 \
+  --timeout_seconds 5 \
+  --online_magma_manual \
+  --online_magma_pasted_output data/igp24/online_magma_manual_output_70a542863f79_20260705.xml
+```
+
+The observed free calculator constraints are a 60 second runtime cap, 50000
+byte input limit, and Magma V2.29-8. The first manual probe recorded candidate
+`70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb` as
+degree 24, irreducible, and `24T25000` with group text
+`Symmetric group G acting on a set of cardinality 24`; the calculator-reported
+runtime was 0.420s. Treat this as manually pasted exact-verifier provenance,
+separate from proxy labels and separate from local MAGMA availability.
+
 MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
 SAIR submission and network calls remain out of scope.
 

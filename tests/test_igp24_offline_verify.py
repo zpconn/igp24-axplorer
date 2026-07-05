@@ -427,4 +427,8 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     assert summary["safety"]["automated_online_submission"] is False
     assert manifest["online_magma_manual"]["verified_group_labels"] == ["24T25000"]
     assert manifest["safety"]["online_magma_automated_submission"] is False
+    assert manifest["safety"]["online_magma_exact_group_labels_parsed"] is True
+    assert manifest["safety"]["exact_group_labels_parsed"] is True
+    assert manifest["safety"]["exact_group_claims"] is True
+    assert manifest["safety"]["dry_run_preparation_only"] is False
     assert manifest["safety"]["magma_executed"] is False

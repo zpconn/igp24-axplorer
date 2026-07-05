@@ -1719,6 +1719,11 @@ def write_outputs(
         manifest["online_magma_manual"] = online_summary
         manifest["safety"]["online_magma_manual_artifacts"] = True
         manifest["safety"]["online_magma_automated_submission"] = False
+        online_verified = bool((online_summary or {}).get("verified_records"))
+        manifest["safety"]["online_magma_exact_group_labels_parsed"] = online_verified
+        manifest["safety"]["exact_group_labels_parsed"] = bool(manifest["safety"]["exact_group_labels_parsed"] or online_verified)
+        manifest["safety"]["exact_group_claims"] = bool(manifest["safety"]["exact_group_claims"] or online_verified)
+        manifest["safety"]["dry_run_preparation_only"] = bool(manifest["safety"]["dry_run_preparation_only"] and not online_verified)
     manifest_path = output_dir / OFFLINE_MANIFEST_JSON
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return {

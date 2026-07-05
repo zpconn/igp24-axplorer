@@ -262,6 +262,24 @@ find MAGMA, so the next real exact-verification action is to install or expose
 MAGMA and rerun the helper with `--run_magma --magma_executable /path/to/magma`
 on at most a few reviewed candidates first.
 
+When local MAGMA is unavailable, the offline helper can also write manual
+free-online Magma calculator artifacts with `--online_magma_manual`. This is a
+copy/paste workflow only: the helper writes one script per selected candidate,
+writes a JSONL template for pasted output, and can parse a saved calculator
+response passed through `--online_magma_pasted_output`. It does not submit
+requests to the calculator, does not batch online work, does not call SAIR, and
+does not run inside training, GPU sampling, or CPU proxy scoring. The observed
+calculator limits are 60 seconds, 50000 bytes, and Magma V2.29-8.
+
+The first manual online probe parsed from
+`data/igp24/online_magma_manual_output_70a542863f79_20260705.xml` recorded
+candidate `70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb`
+as degree 24, irreducible, with group text `Symmetric group G acting on a set
+of cardinality 24`, transitive group id 25000, and exact label `24T25000`;
+the calculator-reported runtime was 0.420s. This is useful for tiny manual
+checks, but local MAGMA or another local exact verifier is still needed for
+repeatable batch verification.
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and

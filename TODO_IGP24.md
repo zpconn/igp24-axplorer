@@ -9,13 +9,14 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  MAGMA discovery/rerun-guidance work.
-- Active focus: prepare the next exact-verification step after the offline
-  MAGMA workflow by discovering MAGMA beyond PATH, recording exactly where the
-  helper looked, and making the real rerun command obvious when MAGMA is
-  unavailable. MAGMA remains outside `train.py`, GPU sampling, and CPU
-  proxy-scoring hot paths; dry-run remains the default; `--run_magma` remains
-  explicit; SAIR/network/submission remain disabled.
+  manual-online MAGMA artifact work.
+- Active focus: add a safe manual free-online Magma calculator handoff for
+  tiny exact checks while local MAGMA remains unavailable. The helper now
+  generates copy/paste scripts, parses saved calculator output, records the
+  first `24T25000` exact label with provenance, and still keeps MAGMA/PARI/SAIR
+  out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
+  network/submission paths. Dry-run remains the default; local MAGMA execution
+  still requires explicit `--run_magma`.
 
 ## Stage 0: Scaffold
 
@@ -2126,6 +2127,71 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Add safe manual free-online Magma calculator artifacts and
+    pasted-output parsing.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, offline verifier helper,
+      offline verifier tests, and the MAGMA verifier stub.
+      - Result: local MAGMA discovery remained unavailable, but a one-candidate
+        free-online calculator probe succeeded. The generated scripts still
+        called invalid `Signature(f)` on a rational polynomial, so the first
+        implementation fix was to remove that call from manual/bulk scripts.
+    - [done] Add explicit manual-online artifacts and pasted-output parsing.
+      - Implementation: `scripts/igp24_offline_verify.py` now accepts
+        `--online_magma_manual` to write `online_magma_manual/` artifacts:
+        one copy/paste script per selected candidate, a
+        `online_magma_pasted_outputs_template.jsonl` file, parsed result
+        JSONL, summary JSON, and report Markdown.
+      - Implementation: `--online_magma_pasted_output` parses saved free
+        calculator XML or raw text output into degree, irreducibility,
+        Galois-group text, transitive group id, exact `24Tt` label, runtime,
+        Magma version, and provenance.
+      - Safety: the helper never submits to the online calculator, never
+        batches online use, does not call SAIR/network/submission paths, does
+        not run inside training/GPU sampling/CPU proxy scoring, and keeps local
+        MAGMA execution gated behind `--run_magma`.
+    - [done] Add and parse the successful manual online result.
+      - Raw evidence file:
+        `data/igp24/online_magma_manual_output_70a542863f79_20260705.xml`.
+      - Parsed candidate:
+        `70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb`.
+      - Parsed result: degree 24, irreducible true, group text
+        `Symmetric group G acting on a set of cardinality 24`, transitive
+        group id 25000, exact label `24T25000`, Magma `V2.29-8`, calculator
+        runtime 0.420s, provenance `Magma free online calculator`.
+    - [done] Run manual-online dry-run artifact generation for 1-3 reviewed
+      candidates and parse the known pasted output.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_online_magma_manual_20260705 --max_records 3 --timeout_seconds 5 --online_magma_manual --online_magma_pasted_output data/igp24/online_magma_manual_output_70a542863f79_20260705.xml`
+      - Result: return code 0; loaded 8 review records; generated manual
+        online artifacts for 3 candidates; parsed one verified manual-online
+        exact label `24T25000`; local `magma_available=False`; local
+        `magma_executed=False`; local MAGMA rows remained dry-run with
+        `magma_status_counts={"dry_run": 3}`.
+      - Top-level manifest safety after the parser result:
+        `online_magma_exact_group_labels_parsed=true`,
+        `exact_group_labels_parsed=true`, `exact_group_claims=true`,
+        `magma_executed=false`, `network_calls=false`, and
+        `online_magma_automated_submission=false`.
+      - Artifacts:
+        `/tmp/igp24_online_magma_manual_20260705/offline_verification_manifest.json`,
+        `/tmp/igp24_online_magma_manual_20260705/magma_verification_results.jsonl`,
+        `/tmp/igp24_online_magma_manual_20260705/magma_verification_summary.json`,
+        `/tmp/igp24_online_magma_manual_20260705/online_magma_manual/copy_paste_scripts`,
+        `/tmp/igp24_online_magma_manual_20260705/online_magma_manual/online_magma_pasted_outputs_template.jsonl`,
+        `/tmp/igp24_online_magma_manual_20260705/online_magma_manual/online_magma_manual_results.jsonl`,
+        `/tmp/igp24_online_magma_manual_20260705/online_magma_manual/online_magma_manual_summary.json`,
+        and `/tmp/igp24_online_magma_manual_20260705/online_magma_manual/online_magma_manual_report.md`.
+    - [done] Run focused implementation checks and commit the first
+      implementation checkpoint.
+      - Focused offline verifier tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 12 passed in 1.26s after adding manual-online artifacts.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
+        - Result: passed.
+      - Commit: `8840aa4 Add manual online MAGMA artifacts`.
 
 ## Tests And Checks
 
