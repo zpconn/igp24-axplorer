@@ -1912,21 +1912,55 @@ results change.
         `/tmp/igp24_seed_triage_20260705/seed_triage_summary.json`,
         `/tmp/igp24_seed_triage_20260705/seed_triage_report.md`, and
         `/tmp/igp24_seed_triage_20260705/seed_triage_records.jsonl`.
-    - [in_progress] Update README/NOTES if the triage workflow or recommendation
+    - [done] Update README/NOTES if the triage workflow or recommendation
       changes, run final verification, confirm Stage 4 remains present, audit
       GPU/process state, cleanup generated caches, commit, and push.
+      - Result: README and NOTES now document the seed triage helper, the
+        calibrated target-256 behavior, and the recommendation to run a
+        512-unique intermediate probe for ambiguous seeds before any full
+        1024-unique export.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 84 passed in 1.56s.
+      - Focused split/export/triage tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`
+        - Result: 43 passed in 1.14s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_seed_triage.py --help`,
+        `scripts/igp24_gpu_sampler_probe.py --help`,
+        `scripts/igp24_score_sample_export.py --help`,
+        `scripts/igp24_merge_scored_exports.py --help`, and
+        `scripts/igp24_export_diversity_diagnostic.py --help`
+        - Result: all passed.
+      - Import check: `train`, `ENVS`, score helper, GPU probe helper, merge
+        helper, raw diversity diagnostic, and seed triage helper all imported;
+        `igp24` was registered and expected helper functions were present.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 3930 after this final
+          status update.
+      - GPU/process audit: final `nvidia-smi` showed the RTX 5090 idle with
+        no running compute processes; `ps -C python3 -C python3.12 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__ -prune -print` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 79 passed in 1.64s after multi-seed dedup-aware export
-    validation.
-- [done] Run focused split/export tests:
-  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
-  - Latest result: 38 passed in 1.21s after multi-seed dedup-aware export
-    validation.
+  - Latest result: 84 passed in 1.56s after seed triage calibration.
+- [done] Run focused split/export/triage tests:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
+  - Latest result: 43 passed in 1.14s after seed triage calibration.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after multi-seed dedup-aware export validation.
+  - Latest result: passed after seed triage calibration.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
