@@ -9,14 +9,13 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  offline MAGMA verifier workflow work.
-- Active focus: add a safe offline MAGMA verification workflow for reviewed
-  shortlists and coefficient/JSONL inputs without putting MAGMA in
-  `train.py`, GPU sampling, or CPU proxy-scoring hot paths. The workflow must
-  keep proxy-only labels separate from exact verified labels, use strict
-  timeouts and caching, write auditable result/report artifacts, and degrade
-  cleanly to dry-run/blocker reporting when MAGMA is unavailable. No SAIR or
-  network calls and no auto-submission behavior.
+  MAGMA discovery/rerun-guidance work.
+- Active focus: prepare the next exact-verification step after the offline
+  MAGMA workflow by discovering MAGMA beyond PATH, recording exactly where the
+  helper looked, and making the real rerun command obvious when MAGMA is
+  unavailable. MAGMA remains outside `train.py`, GPU sampling, and CPU
+  proxy-scoring hot paths; dry-run remains the default; `--run_magma` remains
+  explicit; SAIR/network/submission remain disabled.
 
 ## Stage 0: Scaffold
 
@@ -1948,7 +1947,7 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
-  - [in_progress] Add safe offline MAGMA verification workflow for reviewed
+  - [done] Add safe offline MAGMA verification workflow for reviewed
     IGP24 candidates.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2040,6 +2039,36 @@ results change.
       - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
         1: python: command not found`; `python3 -m pytest -q` is the passing
         local equivalent.
+  - [in_progress] Add MAGMA discovery and exact rerun guidance for the next
+    offline verification step.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, offline verifier helper,
+      review/shortlist helpers, verifier stubs, and relevant tests.
+      - Result: MAGMA availability was still only PATH-based. The exact next
+        step needs bounded discovery in common local install locations plus
+        machine-readable rerun guidance when MAGMA is unavailable.
+    - [done] Add bounded MAGMA discovery and rerun guidance.
+      - Implementation: `scripts/igp24_offline_verify.py` now checks PATH,
+        explicit executable paths, common local install globs, and optional
+        `--magma_search_path` values. Summary JSON, manifest JSON, and the
+        Markdown reports record checked candidates, selected path/source, and
+        a concrete rerun command with `--run_magma` and `--magma_executable`.
+      - Safety: dry-run remains default; exact MAGMA execution still requires
+        explicit `--run_magma`; no generation defaults, seed triage
+        thresholds, GPU sampler defaults, normal training behavior,
+        SAIR/network calls, or submission paths changed.
+    - [done] Add focused tests for discovery paths, unavailable guidance, and
+      report/summary fields.
+      - Focused tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 10 passed in 1.36s.
+    - [pending] Run MAGMA discovery validation; if found, run a tiny real
+      `--run_magma` batch, otherwise run dry-run validation and record exact
+      blocker plus artifacts.
+    - [pending] Update README/NOTES if guidance changed, run final
+      verification, confirm Stage 4, audit GPU/process state, cleanup caches,
+      commit, and push.
 
 ## Tests And Checks
 

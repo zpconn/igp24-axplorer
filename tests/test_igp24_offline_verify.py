@@ -13,10 +13,12 @@ from scripts.igp24_offline_verify import (
     VERIFICATION_PLAN_MD,
     ReviewBatchError,
     build_magma_command,
+    build_magma_guidance,
     build_magma_input,
     build_magma_verification_input,
     build_pari_input,
     cache_key_for_record,
+    discover_magma_executable,
     load_review_batch,
     load_verification_input,
     parse_magma_output,
@@ -127,6 +129,57 @@ def test_build_magma_verification_input_command_and_parser(tmp_path):
     assert parsed["signature_r"] == 4
     assert parsed["degree"] == 24
     assert parsed["is_irreducible"] is True
+
+
+def test_discover_magma_executable_checks_path_common_and_extra_patterns(tmp_path):
+    fake_magma = tmp_path / "MagmaFake" / "magma"
+    fake_magma.parent.mkdir()
+    fake_magma.write_text("#!/bin/sh\necho fake magma\n", encoding="utf-8")
+    fake_magma.chmod(0o755)
+    missing_path = tmp_path / "missing" / "magma"
+
+    discovery = discover_magma_executable(
+        "definitely_missing_magma",
+        common_search_patterns=[str(missing_path), str(fake_magma)],
+        extra_search_patterns=[str(tmp_path / "extra_missing")],
+    )
+
+    assert discovery["available"] is True
+    assert discovery["path"] == str(fake_magma)
+    assert discovery["selected_source"] == "search_pattern"
+    assert discovery["selected_query"] == str(fake_magma)
+    assert discovery["common_search_patterns"] == [str(missing_path), str(fake_magma)]
+    assert discovery["extra_search_patterns"] == [str(tmp_path / "extra_missing")]
+    checked_by_path = {candidate["path"]: candidate for candidate in discovery["candidates_checked"]}
+    assert checked_by_path[str(missing_path)]["exists"] is False
+    assert checked_by_path[str(fake_magma)]["is_executable"] is True
+
+
+def test_magma_unavailable_guidance_builds_exact_rerun_command(tmp_path):
+    command = [
+        "/usr/bin/python3",
+        "scripts/igp24_offline_verify.py",
+        "/tmp/review",
+        "--output_dir",
+        str(tmp_path / "dry"),
+        "--max_records",
+        "3",
+        "--timeout_seconds",
+        "5",
+    ]
+    guidance = build_magma_guidance(
+        availability={"available": False, "path": None, "executable": "magma"},
+        command=command,
+        run_magma=False,
+        output_dir=tmp_path / "dry",
+    )
+
+    assert guidance["status"] == "unavailable"
+    assert "--run_magma" in guidance["rerun_command"]
+    assert "--magma_executable" in guidance["rerun_command"]
+    assert "/path/to/magma" in guidance["rerun_command"]
+    assert str(tmp_path / "dry_run_magma") in guidance["rerun_command"]
+    assert "--run_magma" in guidance["rerun_command_text"]
 
 
 def test_load_verification_input_accepts_jsonl_and_coefficients_file(tmp_path):
@@ -246,6 +299,7 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
         run_pari=True,
         run_magma=True,
         timeout_seconds=5,
+        magma_common_search_patterns=[],
     )
 
     assert paths["offline_verification_manifest_json"] == output_dir / OFFLINE_MANIFEST_JSON
@@ -267,8 +321,17 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     assert not manifest["tool_availability"]["magma"]["available"]
     assert manifest["execution"]["pari"]["status"] == "unavailable"
     assert manifest["execution"]["magma"]["status"] == "unavailable"
+    assert manifest["magma_discovery"]["available"] is False
+    assert manifest["magma_rerun_guidance"]["status"] == "unavailable"
+    assert "--run_magma" in manifest["magma_rerun_guidance"]["rerun_command_text"]
+    assert "--magma_executable /path/to/magma" in manifest["magma_rerun_guidance"]["rerun_command_text"]
     assert magma_summary["status_counts"] == {"unavailable": 2}
+    assert magma_summary["magma_discovery"]["available"] is False
+    assert magma_summary["magma_rerun_guidance"]["status"] == "unavailable"
     assert [record["status"] for record in magma_results] == ["unavailable", "unavailable"]
+    report = (output_dir / MAGMA_REPORT_MD).read_text(encoding="utf-8")
+    assert "MAGMA discovery checked paths" in report
+    assert "Rerun command" in report
     assert not manifest["safety"]["network_calls"]
     assert not manifest["safety"]["sair_submission"]
     assert not manifest["safety"]["auto_submission"]

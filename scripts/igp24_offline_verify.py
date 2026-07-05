@@ -11,9 +11,12 @@ that provenance.
 from __future__ import annotations
 
 import argparse
+import glob
 import hashlib
 import json
+import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -54,6 +57,17 @@ MAGMA_SAFETY_NOTE = (
     "Offline MAGMA verification is explicit, local-only, timeout-bound, and "
     "separate from GPU training/sampling and CPU proxy scoring."
 )
+DEFAULT_MAGMA_SEARCH_PATTERNS = [
+    "/usr/local/bin/magma",
+    "/usr/bin/magma",
+    "/opt/magma*/magma",
+    "/opt/Magma*/magma",
+    "/usr/local/magma*/magma",
+    "/usr/local/Magma*/magma",
+    str(Path.home() / "magma*" / "magma"),
+    str(Path.home() / "Magma*" / "magma"),
+    str(Path.home() / "bin" / "magma"),
+]
 
 
 class ReviewBatchError(ValueError):
@@ -106,6 +120,10 @@ def _coerce_exported_coefficients(record: dict[str, Any], *, context: str) -> li
 def coefficients_sha256(coefficients: list[int]) -> str:
     payload = json.dumps(coefficients, separators=(",", ":"), sort_keys=False).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def command_text(argv: list[str]) -> str:
+    return " ".join(shlex.quote(str(part)) for part in argv)
 
 
 def _synthetic_hash(prefix: str, index: int, coefficients: list[int] | None = None) -> str:
@@ -725,6 +743,7 @@ def build_magma_summary(
     timeout_seconds: int,
     cache_path: Path,
     max_records: int | None,
+    magma_guidance: dict[str, Any],
 ) -> dict[str, Any]:
     counts: dict[str, int] = {}
     for result in results:
@@ -748,6 +767,8 @@ def build_magma_summary(
         "verified_records": len(verified),
         "verified_group_labels": sorted({str(result.get("verified_group_label")) for result in verified}),
         "tool_availability": tool_availability,
+        "magma_discovery": (tool_availability.get("magma") or {}).get("discovery", {}),
+        "magma_rerun_guidance": magma_guidance,
         "execution": execution,
         "output_files": {
             "magma_results_jsonl": str(output_dir / MAGMA_RESULTS_JSONL),
@@ -775,6 +796,9 @@ def build_magma_summary(
 
 
 def build_magma_report(summary: dict[str, Any], results: list[dict[str, Any]]) -> str:
+    magma_discovery = summary.get("magma_discovery") or {}
+    magma_guidance = summary.get("magma_rerun_guidance") or {}
+    checked = magma_discovery.get("candidates_checked") or []
     lines = [
         "# IGP24 Offline MAGMA Verification Report",
         "",
@@ -788,6 +812,10 @@ def build_magma_report(summary: dict[str, Any], results: list[dict[str, Any]]) -
         f"- MAGMA available: `{summary.get('tool_availability', {}).get('magma', {}).get('available')}`",
         f"- MAGMA executed: `{summary.get('execution', {}).get('magma', {}).get('executed')}`",
         f"- Status counts: `{json.dumps(summary.get('status_counts', {}), sort_keys=True)}`",
+        f"- MAGMA discovery checked paths: {len(checked)}",
+        f"- MAGMA selected path: `{magma_discovery.get('path')}`",
+        f"- Rerun guidance: {magma_guidance.get('message')}",
+        f"- Rerun command: `{magma_guidance.get('rerun_command_text')}`",
         "",
         "| index | status | exact label | hash | score | r | cache | message |",
         "| ---: | --- | --- | --- | ---: | ---: | --- | --- |",
@@ -846,16 +874,172 @@ def write_magma_artifacts(
     }
 
 
-def probe_tool(executable: str, *, tool_name: str | None = None, version_timeout_seconds: int = 10) -> dict[str, Any]:
+def _is_explicit_path(value: str) -> bool:
+    return any(separator in value for separator in ("/", os.sep))
+
+
+def _candidate_status(path: Path) -> dict[str, Any]:
+    return {
+        "path": str(path),
+        "exists": path.exists(),
+        "is_file": path.is_file(),
+        "is_executable": os.access(path, os.X_OK) if path.exists() else False,
+    }
+
+
+def _candidate_available(candidate: dict[str, Any]) -> bool:
+    return bool(candidate.get("exists") and candidate.get("is_file") and candidate.get("is_executable"))
+
+
+def _dedupe_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    deduped: list[dict[str, Any]] = []
+    for candidate in candidates:
+        key = str(candidate.get("path"))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(candidate)
+    return deduped
+
+
+def discover_magma_executable(
+    executable: str,
+    *,
+    extra_search_patterns: list[str] | None = None,
+    common_search_patterns: list[str] | None = None,
+) -> dict[str, Any]:
+    """Find MAGMA from PATH, explicit path, or bounded common local locations."""
+
+    candidates: list[dict[str, Any]] = []
+    path_result = shutil.which(executable)
+    if path_result:
+        candidate = _candidate_status(Path(path_result))
+        candidate.update({"source": "PATH", "query": executable})
+        candidates.append(candidate)
+
+    if _is_explicit_path(executable):
+        candidate = _candidate_status(Path(executable).expanduser())
+        candidate.update({"source": "explicit_executable", "query": executable})
+        candidates.append(candidate)
+
+    common_patterns = list(common_search_patterns if common_search_patterns is not None else DEFAULT_MAGMA_SEARCH_PATTERNS)
+    extra_patterns = list(extra_search_patterns or [])
+    patterns = common_patterns + extra_patterns
+    for pattern in patterns:
+        matches = sorted(glob.glob(os.path.expanduser(pattern)))
+        if not matches and not any(ch in pattern for ch in "*?[]"):
+            matches = [os.path.expanduser(pattern)]
+        for match in matches:
+            candidate = _candidate_status(Path(match))
+            candidate.update({"source": "search_pattern", "query": pattern})
+            candidates.append(candidate)
+
+    candidates = _dedupe_candidates(candidates)
+    selected = next((candidate for candidate in candidates if _candidate_available(candidate)), None)
+    return {
+        "executable": executable,
+        "path": selected["path"] if selected else None,
+        "available": selected is not None,
+        "selected_source": selected.get("source") if selected else None,
+        "selected_query": selected.get("query") if selected else None,
+        "candidates_checked": candidates,
+        "common_search_patterns": common_patterns,
+        "extra_search_patterns": extra_patterns,
+    }
+
+
+def build_magma_rerun_command(
+    *,
+    command: list[str],
+    run_magma: bool,
+    magma_path: str | None,
+    output_dir: Path,
+    fallback_output_dir: Path | None = None,
+) -> list[str]:
+    rerun = list(command)
+    if "--run_magma" not in rerun:
+        rerun.append("--run_magma")
+    if magma_path:
+        if "--magma_executable" in rerun:
+            index = rerun.index("--magma_executable") + 1
+            if index < len(rerun):
+                rerun[index] = magma_path
+        else:
+            rerun.extend(["--magma_executable", magma_path])
+    if not run_magma:
+        target_output = str(fallback_output_dir or output_dir.with_name(output_dir.name + "_run_magma"))
+        if "--output_dir" in rerun:
+            index = rerun.index("--output_dir") + 1
+            if index < len(rerun):
+                rerun[index] = target_output
+        else:
+            rerun.extend(["--output_dir", target_output])
+    return rerun
+
+
+def build_magma_guidance(
+    *,
+    availability: dict[str, Any],
+    command: list[str],
+    run_magma: bool,
+    output_dir: Path,
+) -> dict[str, Any]:
+    if availability.get("available"):
+        rerun = build_magma_rerun_command(
+            command=command,
+            run_magma=run_magma,
+            magma_path=str(availability.get("path")),
+            output_dir=output_dir,
+        )
+        return {
+            "status": "ready" if run_magma else "available_but_not_requested",
+            "message": "MAGMA was found; exact verification requires an explicit --run_magma run."
+            if not run_magma
+            else "MAGMA was found and execution was requested.",
+            "rerun_command": rerun,
+            "rerun_command_text": command_text(rerun),
+        }
+
+    rerun = build_magma_rerun_command(
+        command=command,
+        run_magma=False,
+        magma_path="/path/to/magma",
+        output_dir=output_dir,
+    )
+    return {
+        "status": "unavailable",
+        "message": "MAGMA was not found on PATH or in the bounded common local search locations. Install MAGMA or pass --magma_executable /path/to/magma, then rerun the command below.",
+        "rerun_command": rerun,
+        "rerun_command_text": command_text(rerun),
+    }
+
+
+def probe_tool(
+    executable: str,
+    *,
+    tool_name: str | None = None,
+    version_timeout_seconds: int = 10,
+    magma_extra_search_patterns: list[str] | None = None,
+    magma_common_search_patterns: list[str] | None = None,
+) -> dict[str, Any]:
     path = shutil.which(executable)
     available = path is not None
     if tool_name == "magma":
-        available = MagmaVerifier(executable=executable).is_available()
+        discovery = discover_magma_executable(
+            executable,
+            extra_search_patterns=magma_extra_search_patterns,
+            common_search_patterns=magma_common_search_patterns,
+        )
+        path = discovery.get("path")
+        available = bool(discovery.get("available")) and MagmaVerifier(executable=str(path or executable)).is_available()
     result: dict[str, Any] = {
         "executable": executable,
         "path": path,
         "available": available,
     }
+    if tool_name == "magma":
+        result["discovery"] = discovery
     if not path:
         return result
 
@@ -927,7 +1111,10 @@ def build_verification_plan(
     output_dir: Path,
     tool_availability: dict[str, dict[str, Any]],
     execution: dict[str, dict[str, Any]],
+    magma_guidance: dict[str, Any],
 ) -> str:
+    magma_discovery = (tool_availability.get("magma") or {}).get("discovery", {})
+    checked = magma_discovery.get("candidates_checked") or []
     lines = [
         "# IGP24 Offline Verification Plan",
         "",
@@ -940,6 +1127,9 @@ def build_verification_plan(
         f"- MAGMA available: `{tool_availability['magma']['available']}`",
         f"- PARI/GP executed: `{execution['pari']['executed']}`",
         f"- MAGMA executed: `{execution['magma']['executed']}`",
+        f"- MAGMA discovery checked paths: {len(checked)}",
+        f"- MAGMA selected path: `{magma_discovery.get('path')}`",
+        f"- MAGMA rerun command: `{magma_guidance.get('rerun_command_text')}`",
         "",
         "Generated files:",
         f"- `{output_dir / PARI_INPUT_GP}`",
@@ -984,6 +1174,7 @@ def build_manifest(
     tool_availability: dict[str, dict[str, Any]],
     execution: dict[str, dict[str, Any]],
     timeout_seconds: int,
+    magma_guidance: dict[str, Any],
 ) -> dict[str, Any]:
     pari_executed = bool(execution["pari"]["executed"])
     magma_executed = bool(execution["magma"]["executed"])
@@ -1001,6 +1192,8 @@ def build_manifest(
         "coefficient_shape": {"length": 25, "leading_coefficient": 1},
         "timeout_seconds": timeout_seconds,
         "tool_availability": tool_availability,
+        "magma_discovery": (tool_availability.get("magma") or {}).get("discovery", {}),
+        "magma_rerun_guidance": magma_guidance,
         "execution": execution,
         "output_files": {
             "offline_verification_manifest_json": str(output_dir / OFFLINE_MANIFEST_JSON),
@@ -1048,6 +1241,8 @@ def write_outputs(
     cache_path: Path | None = None,
     refresh_cache: bool = False,
     max_records: int | None = None,
+    magma_search_patterns: list[str] | None = None,
+    magma_common_search_patterns: list[str] | None = None,
 ) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     pari_path = output_dir / PARI_INPUT_GP
@@ -1058,8 +1253,19 @@ def write_outputs(
 
     tool_availability = {
         "pari": probe_tool(pari_executable, tool_name="pari"),
-        "magma": probe_tool(magma_executable, tool_name="magma"),
+        "magma": probe_tool(
+            magma_executable,
+            tool_name="magma",
+            magma_extra_search_patterns=magma_search_patterns,
+            magma_common_search_patterns=magma_common_search_patterns,
+        ),
     }
+    magma_guidance = build_magma_guidance(
+        availability=tool_availability["magma"],
+        command=command,
+        run_magma=run_magma,
+        output_dir=output_dir,
+    )
     magma_results, magma_execution = run_magma_verification(
         records=records,
         output_dir=output_dir,
@@ -1094,6 +1300,7 @@ def write_outputs(
         timeout_seconds=timeout_seconds,
         cache_path=cache_path,
         max_records=max_records,
+        magma_guidance=magma_guidance,
     )
     magma_paths = write_magma_artifacts(summary=magma_summary, results=magma_results, output_dir=output_dir)
 
@@ -1105,6 +1312,7 @@ def write_outputs(
             output_dir=output_dir,
             tool_availability=tool_availability,
             execution=execution,
+            magma_guidance=magma_guidance,
         ),
         encoding="utf-8",
     )
@@ -1119,6 +1327,7 @@ def write_outputs(
         tool_availability=tool_availability,
         execution=execution,
         timeout_seconds=timeout_seconds,
+        magma_guidance=magma_guidance,
     )
     manifest_path = output_dir / OFFLINE_MANIFEST_JSON
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -1147,6 +1356,12 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout_seconds", type=int, default=60)
     parser.add_argument("--max_records", type=int, default=None, help="Limit records selected for MAGMA verification/dry-run artifacts")
     parser.add_argument("--cache_path", type=Path, default=None, help="Optional MAGMA result cache path; defaults inside output_dir")
+    parser.add_argument(
+        "--magma_search_path",
+        action="append",
+        default=[],
+        help="Extra local file path or glob pattern to inspect while discovering MAGMA",
+    )
     parser.add_argument("--refresh_cache", action="store_true", help="Ignore existing cached MAGMA verified results")
     parser.add_argument("--repo_root", type=Path, default=Path(__file__).resolve().parents[1])
     return parser
@@ -1178,6 +1393,7 @@ def main(argv: list[str] | None = None) -> int:
         cache_path=args.cache_path.resolve() if args.cache_path else None,
         refresh_cache=bool(args.refresh_cache),
         max_records=args.max_records,
+        magma_search_patterns=list(args.magma_search_path or []),
     )
     manifest = json.loads(paths["offline_verification_manifest_json"].read_text(encoding="utf-8"))
     magma_summary = json.loads(paths["magma_summary_json"].read_text(encoding="utf-8"))
@@ -1189,6 +1405,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"pari_executed\t{manifest['safety']['pari_executed']}")
     print(f"magma_executed\t{manifest['safety']['magma_executed']}")
     print(f"magma_status_counts\t{json.dumps(magma_summary['status_counts'], sort_keys=True)}")
+    print(f"magma_discovery_checked\t{len((magma_summary.get('magma_discovery') or {}).get('candidates_checked') or [])}")
+    print(f"magma_selected_path\t{(magma_summary.get('magma_discovery') or {}).get('path')}")
+    print(f"magma_rerun_command\t{(magma_summary.get('magma_rerun_guidance') or {}).get('rerun_command_text')}")
     for name, path in paths.items():
         print(f"{name}\t{path}")
     return 0
