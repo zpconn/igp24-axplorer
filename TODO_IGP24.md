@@ -10,14 +10,14 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
   manual-online MAGMA verification-queue work.
-- Active focus: turn the safe manual free-online Magma handoff into a practical
-  exact-verification queue while local MAGMA remains unavailable. The helper
-  can now select deliberate non-contiguous candidate hashes and is being
-  extended to report already parsed exact labels, ready-to-copy candidates,
-  proxy-only queue rows, and local MAGMA dry-run status separately. MAGMA/PARI/
-  SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops,
-  and automatic network/submission paths. Dry-run remains the default; local
-  MAGMA execution still requires explicit `--run_magma`.
+- Active focus: manual free-online Magma verification queue is prepared while
+  local MAGMA remains unavailable. The helper can select deliberate
+  non-contiguous candidate hashes and the generated report separates already
+  parsed exact labels, ready-to-copy candidates, still-proxy-only queue rows,
+  and local MAGMA dry-run status. MAGMA/PARI/SAIR remain out of `train.py`,
+  GPU sampling, CPU proxy scoring, hot loops, and automatic network/submission
+  paths. Dry-run remains the default; local MAGMA execution still requires
+  explicit `--run_magma`.
 
 ## Stage 0: Scaffold
 
@@ -2229,7 +2229,7 @@ results change.
         pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
       - Cleanup: generated `__pycache__` directories were removed before the
         final commit.
-  - [in_progress] Turn manual-online Magma artifacts into a practical
+  - [done] Turn manual-online Magma artifacts into a practical
     verification queue.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2290,11 +2290,38 @@ results change.
         6 dry-run rows, parsed online result JSONL has 1 verified row, and
         generated copy/paste scripts include `do not batch-submit` and
         `IGP24_TRANSITIVE_GROUP_ID` markers without `Signature(f)`.
+    - [done] Update README/NOTES, run final verification, confirm Stage 4,
+      audit GPU/process state, clean caches, and prepare final push.
+      - Focused offline/review/shortlist tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_review_shortlist.py tests/test_igp24_shortlist.py`
+        - Result: 19 passed in 1.28s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 92 passed in 3.75s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks:
+        `scripts/igp24_offline_verify.py --help`,
+        `scripts/igp24_review_shortlist.py --help`, and
+        `scripts/igp24_shortlist.py --help`
+        - Result: all passed; offline verifier help now exposes
+          `--candidate_hash`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4310 after this final
+          status update.
+      - GPU/process audit: `nvidia-smi` showed the RTX 5090 visible with no
+        running compute processes; `ps -C python3 -C python3.12 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__ -prune -print` returned no paths.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 91 passed in 4.03s after manual-online MAGMA work.
+  - Latest result: 92 passed in 3.75s after verification-queue work.
 - [done] Run focused offline verifier tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
   - Latest result: 13 passed in 1.29s after verification-queue reporting
@@ -2304,16 +2331,18 @@ results change.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
 - [done] Run focused offline verifier/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_review_shortlist.py tests/test_igp24_shortlist.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_sample_export.py`.
-  - Latest result: 29 passed in 3.19s after MAGMA discovery guidance work.
+  - Latest result: 19 passed in 1.28s for the focused offline/review/shortlist
+    queue subset after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after manual-online MAGMA work.
+  - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
-  - Latest result: passed after safe review-batch helper work.
+  - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
-  - Latest result: passed after adding the safe review-batch helper.
+  - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after manual-online MAGMA work; helper exposes
-    `--online_magma_manual` and `--online_magma_pasted_output`.
+  - Latest result: passed after verification-queue work; helper exposes
+    `--candidate_hash`, `--online_magma_manual`, and
+    `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
