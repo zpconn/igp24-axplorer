@@ -252,6 +252,16 @@ include `unavailable`, `timeout`, `parse_error`, and `invalid_input`. This
 workflow does not run inside `train.py`, GPU sampling, or CPU proxy scoring,
 and it still does not call SAIR, make network calls, or submit candidates.
 
+MAGMA discovery now checks more than PATH without becoming an unbounded system
+crawl. It records PATH results, explicit `--magma_executable` paths, common
+local install patterns such as `/usr/local/bin/magma`, `/opt/magma*/magma`,
+and `~/magma*/magma`, plus optional `--magma_search_path` globs. The summary
+and report include the checked candidates, selected path/source if any, and a
+ready-to-edit rerun command. On this host the discovery validation did not
+find MAGMA, so the next real exact-verification action is to install or expose
+MAGMA and rerun the helper with `--run_magma --magma_executable /path/to/magma`
+on at most a few reviewed candidates first.
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and

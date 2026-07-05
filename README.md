@@ -829,6 +829,13 @@ directories. Each result row records one exact-verification status, such as
 `verified`. Proxy-only labels remain separate from exact `verified_group_label`
 values.
 
+MAGMA discovery checks PATH, an explicit `--magma_executable` path, a bounded
+set of common local install locations such as `/usr/local/bin/magma`,
+`/opt/magma*/magma`, and `~/magma*/magma`, plus any extra
+`--magma_search_path` file or glob patterns. The summary and report record
+which paths were checked, whether a runnable binary was found, and the exact
+rerun command to use once MAGMA is installed or added to PATH.
+
 To run local MAGMA on a very small batch, first confirm the tool is installed,
 then use an explicit timeout-bound command:
 
@@ -837,6 +844,18 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
   /tmp/igp24_r4_review_batch_20260704 \
   --output_dir /tmp/igp24_r4_magma_verify_small \
   --run_magma \
+  --max_records 3 \
+  --timeout_seconds 30
+```
+
+If MAGMA lives outside the default locations, pass it directly:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_r4_review_batch_20260704 \
+  --output_dir /tmp/igp24_r4_magma_verify_small \
+  --run_magma \
+  --magma_executable /path/to/magma \
   --max_records 3 \
   --timeout_seconds 30
 ```

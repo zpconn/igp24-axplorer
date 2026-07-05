@@ -2063,12 +2063,39 @@ results change.
       - Focused tests:
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
         - Result: 10 passed in 1.36s.
-    - [pending] Run MAGMA discovery validation; if found, run a tiny real
+    - [done] Run MAGMA discovery validation; if found, run a tiny real
       `--run_magma` batch, otherwise run dry-run validation and record exact
       blocker plus artifacts.
-    - [pending] Update README/NOTES if guidance changed, run final
+      - Discovery/dry-run validation command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_magma_discovery_validation_20260705 --max_records 3 --timeout_seconds 5`
+      - Result: return code 0; loaded 8 review records, selected 3 for MAGMA
+        artifacts, `magma_available=False`, `magma_executed=False`,
+        `magma_status_counts={"dry_run": 3}`, `magma_discovery_checked=3`,
+        and `magma_selected_path=None`.
+      - Discovery detail: no `magma` executable was found on PATH or at
+        `/usr/local/bin/magma`, `/usr/bin/magma`, or `/home/zpconn/bin/magma`;
+        wildcard patterns checked for possible installs included
+        `/opt/magma*/magma`, `/opt/Magma*/magma`,
+        `/usr/local/magma*/magma`, `/usr/local/Magma*/magma`,
+        `/home/zpconn/magma*/magma`, and `/home/zpconn/Magma*/magma`.
+      - Exact blocker: MAGMA is unavailable locally, so no exact labels were
+        verified and no real MAGMA process was run.
+      - Rerun command recorded by the helper:
+        `/usr/bin/python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_magma_discovery_validation_20260705_run_magma --max_records 3 --timeout_seconds 5 --run_magma --magma_executable /path/to/magma`
+      - Artifacts:
+        `/tmp/igp24_magma_discovery_validation_20260705/offline_verification_manifest.json`,
+        `/tmp/igp24_magma_discovery_validation_20260705/verification_plan.md`,
+        `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_results.jsonl`,
+        `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_summary.json`,
+        `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_report.md`,
+        `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_cache.json`,
+        and `/tmp/igp24_magma_discovery_validation_20260705/magma_candidate_scripts`.
+    - [in_progress] Update README/NOTES if guidance changed, run final
       verification, confirm Stage 4, audit GPU/process state, cleanup caches,
       commit, and push.
+      - Result so far: README and NOTES now document discovery beyond PATH,
+        common local install globs, `--magma_search_path`, direct
+        `--magma_executable`, and the rerun-command guidance.
 
 ## Tests And Checks
 
