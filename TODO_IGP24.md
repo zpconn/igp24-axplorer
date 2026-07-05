@@ -2090,25 +2090,55 @@ results change.
         `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_report.md`,
         `/tmp/igp24_magma_discovery_validation_20260705/magma_verification_cache.json`,
         and `/tmp/igp24_magma_discovery_validation_20260705/magma_candidate_scripts`.
-    - [in_progress] Update README/NOTES if guidance changed, run final
+    - [done] Update README/NOTES if guidance changed, run final
       verification, confirm Stage 4, audit GPU/process state, cleanup caches,
       commit, and push.
       - Result so far: README and NOTES now document discovery beyond PATH,
         common local install globs, `--magma_search_path`, direct
         `--magma_executable`, and the rerun-command guidance.
+      - Focused helper tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_review_shortlist.py tests/test_igp24_shortlist.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_sample_export.py`
+        - Result: 29 passed in 3.19s.
+      - Full pytest:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        - Result: 89 passed in 3.48s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        - Result: passed.
+      - Helper help checks:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`,
+        `scripts/igp24_review_shortlist.py --help`, and
+        `scripts/igp24_shortlist.py --help`
+        - Result: all passed, including new `--magma_search_path` help.
+      - Import check: `train`, `ENVS`, `MagmaVerifier`, offline verifier,
+        review helper, and shortlist helper all imported; `igp24` was
+        registered and expected discovery/guidance functions were present.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        - Result: Stage 4 remains present at line 4108 after this final
+          status update.
+      - GPU/process audit: final `nvidia-smi` showed the RTX 5090 with no
+        running compute processes; `ps -C python3 -C python3.12 -o
+        pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
+      - Cleanup: generated `__pycache__` directories were removed; follow-up
+        `find . -type d -name __pycache__ -prune -print` returned no paths.
+      - Literal `python -m pytest -q` remains blocked with `/bin/bash: line
+        1: python: command not found`; `python3 -m pytest -q` is the passing
+        local equivalent.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 87 passed in 3.05s after offline MAGMA workflow work.
+  - Latest result: 89 passed in 3.48s after MAGMA discovery guidance work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
 - [done] Run focused offline verifier/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_review_shortlist.py tests/test_igp24_shortlist.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_sample_export.py`.
-  - Latest result: 27 passed in 2.78s after offline MAGMA workflow work.
+  - Latest result: 29 passed in 3.19s after MAGMA discovery guidance work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after offline MAGMA workflow work.
+  - Latest result: passed after MAGMA discovery guidance work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after safe review-batch helper work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
