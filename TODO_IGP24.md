@@ -17,15 +17,17 @@ results change.
   A local exact-algebra structure audit under
   `/tmp/igp24_non_generic_structure_audit_20260705` confirmed the 18
   square-discriminant claims and all 25 exact composed-support claims with no
-  refutations. No matching manually pasted MAGMA outputs have been found for
-  these rows yet, so the next decision point is still manual exact
-  verification of the top structure-audit priority rows before changing search
-  family or spending on a large GPU run. MAGMA/PARI/SAIR remain out of
-  `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
-  network/submission paths. Dry-run remains the default; local MAGMA execution
-  still requires explicit `--run_magma`.
-- Current task: manually exact-verify the structure-audit priority queue rows
-  before changing search families or spending on a larger GPU run.
+  refutations. The full 25-row queue has now been exact-verified via the free
+  online Magma calculator, with raw XML responses preserved under
+  `data/igp24/online_magma_manual_output_*_20260705.xml` and parsed artifacts
+  under `/tmp/igp24_non_generic_manual_queue_verified_20260705`: 18 rows are
+  `24T24970`, 6 rows are `24T24979`, and the divisor-3 coverage row is
+  `24T24759`. All 25 parsed rows are degree 24 and irreducible.
+  MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
+  hot loops, and automatic network/submission paths. Dry-run remains the
+  default; local MAGMA execution still requires explicit `--run_magma`.
+- Current task: feed the verified non-generic exact labels back into shortlist
+  analysis and run planning before any larger GPU training run.
 
 ## Stage 0: Scaffold
 
@@ -2620,6 +2622,42 @@ results change.
         - Result: no matching Python processes printed.
       - Cleanup: generated `__pycache__` directories were removed and a
         follow-up `find . -type d -name __pycache__ -print` printed nothing.
+  - [done] Exact-verify all 25 non-generic manual-queue rows with the free
+    online Magma calculator.
+    - [done] Confirm local exact-verifier availability before online work.
+      - Result: `magma`, `gp`, and `sage` were not on PATH. Local MAGMA
+        remained unavailable; no local MAGMA/PARI execution occurred.
+    - [done] Submit one-candidate Magma scripts to the online calculator and
+      preserve raw XML responses.
+      - Input scripts:
+        `/tmp/igp24_non_generic_manual_queue_20260705/online_magma_manual/copy_paste_scripts`.
+      - Output XML files:
+        `data/igp24/online_magma_manual_output_*_20260705.xml`.
+      - Scope: 25 one-candidate requests, outside `train.py`, GPU sampling,
+        CPU proxy scoring, local search, SAIR submission, and the offline
+        helper itself.
+    - [done] Parse the saved XML responses with the existing offline verifier
+      helper.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl --output_dir /tmp/igp24_non_generic_manual_queue_verified_20260705 --timeout_seconds 5 --online_magma_manual --online_magma_pasted_output data/igp24/online_magma_manual_output_65e40c41647a_20260705.xml ...`
+      - Result: 25 parsed online-Magma results; status counts
+        `{"verified": 25}`; no proxy-only queue rows remain.
+      - Artifacts:
+        `/tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_results.jsonl`,
+        `/tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_summary.json`,
+        and
+        `/tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_report.md`.
+    - [done] Record exact-label distribution and interpretation.
+      - All 25 rows parsed as degree 24 and irreducible.
+      - Exact labels: 18 rows `24T24970`, 6 rows `24T24979`, 1 row
+        `24T24759`.
+      - Structure match: the 18 square-discriminant divisor-2 rows are
+        `24T24970`; the 6 nonsquare divisor-2 tail rows are `24T24979`; the
+        divisor-3/base-degree-8 coverage row `27eaf2acac9f` is `24T24759`.
+      - Interpretation: the non-generic diagnostic and local structure audit
+        were strongly predictive here. This branch should now prioritize
+        exact-label feedback into shortlist analysis and composed-support
+        family expansion, not an immediate large GPU run.
 
 ## Tests And Checks
 

@@ -309,11 +309,7 @@ diagnostic rows, and wrote a self-contained copied queue:
 `verification_batch.jsonl`, `verification_coefficients.txt`, local MAGMA
 dry-run results, one manual copy/paste script per candidate, a pasted-output
 template, summary JSON, and report. Local MAGMA was unavailable and not
-executed; all local exact rows are `dry_run`. A scan of
-`/tmp/igp24_online_magma_manual_output_*_20260705.xml` and
-`data/igp24/online_magma_manual_output_*_20260705.xml` found no matching
-candidate hashes for these 25 rows, so no exact labels have been parsed for
-this queue yet. All 25 rows remain ready for human copy/paste verification.
+executed; all local exact rows are `dry_run`.
 
 A local exact-algebra structure audit now sanity-checks the strongest
 non-generic claims before any more search or GPU spend. The helper
@@ -333,18 +329,29 @@ block divisor 3 and base degree 8. Strategy counts are `quartic_lift:24` and
 `sparse:1`. The recommended manual exact-verification order starts with queue
 rows `1, 19, 6, 2, 3, 4, 5, 7, 8, 9`; the full hash list is in
 `/tmp/igp24_non_generic_structure_audit_20260705/manual_priority_hashes.txt`.
-This audit confirms local algebraic structure only; exact `24Tt` labels remain
-unknown.
+This audit confirmed local algebraic structure only; exact `24Tt` labels still
+required the online Magma pass below.
 
-This queue is now the decision point before changing search direction again.
-If exact verification confirms non-generic groups, expand the corresponding
-structured family, likely the composed-support/square-discriminant
-`quartic_lift` branch. If the supposedly square-discriminant rows parse as
-generic `24T25000`, treat that as a data or diagnostic bug to investigate
-before trusting more proxy ranks. Until exact labels arrive, do not spend a
-large GPU training run on this branch; the highest-signal next action is to
-manually verify the top queue rows and feed the exact labels back into the
-family choice.
+The exact-verification pass on 2026-07-05 resolved that decision point. The
+25 one-candidate Magma scripts were submitted one at a time to the free online
+Magma calculator, and the raw XML responses were preserved as
+`data/igp24/online_magma_manual_output_*_20260705.xml`. Parsing those outputs
+with `scripts/igp24_offline_verify.py` under
+`/tmp/igp24_non_generic_manual_queue_verified_20260705` produced
+`{"verified": 25}` with no remaining proxy-only queue rows. Every parsed row
+was degree 24 and irreducible. The exact-label distribution is:
+
+- `24T24970`: 18 rows, covering the square-discriminant divisor-2 family.
+- `24T24979`: 6 rows, covering the nonsquare divisor-2 composed-support tail.
+- `24T24759`: 1 row, the divisor-3/base-degree-8 coverage candidate
+  `27eaf2acac9f`.
+
+This is the first successful non-generic exact-label confirmation for this
+branch. It strongly supports expanding the composed-support families, especially
+the `quartic_lift`/divisor-2 path, while preserving a small divisor-3 coverage
+track. The next useful implementation step is to feed these exact labels back
+into shortlist analysis and run planning; do not start a large GPU run before
+the exact-label feedback loop is wired into candidate selection.
 
 ## GPU Training Utilization Diagnosis
 

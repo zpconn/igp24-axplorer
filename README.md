@@ -939,12 +939,8 @@ The current queue has 25 copied batch records, 25 coefficient rows, 25 local
 MAGMA dry-run rows, 25 manual-online template rows, and 25 one-candidate
 copy/paste scripts. All scripts are tiny, with max size 841 bytes versus the
 observed 50000 byte calculator cap, so no larger chunk grouping is needed.
-No matching manually pasted outputs were found for these 25 hashes in `/tmp`
-or `data/igp24`, so exact labels remain unparsed and all rows are ready for
-manual copy/paste verification.
 
-Before manually pasting the queue into an exact verifier, run the local
-structure audit:
+Before exact Galois verification, run the local structure audit:
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py \
@@ -964,8 +960,32 @@ compact manual verification order at:
 
 This is still local algebra only. It does not produce exact `24Tt` labels.
 
+The full 25-row non-generic queue was then verified with the free online Magma
+calculator, one candidate at a time, and the raw XML responses were preserved
+under `data/igp24/online_magma_manual_output_*_20260705.xml`. Parsing those
+responses with:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
+  /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
+  --output_dir /tmp/igp24_non_generic_manual_queue_verified_20260705 \
+  --timeout_seconds 5 \
+  --online_magma_manual \
+  --online_magma_pasted_output data/igp24/online_magma_manual_output_65e40c41647a_20260705.xml
+```
+
+plus the other 24 saved XML files produced 25 verified exact labels: 18 rows
+are `24T24970`, 6 rows are `24T24979`, and the divisor-3 coverage row is
+`24T24759`. Every verified row was degree 24 and irreducible. The parsed
+summary/report are under:
+
+```text
+/tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/
+```
+
 MAGMA is never called from `train.py`, GPU sampling, or CPU proxy scoring.
-SAIR submission and network calls remain out of scope.
+SAIR submission, training-loop verifier calls, and search-loop network calls
+remain out of scope.
 
 ## Recent Smoke Result
 
