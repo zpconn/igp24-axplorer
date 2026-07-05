@@ -564,6 +564,29 @@ duplicate-heavy seed `2402` under this bounded budget. Prefer several bounded
 smaller dedup-aware seeds, or change sampler diversity, before trying another
 larger single-seed target.
 
+A follow-up bounded multi-seed check used fresh
+`fixed_template_t11_open_topk` seeds `2404` and `2405` at target 1024 with a
+4096-attempt budget. Both reached the target with clean written exports:
+
+| seed | attempts | written | decoded | duplicate skipped | stop reason | valid | rejected | best | mean |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| 2404 | 1027 | 1027 | 1024 | 0 | unique_target_reached | 917 | 107 | 9963.747 | 8883.004 |
+| 2405 | 1611 | 1030 | 1024 | 581 | unique_target_reached | 929 | 95 | 9950.674 | 9000.689 |
+
+An optional seed `2406` was run because the first two were clean and
+GPU-bound. It exhausted the 4096-attempt budget at 852 uniques after skipping
+3234 duplicate decoded attempts, but the partial export was still
+zero-duplicate and scored 794 valid / 58 rejected with best/mean scores
+9963.539 / 9246.803.
+
+The two required seeds added 2046 net unique canonical hashes from 2048 scored
+rows over the prior seven-source review; including seed `2406` added 2898 net
+unique hashes from 2900 scored rows. Recommendation: bounded smaller multi-seed
+dedup exports are the better immediate coverage path than another larger
+single-seed target. Continue with a few more bounded fresh seeds or add a seed
+triage/diversity diagnostic before spending longer runs on duplicate-heavy
+seeds.
+
 ## Run A Small Smoke Job
 
 ```bash

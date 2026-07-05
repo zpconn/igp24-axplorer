@@ -514,6 +514,24 @@ with prior fixed-template and dedup runs kept the earlier
 should not be a larger single-seed target on this setting; prefer several
 bounded smaller dedup-aware seeds or a sampler-diversity change first.
 
+The bounded multi-seed follow-up confirmed that smaller fresh dedup-aware seeds
+are the better immediate coverage path. Fresh `fixed_template_t11_open_topk`
+seeds `2404` and `2405` both reached 1024 unique decoded coefficients under a
+4096-attempt budget, used CUDA with about 80-81% average monitored GPU
+utilization, and wrote zero-duplicate raw/scored exports. Seed `2404` needed
+only 1027 attempts and skipped no duplicate decoded attempts; seed `2405`
+needed 1611 attempts and skipped 581 duplicates. Their scored outputs had
+917/107 and 929/95 valid/rejected records, best scores 9963.747 and 9950.674,
+and mean scores 8883.004 and 9000.689. The required-seed merge added 2046 net
+unique canonical hashes from 2048 scored rows over the previous seven-source
+review, with zero overlap between seeds `2404` and `2405`. Optional seed
+`2406` showed the remaining seed sensitivity: it exhausted the 4096-attempt
+budget at 852 uniques after skipping 3234 duplicates, but still contributed
+clean zero-duplicate scored coverage with best/mean scores 9963.539 /
+9246.803. Do more bounded fresh-seed sampling or add a cheap seed
+triage/diversity diagnostic before spending longer runs on duplicate-heavy
+seeds.
+
 ## Why Random Polynomials Are Limited
 
 Random degree-24 integer polynomials often land in generic, unstructured cases.

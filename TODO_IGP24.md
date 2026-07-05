@@ -1703,14 +1703,113 @@ results change.
         Seeds `2404` and `2405` both reached the 1024 unique target, used CUDA
         with good monitored GPU utilization, wrote zero-duplicate exports, and
         scored cleanly.
-    - [in_progress] Run optional seed `2406` with the same bounded
-      1024-unique settings and diagnostic/scoring gates.
-    - [pending] Merge scored outputs with relevant prior baselines and dedup
+    - [done] Run optional seed `2406` with the same bounded 1024-unique
+      settings.
+      - Seed `2406` GPU dedup command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup --diversity_variant fixed_template_t11_open_topk --diversity_seed 2406 --dedup_unique_target 1024 --dedup_max_attempts 4096 --dedup_progress_interval 256 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406 --timeout_seconds 900 --monitor_interval_seconds 2`
+      - Seed `2406` GPU result: return code 0, no timeout, runtime
+        150.415s, `device: cuda`, four finite eval points, final train/test
+        loss about `0.312` / `2.032`, max monitored GPU utilization 99.0%,
+        average monitored GPU utilization 81.096%, max monitored GPU memory
+        10850 MiB, max CUDA reserved 242 MiB, and GPU-phase CPU
+        scoring/local search/dataset update avoided.
+      - Seed `2406` dedup export result: the 1024-unique target was not
+        reached. The run exhausted the 4096-attempt budget, wrote 862 rows,
+        decoded 852 written rows, had 10 invalid decode rows, reached 852
+        unique decoded coefficient vectors, skipped 3234 duplicate decoded
+        attempts, and recorded `stop_reason=attempt_budget_exhausted`.
+      - Live GPU observation while running: `nvidia-smi` showed a
+        `/python3.12` compute process at about 98% GPU utilization and about
+        10595-10642 MiB used.
+      - Seed `2406` export artifacts:
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_sampler_probe_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_sampler_probe_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2406_u1024_a4096.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2406_u1024_a4096.jsonl.summary.json`.
+    - [done] Run raw export diversity diagnostic and CPU-score seed
+      `2406` if the diagnostic justifies scoring.
+      - Seed `2406` raw diagnostic command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_export_diversity_diagnostic.py /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2406_u1024_a4096.jsonl --labels seed2406_t11_open_dedup_u1024 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/export_diversity_diagnostic --checkpoint_interval 256 --top_n 10`
+      - Seed `2406` raw diagnostic result: return code 0, 862 rows read,
+        852 decoded, 10 invalid decode, 852 exact unique coefficient vectors,
+        0 exact duplicate records, 852 canonical unique hashes, 0 canonical
+        duplicate records, 852 token unique sequences, and 0 token duplicate
+        records.
+      - Seed `2406` CPU score command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/gpu_model_sample_export_dedup_fixed_template_t11_open_topk_seed2406_u1024_a4096.jsonl --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all --score_all true --coeff_bound 4 --prime_limit 11 --exact_score_timeout 2 --local_search false --max_local_search_steps 0`
+      - Seed `2406` CPU score result: return code 0, runtime 32.091s,
+        `selection_mode=all_explicit`, 862 rows read/selected, 852 decoded
+        input rows, 10 skipped decode, 852 scored, 794 valid, 58 rejected,
+        852 unique canonical hashes, 0 duplicate hash records, best score
+        9963.539, mean score 9246.803, and local search disabled.
+      - Seed `2406` artifacts:
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/export_diversity_diagnostic/export_diversity_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/export_diversity_diagnostic/export_diversity_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all/score_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all/score_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all/scored_samples.jsonl`,
+        and
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all/split_workflow_manifest.json`.
+    - [done] Merge scored outputs with relevant prior baselines and dedup
       runs, then compare marginal unique coverage, overlap, validity rate,
       best score, mean score, and attempts per unique across seeds.
-    - [pending] Update README/NOTES if the workflow recommendation changes,
-      run final verification, confirm Stage 4 remains present, audit
-      GPU/process state, cleanup generated caches, commit, and push.
+      - Required-seed merge command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_multiseed_20260705/seed2404/cpu_scored_export_all /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all --labels seed2201_t09_clean seed2302_t11_open seed2402_t11_open_full2048 seed2401_t11_dedup512 seed2401_t11_dedup1024 seed2402_t11_dedup1024 seed2402_t11_dedup1536 seed2404_t11_dedup1024 seed2405_t11_dedup1024 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/merged_required_seed_review --top_n 25`
+      - Required-seed merge result: nine sources, 11775 scored rows, 10703
+        valid, 1072 rejected, 10167 unique canonical hashes, 1608 duplicate
+        hash records, 515 hashes seen in multiple sources, best score
+        9966.150, and mean score 9017.746.
+      - Required-seed marginal coverage: prior seven-source review had 8121
+        unique hashes; adding required seeds `2404` and `2405` raised that to
+        10167, so the two required seeds added 2046 net unique hashes from
+        2048 scored rows. Seed `2404` had zero overlap with all prior sources
+        and seed `2405` had only tiny overlap with prior seed `2402` sources;
+        seeds `2404` and `2405` had zero overlap with each other.
+      - Full merge command, including optional seed `2406`:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_merge_scored_exports.py /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/cpu_scored_export_all /tmp/igp24_gpu_export_entropy_interventions_20260704/t11_open_seed2302/cpu_scored_export_all /tmp/igp24_gpu_t11_open_multiseed_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_export_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2401/cpu_scored_export_all /tmp/igp24_gpu_dedup_scale_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_medium_20260704/seed2402/cpu_scored_export_all /tmp/igp24_gpu_dedup_multiseed_20260705/seed2404/cpu_scored_export_all /tmp/igp24_gpu_dedup_multiseed_20260705/seed2405/cpu_scored_export_all /tmp/igp24_gpu_dedup_multiseed_20260705/seed2406/cpu_scored_export_all --labels seed2201_t09_clean seed2302_t11_open seed2402_t11_open_full2048 seed2401_t11_dedup512 seed2401_t11_dedup1024 seed2402_t11_dedup1024 seed2402_t11_dedup1536 seed2404_t11_dedup1024 seed2405_t11_dedup1024 seed2406_t11_dedup_partial852 --output_dir /tmp/igp24_gpu_dedup_multiseed_20260705/merged_scored_review --top_n 25`
+      - Full merge result: ten sources, 12627 scored rows, 11497 valid,
+        1130 rejected, 11019 unique canonical hashes, 1608 duplicate hash
+        records, 515 hashes seen in multiple sources, best score 9966.150,
+        and mean score 9033.201.
+      - Full-block marginal coverage: required plus optional seeds added
+        2898 net unique hashes from 2900 scored rows over the previous
+        seven-source review. Seed `2406` had zero overlap with all included
+        sources but was attempt-inefficient, exhausting 4096 attempts at 852
+        unique decoded outputs.
+      - Per-seed comparison:
+        `seed2404_t11_dedup1024`: 1027 attempts / 1024 uniques, 917 valid,
+        107 rejected, best 9963.747, mean 8883.004, attempts per unique
+        1.003.
+        `seed2405_t11_dedup1024`: 1611 attempts / 1024 uniques, 929 valid,
+        95 rejected, best 9950.674, mean 9000.689, attempts per unique
+        1.573.
+        `seed2406_t11_dedup_partial852`: 4096 attempts / 852 uniques, 794
+        valid, 58 rejected, best 9963.539, mean 9246.803, attempts per unique
+        4.808.
+      - Interpretation: bounded smaller multi-seed 1024 exports are
+        preferable to another larger single-seed target for immediate
+        coverage. The required seeds `2404` and `2405` added almost entirely
+        new canonical hashes with much better attempt efficiency than the
+        seed-`2402` 1536-target stress test. Seed `2406` shows seed
+        sensitivity remains, so the next step should not be simply extending
+        every seed longer.
+      - Merge artifacts:
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_required_seed_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_required_seed_review/merged_dedup_report.md`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_required_seed_review/top_deduped_candidates.jsonl`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_scored_review/merged_dedup_summary.json`,
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_scored_review/merged_dedup_report.md`,
+        and
+        `/tmp/igp24_gpu_dedup_multiseed_20260705/merged_scored_review/top_deduped_candidates.jsonl`.
+    - [done] Update README/NOTES because the workflow recommendation changed.
+      - Result: README and NOTES now summarize the required seed `2404`/`2405`
+        table, optional seed `2406`, the merge coverage gain, and the
+        recommendation to continue bounded fresh-seed sampling or add a seed
+        triage/diversity diagnostic before spending longer runs on
+        duplicate-heavy seeds.
+    - [pending] Run final verification, confirm Stage 4 remains present,
+      audit GPU/process state, cleanup generated caches, commit, and push.
 
 ## Tests And Checks
 
