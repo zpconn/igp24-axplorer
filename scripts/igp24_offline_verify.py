@@ -708,6 +708,35 @@ def _write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
             handle.write(json.dumps(record, sort_keys=True) + "\n")
 
 
+def select_records_by_candidate_hash(
+    records: list[dict[str, Any]],
+    candidate_hashes: list[str] | None,
+) -> list[dict[str, Any]]:
+    """Select records by exact canonical hash, preserving the requested order."""
+
+    requested = [str(value) for value in candidate_hashes or [] if str(value)]
+    if not requested:
+        return list(records)
+    duplicate_requests = sorted({value for value in requested if requested.count(value) > 1})
+    if duplicate_requests:
+        raise ReviewBatchError(f"duplicate --candidate_hash values: {', '.join(duplicate_requests)}")
+    by_hash: dict[str, dict[str, Any]] = {}
+    duplicates: set[str] = set()
+    for record in records:
+        canonical_hash = str(record.get("canonical_hash") or "")
+        if not canonical_hash:
+            continue
+        if canonical_hash in by_hash:
+            duplicates.add(canonical_hash)
+        by_hash[canonical_hash] = record
+    if duplicates:
+        raise ReviewBatchError(f"input contains duplicate canonical_hash values: {', '.join(sorted(duplicates))}")
+    missing = [value for value in requested if value not in by_hash]
+    if missing:
+        raise ReviewBatchError(f"requested candidate_hash not found: {', '.join(missing)}")
+    return [dict(by_hash[value]) for value in requested]
+
+
 def run_magma_candidate(
     record: dict[str, Any],
     *,
@@ -1071,6 +1100,8 @@ def build_online_magma_manual_summary(
     *,
     records: list[dict[str, Any]],
     results: list[dict[str, Any]],
+    local_magma_results: list[dict[str, Any]] | None,
+    local_magma_execution: dict[str, Any] | None,
     output_dir: Path,
     input_path: Path,
     input_kind: str,
@@ -1083,6 +1114,10 @@ def build_online_magma_manual_summary(
         status = str(result.get("status"))
         counts[status] = counts.get(status, 0) + 1
     verified = [result for result in results if result.get("status") == "verified"]
+    local_counts: dict[str, int] = {}
+    for result in local_magma_results or []:
+        status = str(result.get("status"))
+        local_counts[status] = local_counts.get(status, 0) + 1
     manual_dir = output_dir / ONLINE_MAGMA_MANUAL_DIR
     return {
         "schema_version": ONLINE_MAGMA_MANUAL_SCHEMA_VERSION,
@@ -1094,10 +1129,26 @@ def build_online_magma_manual_summary(
         "input_path": str(input_path),
         "input_kind": input_kind,
         "records_selected_for_manual_online_magma": len(records),
+        "selected_hashes": [record.get("canonical_hash") for record in records],
         "pasted_output_paths": [str(path.resolve()) for path in pasted_output_paths or []],
         "status_counts": dict(sorted(counts.items())),
         "verified_records": len(verified),
         "verified_group_labels": sorted({str(result.get("verified_group_label")) for result in verified}),
+        "queue_status": {
+            "already_parsed_exact_label_hashes": [
+                result.get("candidate_hash") for result in verified if result.get("candidate_hash")
+            ],
+            "ready_for_manual_copy_paste_hashes": [
+                record.get("canonical_hash")
+                for record in records
+                if record.get("canonical_hash") not in {result.get("candidate_hash") for result in verified}
+            ],
+            "proxy_only_candidate_hashes": [
+                record.get("canonical_hash") for record in records if not record.get("verified_group_label")
+            ],
+            "local_magma_status_counts": dict(sorted(local_counts.items())),
+            "local_magma_executed": bool((local_magma_execution or {}).get("executed")),
+        },
         "calculator_constraints": {
             "calculator_url": ONLINE_MAGMA_CALCULATOR_URL,
             "observed_version": ONLINE_MAGMA_CALCULATOR_VERSION,
@@ -1126,7 +1177,32 @@ def build_online_magma_manual_summary(
     }
 
 
-def build_online_magma_manual_report(summary: dict[str, Any], results: list[dict[str, Any]]) -> str:
+def _short_hash(value: Any) -> str:
+    return str(value or "")[:12]
+
+
+def _score_text(value: Any) -> str:
+    return f"{float(value):.6f}" if value is not None else ""
+
+
+def _online_script_path(summary: dict[str, Any], record: dict[str, Any], *, index: int) -> str:
+    script_dir = summary.get("output_files", {}).get("online_magma_copy_paste_scripts_dir")
+    if not script_dir:
+        return ""
+    hash_text = safe_filename(str(record.get("canonical_hash") or f"candidate_{index:04d}"), fallback=f"candidate_{index:04d}")
+    return str(Path(str(script_dir)) / f"{index:04d}_{hash_text}.m")
+
+
+def build_online_magma_manual_report(
+    summary: dict[str, Any],
+    results: list[dict[str, Any]],
+    records: list[dict[str, Any]],
+) -> str:
+    verified_results = [result for result in results if result.get("status") == "verified"]
+    verified_hashes = {result.get("candidate_hash") for result in verified_results}
+    ready_records = [record for record in records if record.get("canonical_hash") not in verified_hashes]
+    proxy_only_records = [record for record in records if not record.get("verified_group_label")]
+    local_status_counts = (summary.get("queue_status") or {}).get("local_magma_status_counts") or {}
     lines = [
         "# IGP24 Online MAGMA Manual Report",
         "",
@@ -1139,6 +1215,9 @@ def build_online_magma_manual_report(summary: dict[str, Any], results: list[dict
         f"- Observed calculator version: `{summary.get('calculator_constraints', {}).get('observed_version')}`",
         f"- Calculator caps: {summary.get('calculator_constraints', {}).get('max_time_seconds')}s, {summary.get('calculator_constraints', {}).get('max_input_bytes')} bytes",
         f"- Status counts: `{json.dumps(summary.get('status_counts', {}), sort_keys=True)}`",
+        f"- Already parsed exact labels: {len(verified_results)}",
+        f"- Ready for manual copy/paste: {len(ready_records)}",
+        f"- Local MAGMA status counts: `{json.dumps(local_status_counts, sort_keys=True)}`",
         "",
         "Manual flow:",
         "1. Open the calculator URL in a browser.",
@@ -1146,10 +1225,14 @@ def build_online_magma_manual_report(summary: dict[str, Any], results: list[dict
         "3. Paste the returned output into the JSONL template's `pasted_output` field.",
         "4. Rerun this helper with `--online_magma_pasted_output` pointing at that JSONL.",
         "",
+        "## Already Parsed Exact Labels",
+        "",
         "| status | exact label | hash | degree | irreducible | runtime | version | group |",
         "| --- | --- | --- | ---: | --- | ---: | --- | --- |",
     ]
-    for result in results:
+    if not verified_results:
+        lines.append("|  |  |  |  |  |  |  |  |")
+    for result in verified_results:
         runtime = result.get("magma_runtime_seconds")
         runtime_text = f"{float(runtime):.3f}" if runtime is not None else ""
         group = str(result.get("galois_group_text") or "").replace("|", "\\|")
@@ -1159,7 +1242,7 @@ def build_online_magma_manual_report(summary: dict[str, Any], results: list[dict
                 [
                     str(result.get("status")),
                     str(result.get("verified_group_label") or ""),
-                    f"`{str(result.get('candidate_hash') or '')[:12]}`",
+                    f"`{_short_hash(result.get('candidate_hash'))}`",
                     str(result.get("degree") or ""),
                     str(result.get("is_irreducible") if result.get("is_irreducible") is not None else ""),
                     runtime_text,
@@ -1172,6 +1255,72 @@ def build_online_magma_manual_report(summary: dict[str, Any], results: list[dict
     lines.extend(
         [
             "",
+            "## Ready For Manual Copy/Paste",
+            "",
+            "| queue | hash | score | r | strategy | script |",
+            "| ---: | --- | ---: | ---: | --- | --- |",
+        ]
+    )
+    if not ready_records:
+        lines.append("|  |  |  |  |  |  |")
+    for index, record in enumerate(records, start=1):
+        if record not in ready_records:
+            continue
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(index),
+                    f"`{_short_hash(record.get('canonical_hash'))}`",
+                    _score_text(record.get("score")),
+                    str(record.get("real_root_count") if record.get("real_root_count") is not None else ""),
+                    f"`{record.get('source_strategy') or ''}`",
+                    f"`{_online_script_path(summary, record, index=index)}`",
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Proxy-Only Queue Candidates",
+            "",
+            "| queue | hash | score | r | height | source ledger |",
+            "| ---: | --- | ---: | ---: | ---: | --- |",
+        ]
+    )
+    if not proxy_only_records:
+        lines.append("|  |  |  |  |  |  |")
+    for index, record in enumerate(records, start=1):
+        if record not in proxy_only_records:
+            continue
+        ledger_name = Path(str(record.get("source_ledger_path") or "")).parent.name
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(index),
+                    f"`{_short_hash(record.get('canonical_hash'))}`",
+                    _score_text(record.get("score")),
+                    str(record.get("real_root_count") if record.get("real_root_count") is not None else ""),
+                    str(record.get("coefficient_height") if record.get("coefficient_height") is not None else ""),
+                    f"`{ledger_name}`",
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Local MAGMA Dry-Run Status",
+            "",
+            f"- Local MAGMA executed: `{(summary.get('queue_status') or {}).get('local_magma_executed')}`",
+            f"- Local MAGMA status counts: `{json.dumps(local_status_counts, sort_keys=True)}`",
+            "",
+        ]
+    )
+    lines.extend(
+        [
             "Artifacts:",
             f"- Copy/paste scripts: `{summary.get('output_files', {}).get('online_magma_copy_paste_scripts_dir')}`",
             f"- Pasted-output template: `{summary.get('output_files', {}).get('online_magma_pasted_output_template_jsonl')}`",
@@ -1193,6 +1342,8 @@ def write_online_magma_manual_artifacts(
     source_commit: str | None,
     max_records: int | None,
     pasted_output_paths: list[Path] | None,
+    local_magma_results: list[dict[str, Any]] | None = None,
+    local_magma_execution: dict[str, Any] | None = None,
 ) -> dict[str, Path]:
     selected_records = records if max_records is None else records[: max(0, int(max_records))]
     manual_dir = output_dir / ONLINE_MAGMA_MANUAL_DIR
@@ -1223,6 +1374,8 @@ def write_online_magma_manual_artifacts(
     summary = build_online_magma_manual_summary(
         records=selected_records,
         results=results,
+        local_magma_results=local_magma_results,
+        local_magma_execution=local_magma_execution,
         output_dir=output_dir,
         input_path=input_path,
         input_kind=input_kind,
@@ -1233,7 +1386,7 @@ def write_online_magma_manual_artifacts(
     summary_path = manual_dir / ONLINE_MAGMA_SUMMARY_JSON
     report_path = manual_dir / ONLINE_MAGMA_REPORT_MD
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    report_path.write_text(build_online_magma_manual_report(summary, results), encoding="utf-8")
+    report_path.write_text(build_online_magma_manual_report(summary, results, selected_records), encoding="utf-8")
     return {
         "online_magma_copy_paste_scripts_dir": script_dir,
         "online_magma_pasted_output_template_jsonl": template_path,
@@ -1686,6 +1839,8 @@ def write_outputs(
             source_commit=source_commit,
             max_records=max_records,
             pasted_output_paths=online_magma_pasted_outputs,
+            local_magma_results=magma_results,
+            local_magma_execution=magma_execution,
         )
         online_summary = json.loads(online_paths["online_magma_summary_json"].read_text(encoding="utf-8"))
 
@@ -1751,6 +1906,12 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--magma_executable", default="magma")
     parser.add_argument("--timeout_seconds", type=int, default=60)
     parser.add_argument("--max_records", type=int, default=None, help="Limit records selected for MAGMA verification/dry-run artifacts")
+    parser.add_argument(
+        "--candidate_hash",
+        action="append",
+        default=[],
+        help="Select an exact canonical hash for this verification queue; repeat to preserve a deliberate non-contiguous order",
+    )
     parser.add_argument("--cache_path", type=Path, default=None, help="Optional MAGMA result cache path; defaults inside output_dir")
     parser.add_argument(
         "--magma_search_path",
@@ -1780,6 +1941,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         records, input_path, source_review_manifest, input_kind = load_verification_input(args.verification_input)
+        records = select_records_by_candidate_hash(records, args.candidate_hash)
     except (FileNotFoundError, ReviewBatchError) as exc:
         parser.error(str(exc))
 

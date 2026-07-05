@@ -28,6 +28,7 @@ from scripts.igp24_offline_verify import (
     parse_magma_output,
     parse_online_magma_pasted_output,
     run_magma_verification,
+    select_records_by_candidate_hash,
     write_cache,
     write_outputs,
 )
@@ -235,6 +236,18 @@ def test_load_verification_input_accepts_jsonl_and_coefficients_file(tmp_path):
     assert coeff_records[0]["exported_coefficients"] == [1] + [0] * 23 + [1]
 
 
+def test_select_records_by_candidate_hash_preserves_requested_order():
+    records = [_record("a", 1), _record("b", 2), _record("c", 3)]
+
+    selected = select_records_by_candidate_hash(records, ["c", "a"])
+
+    assert [record["canonical_hash"] for record in selected] == ["c", "a"]
+    with pytest.raises(ReviewBatchError, match="not found"):
+        select_records_by_candidate_hash(records, ["missing"])
+    with pytest.raises(ReviewBatchError, match="duplicate --candidate_hash"):
+        select_records_by_candidate_hash(records, ["a", "a"])
+
+
 def test_run_magma_verification_statuses_cache_and_timeout(tmp_path):
     records = [_record("a", 1), _record("b", 2)]
     for index, record in enumerate(records, start=1):
@@ -415,6 +428,7 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     summary = json.loads((manual_dir / ONLINE_MAGMA_SUMMARY_JSON).read_text(encoding="utf-8"))
     manifest = json.loads((output_dir / OFFLINE_MANIFEST_JSON).read_text(encoding="utf-8"))
     generated_script = next((manual_dir / "copy_paste_scripts").glob("*.m")).read_text(encoding="utf-8")
+    report = (manual_dir / "online_magma_manual_report.md").read_text(encoding="utf-8")
 
     assert paths["online_magma_results_jsonl"] == manual_dir / ONLINE_MAGMA_RESULTS_JSONL
     assert "Signature(f)" not in generated_script
@@ -423,8 +437,16 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     assert results[0]["magma_version"] == "V2.29-8"
     assert results[0]["magma_runtime_seconds"] == 0.420
     assert summary["verified_group_labels"] == ["24T25000"]
+    assert summary["queue_status"]["already_parsed_exact_label_hashes"] == [candidate_hash]
+    assert summary["queue_status"]["ready_for_manual_copy_paste_hashes"] == []
+    assert summary["queue_status"]["local_magma_status_counts"] == {"dry_run": 1}
     assert summary["safety"]["network_calls_by_helper"] is False
     assert summary["safety"]["automated_online_submission"] is False
+    assert "## Already Parsed Exact Labels" in report
+    assert "## Ready For Manual Copy/Paste" in report
+    assert "## Proxy-Only Queue Candidates" in report
+    assert "## Local MAGMA Dry-Run Status" in report
+    assert "24T25000" in report
     assert manifest["online_magma_manual"]["verified_group_labels"] == ["24T25000"]
     assert manifest["safety"]["online_magma_automated_submission"] is False
     assert manifest["safety"]["online_magma_exact_group_labels_parsed"] is True

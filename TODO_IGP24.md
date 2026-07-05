@@ -9,14 +9,15 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  manual-online MAGMA artifact work.
-- Active focus: add a safe manual free-online Magma calculator handoff for
-  tiny exact checks while local MAGMA remains unavailable. The helper now
-  generates copy/paste scripts, parses saved calculator output, records the
-  first `24T25000` exact label with provenance, and still keeps MAGMA/PARI/SAIR
-  out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
-  network/submission paths. Dry-run remains the default; local MAGMA execution
-  still requires explicit `--run_magma`.
+  manual-online MAGMA verification-queue work.
+- Active focus: turn the safe manual free-online Magma handoff into a practical
+  exact-verification queue while local MAGMA remains unavailable. The helper
+  can now select deliberate non-contiguous candidate hashes and is being
+  extended to report already parsed exact labels, ready-to-copy candidates,
+  proxy-only queue rows, and local MAGMA dry-run status separately. MAGMA/PARI/
+  SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops,
+  and automatic network/submission paths. Dry-run remains the default; local
+  MAGMA execution still requires explicit `--run_magma`.
 
 ## Stage 0: Scaffold
 
@@ -2228,6 +2229,35 @@ results change.
         pid=,etime=,pcpu=,pmem=,args=` found no active Python processes.
       - Cleanup: generated `__pycache__` directories were removed before the
         final commit.
+  - [in_progress] Turn manual-online Magma artifacts into a practical
+    verification queue.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect TODO, README, NOTES, offline verifier helper/tests,
+      MAGMA verifier stub, and the current review/shortlist artifacts.
+      - Result: current queue source is
+        `/tmp/igp24_r4_review_batch_20260704`, built from
+        `/tmp/igp24_r4_shortlist_20260704`; it has 8 proxy-only review
+        candidates. The top six by score are quartic-lift-like, while records
+        7 and 8 provide useful `four_real_seed` coverage.
+    - [done] Add a deliberate non-contiguous candidate selection path and
+      clearer manual-online queue report sections.
+      - Implementation: `scripts/igp24_offline_verify.py` now accepts repeated
+        `--candidate_hash` values, preserving the requested queue order and
+        rejecting missing or duplicate hashes.
+      - Implementation: `online_magma_manual_report.md` now separates already
+        parsed exact labels, ready-for-manual-copy/paste candidates,
+        proxy-only queue candidates, and local MAGMA dry-run status counts.
+      - Safety: the queue path still performs no online submission, no SAIR
+        call, no network call, and no integration with training, GPU sampling,
+        CPU proxy scoring, or local search.
+    - [done] Run focused implementation checks before queue generation.
+      - Focused offline verifier tests:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        - Result: 13 passed in 1.40s.
+      - Compile check:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
+        - Result: passed.
 
 ## Tests And Checks
 
@@ -2235,7 +2265,8 @@ results change.
   - Latest result: 91 passed in 4.03s after manual-online MAGMA work.
 - [done] Run focused offline verifier tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
-  - Latest result: 12 passed in 1.25s after manual-online MAGMA work.
+  - Latest result: 13 passed in 1.40s after verification-queue reporting
+    work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.
   - Latest result: 43 passed in 1.14s after seed triage calibration.
