@@ -1114,6 +1114,7 @@ def build_online_magma_manual_summary(
         status = str(result.get("status"))
         counts[status] = counts.get(status, 0) + 1
     verified = [result for result in results if result.get("status") == "verified"]
+    verified_hashes = {result.get("candidate_hash") for result in verified}
     local_counts: dict[str, int] = {}
     for result in local_magma_results or []:
         status = str(result.get("status"))
@@ -1141,10 +1142,12 @@ def build_online_magma_manual_summary(
             "ready_for_manual_copy_paste_hashes": [
                 record.get("canonical_hash")
                 for record in records
-                if record.get("canonical_hash") not in {result.get("candidate_hash") for result in verified}
+                if record.get("canonical_hash") not in verified_hashes
             ],
             "proxy_only_candidate_hashes": [
-                record.get("canonical_hash") for record in records if not record.get("verified_group_label")
+                record.get("canonical_hash")
+                for record in records
+                if record.get("canonical_hash") not in verified_hashes and not record.get("verified_group_label")
             ],
             "local_magma_status_counts": dict(sorted(local_counts.items())),
             "local_magma_executed": bool((local_magma_execution or {}).get("executed")),
@@ -1201,7 +1204,11 @@ def build_online_magma_manual_report(
     verified_results = [result for result in results if result.get("status") == "verified"]
     verified_hashes = {result.get("candidate_hash") for result in verified_results}
     ready_records = [record for record in records if record.get("canonical_hash") not in verified_hashes]
-    proxy_only_records = [record for record in records if not record.get("verified_group_label")]
+    proxy_only_records = [
+        record
+        for record in records
+        if record.get("canonical_hash") not in verified_hashes and not record.get("verified_group_label")
+    ]
     local_status_counts = (summary.get("queue_status") or {}).get("local_magma_status_counts") or {}
     lines = [
         "# IGP24 Online MAGMA Manual Report",

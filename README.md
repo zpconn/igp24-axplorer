@@ -864,6 +864,9 @@ If local MAGMA is unavailable, the helper can prepare a manual free-online
 Magma calculator handoff. This mode writes one copy/paste script per selected
 candidate plus a JSONL template for pasting returned output. It does not submit
 requests to the online calculator and should not be used for automated batches.
+Use repeated `--candidate_hash` values when the exact-verification queue should
+pick a deliberate non-contiguous set from a review batch, for example to keep
+the highest proxy-score candidates while also including strategy coverage.
 
 ```bash
 PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
@@ -871,7 +874,8 @@ PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py \
   --output_dir /tmp/igp24_online_magma_manual_20260705 \
   --max_records 3 \
   --timeout_seconds 5 \
-  --online_magma_manual
+  --online_magma_manual \
+  --candidate_hash 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb
 ```
 
 After manually pasting one generated script into the calculator and saving the

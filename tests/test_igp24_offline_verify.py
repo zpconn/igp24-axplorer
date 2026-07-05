@@ -439,6 +439,7 @@ def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tm
     assert summary["verified_group_labels"] == ["24T25000"]
     assert summary["queue_status"]["already_parsed_exact_label_hashes"] == [candidate_hash]
     assert summary["queue_status"]["ready_for_manual_copy_paste_hashes"] == []
+    assert summary["queue_status"]["proxy_only_candidate_hashes"] == []
     assert summary["queue_status"]["local_magma_status_counts"] == {"dry_run": 1}
     assert summary["safety"]["network_calls_by_helper"] is False
     assert summary["safety"]["automated_online_submission"] is False

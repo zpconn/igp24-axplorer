@@ -2254,10 +2254,42 @@ results change.
     - [done] Run focused implementation checks before queue generation.
       - Focused offline verifier tests:
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
-        - Result: 13 passed in 1.40s.
+        - Result: 13 passed in 1.29s after tightening the
+          still-proxy-only queue partition.
       - Compile check:
         `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_offline_verify.py tests/test_igp24_offline_verify.py`
         - Result: passed.
+    - [done] Generate the practical manual-online verification queue.
+      - Selection rationale: keep the already parsed top-score exact result,
+        include three additional high-score quartic-lift candidates, and add
+        both available `four_real_seed` review-batch candidates for useful
+        strategy coverage beyond the known `24T25000` row.
+      - Selected queue hashes, in order:
+        `70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb`,
+        `4bb12cfdfb235e11af7c51ea2b726aab2a5b3cfcd54b3d0a9f9f29f5f2525edf`,
+        `8e105d4e1281a6e161a818dc685d41f37172c2460d6d3a04d024dd2699c03968`,
+        `4882427239ef073a626b0003e9da228b367b985488a1bcd0f569cc91d1fcb26e`,
+        `2a5559600c07d1a771ab56f2bcca07e123b6ab5f6844b3c9857a168c253bd1e0`,
+        and `62df2639fa4002233ee4fa8b17d9cf3f5746a708b71e71f864edc481780179d1`.
+      - Command:
+        `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r4_review_batch_20260704 --output_dir /tmp/igp24_manual_magma_queue_20260705 --timeout_seconds 5 --online_magma_manual --online_magma_pasted_output data/igp24/online_magma_manual_output_70a542863f79_20260705.xml --candidate_hash 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb --candidate_hash 4bb12cfdfb235e11af7c51ea2b726aab2a5b3cfcd54b3d0a9f9f29f5f2525edf --candidate_hash 8e105d4e1281a6e161a818dc685d41f37172c2460d6d3a04d024dd2699c03968 --candidate_hash 4882427239ef073a626b0003e9da228b367b985488a1bcd0f569cc91d1fcb26e --candidate_hash 2a5559600c07d1a771ab56f2bcca07e123b6ab5f6844b3c9857a168c253bd1e0 --candidate_hash 62df2639fa4002233ee4fa8b17d9cf3f5746a708b71e71f864edc481780179d1`
+      - Result: loaded 6 selected review records; local
+        `magma_available=False`; local `magma_executed=False`;
+        `magma_status_counts={"dry_run": 6}`; parsed one already verified
+        manual-online exact label `24T25000`; five candidates remain ready
+        for manual copy/paste and still only proxy-scored.
+      - Queue artifacts:
+        `/tmp/igp24_manual_magma_queue_20260705/offline_verification_manifest.json`,
+        `/tmp/igp24_manual_magma_queue_20260705/magma_verification_results.jsonl`,
+        `/tmp/igp24_manual_magma_queue_20260705/online_magma_manual/copy_paste_scripts`,
+        `/tmp/igp24_manual_magma_queue_20260705/online_magma_manual/online_magma_pasted_outputs_template.jsonl`,
+        `/tmp/igp24_manual_magma_queue_20260705/online_magma_manual/online_magma_manual_results.jsonl`,
+        `/tmp/igp24_manual_magma_queue_20260705/online_magma_manual/online_magma_manual_summary.json`,
+        and `/tmp/igp24_manual_magma_queue_20260705/online_magma_manual/online_magma_manual_report.md`.
+      - Artifact check: the template has 6 rows, local MAGMA result JSONL has
+        6 dry-run rows, parsed online result JSONL has 1 verified row, and
+        generated copy/paste scripts include `do not batch-submit` and
+        `IGP24_TRANSITIVE_GROUP_ID` markers without `Signature(f)`.
 
 ## Tests And Checks
 
@@ -2265,7 +2297,7 @@ results change.
   - Latest result: 91 passed in 4.03s after manual-online MAGMA work.
 - [done] Run focused offline verifier tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`.
-  - Latest result: 13 passed in 1.40s after verification-queue reporting
+  - Latest result: 13 passed in 1.29s after verification-queue reporting
     work.
 - [done] Run focused split/export/triage tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_seed_triage.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_sample_export.py tests/test_igp24_merge_scored_exports.py tests/test_igp24_export_diversity_diagnostic.py`.

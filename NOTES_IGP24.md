@@ -280,6 +280,14 @@ the calculator-reported runtime was 0.420s. This is useful for tiny manual
 checks, but local MAGMA or another local exact verifier is still needed for
 repeatable batch verification.
 
+The manual-online workflow can now form a practical queue with repeated
+`--candidate_hash` values. The current queue under
+`/tmp/igp24_manual_magma_queue_20260705` selects six review-batch candidates:
+the already parsed `24T25000` row, three additional high-score quartic-lift
+rows, and two `four_real_seed` rows for coverage. Its report separates the
+already parsed exact label, five ready-for-copy/paste scripts, five still
+proxy-only queue rows, and local MAGMA dry-run status (`{"dry_run": 6}`).
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and
