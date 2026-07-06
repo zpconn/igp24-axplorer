@@ -1055,3 +1055,13 @@ landed as `24T25000|r=16`. Both pairs are absent from the frozen baseline, and
 scores remain pending. The useful lesson is narrower than hoped but still
 real: tiny odd perturbations can escape `24T24979`, though this first escape
 path goes to the generic endpoint rather than to a lower/non-generic label.
+
+The follow-up anti-collapse r16 probe therefore stops submitting either exact
+divisor-2 `g(x^2)` rows or one-odd near-composed rows. It keeps the same
+degree-12 base-root construction, but requires two or three off-block
+divisor-2 terms through two-odd, three-odd, and mixed even+odd perturbation
+modes. The 2026-07-06 bounded CPU-only run selected 12 local `r=16` rows at
+`data/igp24/r16_anti_collapse_probe_20260706`: four two-odd, four three-odd,
+and four mixed even+odd. These rows are still near the r16 corridor, but they
+are structurally different from the two accepted collapse modes and are the
+right next manual SAIR probe before widening the search further.

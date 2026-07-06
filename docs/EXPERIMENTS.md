@@ -1182,6 +1182,69 @@ fallback checks: `sympy_signature_status_counts={"signature_ok": 4}` and
 no local Magma, no local PARI, no SAIR/API call, no network submission, and no
 GPU/model search.
 
+## Anti-Collapse R16 Probe
+
+The first two r16 submissions taught a clear structural lesson:
+
+- exact divisor-2 `g(x^2)` rows collapsed to `24T24979|r=16`,
+- one-odd near-composed rows escaped that label but collapsed to
+  `24T25000|r=16`.
+
+The second probe was designed to avoid both buckets while staying CPU-only and
+manual-submission-only. It extends `scripts/igp24_r16_diversity_probe.py` with
+multi-perturbation modes, full-row distance checks against accepted r16 rows,
+and divisor-2 off-block filters.
+
+Command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r16_diversity_probe.py \
+  --output_dir data/igp24/r16_anti_collapse_probe_20260706 \
+  --seed 2616 \
+  --max_trials 720 \
+  --limit 12 \
+  --per_family_cap 1 \
+  --coeff_bound 20000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 4.0 \
+  --min_l1_to_accepted_even 5000 \
+  --min_l1_to_accepted_full 5000 \
+  --no-include_exact \
+  --no-include_odd \
+  --include_two_odd \
+  --include_three_odd \
+  --include_mixed_even_odd \
+  --min_off_block_terms 2 \
+  --max_off_block_terms 4
+```
+
+Result:
+
+- `trials_attempted=720`
+- `valid_r16_candidates=149`
+- `selected_rows=12`
+- selected modes:
+  `{"mixed_even_odd_perturbed": 4, "three_odd_perturbed_near_composed": 4, "two_odd_perturbed_near_composed": 4}`
+- rejected counts:
+  `{"coefficient_height_exceeds_bound": 112, "real_root_count_mismatch": 298, "reducible_over_q": 91, "too_close_to_accepted_even_coefficients": 70}`
+- off-block counts among selected rows: `{"2": 8, "3": 4}`
+- minimum full-row L1 distance to accepted r16 rows: 411103
+
+Tracked artifacts:
+
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_coefficients.txt`
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_queue.jsonl`
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_hashes.txt`
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_summary.json`
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_rejected_trials.jsonl`
+- `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_report.md`
+
+Validation confirmed all 12 selected rows have 25 integer coefficients,
+nonzero constant coefficient, monic leading coefficient, coefficient gcd 1,
+local `real_root_count=16`, irreducible and squarefree exact checks, unique
+hashes, unique family keys, no accepted-hash overlap, and no exact/one-odd
+collapse modes.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

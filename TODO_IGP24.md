@@ -46,10 +46,16 @@ results change.
   under `data/igp24/r16_diversity_probe_20260706`; SAIR accepted all 10 rows,
   with exact-composed rows as `24T24979|r=16` and odd-perturbed rows as
   `24T25000|r=16`.
-- Active anti-collapse r16 follow-up in progress: extending
+- Active anti-collapse r16 follow-up: extended
   `scripts/igp24_r16_diversity_probe.py` with opt-in two-odd, three-odd,
   four-odd, and mixed even+odd perturbation modes, full-row L1 distance checks
-  against accepted r16 submissions, and divisor-2 off-block filters. Focused
+  against accepted r16 submissions, and divisor-2 off-block filters. The
+  bounded CPU-only run under
+  `data/igp24/r16_anti_collapse_probe_20260706` attempted 720 trials, found
+  149 valid local `r=16` candidates, and selected 12 rows: four two-odd, four
+  three-odd, and four mixed even+odd. Validation passed for SAIR format, local
+  `r=16`, irreducible/squarefree status, unique hashes/families, no known
+  accepted-hash overlap, and 2-3 divisor-2 off-block terms per row. Focused
   compile/test checks passed:
   `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_r16_diversity_probe.py tests/test_igp24.py`
   and
@@ -4385,6 +4391,62 @@ results change.
     - Full test suite rerun:
       `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
       - Result: 152 passed in 7.61s.
+  - Anti-collapse r16 probe helper update:
+    - Extended `scripts/igp24_r16_diversity_probe.py` with opt-in
+      multi-perturbation modes and filters:
+      `two_odd_perturbed_near_composed`,
+      `three_odd_perturbed_near_composed`,
+      `four_odd_perturbed_near_composed`, and
+      `mixed_even_odd_perturbed`.
+    - Added accepted-feedback loaders so the probe can compare candidates
+      against both the first r16 SAIR CSV rows and the accepted rows from
+      `data/igp24/r16_diversity_probe_20260706`.
+    - Added full-row L1 metadata, divisor-2 off-block term/exponent metadata,
+      and min/max off-block filters. This explicitly excludes the prior
+      collapse corridors: exact divisor-2 `g(x^2)` rows and one-odd
+      near-composed rows.
+    - Focused validation:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_r16_diversity_probe.py tests/test_igp24.py`
+      and
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py::test_r16_diversity_probe_helpers_build_degree24_lift tests/test_igp24.py::test_r16_diversity_probe_multi_odd_modes_escape_one_odd_support`.
+      - Result: 2 passed in 0.73s.
+    - Checkpoint commit: `52de629 Add anti-collapse r16 probe modes`.
+  - Anti-collapse r16 probe run:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r16_diversity_probe.py --output_dir data/igp24/r16_anti_collapse_probe_20260706 --seed 2616 --max_trials 720 --limit 12 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 4.0 --min_l1_to_accepted_even 5000 --min_l1_to_accepted_full 5000 --no-include_exact --no-include_odd --include_two_odd --include_three_odd --include_mixed_even_odd --min_off_block_terms 2 --max_off_block_terms 4`.
+    - Result: `trials_attempted=720`, `valid_r16_candidates=149`,
+      `selected_rows=12`,
+      `selected_mode_counts={"mixed_even_odd_perturbed": 4, "three_odd_perturbed_near_composed": 4, "two_odd_perturbed_near_composed": 4}`,
+      `rejected_counts={"coefficient_height_exceeds_bound": 112, "real_root_count_mismatch": 298, "reducible_over_q": 91, "too_close_to_accepted_even_coefficients": 70}`,
+      and `queue_status=produced`.
+    - Artifacts:
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_coefficients.txt`,
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_queue.jsonl`,
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_hashes.txt`,
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_summary.json`,
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_rejected_trials.jsonl`,
+      and
+      `data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_report.md`.
+    - Local validation: parsed all new artifacts; confirmed 12 rows with 25
+      integer coefficients, nonzero constant, monic leading coefficient,
+      coefficient gcd 1, local `real_root_count=16`, irreducible and
+      squarefree exact checks, stable canonical hashes, no overlap with the
+      accepted/known r16 ledger hashes, no duplicate family keys, no exact or
+      one-odd collapse modes, and diagnostic divisor-2 off-block counts in
+      range. Off-block counts were `{"2": 8, "3": 4}`, and minimum full-row L1
+      distance to accepted r16 rows was 411103.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 153 passed in 7.30s.
+    - Final whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Final Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 7213 after this TODO update.
+    - Process/GPU audit: `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`
+      returned no GPU compute apps; `ps -eo pid,ppid,stat,comm,args` showed
+      no lingering Python, pytest, Magma, GP, or training workers beyond the
+      audit command itself.
   - Structured artifact validation:
     - Result: parsed the SAIR status CSV, pair-status JSON, r16 accepted
       feedback JSON, diversified queue JSONL, diversified summary JSON, and
