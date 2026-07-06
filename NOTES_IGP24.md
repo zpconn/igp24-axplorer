@@ -824,6 +824,20 @@ submission attempt: it makes the five rows auditable without adding an
 automatic SAIR/API path. The remaining caveat is still independent Magma/PARI
 cross-checking on a host where those tools are installed.
 
+The first exact-tool cross-check pass reduced that caveat. PARI/GP 2.15.4 was
+unpacked in user space at `/tmp/pari-gp-local/usr/bin/gp` and confirmed all
+five number-field discriminants, matching the SymPy values. The free online
+Magma calculator then checked the fixed per-candidate scripts and returned
+degree 24, irreducible, `IGP24_SIGNATURE 4`, and the expected labels for all
+five rows. The integrated artifact is
+`/tmp/igp24_pari_magma_crosscheck_20260706_parsed`; raw online Magma XML is
+preserved under
+`/tmp/igp24_pari_magma_crosscheck_20260706/online_magma_manual/checked_xml`.
+The refreshed review package is
+`/tmp/igp24_final_submission_package_20260706_crosschecked`.
+Local system Magma is still unavailable, and no SAIR/API submission was
+performed.
+
 The four calculator-disabled rows now have a bounded manual retry packet at
 `/tmp/igp24_pending_four_retry_20260706`. This did not contact the online
 calculator; it only generated one-candidate Magma scripts with

@@ -119,10 +119,15 @@ def test_build_pari_and_magma_inputs_include_manual_exact_steps():
     magma = build_magma_input(records)
 
     assert "abc" in pari
+    assert "x = 'x;" in pari
     assert "polisirreducible" in pari
     assert "nfdisc(f)" in pari
     assert "IGP24_NFDISC_ABS" in pari
+    assert "candidates = [\\" in pari
+    assert "for (i = 1, #candidates,\\" in pari
     assert "abc" in magma
+    assert "Zx<x> := PolynomialRing(Integers());" in magma
+    assert "Qx<x> := PolynomialRing(Rationals());" not in magma
     assert "IsIrreducible" in magma
     assert "GaloisGroup" in magma
     assert "NumberOfRealRoots" in magma
@@ -147,6 +152,8 @@ def test_build_magma_verification_input_command_and_parser(tmp_path):
     )
 
     assert "GaloisGroup(f)" in script
+    assert "Zx<x> := PolynomialRing(Integers());" in script
+    assert "Zx<x> := PolynomialRing(Integers());" in online_script
     assert "TransitiveGroupIdentification(G)" in script
     assert "IGP24_TRANSITIVE_GROUP_ID" in script
     assert "IGP24_SIGNATURE" in script

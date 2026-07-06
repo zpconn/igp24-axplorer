@@ -24,16 +24,16 @@ results change.
   execution still requires explicit `--run_magma`.
 - Current result: the final five selected one-per-pair representatives are
   packaged for local/manual review at
-  `/tmp/igp24_final_submission_package_20260706`. The package has exactly five
-  coefficient rows, copied final planner artifacts, copied SymPy exact-r and
-  exact-nfdisc evidence, saved Magma label provenance, raw Magma XML copies, the
-  official frozen baseline CSV, a structured manifest, and a checklist. It did
-  not submit to SAIR or call SAIR APIs, Magma, PARI, online calculators, GPU
-  training, or search loops.
-- Next follow-up: review the package manually, run independent Magma/PARI
-  cross-checks on a host where those tools are installed, then decide whether a
-  human SAIR submission is warranted. Separately, retry the four pending fresh
-  rows only when calculator/local MAGMA availability permits.
+  `/tmp/igp24_final_submission_package_20260706_crosschecked`, and now have
+  independent exact-tool cross-check artifacts at
+  `/tmp/igp24_pari_magma_crosscheck_20260706_parsed`. PARI/GP 2.15.4 was
+  unpacked in user space and confirmed all five number-field discriminants;
+  the free online Magma calculator confirmed all five labels and
+  `IGP24_SIGNATURE 4`. No SAIR/API submission was performed, and no GPU/model
+  search was run.
+- Next follow-up: decide whether to do a human SAIR submission from the
+  five-row package plus cross-check artifacts. Separately, retry the four
+  pending fresh rows only when calculator/local MAGMA availability permits.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3482,6 +3482,97 @@ results change.
       - Post-push status:
         `git status --short --branch` returned
         `## igp24-dev...zpconn/igp24-dev`.
+  - [in_progress] Add independent exact-tool cross-checks for the five package
+    rows.
+    - [done] Install PARI/GP in user space.
+      - System install attempt:
+        `sudo apt-get update` was blocked because sudo requires an interactive
+        password.
+      - User-space install:
+        `apt-get download pari-gp` fetched Ubuntu package
+        `pari-gp_2.15.4-2.1build1_amd64.deb`, then
+        `dpkg-deb -x /tmp/pari-gp_2.15.4-2.1build1_amd64.deb /tmp/pari-gp-local`.
+      - Executable:
+        `/tmp/pari-gp-local/usr/bin/gp`.
+      - Version:
+        PARI/GP 2.15.4.
+    - [done] Fix verifier script generation for actual GP/Magma execution.
+      - GP fix: generated `pari_input.gp` now uses `x = 'x;` and explicit
+        continuation backslashes for multi-line vectors and loop bodies.
+      - Magma fix: generated Magma scripts now use
+        `Zx<x> := PolynomialRing(Integers())`, because online Magma
+        `NumberOfRealRoots` rejects the previous rational-polynomial element.
+      - Focused tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        passed with 18 tests in 4.81s after the GP/Magma script fixes.
+    - [done] Run PARI/GP cross-check on the five selected representatives.
+      - Integrated artifact directory:
+        `/tmp/igp24_pari_magma_crosscheck_20260706_parsed`.
+      - Command included:
+        `--run_pari --pari_executable /tmp/pari-gp-local/usr/bin/gp`.
+      - Result:
+        `pari_available=true`, `pari_executed=true`,
+        `pari_nfdisc_status_counts={"nfdisc_ok": 5}`, and
+        `pari_nfdisc_records=5`.
+      - All five PARI rows were degree 24, irreducible, had `pari_r=4`, and
+        matched the SymPy exact `nfdisc` values.
+    - [done] Check the fixed Magma candidate scripts with the free online Magma
+      calculator.
+      - Calculator page:
+        `https://magma.maths.usyd.edu.au/calc/`.
+      - Raw XML responses:
+        `/tmp/igp24_pari_magma_crosscheck_20260706/online_magma_manual/checked_xml`.
+      - Parsed results:
+        `/tmp/igp24_pari_magma_crosscheck_20260706_parsed/online_magma_manual/online_magma_manual_results.jsonl`.
+      - Result:
+        `online_magma_manual` status counts `{"verified": 5}`.
+      - All five online Magma rows returned degree 24, irreducible,
+        `IGP24_SIGNATURE 4`, no calculator warnings, and the expected labels:
+        `24T24979`, `24T24759`, `24T9683`, `24T24970`, and `24T24648`.
+      - No SAIR/API submission was performed.
+    - [done] Build a refreshed cross-checked manual package.
+      - Output directory:
+        `/tmp/igp24_final_submission_package_20260706_crosschecked`.
+      - Evidence source:
+        `/tmp/igp24_pari_magma_crosscheck_20260706_parsed`.
+      - Manifest status:
+        `selected_records=5`, `scoreability_status_counts={"new_pair_candidate": 5}`,
+        `exact_r_status_counts={"ok": 5}`, `exact_nfdisc_status_counts={"ok": 5}`,
+        `pari_gp.available=true`, `magma.available=false`, and
+        `sair_submission=false`.
+      - Package audit: 5 coefficient-only rows, 5 structured coefficient rows,
+        5 plan rows, 5 parsed online Magma result rows, 5 PARI `nfdisc_ok`
+        rows, and 5 copied raw online Magma XML responses under
+        `evidence/online_magma_manual/checked_xml`.
+    - [done] Run full validation for the script fixes and cross-check package.
+      - Focused offline-verifier tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py`
+        passed with 18 tests in 4.57s.
+      - Focused package tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_submission_package.py`
+        passed with 2 tests in 0.03s.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` passed with
+        124 tests in 7.34s.
+      - Compile check:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - Helper `--help` checks passed for
+        `scripts/igp24_offline_verify.py` and
+        `scripts/igp24_submission_package.py`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 5581 after this TODO update.
+      - Process audit returned no running Python processes.
+      - GPU audit found no running GPU compute processes; the RTX 5090 was at
+        3% utilization with display memory only.
+      - Cache cleanup completed and the follow-up
+        `find . -type d -name __pycache__ -print` returned no paths.
+    - [done] Commit and push the script fixes plus documentation updates.
+      - Checkpoint: verifier-script fixes, PARI/GP and online Magma
+        cross-check artifacts, refreshed cross-checked package notes, and
+        validation results.
 
 ## Tests And Checks
 

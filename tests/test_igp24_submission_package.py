@@ -77,6 +77,8 @@ def _write_fixture(tmp_path):
     ):
         (evidence_dir / "online_magma_manual" / name).write_text("{}\n", encoding="utf-8")
     (evidence_dir / "online_magma_manual" / "copy_paste_scripts" / "0001_a.m").write_text("print \"IGP24_SIGNATURE\";\n", encoding="utf-8")
+    (evidence_dir / "online_magma_manual" / "checked_xml").mkdir()
+    (evidence_dir / "online_magma_manual" / "checked_xml" / "0001_a.xml").write_text("<calculator />\n", encoding="utf-8")
     (evidence_dir / "magma_candidate_scripts" / "0001_a.m").write_text("print \"IGP24_SIGNATURE\";\n", encoding="utf-8")
 
     baseline_csv = tmp_path / "baseline.csv"
@@ -155,6 +157,7 @@ def test_build_package_writes_manifest_checklist_and_clean_coefficients(tmp_path
     ]
     assert "- [ ] Exactly five rows: `False`" in checklist
     assert "- [x] One row per `(24Tt, r)` pair." in checklist
+    assert (output_dir / "evidence" / "online_magma_manual" / "checked_xml" / "0001_a.xml").exists()
     assert (output_dir / "raw_magma_xml" / f"online_magma_manual_output_{rows[0]['short_hash']}_20260706.xml").exists()
 
 

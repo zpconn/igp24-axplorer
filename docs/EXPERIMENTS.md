@@ -406,6 +406,67 @@ Package audit status:
 - Local tool availability in the manifest remains
   `magma.available=false`, `pari_gp.available=false`.
 
+Follow-up exact-tool cross-check, 2026-07-06:
+
+The host did not allow a system `sudo apt-get install pari-gp`, so PARI/GP was
+installed in user space by downloading the Ubuntu `pari-gp` package and
+unpacking it under `/tmp/pari-gp-local`. The resulting executable was
+`/tmp/pari-gp-local/usr/bin/gp`, reporting PARI/GP 2.15.4.
+
+This uncovered and fixed two verifier-script portability issues:
+
+- GP batch mode needs explicit line continuations for the generated multi-line
+  vectors and loop body.
+- GP should use `x = 'x;`; the previous `Pol([0, 1])` built a constant
+  polynomial in this context.
+- Magma `NumberOfRealRoots` should receive an integer-polynomial ring element;
+  the generated Magma scripts now use `Zx<x> := PolynomialRing(Integers())`
+  instead of a rational-polynomial ring.
+
+The integrated cross-check artifact is:
+`/tmp/igp24_pari_magma_crosscheck_20260706_parsed`.
+
+A refreshed cross-checked manual package was also built at
+`/tmp/igp24_final_submission_package_20260706_crosschecked`. Compared with the
+earlier package, this copy uses the fixed GP/Magma scripts, includes PARI/GP
+`nfdisc_ok` results, includes parsed online Magma `IGP24_SIGNATURE 4`/label
+results, and copies the five raw online Magma XML responses under
+`evidence/online_magma_manual/checked_xml`.
+
+PARI/GP status:
+
+- command source: final package plan JSONL
+- `pari_available=true`
+- `pari_executed=true`
+- `pari_nfdisc_status_counts={"nfdisc_ok": 5}`
+- all five PARI `nfdisc` values match the SymPy `nfdisc` values above
+- all five PARI rows are degree 24, irreducible, and have `pari_r=4`
+
+Online Magma calculator status:
+
+- endpoint: `https://magma.maths.usyd.edu.au/calc/`
+- raw XML responses:
+  `/tmp/igp24_pari_magma_crosscheck_20260706/online_magma_manual/checked_xml`
+- parsed results:
+  `/tmp/igp24_pari_magma_crosscheck_20260706_parsed/online_magma_manual/online_magma_manual_results.jsonl`
+- `online_magma_manual` status counts: `{"verified": 5}`
+- all five rows returned degree 24, irreducible, `IGP24_SIGNATURE 4`, no
+  calculator warnings, and the expected transitive group id.
+
+Cross-check table:
+
+| pair | hash | Magma r | Magma label | PARI nfdisc |
+| --- | --- | ---: | --- | ---: |
+| `24T24979|r=4` | `981a94588aab` | 4 | `24T24979` | 1861637811973941745404031266095896941559808 |
+| `24T24759|r=4` | `4be66a510402` | 4 | `24T24759` | 7257477504600764033843223515092729030395849 |
+| `24T9683|r=4` | `9c45c5493e7a` | 4 | `24T9683` | 955418808601874103055463744199932705243136 |
+| `24T24970|r=4` | `a97caa584baa` | 4 | `24T24970` | 6681964085859090457451944972407263119355674624 |
+| `24T24648|r=4` | `2289d8a5e700` | 4 | `24T24648` | 3025607503381130745702964775405115504596600759660544 |
+
+The helper still did not submit to SAIR. The remaining exact-tool caveat is
+only that Magma was not installed locally; the five fixed scripts were checked
+through the free online Magma calculator and parsed back into local artifacts.
+
 The four calculator-disabled rows were not automatically retried online. A
 manual retry packet was prepared at `/tmp/igp24_pending_four_retry_20260706`
 instead. It contains one-candidate Magma copy/paste scripts with

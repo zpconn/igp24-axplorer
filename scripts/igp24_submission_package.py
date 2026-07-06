@@ -60,6 +60,10 @@ ONLINE_MAGMA_FILES = (
     "online_magma_manual_report.md",
     "online_magma_pasted_outputs_template.jsonl",
 )
+ONLINE_MAGMA_DIRS = (
+    "copy_paste_scripts",
+    "checked_xml",
+)
 
 
 class PackageError(ValueError):
@@ -391,7 +395,10 @@ def build_package(
         copied = copy_if_present(evidence_dir / "online_magma_manual" / name, online_out / name)
         if copied:
             copied_files.append(copied)
-    copied_files.extend(copy_tree(evidence_dir / "online_magma_manual" / "copy_paste_scripts", online_out / "copy_paste_scripts"))
+    for name in ONLINE_MAGMA_DIRS:
+        src = evidence_dir / "online_magma_manual" / name
+        if src.exists():
+            copied_files.extend(copy_tree(src, online_out / name))
     copied_files.extend(copy_tree(evidence_dir / "magma_candidate_scripts", evidence_out / "magma_candidate_scripts"))
 
     raw_out = output_dir / "raw_magma_xml"
