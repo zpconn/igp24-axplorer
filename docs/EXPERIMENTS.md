@@ -382,6 +382,42 @@ discriminants improve materially. No manual submission package was built from
 this queue yet. The next required action is manual Magma verification using
 `/tmp/igp24_next_non_generic_score_triage_20260706/manual_magma_checklist.md`.
 
+SAIR acceptance feedback, scores pending:
+
+- Feedback artifact:
+  `data/igp24/sair_accepted_label_feedback_20260706_next_queue.json`
+- Refreshed triage artifact:
+  `/tmp/igp24_next_non_generic_sair_triage_20260706`
+- Command:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --queue_jsonl /tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl --offline_dir /tmp/igp24_next_non_generic_exact_fallback_20260706 --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --output_dir /tmp/igp24_next_non_generic_sair_triage_20260706`
+
+The user manually submitted the bracketless coefficient file from the exact
+fallback artifact, and the SAIR verifier accepted all 24 rows. Rows 1-2 were
+reported as `24T24979`, rows 3-24 as `24T25000`, all with `r=4`. Scores were
+not yet available when this was recorded.
+
+The refreshed score-aware triage found:
+
+```text
+reviewed_rows=24
+verified_rows=24
+pending_exact_label_rows=0
+failed_rows=0
+submission_grade_rows=0
+labels_found_counts={"24T24979": 2, "24T25000": 22}
+classification_counts={"accepted_pair_duplicate": 2, "generic_24T25000": 22}
+exact_label_source_counts={"sair_accepted_label_feedback": 24}
+accepted_pair_status_counts={"accepted_pair_duplicate_not_improved": 23, "accepted_pair_minor_discriminant_improvement": 1}
+```
+
+Interpretation: the queue was verifier-clean but not score-aware
+submission-grade. The unmatched structural-proxy strategy did not find a new
+pair; it mostly collapsed to generic `S24`, plus two already accepted
+`24T24979|r=4` duplicates. Row 6 (`0ec921751862`) is a lower exact-nfdisc
+`24T25000|r=4` accepted alternate with ratio about `0.596` versus the current
+ledger representative, but it remains score-pending because SAIR can score by a
+mixed discriminant rather than exact `nfdisc`.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

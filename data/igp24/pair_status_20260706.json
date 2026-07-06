@@ -109,12 +109,26 @@
       "short_hash": "0f3ad8602d89",
       "exact_nfdisc_abs": 76732333707577227709347318376172659671040,
       "accepted_reported_by_user": true,
-      "source": "/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt"
+      "source": "/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "0ec921751862f6e9c5ddd145b8174f19d0a2e58f8b5c0867f5ebde1f8a6c9120",
+          "short_hash": "0ec921751862",
+          "exact_nfdisc_abs": 45702792633611090044306244807945156748520,
+          "nfdisc_ratio_vs_current_ledger": 0.595613223595961,
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/sair_accepted_label_feedback_20260706_next_queue.json",
+          "note": "Lower exact nfdisc than the current ledger representative; keep as pending alternate until SAIR scores confirm whether it improves the scored discriminant."
+        }
+      ]
     }
   ],
   "notes": [
     "Treat accepted rows as already credited by the first manual SAIR submission.",
     "The one-row 24T25000|r=4 submission was reported accepted by the user after this ledger was created.",
+    "The 24-row follow-up submission was accepted by the SAIR verifier, but scores were pending when recorded; it added no new pair keys and mostly collapsed to generic 24T25000.",
+    "Row 6 of that follow-up is a lower exact-nfdisc 24T25000|r=4 alternate, but it is not promoted as the representative until scoring confirms an improvement.",
     "Use this ledger for local queue planning only; official status remains the SAIR verifier/leaderboard."
   ]
 }

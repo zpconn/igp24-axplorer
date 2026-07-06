@@ -5,6 +5,7 @@ from scripts.igp24_score_aware_triage import (
     build_triage_rows,
     load_baseline_pairs,
     load_pair_status,
+    load_sair_label_feedback,
     write_outputs,
 )
 
@@ -22,6 +23,7 @@ def _queue_row(candidate_hash="abc123", coeff0=1):
 
 def _empty_evidence():
     return {
+        "sair_label_feedback": {},
         "online_magma": {},
         "local_magma": {},
         "pari_nfdisc": {},
@@ -143,6 +145,44 @@ def test_accepted_pair_requires_material_improvement():
     assert improvement_rows[0]["submission_grade_candidate"] is True
 
 
+def test_user_reported_sair_feedback_supplies_exact_label(tmp_path):
+    feedback_path = tmp_path / "sair_feedback.json"
+    feedback_path.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "canonical_hash": "sair_row",
+                        "status": "accepted",
+                        "label": "24T24979",
+                        "r": 4,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    sair_feedback, inputs = load_sair_label_feedback([feedback_path])
+    evidence = _evidence_for("sair_row", label=None, nfdisc=90)
+    evidence["sair_label_feedback"] = sair_feedback
+
+    rows = build_triage_rows(
+        [_queue_row("sair_row")],
+        evidence=evidence,
+        baseline_pairs={},
+        pair_status={"24T24979|r=4": {"status": "accepted", "exact_nfdisc_abs": 100, "short_hash": "old"}},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert inputs[0]["accepted_label_rows"] == 1
+    assert rows[0]["verified_group_label"] == "24T24979"
+    assert rows[0]["exact_label_source"] == "sair_accepted_label_feedback"
+    assert rows[0]["pair_key"] == "24T24979|r=4"
+    assert rows[0]["accepted_pair_status"] == "accepted_pair_minor_discriminant_improvement"
+    assert rows[0]["submission_grade_candidate"] is False
+
+
 def test_loaders_and_write_outputs(tmp_path):
     baseline_path = tmp_path / "baseline.csv"
     baseline_path.write_text("label,r,poly_disc_abs,nfdisc_abs,scoring_disc,coeffs\n24T1,4,9,8,nfdisc,\"1,1\"\n", encoding="utf-8")
@@ -165,6 +205,7 @@ def test_loaders_and_write_outputs(tmp_path):
     summary = build_summary(
         queue_path=tmp_path / "queue.jsonl",
         offline_dir=tmp_path / "offline",
+        sair_label_feedback_inputs=[],
         baseline_info=baseline_info,
         pair_status_info=pair_info,
         triage_rows=rows,
@@ -181,4 +222,4 @@ def test_loaders_and_write_outputs(tmp_path):
     assert summary["submission_grade_rows"] == 1
     assert json.loads(paths["triage_jsonl"].read_text(encoding="utf-8").splitlines()[0])["pair_key"] == "24T123|r=4"
     assert paths["submission_coefficients_txt"].read_text(encoding="utf-8").strip().startswith("5,0,0")
-    assert "Manual Magma Checklist" in paths["manual_checklist_md"].read_text(encoding="utf-8")
+    assert "Manual Verification Follow-Up" in paths["manual_checklist_md"].read_text(encoding="utf-8")

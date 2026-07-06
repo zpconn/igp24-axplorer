@@ -883,3 +883,16 @@ SymPy fallback evidence confirmed exact `nfdisc` and exact `r=4` for all
 `/tmp/igp24_next_non_generic_score_triage_20260706`; no row is
 submission-grade yet. This sharpens the next bottleneck: run the manual Magma
 scripts and parse exact labels before doing more search or packaging.
+
+The manual SAIR submission of those 24 rows later supplied the missing labels:
+all 24 were accepted, but only as already accepted pairs. Rows 1-2 were
+`24T24979|r=4`; rows 3-24 were generic `24T25000|r=4`; scores were pending
+when recorded. The new committed feedback artifact,
+`data/igp24/sair_accepted_label_feedback_20260706_next_queue.json`, lets
+`scripts/igp24_score_aware_triage.py --sair_label_feedback_json ...` turn that
+verifier response into reusable local evidence. The refreshed triage has
+0 submission-grade rows, with 2 accepted-pair duplicates and 22 generic `S24`
+rows. The important planning lesson is that "unmatched by prior feedback" is
+not strong enough evidence for non-generic discovery; the next planner should
+penalize generic-leaning structural families more aggressively and require
+stronger anti-`S24` evidence before spending manual submissions.

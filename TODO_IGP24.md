@@ -19,19 +19,20 @@ results change.
   `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
   network/submission paths. Dry-run remains the default; local MAGMA execution
   still requires explicit `--run_magma`.
-- Current result: the 24-row next non-generic queue now has exact local
-  fallback evidence for all rows: PARI/GP `nfdisc_ok=24`, SymPy
-  `nfdisc_ok=24`, and SymPy exact `r=4` for all 24. No saved/pasted Magma
-  labels are present yet, so the score-aware triage artifact classifies all
-  24 rows as `exact_result_missing`, with 0 submission-grade rows. Exact
-  fallback artifacts are under
-  `/tmp/igp24_next_non_generic_exact_fallback_20260706`; score-aware triage
-  and the manual Magma checklist are under
-  `/tmp/igp24_next_non_generic_score_triage_20260706`.
-- Next follow-up: manually verify the 24-row next queue in Magma, paste the
-  outputs into the template, rerun offline parsing plus score-aware triage,
-  and then update the local pair-status ledger before another planning or
-  search pass.
+- Current result: the 24-row next non-generic queue was manually submitted by
+  the user and all 24 rows were accepted by the SAIR verifier, with scores
+  still pending. Local feedback artifact
+  `data/igp24/sair_accepted_label_feedback_20260706_next_queue.json` records
+  2 rows as `24T24979|r=4` and 22 rows as generic `24T25000|r=4`. The refreshed
+  score-aware triage under `/tmp/igp24_next_non_generic_sair_triage_20260706`
+  has `verified_rows=24`, `pending_exact_label_rows=0`,
+  `submission_grade_rows=0`, `classification_counts={"accepted_pair_duplicate": 2, "generic_24T25000": 22}`,
+  and `accepted_pair_status_counts={"accepted_pair_duplicate_not_improved": 23, "accepted_pair_minor_discriminant_improvement": 1}`.
+  Row 6 (`0ec921751862`) is a lower exact-nfdisc `24T25000|r=4` alternate, but
+  it remains score-pending rather than promoted.
+- Next follow-up: use the accepted-label feedback to make the next planner more
+  anti-generic and less trusting of unmatched structural hints, then decide
+  whether to mine saved artifacts again or run a targeted short search.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3878,6 +3879,37 @@ results change.
         `/tmp/igp24_next_non_generic_score_triage_20260706/submission_grade_rows.jsonl`
         and
         `/tmp/igp24_next_non_generic_score_triage_20260706/submission_grade_coefficients.txt`.
+    - [done] Import the user-reported SAIR acceptance labels for that 24-row
+      queue without waiting for delayed score rows.
+      - Feedback artifact:
+        `data/igp24/sair_accepted_label_feedback_20260706_next_queue.json`.
+      - User-reported verifier result: all 24 rows accepted; rows 1-2 were
+        `24T24979`, rows 3-24 were `24T25000`, all with `r=4`.
+      - Score status: pending; acceptance is treated as exact label feedback,
+        not proof of useful leaderboard score.
+      - Helper change:
+        `scripts/igp24_score_aware_triage.py` now accepts repeatable
+        `--sair_label_feedback_json` inputs and records
+        `exact_label_source_counts` plus `accepted_pair_status_counts`.
+      - Rerun command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --queue_jsonl /tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl --offline_dir /tmp/igp24_next_non_generic_exact_fallback_20260706 --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --output_dir /tmp/igp24_next_non_generic_sair_triage_20260706`.
+      - Result:
+        `reviewed_rows=24`, `verified_rows=24`,
+        `pending_exact_label_rows=0`, `failed_rows=0`,
+        `submission_grade_rows=0`,
+        `labels_found_counts={"24T24979": 2, "24T25000": 22}`,
+        `classification_counts={"accepted_pair_duplicate": 2, "generic_24T25000": 22}`,
+        `exact_label_source_counts={"sair_accepted_label_feedback": 24}`,
+        and
+        `accepted_pair_status_counts={"accepted_pair_duplicate_not_improved": 23, "accepted_pair_minor_discriminant_improvement": 1}`.
+      - Interpretation: the queue was verifier-clean but not score-aware
+        submission-grade. The unmatched/non-generic proxy was too weak: 22
+        rows collapsed to generic `S24`, and the two non-generic rows duplicated
+        the already accepted `24T24979|r=4` pair.
+      - Ledger update: row 6 (`0ec921751862`) is recorded as a lower
+        exact-nfdisc `24T25000|r=4` accepted alternate with score still
+        pending; the current credited representative is not replaced until
+        scores confirm an actual scoring improvement.
 
 ## Tests And Checks
 
@@ -3913,6 +3945,37 @@ results change.
     `find . -type d -name __pycache__ -prune -exec rm -rf {} +`,
     followed by `find . -type d -name __pycache__ -print`.
     - Result: no `__pycache__` directories remain.
+- [done] Validate SAIR accepted-label feedback import for the 24-row queue.
+  - Focused tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_score_aware_triage.py tests/test_igp24_next_verification_queue.py`.
+    - Result: 10 passed in 0.03s.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 136 passed in 7.48s.
+  - Full compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+    - Result: passed.
+  - Helper help check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --help`.
+    - Result: passed and shows repeatable `--sair_label_feedback_json`.
+  - JSON validation:
+    `python3 -m json.tool data/igp24/sair_accepted_label_feedback_20260706_next_queue.json`
+    and
+    `python3 -m json.tool data/igp24/pair_status_20260706.json`.
+    - Result: both parsed successfully.
+  - Diff whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 6043 after this TODO update.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | rg 'python|train.py|igp24|pytest|magma|gp'`.
+    - Result: no lingering Python, training, pytest, Magma, or GP worker
+      processes beyond the audit command itself.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps reported.
 - [done] Run final next-queue planning validation.
   - Focused test:
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py`.
