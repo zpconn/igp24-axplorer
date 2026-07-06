@@ -954,3 +954,18 @@ verification packet at `/tmp/igp24_score1_saved_candidate_manual_queue_20260706`
 These rows are not exact lower-label claims yet. They are a useful immediate
 probe, while the next bounded search should target `r=8` first, then
 `r=12/16/24`.
+
+The bounded `r=8` target-generation pass tested the current local CPU
+generators without GPU/model training or exact-tool automation. Ten short
+`scripts/igp24_benchmark.py` runs over `structured`, `lower_degree`, `sparse`,
+`fixed_sparse_template`, and a structured sparse-biased `mixed` blend produced
+160 valid examples and 297 ledger records at
+`/tmp/igp24_r8_targeted_bench_20260706`, but produced 0 records with
+`real_root_count=8`. The observed signatures were `r=0` (38), `r=2` (211),
+`r=4` (47), and `r=6` (1). The follow-up diagnostic and score-1 analysis
+therefore selected 0 rows and produced no manual queue. The lesson is useful:
+our current templates can make valid low-height rows, but they remain biased
+toward `r=0/2/4` and do not currently reach the high-value `r=8` target mode.
+The next meaningful search step should be a new explicit `r=8`
+solvable/composed-family construction, not a larger run of the same generator
+mix and not a big GPU/model run yet.

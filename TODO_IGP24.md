@@ -3913,6 +3913,92 @@ results change.
 
 ## Tests And Checks
 
+- [in_progress] Run a bounded CPU-only `r=8` lower-label target-generation
+  pass.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/f4264d24-a929-42dc-9355-21eb325415d5/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev` at `59b9f77`.
+  - Starting status:
+    `git status --short --branch`.
+    - Result: clean on `igp24-dev`.
+  - Score-1 analysis inputs read:
+    `/tmp/igp24_score1_target_analysis_20260706/score1_target_analysis_summary.json`,
+    `/tmp/igp24_score1_target_analysis_20260706/score1_target_rankings.jsonl`,
+    and
+    `/tmp/igp24_score1_target_analysis_20260706/score1_target_analysis_report.md`.
+    - Result: the top 13 ranked targets are all `r=8` pairs
+      `24T324`, `24T319`, `24T316`, `24T315`, `24T314`, `24T313`,
+      `24T307`, `24T304`, `24T302`, `24T301`, `24T294`, `24T293`,
+      and `24T290`; all are absent from the frozen baseline and local
+      accepted-pair ledger, and all have zero saved `r=8` candidate coverage.
+    - Important caveat: these are exact target labels from the external
+      score-1 snapshot, not labels we can claim for generated rows.
+  - Generator/template inspection:
+    `scripts/igp24_benchmark.py` is the existing bounded CPU-only entry point
+    for running `train.py` data-generation-only probes with `--target_r`.
+    Existing generators include `sparse`, `lower_degree`, `structured`,
+    `quartic_lift`, `fixed_sparse_template`, and `mixed`.
+    - Interpretation: current built-in presets cover `r=0`, `r=2`, and
+      `r=4`, but there is no dedicated `r=8` preset/template. The most
+      plausible current knobs for an immediate probe are target-scored
+      `structured`, `lower_degree`, `sparse`, `fixed_sparse_template`, and a
+      mixed blend biased toward structured sparse support.
+  - Planned bounded run:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies structured,lower_degree,sparse,fixed_sparse_template,mixed --seeds 801,802 --target_rs 8 --gensize 16 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 4 --sparse_terms 4 --low_height_bound 2 --mixed_strategy_weights sparse:0.20,lower_degree:0.20,structured:0.45,fixed_sparse_template:0.15 --output_dir /tmp/igp24_r8_targeted_bench_20260706`.
+    - Scope: 10 short CPU-only runs, no model training, no GPU sampling, no
+      SAIR/API/submission, no Magma/PARI/online calculator execution.
+  - Bounded benchmark result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies structured,lower_degree,sparse,fixed_sparse_template,mixed --seeds 801,802 --target_rs 8 --gensize 16 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 4 --sparse_terms 4 --low_height_bound 2 --mixed_strategy_weights sparse:0.20,lower_degree:0.20,structured:0.45,fixed_sparse_template:0.15 --output_dir /tmp/igp24_r8_targeted_bench_20260706`.
+    - Result: 10 runs, all returncode 0, 160 valid examples, 297 ledger
+      records, and 0 records with `real_root_count=8`.
+    - Best proxy score: 10012.734145702047 from `mixed` seed 801.
+    - Aggregate strategy result: every tested strategy had
+      `target_r_match_total=0` and `avg_match_rate=0.0`.
+    - Observed real-root distribution across all ledger records:
+      `{"0": 38, "2": 211, "4": 47, "6": 1}`.
+    - Interpretation: the current target-scored versions of `structured`,
+      `lower_degree`, `sparse`, `fixed_sparse_template`, and the structured
+      sparse-biased `mixed` blend did not reach the uncovered `r=8` score-1
+      target mode, even though they produced ordinary valid rows.
+    - Artifacts:
+      `/tmp/igp24_r8_targeted_bench_20260706/summary.json`,
+      `/tmp/igp24_r8_targeted_bench_20260706/summary.jsonl`,
+      and
+      `/tmp/igp24_r8_targeted_bench_20260706/aggregate_summary.json`.
+  - `r=8` non-generic diagnostic:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_r8_targeted_bench_20260706 --target_r 8 --limit 12 --output_dir /tmp/igp24_r8_targeted_diagnostic_20260706`.
+    - Result: `loaded_records=297`, `diagnosed_records=0`,
+      `selected_records=0`, `top_non_generic_score=NA`, and
+      `skipped_counts={"target_r_mismatch": 297}`.
+    - Artifacts:
+      `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_summary.json`,
+      `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_diagnostic.jsonl`,
+      `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_shortlist.jsonl`,
+      and
+      `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_report.md`.
+  - Score-1 target-analysis rerun on the bounded `r=8` artifacts:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score1_target_analysis.py --score1_snapshot_json data/igp24/top_contestant_score1_snapshot_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --candidate_input /tmp/igp24_r8_targeted_bench_20260706 --diagnostic_jsonl /tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_diagnostic.jsonl --target_rs 8 --candidate_limit 12 --output_dir /tmp/igp24_r8_targeted_score1_analysis_20260706`.
+    - Result: `selected_candidate_records=0`, `selected_candidate_r_counts={}`,
+      `candidate_skipped_counts={"duplicate_hash": 4, "target_r_mismatch": 293}`,
+      and `queue_status=not_produced`.
+    - No manual-verification queue was produced, and no rows were padded.
+    - Artifacts:
+      `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_analysis_summary.json`,
+      `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_rankings.jsonl`,
+      `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_saved_candidate_queue.jsonl`,
+      and
+      `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_analysis_report.md`.
+  - Current recommendation: do not widen this same benchmark style or start a
+    big GPU/model run yet. The immediate lesson is that the current
+    coefficient templates are biased toward `r=0/2/4`; the next meaningful
+    step should be a new explicit `r=8` solvable/composed-family construction
+    or template, for example an imprimitive even/composed support designed to
+    make eight real roots plausible before exact-label verification.
+  - [pending] Update notes/experiments, run final validation, commit, and
+    push.
+
 - [done] Build score-1-style lower-label target analysis and saved
   manual-verification queue.
   - Goal source:

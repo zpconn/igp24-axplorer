@@ -615,6 +615,46 @@ work should prioritize a bounded `r=8` generator/diagnostic pass, then
 `r=12/16/24`, because those high-value score-1 signatures are uncovered in the
 saved pool.
 
+Bounded `r=8` target-generation pass:
+
+- Benchmark artifacts:
+  `/tmp/igp24_r8_targeted_bench_20260706`
+- Non-generic diagnostic:
+  `/tmp/igp24_r8_targeted_diagnostic_20260706`
+- Score-1 analysis rerun:
+  `/tmp/igp24_r8_targeted_score1_analysis_20260706`
+
+Command:
+
+```text
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies structured,lower_degree,sparse,fixed_sparse_template,mixed --seeds 801,802 --target_rs 8 --gensize 16 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 4 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 4 --sparse_terms 4 --low_height_bound 2 --mixed_strategy_weights sparse:0.20,lower_degree:0.20,structured:0.45,fixed_sparse_template:0.15 --output_dir /tmp/igp24_r8_targeted_bench_20260706
+```
+
+Result:
+
+```text
+runs=10
+valid_candidates_total=160
+ledger_records_total=297
+target_r_match_total=0
+best_score=10012.734145702047
+r_counts={"0": 38, "2": 211, "4": 47, "6": 1}
+```
+
+Every tested strategy had `target_r_match_total=0`; the local proxy scorer and
+bounded local search produced valid rows, but none with `real_root_count=8`.
+The diagnostic therefore reported `diagnosed_records=0`,
+`selected_records=0`, and `skipped_counts={"target_r_mismatch": 297}`. The
+score-1 target-analysis rerun reported `selected_candidate_records=0` and
+`queue_status=not_produced`; no manual queue was produced and no weak rows were
+padded in.
+
+Interpretation: the current local templates are useful for low-height
+`r=0/2/4` exploration, but they do not currently reach the high-value `r=8`
+score-1 target mode. The next useful step is a new explicit `r=8`
+solvable/composed-family construction or template, not widening this same
+benchmark shape and not launching a big GPU/model run yet.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from
