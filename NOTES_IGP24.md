@@ -896,3 +896,17 @@ rows. The important planning lesson is that "unmatched by prior feedback" is
 not strong enough evidence for non-generic discovery; the next planner should
 penalize generic-leaning structural families more aggressively and require
 stronger anti-`S24` evidence before spending manual submissions.
+
+That stricter planner pass now exists in
+`scripts/igp24_next_verification_queue.py`. It can ingest the accepted-label
+feedback JSON, mark structural families as `generic_prone` or
+`accepted_duplicate_prone`, and annotate each row with explicit anti-`S24`
+evidence. On the saved 160-row audit, the strict run at
+`/tmp/igp24_sair_feedback_strict_queue_20260706` selected 0 rows:
+22 exact feedback hashes were generic `S24`, 2 exact feedback hashes were
+accepted-pair duplicates, 2 additional rows were in generic-prone feedback
+families, 39 rows were already accepted exact pairs, and the remaining 95 had
+only medium anti-`S24` evidence. A contrast run without the strong anti-`S24`
+requirement still selected 0 rows, so the saved pool is exhausted after the
+SAIR feedback update. The next useful search should create new evidence, not
+repackage this pool.

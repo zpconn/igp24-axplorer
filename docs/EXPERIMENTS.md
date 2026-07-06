@@ -418,6 +418,42 @@ pair; it mostly collapsed to generic `S24`, plus two already accepted
 ledger representative, but it remains score-pending because SAIR can score by a
 mixed discriminant rather than exact `nfdisc`.
 
+Feedback-aware strict planner pass:
+
+- Strict output:
+  `/tmp/igp24_sair_feedback_strict_queue_20260706`
+- Contrast output without the strong anti-`S24` requirement:
+  `/tmp/igp24_sair_feedback_negative_only_queue_20260706`
+- Helper: `scripts/igp24_next_verification_queue.py`
+- New planner inputs/options:
+  `--sair_label_feedback_json`,
+  `--avoid_sair_negative_families`, and
+  `--require_strong_anti_s24_evidence`
+
+The strict pass re-ran the saved 160-row structure audit and joined the
+24-row SAIR feedback by hash and structural family. It produced no new manual
+queue:
+
+```text
+annotated_records=160
+eligible_records=0
+selected_records=0
+filter_reason_counts={"known_exact_accepted_pair": 39, "sair_feedback_accepted_pair_duplicate_hash": 2, "sair_feedback_generic_hash": 22, "sair_generic_prone_family": 2, "weak_anti_s24_evidence": 95}
+anti_s24_evidence_status_counts={"medium": 95, "strong": 41, "weak": 24}
+sair_feedback_family_status_counts={"None": 134, "accepted_duplicate_prone": 2, "generic_prone": 24}
+```
+
+A contrast rerun with the same SAIR negative-family filters but without
+`--require_strong_anti_s24_evidence` still had `eligible_records=0` and
+`selected_records=0`. That means the decisive update was the accepted-label
+feedback plus the existing accepted-pair ledger; the strong-evidence gate is
+useful reporting discipline, but it did not by itself exhaust the saved pool.
+
+Interpretation: do not force another 8-12 row submission from this saved pool.
+The next bounded search should target stronger anti-`S24` evidence up front,
+especially exact square discriminants or new verified non-generic families,
+before another manual verification queue is worth the user effort.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

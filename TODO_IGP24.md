@@ -3913,7 +3913,7 @@ results change.
 
 ## Tests And Checks
 
-- [in_progress] Turn the 24-row SAIR acceptance feedback into stricter
+- [done] Turn the 24-row SAIR acceptance feedback into stricter
   anti-generic queue planning.
   - Goal source:
     `/home/zpconn/.codex/attachments/e4042da5-4f78-4e81-91f9-039e8d7ec0c2/pasted-text-1.txt`.
@@ -3955,6 +3955,41 @@ results change.
     pool. The next bounded search should specifically target stronger
     anti-`S24` evidence, especially exact square discriminants or new verified
     non-generic families, before another manual submission queue.
+  - Documentation updated:
+    `NOTES_IGP24.md` and `docs/EXPERIMENTS.md`; README unchanged because no
+    public/basic workflow changed.
+  - Periodic implementation checkpoint:
+    `fb3b968 Add feedback-aware queue planning filters`.
+  - Final focused tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py tests/test_igp24_score_aware_triage.py`.
+    - Result: 12 passed in 0.04s.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 138 passed in 7.39s.
+  - Full compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+    - Result: passed.
+  - Helper help check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_next_verification_queue.py --help`.
+    - Result: passed and shows `--sair_label_feedback_json`,
+      `--avoid_sair_negative_families`, and
+      `--require_strong_anti_s24_evidence`.
+  - Strict manifest JSON validation:
+    `python3 -m json.tool /tmp/igp24_sair_feedback_strict_queue_20260706/next_verification_queue_manifest.json`.
+    - Result: parsed successfully.
+  - Diff whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 6120 after this TODO update.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | rg 'python|train.py|igp24|pytest|magma|gp'`.
+    - Result: no lingering Python, training, pytest, Magma, or GP worker
+      processes beyond the audit command itself.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps reported.
 - [done] Run final 24-row score-aware triage validation.
   - Focused tests:
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_score_aware_triage.py tests/test_igp24_next_verification_queue.py`.
