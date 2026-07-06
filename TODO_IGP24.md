@@ -3913,7 +3913,7 @@ results change.
 
 ## Tests And Checks
 
-- [in_progress] Run a bounded CPU-only `r=8` lower-label target-generation
+- [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
   - Goal source:
     `/home/zpconn/.codex/attachments/f4264d24-a929-42dc-9355-21eb325415d5/pasted-text-1.txt`.
@@ -3996,8 +3996,56 @@ results change.
     step should be a new explicit `r=8` solvable/composed-family construction
     or template, for example an imprimitive even/composed support designed to
     make eight real roots plausible before exact-label verification.
-  - [pending] Update notes/experiments, run final validation, commit, and
-    push.
+  - Periodic checkpoint commit:
+    `e7c8615 Record bounded r8 target probe`.
+  - [done] Update notes/experiments, run final validation, commit, and push.
+    - Documentation updates:
+      `NOTES_IGP24.md` and `docs/EXPERIMENTS.md` now record the `r=8`
+      benchmark result, artifact paths, no-queue outcome, and recommendation
+      to design an explicit `r=8` solvable/composed-family construction next.
+      `README.md` was unchanged because no public/basic workflow changed.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 147 passed in 6.10s.
+    - Compile check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+      - Result: passed.
+    - JSON/JSONL artifact validation:
+      - Parsed JSON summaries:
+        `/tmp/igp24_r8_targeted_bench_20260706/summary.json`,
+        `/tmp/igp24_r8_targeted_bench_20260706/aggregate_summary.json`,
+        `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_summary.json`,
+        and
+        `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_analysis_summary.json`.
+      - Parsed JSONL artifacts:
+        `/tmp/igp24_r8_targeted_bench_20260706/summary.jsonl`
+        with 10 records,
+        `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_diagnostic.jsonl`
+        with 0 records,
+        `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_shortlist.jsonl`
+        with 0 records,
+        `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_rankings.jsonl`
+        with 50 records, and
+        `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_saved_candidate_queue.jsonl`
+        with 0 records.
+    - Queue/coefficient validation:
+      `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_coefficients.txt`
+      and
+      `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`
+      both validated as empty 0-row queue files; no padded rows were produced.
+    - Whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 6635 after this TODO
+        update.
+    - Process audit:
+      `ps -eo pid,ppid,stat,comm,args | awk '$4 ~ /^(python|python3|pytest|magma|gp)$/ {print}'`.
+      - Result: no lingering Python, pytest, Magma, or GP workers.
+    - GPU audit:
+      `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+      - Result: no GPU compute apps; no GPU/model training was started.
 
 - [done] Build score-1-style lower-label target analysis and saved
   manual-verification queue.
