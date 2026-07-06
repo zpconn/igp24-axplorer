@@ -1031,3 +1031,11 @@ accepted `r=16` submissions, but this first packet did not diversify labels:
 it yielded one distinct accepted pair and seven accepted alternates. The pair
 is absent from the frozen baseline, and scores/scoring discriminants remain
 pending.
+
+The later SAIR CSV export for submission
+`sub_02ecc2457d124584b8325b83608a2e9c` still shows all eight rows accepted,
+`inBaseline=false`, and `scoringStatus=pending` with
+`scoringReason=discriminant_pending`. Its `scoreable=false` flag is therefore
+provisional while field-discriminant scoring runs, not evidence of a final
+no-score outcome. Field discriminant, discriminant source, solvability,
+teams/k, and pair score remain unknown.

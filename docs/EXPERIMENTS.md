@@ -846,11 +846,18 @@ Accepted feedback:
 Accepted-feedback artifact:
 
 - `data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json`
+- `data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv`
 
 The eight accepted rows cover one distinct accepted pair key,
 `24T24979|r=16`, plus seven accepted alternates. The pair is absent from the
 frozen baseline, so the label/signature is potentially scoreable; final score
 depends on the pending scoring discriminant and team count.
+
+The SAIR CSV export for submission `sub_02ecc2457d124584b8325b83608a2e9c`
+reports `scoreable=false`, `scoringStatus=pending`,
+`scoringReason=discriminant_pending`, blank discriminant fields, and
+`inBaseline=false` for all eight rows. This is recorded as pending
+discriminant scoring rather than final unscoreable status.
 
 ## Five-Representative Baseline Pass
 

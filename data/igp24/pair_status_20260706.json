@@ -137,66 +137,80 @@
       "status": "accepted",
       "canonical_hash": "5717fba7df408cb006c3f49201219a58d3bf3d203f197870fb1853d8f3c23d28",
       "short_hash": "5717fba7df40",
-      "score_status": "pending",
+      "score_status": "discriminant_pending",
+      "sair_submission_id": "sub_02ecc2457d124584b8325b83608a2e9c",
+      "sair_scoring": {
+        "scoreable": false,
+        "scoring_status": "pending",
+        "scoring_reason": "discriminant_pending",
+        "no_score_reason": null,
+        "in_baseline": false,
+        "baseline_unlocked": false,
+        "baseline_disc_abs": null,
+        "field_disc_abs": null,
+        "disc_source": null,
+        "note": "SAIR export currently reports scoreable=false only because scoring_status is pending with scoring_reason=discriminant_pending; this is not a final no-score decision."
+      },
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
-      "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
-      "note": "New r=16 pair from the eight-row r16_quadratic_lift submission; SAIR verifier accepted all eight table rows as 24T24979|r=16. The pair is absent from the frozen baseline; scores and scoring discriminants are pending.",
+      "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
+      "accepted_feedback_source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+      "note": "New r=16 pair from the eight-row r16_quadratic_lift submission; SAIR verifier accepted all eight table rows as 24T24979|r=16. The pair is absent from the frozen baseline. SAIR currently marks scoreable=false with scoringStatus=pending and scoringReason=discriminant_pending, so scores and scoring discriminants are not finalized.",
       "accepted_alternates": [
         {
           "canonical_hash": "8baac6d35413d7db57e52ade91a80552b2e42caf94c8e2922b530eb9bd8165a6",
           "short_hash": "8baac6d35413",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "00e496a1ba318dac2178d022d2cbaa3b6b4405d9b5aa5424f0c72ecdf9f0b63b",
           "short_hash": "00e496a1ba31",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "70772d15b39f80e95f9e6bdcf1a012703ec335753bdfa516906ad0d1d4904a0e",
           "short_hash": "70772d15b39f",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "f2aca0d0badad55a6d73a0cac2c3d672c24daab2c56dcaf08fdec051fa99a664",
           "short_hash": "f2aca0d0bada",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "ae59b91c80574979ef45b160bdbf6845b1ac471348eaa90b0b4ea32ad0af9100",
           "short_hash": "ae59b91c8057",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "5184830b38295bbd961ef6192c85189682405ef6d24ab9eed37e91a0217140a9",
           "short_hash": "5184830b3829",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         },
         {
           "canonical_hash": "e0bd9bc84aebf77068948df11aed1f89abe703ed205146e7843935fcc18e21ff",
           "short_hash": "e0bd9bc84aeb",
           "status": "accepted",
-          "score_status": "pending",
-          "source": "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+          "score_status": "discriminant_pending",
+          "source": "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
           "note": "Accepted duplicate r=16 pair from the eight-row r16_quadratic_lift submission; keep as pending alternate until SAIR scores are available."
         }
       ]
@@ -301,6 +315,6 @@
     "The 3-row strong anti-S24 follow-up was accepted by the SAIR verifier; it added new pair 24T21844|r=4 and two score-pending 24T24970|r=4 alternates.",
     "Use this ledger for local queue planning only; official status remains the SAIR verifier/leaderboard.",
     "The six-row r8_quartic_lift submission was accepted by the SAIR verifier; it added four r=8 pair keys: 24T657|r=8, 24T661|r=8, 24T1310|r=8, and 24T9993|r=8. Scores were pending when recorded.",
-    "The eight table rows from the r16_quadratic_lift submission were accepted by the SAIR verifier; all collapsed to 24T24979|r=16. The pair is absent from the frozen baseline; scores were pending when recorded."
+    "The eight table rows from the r16_quadratic_lift submission were accepted by the SAIR verifier; all collapsed to 24T24979|r=16. The pair is absent from the frozen baseline. The SAIR CSV export marks scoreable=false only while scoringStatus=pending and scoringReason=discriminant_pending; field discriminants, score, solvability, and teams/k were still pending when recorded."
   ]
 }

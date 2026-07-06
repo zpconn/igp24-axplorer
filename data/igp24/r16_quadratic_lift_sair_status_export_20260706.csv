@@ -1,0 +1,9 @@
+submissionId,submittedAt,submittedLineNumber,polynomialIndex,polynomial,status,label,t,r,reason,scoreable,scoringStatus,scoringReason,noScoreReason,inBaseline,baselineUnlocked,baselineDiscAbs,fieldDiscAbs,discSource
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,1,0,"8,0,-48,0,10,0,367,0,-544,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,2,1,"8,0,-48,0,10,0,366,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,3,2,"8,0,-48,0,9,0,364,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,4,3,"8,0,-48,0,10,0,362,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,5,4,"8,0,-48,0,10,0,365,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,6,5,"8,0,-48,0,10,0,361,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,7,6,"8,0,-48,0,10,0,368,0,-543,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,
+sub_02ecc2457d124584b8325b83608a2e9c,2026-07-06T20:37:39Z,8,7,"8,0,-48,0,10,0,364,0,-542,0,-216,0,703,0,-176,0,-186,0,84,0,7,0,-8,0,1",accepted,24T24979,24979,16,,false,pending,discriminant_pending,,false,false,,,

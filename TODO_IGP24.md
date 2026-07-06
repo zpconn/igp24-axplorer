@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
-  final five-row manual package work.
+  the r16 pending-scoring/import and diversification work.
 - Active focus: six local pairs are now accepted/credited:
   `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
   `24T24648|r=4`, and `24T25000|r=4`. The first five accepted rows have
@@ -36,6 +36,13 @@ results change.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
+
+- Active r16 follow-up: imported the SAIR CSV export for
+  `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
+  accepted and `inBaseline=false`; `scoreable=false` is paired with
+  `scoringStatus=pending` and `scoringReason=discriminant_pending`, so it is
+  treated as provisional pending discriminant scoring, not final no-score
+  status.
 
 ## Stage 0: Scaffold
 
@@ -4286,6 +4293,20 @@ results change.
       this is a potentially scoreable new pair once SAIR scoring returns.
     - Scores, scoring discriminants, discriminant type, solvability, and
       teams/k remain pending.
+  - SAIR CSV scoring-status export:
+    - Artifact:
+      `data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv`.
+    - Submission id: `sub_02ecc2457d124584b8325b83608a2e9c`.
+    - Result: all eight rows remain `accepted`, `label=24T24979`, `r=16`,
+      `scoreable=false`, `scoringStatus=pending`,
+      `scoringReason=discriminant_pending`, `noScoreReason` blank,
+      `inBaseline=false`, `baselineUnlocked=false`, and discriminant fields
+      blank.
+    - Interpretation: `scoreable=false` is provisional while SAIR computes the
+      discriminant; it is not recorded as final unscoreable/no-score status.
+    - Ledger update: `24T24979|r=16` score status refined to
+      `discriminant_pending`, the SAIR submission id and CSV source were
+      recorded, and all seven accepted alternates were preserved.
   - Artifact and coefficient validation:
     - Result: parsed the smoke, bounded probe, diagnostic, score-1 queue,
       structure audit, and manual verification JSON/JSONL artifacts.
