@@ -3913,7 +3913,7 @@ results change.
 
 ## Tests And Checks
 
-- [in_progress] Add and test an explicit `r=8` solvable/composed-family
+- [done] Add and test an explicit `r=8` solvable/composed-family
   construction.
   - Goal source:
     `/home/zpconn/.codex/attachments/58476f2b-b483-4310-adce-d9507baf5cc4/pasted-text-1.txt`.
@@ -4027,6 +4027,72 @@ results change.
   - Current recommendation: manually verify the 6-row `r=8` queue before
     widening the construction. The construction works locally and gives strong
     proxy anti-`S24`/imprimitive evidence, but exact labels are still unknown.
+  - Periodic checkpoint commit:
+    `59d4698 Add explicit r8 quartic lift strategy`.
+    - After the commit, the smoke/bench/diagnostic/queue artifacts above were
+      regenerated so their `source_commit` fields point at `59d4698`.
+  - [done] Run final validation, confirm Stage 4, audit process/GPU state,
+    commit, and push.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 149 passed in 6.25s.
+    - Full compile check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+      - Result: passed.
+    - JSON/JSONL artifact validation:
+      - Parsed JSON summaries/manifests:
+        `/tmp/igp24_r8_quartic_lift_smoke_20260706/summary.json`,
+        `/tmp/igp24_r8_quartic_lift_smoke_20260706/aggregate_summary.json`,
+        `/tmp/igp24_r8_quartic_lift_bench_20260706/summary.json`,
+        `/tmp/igp24_r8_quartic_lift_bench_20260706/aggregate_summary.json`,
+        `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_summary.json`,
+        `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_target_analysis_summary.json`,
+        `/tmp/igp24_r8_quartic_lift_structure_audit_20260706/structure_summary.json`,
+        `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/offline_verification_manifest.json`,
+        `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/magma_verification_summary.json`,
+        and
+        `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/online_magma_manual/online_magma_manual_summary.json`.
+      - Parsed JSONL artifacts:
+        `/tmp/igp24_r8_quartic_lift_smoke_20260706/summary.jsonl`
+        with 1 record,
+        `/tmp/igp24_r8_quartic_lift_bench_20260706/summary.jsonl`
+        with 3 records,
+        `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_diagnostic.jsonl`
+        with 6 records,
+        `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_shortlist.jsonl`
+        with 6 records,
+        `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_target_rankings.jsonl`
+        with 50 records,
+        `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl`
+        with 6 records,
+        `/tmp/igp24_r8_quartic_lift_structure_audit_20260706/structure_audit.jsonl`
+        with 6 records,
+        `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/verification_batch.jsonl`
+        with 6 records, and
+        `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/online_magma_manual/online_magma_manual_results.jsonl`
+        with 0 records.
+    - No-brackets queue coefficient validation:
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+      - Result: 6 rows, each with exactly 25 integer coefficients, no
+        brackets, nonzero constant coefficient, monic leading coefficient, and
+        coefficient gcd 1.
+      - Note: `non_generic_coefficients.txt` and offline verifier
+        `verification_coefficients.txt` are internal bracketed helper
+        artifacts; the submission-style queue coefficient file above is the
+        no-brackets artifact.
+    - Whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 6816 after this TODO
+        update.
+    - Process audit:
+      `ps -eo pid,ppid,stat,comm,args | awk '$4 ~ /^(python|python3|pytest|magma|gp)$/ {print}'`.
+      - Result: no lingering Python, pytest, Magma, or GP workers.
+    - GPU audit:
+      `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+      - Result: no GPU compute apps; no GPU/model training was started.
 
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
