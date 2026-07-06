@@ -730,6 +730,24 @@ Recommendation: manually verify the six `r=8` rows before widening the
 construction. The construction solves the local `r=8` generation problem, but
 exact 24T labels are still unknown and must remain outside proxy claims.
 
+Repo-tracked submission/feedback packet:
+
+- Packet JSON:
+  `data/igp24/r8_quartic_lift_submission_packet_20260706.json`
+- SAIR-ready coefficient file:
+  `data/igp24/r8_quartic_lift_submission_coefficients_20260706.txt`
+- Manual feedback template:
+  `data/igp24/r8_quartic_lift_sair_feedback_template_20260706.csv`
+- Instructions:
+  `data/igp24/r8_quartic_lift_submission_instructions_20260706.md`
+
+The tracked coefficient file is the no-brackets six-row file suitable for
+manual SAIR submission. The packet intentionally keeps label, exact scoring
+discriminant, solvability, teams/k, and pair-score fields pending until SAIR
+feedback exists. The practical lesson is that explicit composed construction
+can reliably produce local `r=8` rows, while exact label and score value still
+depend on verifier/submission feedback.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

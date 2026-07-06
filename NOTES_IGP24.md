@@ -986,3 +986,17 @@ witness. A 6-row dry-run manual verification packet is at
 24T label claims; the right next step is manual exact verification of the
 six-row `r=8` queue before widening this construction or starting GPU/model
 sampling.
+
+The six `r8_quartic_lift` rows are now repo-tracked as a manual submission
+packet. Use
+`data/igp24/r8_quartic_lift_submission_coefficients_20260706.txt` as the
+submission file: it has six no-brackets coefficient lines with exactly 25
+integer coefficients each. The companion JSON packet
+`data/igp24/r8_quartic_lift_submission_packet_20260706.json` records hashes,
+local `r=8` evidence, structure-audit status, and pending SAIR-feedback
+markers. The CSV template
+`data/igp24/r8_quartic_lift_sair_feedback_template_20260706.csv` is the manual
+place to record accepted/rejected status, labels, exact scoring discriminants,
+discriminant type, teams/k, pair score, solvability, and notes when SAIR
+returns feedback. Until that feedback exists, these rows should be described
+as submission-ready candidates, not verified scoreable pairs.

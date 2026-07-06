@@ -4094,6 +4094,64 @@ results change.
       `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
       - Result: no GPU compute apps; no GPU/model training was started.
 
+- [done] Ground the six explicit `r=8` quartic-lift rows in a
+  repo-tracked submission and feedback packet.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/db6b7ac2-a9cc-4610-a46d-84e1a2b121d4/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev`.
+  - Required artifacts read:
+    `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706`,
+    `/tmp/igp24_r8_quartic_lift_structure_audit_20260706`,
+    and
+    `/tmp/igp24_r8_quartic_lift_manual_queue_20260706`.
+  - No-brackets coefficient verification:
+    `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+    - Result: 6 rows, exactly 25 integer coefficients per row, no brackets,
+      nonzero constant coefficient, monic leading coefficient, and
+      coefficient gcd 1.
+  - Repo-tracked submission packet added:
+    `data/igp24/r8_quartic_lift_submission_packet_20260706.json`.
+    - Includes the six coefficient rows, canonical hashes, short hashes,
+      `source_strategy=r8_quartic_lift`, expected `r=8`, local
+      `real_root_count=8`, proxy scores, local polynomial discriminant
+      evidence, square-discriminant/exact-composed-support audit status, and
+      explicit `pending_sair_feedback` markers for labels, exact scoring
+      discriminants, solvability, teams/k, and pair scores.
+  - Submission-ready no-brackets coefficient copy:
+    `data/igp24/r8_quartic_lift_submission_coefficients_20260706.txt`.
+    - This is the path to paste into the SAIR UI. It contains no labels,
+      signatures, discriminants, or brackets.
+  - Manual feedback template:
+    `data/igp24/r8_quartic_lift_sair_feedback_template_20260706.csv`.
+    - Fields: row number, canonical hash, short hash, label, r,
+      accepted/rejected status, reason, scoring discriminant, discriminant
+      type, teams/k, pair score, solvable, and notes.
+  - Submission instructions:
+    `data/igp24/r8_quartic_lift_submission_instructions_20260706.md`.
+  - Periodic checkpoint commit:
+    `084fd44 Add r8 quartic lift submission packet`.
+  - Pending feedback task:
+    after SAIR returns verifier/scoring feedback, fill the CSV template and
+    update the packet or add a companion feedback JSON with exact labels,
+    exact `r`, scoring discriminants, discriminant types, teams/k, solvability,
+    and pair scores.
+  - Focused data validation:
+    - Result: packet JSON parsed, CSV feedback template parsed, 6 packet rows
+      matched the tracked coefficient file, all coefficient rows have exactly
+      25 integers, no brackets, nonzero constant coefficient, monic leading
+      coefficient, and coefficient gcd 1.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 149 passed in 7.41s.
+  - Whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 6874 after this TODO update.
+
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
   - Goal source:
