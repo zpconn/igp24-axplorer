@@ -26,13 +26,11 @@ results change.
   MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
   hot loops, and automatic network/submission paths. Dry-run remains the
   default; local MAGMA execution still requires explicit `--run_magma`.
-- Current task: generate or collect a bounded fresh candidate queue aimed at
-  new `(24Tt, r)` diversity, using verified-label feedback to avoid treating
-  more variants of `24T24970|r=4`, `24T24979|r=4`, and `24T24759|r=4` as
-  score progress.
-- Next follow-up after fresh pair-diversity planning: manually exact-verify the
-  strongest fresh queue rows, then rerun the submission planner only after
-  verified rows with labels/signatures exist.
+- Current task: fresh pair-diversity planning is complete; the current fresh
+  queue is under `/tmp/igp24_fresh_pair_diversity_queue_20260706`.
+- Next follow-up: manually exact-verify the strongest fresh queue rows, then
+  rerun the submission planner only after verified rows with labels/signatures
+  exist.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -2905,7 +2903,7 @@ results change.
     - [done] Commit the docs/TODO validation update and push.
       - Result: committed `f1a79ad` (`Document IGP24 submission planning`) and
         pushed `igp24-dev` to `zpconn/igp24-axplorer`.
-  - [in_progress] Build a fresh pair-diversity candidate queue.
+  - [done] Build a fresh pair-diversity candidate queue.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
     - [done] Inspect README, TODO, NOTES, experiment notes, and latest helper
@@ -3034,7 +3032,9 @@ results change.
       - Cache cleanup:
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up count was 0.
-    - [in_progress] Commit the docs/TODO validation update and push.
+    - [done] Commit the docs/TODO validation update and push.
+      - Result: committed `625407e` (`Document fresh IGP24 diversity queue`)
+        and pushed `igp24-dev` to `zpconn/igp24-axplorer`.
 
 ## Tests And Checks
 
