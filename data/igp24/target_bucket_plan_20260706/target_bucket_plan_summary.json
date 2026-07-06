@@ -1,0 +1,21 @@
+{
+  "created_at": "2026-07-06T22:13:59.013574+00:00",
+  "api_target_list_available": false,
+  "api_caveat": "Exact uncovered (24Tt, r) target lists are not derivable from this screenshot snapshot. Pull fresh SAIR API data before search or submission planning that depends on exact target membership.",
+  "top_action_rs": [
+    24,
+    20,
+    8,
+    12,
+    16
+  ],
+  "top_remaining_rs": [
+    24,
+    16,
+    8,
+    12,
+    20
+  ],
+  "no_gpu_training_recommended": true,
+  "primary_next_family_recommendation": "Prioritize a new explicit r24 solvable/high-real-root construction because r=24 is the largest remaining bucket."
+}

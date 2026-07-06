@@ -289,7 +289,7 @@
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
-      "note": "New r=16 pair from the 10-row diversified r16 probe submission; SAIR verifier accepted five rows as 24T25000|r=16. The pair is absent from the frozen baseline; scores and scoring discriminants are pending.",
+      "note": "New r=16 pair from the 10-row diversified r16 probe submission; SAIR verifier accepted five rows as 24T25000|r=16. A later 12-row anti-collapse r16 probe with two-odd, three-odd, and mixed even+odd perturbations also accepted all rows as 24T25000|r=16. The pair is absent from the frozen baseline; scores and scoring discriminants are pending.",
       "accepted_alternates": [
         {
           "canonical_hash": "7bcf04f2e733f0e9717d2998fa3531fdfceb2dfeaa35086e62ed1d8d2dfd6503",
@@ -322,7 +322,130 @@
           "score_status": "pending",
           "source": "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
           "note": "Accepted duplicate r=16 pair from the 10-row diversified r16 probe submission; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "2259d45179943dbdde1e867524e709a5038192998a6178ef40aec8fd48cf00c8",
+          "short_hash": "2259d4517994",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "mixed_even_odd_perturbed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "a1a2119de5505731de67aa05ab7b541ba785b2b846899553cd8f9dc6a0a15ff3",
+          "short_hash": "a1a2119de550",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_odd_perturbed_near_composed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "624066636c9c928a613b1886b976e8f061c54b696d94142d7a4c889cf9b4309f",
+          "short_hash": "624066636c9c",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_odd_perturbed_near_composed",
+          "source_off_block_terms": 3,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "d3e8fd316db04680a4894bd9da506a63bdc3f269c8574c4b899b474f8e9a33ca",
+          "short_hash": "d3e8fd316db0",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "mixed_even_odd_perturbed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "f4ac64303241f06c95e6edbee8c117b899f8bf3593d5142761596bc1511671d5",
+          "short_hash": "f4ac64303241",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_odd_perturbed_near_composed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "b2b4087281e14efc2ca8821b9b62524d60393c0efd91ffb114acacf908fa57d5",
+          "short_hash": "b2b4087281e1",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_odd_perturbed_near_composed",
+          "source_off_block_terms": 3,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "9984288bf73a63696751780aabacccda54b31c7c8a524674818ebe40e4a3b433",
+          "short_hash": "9984288bf73a",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "mixed_even_odd_perturbed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "1c3b415990a72d1779c507aefdae5233aefb8f1d01e4f1bf99905c768f6ccd70",
+          "short_hash": "1c3b415990a7",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_odd_perturbed_near_composed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "0e75eeff23ced9be52a4aa18565fe04953d752aa523498abc61dc25276b6286b",
+          "short_hash": "0e75eeff23ce",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_odd_perturbed_near_composed",
+          "source_off_block_terms": 3,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "338645796e79efed974538fc3cdfc6005ab9f502a8433f2f595c6a975a1e6d8c",
+          "short_hash": "338645796e79",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "mixed_even_odd_perturbed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "70b58279f77a9c0b111dbaff95ba45074057e67c9614df525c4e6a951fba613d",
+          "short_hash": "70b58279f77a",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_odd_perturbed_near_composed",
+          "source_off_block_terms": 2,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "5132e59962c6c707aed5a6a31bc0e0a8c36114b13b8ee10f111fcaa4ba4e3c12",
+          "short_hash": "5132e59962c6",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_odd_perturbed_near_composed",
+          "source_off_block_terms": 3,
+          "note": "Accepted duplicate r=16 pair from the 12-row anti-collapse r16 probe submission; all multi-off-block rows landed as 24T25000|r=16. Keep as pending alternates until SAIR scores are available."
         }
+      ],
+      "additional_feedback_sources": [
+        "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json"
       ]
     },
     {
@@ -403,6 +526,7 @@
     "Use this ledger for local queue planning only; official status remains the SAIR verifier/leaderboard.",
     "The six-row r8_quartic_lift submission was accepted by the SAIR verifier; it added four r=8 pair keys: 24T657|r=8, 24T661|r=8, 24T1310|r=8, and 24T9993|r=8. Scores were pending when recorded.",
     "The eight table rows from the r16_quadratic_lift submission were accepted by the SAIR verifier; all collapsed to 24T24979|r=16. The pair is absent from the frozen baseline. The SAIR CSV export marks scoreable=false only while scoringStatus=pending and scoringReason=discriminant_pending; field discriminants, score, solvability, and teams/k were still pending when recorded.",
-    "The 10-row diversified r16 probe submission was accepted by the SAIR verifier; exact-composed rows landed as 24T24979|r=16 and odd-perturbed rows landed as 24T25000|r=16. Both pairs are absent from the frozen baseline; scores were pending when recorded."
+    "The 10-row diversified r16 probe submission was accepted by the SAIR verifier; exact-composed rows landed as 24T24979|r=16 and odd-perturbed rows landed as 24T25000|r=16. Both pairs are absent from the frozen baseline; scores were pending when recorded.",
+    "The 12-row anti-collapse r16 probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=16 alternates. Multi-off-block divisor-2 perturbations did not escape the 24T25000 r16 basin, so future r16 work should require a genuinely different construction."
   ]
 }

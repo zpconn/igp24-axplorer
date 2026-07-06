@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "record_type": "sair_igp24_discovery_page_snapshot",
+  "captured_at": "2026-07-06T16:48:00-05:00",
+  "capture_method": "user-provided screenshot analysis, not live API data",
+  "competition_status": {
+    "name": "SAIR Inverse Galois Problem (IGP24)",
+    "active": true,
+    "participants_shown": 162,
+    "submission_deadline_shown": "2026-08-15T00:00:00-12:00",
+    "deadline_label": "August 15, 2026, 00:00 AoE",
+    "api_access_shown": true
+  },
+  "core_definition": {
+    "signature": "(24Tt, r)",
+    "label_meaning": "24Tt is a degree-24 transitive group label; r is the number of real roots."
+  },
+  "coverage_summary": {
+    "total_valid_signatures": 165836,
+    "solved_signatures": 112825,
+    "solved_pct": 68.0,
+    "solved_solvable": 108556,
+    "solved_non_solvable": 4269,
+    "new_participant_discoveries": 112203,
+    "new_participant_solvable": 107947,
+    "new_participant_non_solvable": 4256,
+    "lmfdb_baseline": 622,
+    "lmfdb_baseline_solvable": 609,
+    "lmfdb_baseline_non_solvable": 13,
+    "uncovered_signatures": 53011,
+    "uncovered_solvable": 51992,
+    "uncovered_non_solvable": 1019,
+    "uncovered_solvable_pct": 98.1
+  },
+  "per_r": [
+    {
+      "r": 0,
+      "solved": 20455,
+      "total": 24839,
+      "remaining": 4384,
+      "solved_pct": 82.4,
+      "remaining_pct": 17.6
+    },
+    {
+      "r": 2,
+      "solved": 5594,
+      "total": 5760,
+      "remaining": 166,
+      "solved_pct": 97.1,
+      "remaining_pct": 2.9
+    },
+    {
+      "r": 4,
+      "solved": 16116,
+      "total": 20057,
+      "remaining": 3941,
+      "solved_pct": 80.4,
+      "remaining_pct": 19.6
+    },
+    {
+      "r": 6,
+      "solved": 5438,
+      "total": 6004,
+      "remaining": 566,
+      "solved_pct": 90.6,
+      "remaining_pct": 9.4
+    },
+    {
+      "r": 8,
+      "solved": 16568,
+      "total": 23556,
+      "remaining": 6988,
+      "solved_pct": 70.3,
+      "remaining_pct": 29.7
+    },
+    {
+      "r": 10,
+      "solved": 2859,
+      "total": 3288,
+      "remaining": 429,
+      "solved_pct": 87.0,
+      "remaining_pct": 13.0
+    },
+    {
+      "r": 12,
+      "solved": 13015,
+      "total": 19934,
+      "remaining": 6919,
+      "solved_pct": 65.3,
+      "remaining_pct": 34.7
+    },
+    {
+      "r": 14,
+      "solved": 2172,
+      "total": 2581,
+      "remaining": 409,
+      "solved_pct": 84.2,
+      "remaining_pct": 15.8
+    },
+    {
+      "r": 16,
+      "solved": 10519,
+      "total": 21421,
+      "remaining": 10902,
+      "solved_pct": 49.1,
+      "remaining_pct": 50.9
+    },
+    {
+      "r": 18,
+      "solved": 1760,
+      "total": 2168,
+      "remaining": 408,
+      "solved_pct": 81.2,
+      "remaining_pct": 18.8
+    },
+    {
+      "r": 20,
+      "solved": 5079,
+      "total": 10852,
+      "remaining": 5773,
+      "solved_pct": 46.8,
+      "remaining_pct": 53.2
+    },
+    {
+      "r": 22,
+      "solved": 376,
+      "total": 376,
+      "remaining": 0,
+      "solved_pct": 100.0,
+      "remaining_pct": 0.0
+    },
+    {
+      "r": 24,
+      "solved": 12874,
+      "total": 25000,
+      "remaining": 12126,
+      "solved_pct": 51.5,
+      "remaining_pct": 48.5
+    }
+  ],
+  "source_notes": [
+    "This snapshot was transcribed from a screenshot analysis captured 2026-07-06 16:48 America/Chicago.",
+    "It is not live or authoritative beyond that timestamp.",
+    "The SAIR API should replace this snapshot for fresh uncovered target lists before search/submission planning.",
+    "The screenshot gives aggregate r-bucket coverage only; it does not identify exact uncovered (24Tt, r) targets."
+  ]
+}

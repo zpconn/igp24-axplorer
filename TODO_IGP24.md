@@ -53,7 +53,9 @@ results change.
   bounded CPU-only run under
   `data/igp24/r16_anti_collapse_probe_20260706` attempted 720 trials, found
   149 valid local `r=16` candidates, and selected 12 rows: four two-odd, four
-  three-odd, and four mixed even+odd. Validation passed for SAIR format, local
+  three-odd, and four mixed even+odd. SAIR accepted all 12 rows as
+  `24T25000|r=16`, so multi-off-block divisor-2 perturbations still collapse
+  into the generic r16 endpoint. Validation passed for SAIR format, local
   `r=16`, irreducible/squarefree status, unique hashes/families, no known
   accepted-hash overlap, and 2-3 divisor-2 off-block terms per row. Focused
   compile/test checks passed:
@@ -62,6 +64,14 @@ results change.
   `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py::test_r16_diversity_probe_helpers_build_degree24_lift tests/test_igp24.py::test_r16_diversity_probe_multi_odd_modes_escape_one_odd_support`
   -> 2 passed. No GPU, model training, SAIR API, Magma/PARI, or network work
   is part of this probe.
+- Active target-aware planning pivot: added a screenshot-derived SAIR discovery
+  snapshot at `data/igp24/sair_discovery_snapshot_20260706_1648.json` and a
+  local target-bucket plan under `data/igp24/target_bucket_plan_20260706`.
+  The snapshot is aggregate-only and not a live target list. The planner ranks
+  largest remaining buckets as `r=24,16,8,12,20`, but recommends immediate
+  action order `r=24,20,8,12,16` because the current r16 construction family
+  has now repeatedly collapsed. It does not recommend GPU/model training until
+  there is a target-conditioned sampling objective.
 
 ## Stage 0: Scaffold
 
@@ -4447,6 +4457,70 @@ results change.
       returned no GPU compute apps; `ps -eo pid,ppid,stat,comm,args` showed
       no lingering Python, pytest, Magma, GP, or training workers beyond the
       audit command itself.
+  - SAIR verifier feedback for anti-collapse r16 queue:
+    - User-reported result: 12/12 accepted, all as `24T25000|r=16`.
+    - Tracked feedback artifact:
+      `data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json`.
+    - Ledger update: appended 12 accepted `24T25000|r=16` alternates to
+      `data/igp24/pair_status_20260706.json`, with source modes and
+      off-block term counts recorded.
+    - Interpretation: exact divisor-2 `g(x^2)` rows reliably land as
+      `24T24979|r=16`; one-odd and multi-off-block near-composed divisor-2
+      perturbations reliably land as `24T25000|r=16`. Do not spend more
+      submissions widening this same r16 corridor unless a genuinely different
+      construction is available.
+  - Discovery snapshot artifact:
+    - Added `data/igp24/sair_discovery_snapshot_20260706_1648.json`.
+    - Source: user-provided screenshot analysis captured 2026-07-06 16:48
+      America/Chicago, not live API data.
+    - Totals: `total_valid_signatures=165836`,
+      `solved_signatures=112825`, `uncovered_signatures=53011`,
+      `lmfdb_baseline=622`, and `uncovered_solvable=51992` (98.1% of
+      uncovered signatures).
+    - Largest remaining buckets by count:
+      `r=24:12126`, `r=16:10902`, `r=8:6988`, `r=12:6919`,
+      and `r=20:5773`.
+    - Caveat: exact uncovered `(24Tt, r)` target lists must come from the SAIR
+      API; the screenshot only gives aggregate r-bucket coverage.
+  - Target-aware bucket planner:
+    - Added `scripts/igp24_target_bucket_plan.py`.
+    - Focused validation:
+      `python3 -m compileall scripts/igp24_target_bucket_plan.py tests/test_igp24_target_bucket_plan.py`
+      passed, and bare `pytest` was unavailable on PATH.
+    - Focused tests:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_target_bucket_plan.py`.
+      - Result: 3 passed in 0.04s.
+    - Planner run:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_target_bucket_plan.py --discovery_snapshot_json data/igp24/sair_discovery_snapshot_20260706_1648.json --pair_status_json data/igp24/pair_status_20260706.json --output_dir data/igp24/target_bucket_plan_20260706`.
+      - Result: `api_target_list_available=false`,
+        `top_remaining_rs=[24,16,8,12,20]`, and
+        `top_action_rs=[24,20,8,12,16]`.
+      - Artifacts:
+        `data/igp24/target_bucket_plan_20260706/target_bucket_plan.json`,
+        `data/igp24/target_bucket_plan_20260706/target_bucket_plan.md`, and
+        `data/igp24/target_bucket_plan_20260706/target_bucket_plan_summary.json`.
+      - Recommendation: prioritize a new explicit `r=24`
+        solvable/high-real-root construction; prototype `r=20` and `r=12`;
+        continue bounded `r=8` composed-family work because it already
+        produced multiple accepted labels; keep `r=16` globally important but
+        do not widen the current divisor-2 corridor; do not start GPU/model
+        training until a target-conditioned sampling objective exists.
+    - Structured artifact validation: parsed the 12-row anti-collapse
+      feedback JSON, pair-status ledger, discovery snapshot JSON, target-plan
+      JSON, target-plan summary JSON, and target-plan Markdown; confirmed all
+      12 feedback rows are accepted `24T25000|r=16`, the pair ledger contains
+      the 12 hashes, the snapshot has 165836 valid signatures and 53011
+      uncovered signatures, and the planner reports
+      `top_action_rs=[24,20,8,12,16]`.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 156 passed in 7.74s.
+    - Final whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Final Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 7287 after this TODO update.
   - Structured artifact validation:
     - Result: parsed the SAIR status CSV, pair-status JSON, r16 accepted
       feedback JSON, diversified queue JSONL, diversified summary JSON, and

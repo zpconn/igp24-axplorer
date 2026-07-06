@@ -1062,6 +1062,20 @@ degree-12 base-root construction, but requires two or three off-block
 divisor-2 terms through two-odd, three-odd, and mixed even+odd perturbation
 modes. The 2026-07-06 bounded CPU-only run selected 12 local `r=16` rows at
 `data/igp24/r16_anti_collapse_probe_20260706`: four two-odd, four three-odd,
-and four mixed even+odd. These rows are still near the r16 corridor, but they
-are structurally different from the two accepted collapse modes and are the
-right next manual SAIR probe before widening the search further.
+and four mixed even+odd. SAIR accepted all 12 rows, but all 12 landed as
+`24T25000|r=16`. This is a clean negative result for the current r16 corridor:
+exact divisor-2 rows produce `24T24979|r=16`, while one-odd and multi-off-block
+near-composed divisor-2 rows produce `24T25000|r=16`. Future r16 work should
+require a genuinely different construction, not more perturbations around
+this same `g(x^2)` family.
+
+The 2026-07-06 discovery-page snapshot shifts the planning frame from local
+candidate generation to uncovered-signature targeting. The largest remaining
+aggregate buckets are `r=24`, `r=16`, `r=8`, `r=12`, and `r=20`, and the
+remaining signatures are overwhelmingly solvable. The target-bucket planner
+therefore ranks largest opportunity as `r=24,16,8,12,20`, but immediate action
+as `r=24,20,8,12,16`: `r=16` is large, yet our current construction has
+collapsed; `r=8` is smaller but already productive; `r=24`, `r=20`, and
+`r=12` need explicit solvable/high-real-root constructions. This is not a
+case for broad GPU/model training yet; the missing piece is exact target data
+from the SAIR API or a new target-conditioned construction family.

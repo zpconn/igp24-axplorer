@@ -1245,6 +1245,71 @@ local `real_root_count=16`, irreducible and squarefree exact checks, unique
 hashes, unique family keys, no accepted-hash overlap, and no exact/one-odd
 collapse modes.
 
+SAIR feedback:
+
+- user-reported result: 12/12 accepted,
+- all 12 rows landed as `24T25000|r=16`,
+- tracked feedback:
+  `data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json`,
+- pair-status ledger updated with 12 accepted `24T25000|r=16` alternates.
+
+Interpretation: the current r16 divisor-2 corridor is now clearly
+label-collapsed. Exact `g(x^2)` rows land as `24T24979|r=16`; one-odd and
+multi-off-block near-composed rows land as `24T25000|r=16`. Future r16 work
+should require a genuinely different construction.
+
+## Target-Bucket Planning
+
+A screenshot-derived discovery snapshot was recorded at
+`data/igp24/sair_discovery_snapshot_20260706_1648.json`. It is aggregate-only
+and should be replaced by SAIR API data when exact uncovered target lists are
+needed.
+
+Snapshot highlights:
+
+- total valid signatures: 165,836
+- solved signatures: 112,825
+- uncovered signatures: 53,011
+- LMFDB baseline signatures: 622
+- uncovered solvable signatures: 51,992, about 98.1% of uncovered signatures
+
+Largest remaining buckets:
+
+| r | remaining |
+| ---: | ---: |
+| 24 | 12126 |
+| 16 | 10902 |
+| 8 | 6988 |
+| 12 | 6919 |
+| 20 | 5773 |
+
+Planner command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_target_bucket_plan.py \
+  --discovery_snapshot_json data/igp24/sair_discovery_snapshot_20260706_1648.json \
+  --pair_status_json data/igp24/pair_status_20260706.json \
+  --output_dir data/igp24/target_bucket_plan_20260706
+```
+
+Planner result:
+
+- exact API target list available: `false`
+- largest remaining r buckets: `[24, 16, 8, 12, 20]`
+- recommended action order: `[24, 20, 8, 12, 16]`
+- no GPU/model training recommended yet
+
+Tracked artifacts:
+
+- `data/igp24/target_bucket_plan_20260706/target_bucket_plan.json`
+- `data/igp24/target_bucket_plan_20260706/target_bucket_plan.md`
+- `data/igp24/target_bucket_plan_20260706/target_bucket_plan_summary.json`
+
+The planner keeps r16 globally important but deprioritizes the current r16
+divisor-2 perturbation family. It recommends a new explicit r24
+solvable/high-real-root construction first, then r20/r12 construction work,
+while keeping r8 active because it already produced multiple accepted labels.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
