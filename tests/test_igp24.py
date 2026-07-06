@@ -1,3 +1,4 @@
+import random
 from types import SimpleNamespace
 
 import numpy as np
@@ -38,8 +39,11 @@ from src.igp24.verifiers.sair_api import SAIRAPIVerifier
 from scripts.igp24_r16_diversity_probe import (
     base_polynomial_from_layout,
     coefficient_line,
+    coefficients_from_trial,
     lift_base_to_degree24,
     multiply_polynomials,
+    off_block_exponents,
+    trial_variants,
 )
 
 
@@ -343,6 +347,48 @@ def test_r16_diversity_probe_helpers_build_degree24_lift():
     assert coeffs[1] == 0
     assert coeffs[22] == base[11]
     assert coefficient_line([*coeffs, 1]).endswith(",1")
+
+
+def test_r16_diversity_probe_multi_odd_modes_escape_one_odd_support():
+    base = base_polynomial_from_layout((1, 2, 3, 4, 6, 8, 10, 12), (((1, 1), (1, 2))))
+    coeffs, metadata = coefficients_from_trial(
+        {
+            "mode": "two_odd_perturbed_near_composed",
+            "positive_roots": (1, 2, 3, 4, 6, 8, 10, 12),
+            "quadratics": (((1, 1), (1, 2))),
+            "base_coefficients": base,
+            "odd_perturbations": [(3, 2), (15, -1)],
+        }
+    )
+
+    assert coeffs[3] == 2
+    assert coeffs[15] == -1
+    assert metadata["composed_support"] is False
+    assert metadata["r16_diversity_off_block_perturbation_terms"] == 2
+    assert off_block_exponents([*coeffs, 1], divisor=2) == [3, 15]
+
+    variants = list(
+        trial_variants(
+            rng=random.Random(123),
+            max_trials=4,
+            include_exact=False,
+            include_odd=False,
+            include_two_odd=True,
+            include_three_odd=True,
+            include_mixed_even_odd=True,
+            perturbations_per_family_mode=2,
+        )
+    )
+    assert variants
+    assert {variant["mode"] for variant in variants}.issubset(
+        {
+            "two_odd_perturbed_near_composed",
+            "three_odd_perturbed_near_composed",
+            "mixed_even_odd_perturbed",
+        }
+    )
+    for variant in variants:
+        assert len({index for index, _delta in variant["odd_perturbations"]}) >= 2
 
 
 def test_mixed_strategy_weights_are_normalized_and_selectable():

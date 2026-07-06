@@ -46,6 +46,16 @@ results change.
   under `data/igp24/r16_diversity_probe_20260706`; SAIR accepted all 10 rows,
   with exact-composed rows as `24T24979|r=16` and odd-perturbed rows as
   `24T25000|r=16`.
+- Active anti-collapse r16 follow-up in progress: extending
+  `scripts/igp24_r16_diversity_probe.py` with opt-in two-odd, three-odd,
+  four-odd, and mixed even+odd perturbation modes, full-row L1 distance checks
+  against accepted r16 submissions, and divisor-2 off-block filters. Focused
+  compile/test checks passed:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_r16_diversity_probe.py tests/test_igp24.py`
+  and
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py::test_r16_diversity_probe_helpers_build_degree24_lift tests/test_igp24.py::test_r16_diversity_probe_multi_odd_modes_escape_one_odd_support`
+  -> 2 passed. No GPU, model training, SAIR API, Magma/PARI, or network work
+  is part of this probe.
 
 ## Stage 0: Scaffold
 

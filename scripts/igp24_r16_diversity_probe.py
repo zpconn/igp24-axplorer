@@ -3,9 +3,9 @@
 
 The probe is deliberately local and bounded. It constructs degree-12 base
 polynomials with eight positive roots, lifts them to degree 24 through
-``g(x^2)``, optionally adds one small odd-power perturbation, and keeps only
-rows whose existing exact local checks accept them as irreducible degree-24
-polynomials with real-root count 16.
+``g(x^2)``, optionally adds small perturbations, and keeps only rows whose
+existing exact local checks accept them as irreducible degree-24 polynomials
+with real-root count 16.
 """
 
 from __future__ import annotations
@@ -93,15 +93,66 @@ def parse_polynomial_csv_row(value: str) -> list[int]:
     return values
 
 
-def accepted_even_vectors_from_csv(path: Path | None) -> list[list[int]]:
+def accepted_full_vectors_from_csv(path: Path | None) -> list[list[int]]:
     if path is None or not path.exists():
         return []
     vectors: list[list[int]] = []
     with path.open("r", encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
-            poly = parse_polynomial_csv_row(str(row.get("polynomial") or ""))
-            vectors.append([int(poly[index]) for index in range(0, DEGREE + 1, 2)])
+            status = str(row.get("status") or "").strip().lower()
+            if status and status != "accepted":
+                continue
+            r_value = str(row.get("r") or "").strip()
+            if r_value and r_value != "16":
+                continue
+            vectors.append(parse_polynomial_csv_row(str(row.get("polynomial") or "")))
     return vectors
+
+
+def accepted_even_vectors_from_csv(path: Path | None) -> list[list[int]]:
+    return accepted_even_vectors_from_full(accepted_full_vectors_from_csv(path))
+
+
+def accepted_hashes_from_feedback(path: Path | None) -> set[str]:
+    if path is None or not path.exists():
+        return set()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    hashes: set[str] = set()
+    for row in payload.get("rows") or []:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("status") or "").strip().lower() != "accepted":
+            continue
+        if int(row.get("r") or 0) != 16:
+            continue
+        value = row.get("canonical_hash") or row.get("candidate_hash")
+        if isinstance(value, str) and value:
+            hashes.add(value)
+    return hashes
+
+
+def accepted_full_vectors_from_queue(path: Path | None, accepted_hashes: set[str] | None = None) -> list[list[int]]:
+    if path is None or not path.exists():
+        return []
+    vectors: list[list[int]] = []
+    accepted = accepted_hashes or set()
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            hash_value = str(row.get("canonical_hash") or "")
+            if accepted and hash_value not in accepted:
+                continue
+            exported = row.get("exported_coefficients")
+            if not isinstance(exported, list) or len(exported) != DEGREE + 1:
+                continue
+            vectors.append([int(value) for value in exported])
+    return vectors
+
+
+def accepted_even_vectors_from_full(vectors: list[list[int]]) -> list[list[int]]:
+    return [[int(poly[index]) for index in range(0, DEGREE + 1, 2)] for poly in vectors]
 
 
 def known_hashes_from_pair_status(path: Path | None) -> set[str]:
@@ -132,6 +183,20 @@ def min_accepted_even_l1(base: list[int], accepted_even_vectors: list[list[int]]
     if not accepted_even_vectors:
         return None
     return min(l1_distance(base, accepted) for accepted in accepted_even_vectors)
+
+
+def min_accepted_full_l1(exported_coefficients: list[int], accepted_full_vectors: list[list[int]]) -> int | None:
+    if not accepted_full_vectors:
+        return None
+    return min(l1_distance(exported_coefficients, accepted) for accepted in accepted_full_vectors)
+
+
+def off_block_exponents(exported_coefficients: list[int], divisor: int = 2) -> list[int]:
+    return [
+        index
+        for index, coefficient in enumerate(exported_coefficients)
+        if int(coefficient) != 0 and index % int(divisor) != 0
+    ]
 
 
 def root_layouts() -> list[tuple[int, ...]]:
@@ -169,6 +234,11 @@ def trial_variants(
     max_trials: int,
     include_exact: bool,
     include_odd: bool,
+    include_two_odd: bool = False,
+    include_three_odd: bool = False,
+    include_four_odd: bool = False,
+    include_mixed_even_odd: bool = False,
+    perturbations_per_family_mode: int = 6,
 ) -> Iterable[dict[str, Any]]:
     """Yield bounded candidate construction plans."""
 
@@ -185,24 +255,81 @@ def trial_variants(
         modes.append("exact_composed_new_base")
     if include_odd:
         modes.append("odd_perturbed_near_composed")
+    if include_two_odd:
+        modes.append("two_odd_perturbed_near_composed")
+    if include_three_odd:
+        modes.append("three_odd_perturbed_near_composed")
+    if include_four_odd:
+        modes.append("four_odd_perturbed_near_composed")
+    if include_mixed_even_odd:
+        modes.append("mixed_even_odd_perturbed")
     if not modes:
         raise ValueError("at least one variant mode must be enabled")
 
     plans: list[dict[str, Any]] = []
+    per_mode = max(1, int(perturbations_per_family_mode))
     for roots in layouts:
         for quads in quadratics:
             base = base_polynomial_from_layout(roots, quads)
             for mode in modes:
-                perturbations = y_perturbations if mode == "exact_composed_new_base" else odd_perturbations
-                for index, delta in perturbations[:6]:
+                if mode == "exact_composed_new_base":
+                    for index, delta in y_perturbations[:per_mode]:
+                        plans.append(
+                            {
+                                "mode": mode,
+                                "positive_roots": roots,
+                                "quadratics": quads,
+                                "base_coefficients": list(base),
+                                "y_perturbations": [(index, delta)],
+                                "perturb_index": index,
+                                "perturb_delta": delta,
+                            }
+                        )
+                    continue
+                if mode == "odd_perturbed_near_composed":
+                    for index, delta in odd_perturbations[:per_mode]:
+                        plans.append(
+                            {
+                                "mode": mode,
+                                "positive_roots": roots,
+                                "quadratics": quads,
+                                "base_coefficients": list(base),
+                                "odd_perturbations": [(index, delta)],
+                                "perturb_index": index,
+                                "perturb_delta": delta,
+                            }
+                        )
+                    continue
+                odd_width = {
+                    "two_odd_perturbed_near_composed": 2,
+                    "three_odd_perturbed_near_composed": 3,
+                    "four_odd_perturbed_near_composed": 4,
+                    "mixed_even_odd_perturbed": 2,
+                }[mode]
+                odd_groups = distinct_odd_perturbation_groups(
+                    odd_perturbations, width=odd_width, limit=per_mode
+                )
+                if mode == "mixed_even_odd_perturbed":
+                    for y_item, odd_group in zip(y_perturbations[:per_mode], odd_groups):
+                        plans.append(
+                            {
+                                "mode": mode,
+                                "positive_roots": roots,
+                                "quadratics": quads,
+                                "base_coefficients": list(base),
+                                "y_perturbations": [y_item],
+                                "odd_perturbations": list(odd_group),
+                            }
+                        )
+                    continue
+                for odd_group in odd_groups:
                     plans.append(
                         {
                             "mode": mode,
                             "positive_roots": roots,
                             "quadratics": quads,
                             "base_coefficients": list(base),
-                            "perturb_index": index,
-                            "perturb_delta": delta,
+                            "odd_perturbations": list(odd_group),
                         }
                     )
     rng.shuffle(plans)
@@ -210,9 +337,58 @@ def trial_variants(
         yield item
 
 
+def distinct_odd_perturbation_groups(
+    odd_perturbations: list[tuple[int, int]],
+    *,
+    width: int,
+    limit: int,
+) -> list[tuple[tuple[int, int], ...]]:
+    groups: list[tuple[tuple[int, int], ...]] = []
+    seen_keys: set[tuple[int, ...]] = set()
+    for start, first in enumerate(odd_perturbations):
+        used_exponents = {int(first[0])}
+        group = [first]
+        for item in odd_perturbations[start + 1 :]:
+            exponent = int(item[0])
+            if exponent in used_exponents:
+                continue
+            group.append(item)
+            used_exponents.add(exponent)
+            if len(group) == int(width):
+                break
+        if len(group) != int(width):
+            continue
+        key = tuple(sorted(int(item[0]) for item in group))
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        groups.append(tuple(group))
+        if len(groups) >= int(limit):
+            break
+    return groups
+
+
+def normalize_perturbations(raw: Any, *, exponent_key: str) -> list[tuple[int, int]]:
+    perturbations: list[tuple[int, int]] = []
+    for item in raw or []:
+        if isinstance(item, dict):
+            perturbations.append((int(item[exponent_key]), int(item["delta"])))
+        else:
+            perturbations.append((int(item[0]), int(item[1])))
+    return perturbations
+
+
 def coefficients_from_trial(trial: dict[str, Any]) -> tuple[list[int], dict[str, Any]]:
     base = list(trial["base_coefficients"])
     mode = str(trial["mode"])
+    y_perturbations = normalize_perturbations(trial.get("y_perturbations"), exponent_key="index")
+    odd_perturbations = normalize_perturbations(trial.get("odd_perturbations"), exponent_key="x_exponent")
+    if not y_perturbations and not odd_perturbations and "perturb_index" in trial:
+        fallback = (int(trial["perturb_index"]), int(trial["perturb_delta"]))
+        if mode == "exact_composed_new_base":
+            y_perturbations = [fallback]
+        else:
+            odd_perturbations = [fallback]
     metadata = {
         "strategy": "r16_diversified_root_layout_probe",
         "seed_template": "diversified_degree12_base_with_eight_positive_roots",
@@ -222,40 +398,52 @@ def coefficients_from_trial(trial: dict[str, Any]) -> tuple[list[int], dict[str,
         "r16_diversity_base_coefficients_y_before_perturbation": list(base),
         "r16_diversity_base_degree": 12,
         "r16_diversity_positive_base_roots": 8,
+        "r16_diversity_y_perturbations": [
+            {"index": int(index), "delta": int(delta)} for index, delta in y_perturbations
+        ],
+        "r16_diversity_odd_perturbations": [
+            {"x_exponent": int(index), "delta": int(delta)} for index, delta in odd_perturbations
+        ],
+        "r16_diversity_off_block_perturbation_exponents": sorted(
+            {int(index) for index, delta in odd_perturbations if int(delta) != 0}
+        ),
+        "r16_diversity_off_block_perturbation_terms": len(
+            {int(index) for index, delta in odd_perturbations if int(delta) != 0}
+        ),
         "target_r_heuristic": 16,
     }
-    if mode == "exact_composed_new_base":
-        base[int(trial["perturb_index"])] += int(trial["perturb_delta"])
-        coeffs = lift_base_to_degree24(base)
-        metadata.update(
-            {
-                "r16_diversity_base_coefficients_y": list(base),
-                "r16_diversity_y_perturbation": {
-                    "index": int(trial["perturb_index"]),
-                    "delta": int(trial["perturb_delta"]),
-                },
-                "composed_support_divisor": 2,
-                "exact_composed_support_divisor": 2,
-                "composed_support": True,
-            }
-        )
-    elif mode == "odd_perturbed_near_composed":
-        coeffs = lift_base_to_degree24(base)
-        coeffs[int(trial["perturb_index"])] += int(trial["perturb_delta"])
-        metadata.update(
-            {
-                "r16_diversity_base_coefficients_y": list(base),
-                "r16_diversity_odd_perturbation": {
-                    "x_exponent": int(trial["perturb_index"]),
-                    "delta": int(trial["perturb_delta"]),
-                },
-                "composed_support_divisor": 2,
-                "near_composed_support_divisor": 2,
-                "composed_support": False,
-            }
-        )
-    else:
+    known_modes = {
+        "exact_composed_new_base",
+        "odd_perturbed_near_composed",
+        "two_odd_perturbed_near_composed",
+        "three_odd_perturbed_near_composed",
+        "four_odd_perturbed_near_composed",
+        "mixed_even_odd_perturbed",
+    }
+    if mode not in known_modes:
         raise ValueError(f"unknown mode: {mode}")
+    for index, delta in y_perturbations:
+        base[int(index)] += int(delta)
+    coeffs = lift_base_to_degree24(base)
+    for index, delta in odd_perturbations:
+        coeffs[int(index)] += int(delta)
+    metadata["r16_diversity_base_coefficients_y"] = list(base)
+    if len(y_perturbations) == 1:
+        metadata["r16_diversity_y_perturbation"] = {
+            "index": int(y_perturbations[0][0]),
+            "delta": int(y_perturbations[0][1]),
+        }
+    if len(odd_perturbations) == 1:
+        metadata["r16_diversity_odd_perturbation"] = {
+            "x_exponent": int(odd_perturbations[0][0]),
+            "delta": int(odd_perturbations[0][1]),
+        }
+    metadata["composed_support_divisor"] = 2
+    metadata["composed_support"] = not odd_perturbations
+    if odd_perturbations:
+        metadata["near_composed_support_divisor"] = 2
+    else:
+        metadata["exact_composed_support_divisor"] = 2
     return coeffs, metadata
 
 
@@ -263,14 +451,17 @@ def candidate_family_key(record: dict[str, Any]) -> str:
     metadata = record.get("generation_metadata") or {}
     roots = ",".join(str(value) for value in metadata.get("r16_diversity_positive_roots") or [])
     quads = ",".join("-".join(str(item) for item in pair) for pair in metadata.get("r16_diversity_quadratics_y") or [])
-    return f"{metadata.get('r16_diversity_mode')}|roots={roots}|quads={quads}"
+    odd_exponents = ",".join(str(value) for value in metadata.get("r16_diversity_off_block_perturbation_exponents") or [])
+    y_indices = ",".join(str(item.get("index")) for item in metadata.get("r16_diversity_y_perturbations") or [])
+    return f"{metadata.get('r16_diversity_mode')}|roots={roots}|quads={quads}|odd={odd_exponents}|y={y_indices}"
 
 
-def sort_key(record: dict[str, Any]) -> tuple[float, float, float, int]:
+def sort_key(record: dict[str, Any]) -> tuple[float, float, float, int, int]:
     return (
         float(record.get("non_generic_score") or 0.0),
         -float(record.get("coefficient_height") or 0.0),
         float(record.get("score") or 0.0),
+        int(record.get("generation_metadata", {}).get("r16_diversity_min_l1_to_accepted_full_coefficients") or 0),
         int(record.get("generation_metadata", {}).get("r16_diversity_min_l1_to_accepted_even_coefficients") or 0),
     )
 
@@ -292,7 +483,7 @@ def select_diverse(records: list[dict[str, Any]], *, limit: int, per_family_cap:
 
     mode_order = sorted(
         by_mode,
-        key=lambda mode: sort_key(by_mode[mode][0]) if by_mode[mode] else (0.0, 0.0, 0.0, 0),
+        key=lambda mode: sort_key(by_mode[mode][0]) if by_mode[mode] else (0.0, 0.0, 0.0, 0, 0),
         reverse=True,
     )
     progressed = True
@@ -342,8 +533,8 @@ def build_report(summary: dict[str, Any], selected: list[dict[str, Any]]) -> str
         f"- Mode counts: `{json.dumps(summary.get('selected_mode_counts'), sort_keys=True)}`",
         f"- Rejected counts: `{json.dumps(summary.get('rejected_counts'), sort_keys=True)}`",
         "",
-        "| rank | hash | mode | height | score | non-generic | flags | min L1 to accepted |",
-        "| ---: | --- | --- | ---: | ---: | ---: | --- | ---: |",
+        "| rank | hash | mode | off-block | height | score | non-generic | flags | min full L1 |",
+        "| ---: | --- | --- | ---: | ---: | ---: | ---: | --- | ---: |",
     ]
     for row in selected:
         metadata = row.get("generation_metadata") or {}
@@ -355,11 +546,12 @@ def build_report(summary: dict[str, Any], selected: list[dict[str, Any]]) -> str
                     str(row.get("diversity_queue_rank")),
                     f"`{str(row.get('canonical_hash') or '')[:12]}`",
                     f"`{metadata.get('r16_diversity_mode')}`",
+                    str(metadata.get("r16_diversity_divisor2_off_block_terms")),
                     str(row.get("coefficient_height")),
                     f"{float(row.get('score') or 0.0):.3f}",
                     f"{float(row.get('non_generic_score') or 0.0):.3f}",
                     flags,
-                    str(metadata.get("r16_diversity_min_l1_to_accepted_even_coefficients")),
+                    str(metadata.get("r16_diversity_min_l1_to_accepted_full_coefficients")),
                 ]
             )
             + " |"
@@ -427,6 +619,16 @@ def get_parser() -> argparse.ArgumentParser:
         type=Path,
         default=REPO_ROOT / "data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
     )
+    parser.add_argument(
+        "--accepted_feedback_json",
+        type=Path,
+        default=REPO_ROOT / "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    )
+    parser.add_argument(
+        "--accepted_feedback_queue_jsonl",
+        type=Path,
+        default=REPO_ROOT / "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl",
+    )
     parser.add_argument("--seed", type=int, default=1616)
     parser.add_argument("--max_trials", type=int, default=240)
     parser.add_argument("--limit", type=int, default=10)
@@ -435,8 +637,16 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--prime_limit", type=int, default=7)
     parser.add_argument("--exact_score_timeout", type=float, default=4.0)
     parser.add_argument("--min_l1_to_accepted_even", type=int, default=5000)
+    parser.add_argument("--min_l1_to_accepted_full", type=int, default=5000)
+    parser.add_argument("--min_off_block_terms", type=int, default=0)
+    parser.add_argument("--max_off_block_terms", type=int, default=DEGREE)
+    parser.add_argument("--perturbations_per_family_mode", type=int, default=6)
     parser.add_argument("--include_exact", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--include_odd", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--include_two_odd", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--include_three_odd", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--include_four_odd", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--include_mixed_even_odd", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
     return parser
 
@@ -445,8 +655,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = get_parser()
     args = parser.parse_args(argv)
     rng = random.Random(int(args.seed))
-    known_hashes = known_hashes_from_pair_status(args.pair_status_json)
-    accepted_even = accepted_even_vectors_from_csv(args.accepted_status_csv)
+    accepted_feedback_hashes = accepted_hashes_from_feedback(args.accepted_feedback_json)
+    known_hashes = known_hashes_from_pair_status(args.pair_status_json) | accepted_feedback_hashes
+    accepted_full = accepted_full_vectors_from_csv(args.accepted_status_csv)
+    accepted_full.extend(
+        accepted_full_vectors_from_queue(args.accepted_feedback_queue_jsonl, accepted_feedback_hashes)
+    )
+    accepted_even = accepted_even_vectors_from_full(accepted_full)
     candidates: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     seen_hashes: set[str] = set()
@@ -458,15 +673,35 @@ def main(argv: list[str] | None = None) -> int:
         max_trials=int(args.max_trials),
         include_exact=bool(args.include_exact),
         include_odd=bool(args.include_odd),
+        include_two_odd=bool(args.include_two_odd),
+        include_three_odd=bool(args.include_three_odd),
+        include_four_odd=bool(args.include_four_odd),
+        include_mixed_even_odd=bool(args.include_mixed_even_odd),
+        perturbations_per_family_mode=int(args.perturbations_per_family_mode),
     ):
         trials_attempted += 1
         coeffs, metadata = coefficients_from_trial(trial)
+        exported_coeffs = [*coeffs, 1]
         base_l1 = min_accepted_even_l1(metadata["r16_diversity_base_coefficients_y"], accepted_even)
+        full_l1 = min_accepted_full_l1(exported_coeffs, accepted_full)
+        divisor2_off_exponents = off_block_exponents(exported_coeffs, divisor=2)
         metadata["r16_diversity_min_l1_to_accepted_even_coefficients"] = base_l1
+        metadata["r16_diversity_min_l1_to_accepted_full_coefficients"] = full_l1
+        metadata["r16_diversity_divisor2_off_block_exponents"] = divisor2_off_exponents
+        metadata["r16_diversity_divisor2_off_block_terms"] = len(divisor2_off_exponents)
         metadata["r16_diversity_probe_seed"] = int(args.seed)
         metadata["r16_diversity_family_key"] = candidate_family_key({"generation_metadata": metadata})
         if base_l1 is not None and base_l1 < int(args.min_l1_to_accepted_even):
             rejected_counts["too_close_to_accepted_even_coefficients"] += 1
+            continue
+        if full_l1 is not None and full_l1 < int(args.min_l1_to_accepted_full):
+            rejected_counts["too_close_to_accepted_full_coefficients"] += 1
+            continue
+        if len(divisor2_off_exponents) < int(args.min_off_block_terms):
+            rejected_counts["too_few_divisor2_off_block_terms"] += 1
+            continue
+        if len(divisor2_off_exponents) > int(args.max_off_block_terms):
+            rejected_counts["too_many_divisor2_off_block_terms"] += 1
             continue
         if coefficient_height(coeffs) > int(args.coeff_bound):
             rejected_counts["coefficient_height_exceeds_bound"] += 1
@@ -538,8 +773,11 @@ def main(argv: list[str] | None = None) -> int:
         "inputs": {
             "pair_status_json": str(args.pair_status_json),
             "accepted_status_csv": str(args.accepted_status_csv),
+            "accepted_feedback_json": str(args.accepted_feedback_json),
+            "accepted_feedback_queue_jsonl": str(args.accepted_feedback_queue_jsonl),
             "known_hashes": len(known_hashes),
             "accepted_even_vectors": len(accepted_even),
+            "accepted_full_vectors": len(accepted_full),
         },
         "parameters": {
             "seed": int(args.seed),
@@ -550,8 +788,16 @@ def main(argv: list[str] | None = None) -> int:
             "prime_limit": int(args.prime_limit),
             "exact_score_timeout": float(args.exact_score_timeout),
             "min_l1_to_accepted_even": int(args.min_l1_to_accepted_even),
+            "min_l1_to_accepted_full": int(args.min_l1_to_accepted_full),
+            "min_off_block_terms": int(args.min_off_block_terms),
+            "max_off_block_terms": int(args.max_off_block_terms),
+            "perturbations_per_family_mode": int(args.perturbations_per_family_mode),
             "include_exact": bool(args.include_exact),
             "include_odd": bool(args.include_odd),
+            "include_two_odd": bool(args.include_two_odd),
+            "include_three_odd": bool(args.include_three_odd),
+            "include_four_odd": bool(args.include_four_odd),
+            "include_mixed_even_odd": bool(args.include_mixed_even_odd),
         },
         "trials_attempted": trials_attempted,
         "valid_r16_candidates": len(candidates),
