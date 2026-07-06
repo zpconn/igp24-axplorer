@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
-  fresh pair-diversity candidate work.
+  final five-row manual package work.
 - Active focus: the first 25-row non-generic queue remains fully
   exact-verified via saved online Magma calculator XML: 18 rows are
   `24T24970`, 6 rows are `24T24979`, and the divisor-3 coverage row is
@@ -22,13 +22,18 @@ results change.
   remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
   automatic network/submission paths. Dry-run remains the default; local MAGMA
   execution still requires explicit `--run_magma`.
-- Current result: the fresh online verification pass is documented with saved
-  raw XML provenance, exact-label feedback, and refreshed one-per-pair
-  submission planning caveats.
-- Next follow-up: retry the four pending fresh rows when calculator/local
-  MAGMA availability permits, then add exact Magma signature `r`, exact
-  `nfdisc`, and official baseline comparison before making scoreability
-  claims or submitting anything.
+- Current result: the final five selected one-per-pair representatives are
+  packaged for local/manual review at
+  `/tmp/igp24_final_submission_package_20260706`. The package has exactly five
+  coefficient rows, copied final planner artifacts, copied SymPy exact-r and
+  exact-nfdisc evidence, saved Magma label provenance, raw Magma XML copies, the
+  official frozen baseline CSV, a structured manifest, and a checklist. It did
+  not submit to SAIR or call SAIR APIs, Magma, PARI, online calculators, GPU
+  training, or search loops.
+- Next follow-up: review the package manually, run independent Magma/PARI
+  cross-checks on a host where those tools are installed, then decide whether a
+  human SAIR submission is warranted. Separately, retry the four pending fresh
+  rows only when calculator/local MAGMA availability permits.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3402,8 +3407,72 @@ results change.
         no local Magma/PARI cross-check can be run on this host.
       - The final package must therefore include ready-to-run Magma copy/paste
         scripts with `IGP24_SIGNATURE` and document the cross-check blocker.
-    - [in_progress] Add a small package helper rather than assembling the
-      final directory with ad hoc shell-only copies.
+    - [done] Add a small package helper rather than assembling the final
+      directory with ad hoc shell-only copies.
+      - Helper: `scripts/igp24_submission_package.py`.
+      - Focused helper test:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_submission_package.py`
+        passed with 2 tests in 0.04s after adding compact row summaries to the
+        manifest and builder-verified checklist markers.
+      - Initial helper checkpoint commit:
+        `7690f5b Add IGP24 submission packaging helper`; manifest/checklist
+        polish is part of the final documentation/package checkpoint.
+    - [done] Generate the final local/manual package.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_package.py --plan_dir /tmp/igp24_submission_grade_five_plan_with_sympy_exact_20260706 --evidence_dir /tmp/igp24_submission_grade_five_20260706_sympy_exact --baseline_csv data/igp24/lmfdb_baseline.csv --raw_magma_dir data/igp24 --output_dir /tmp/igp24_final_submission_package_20260706 --candidate_hash 981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5 --candidate_hash 4be66a510402f26a3da7dcc6a03fbf64c0d915dcc53a01a48ea904ad8555e64e --candidate_hash 9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131 --candidate_hash a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a --candidate_hash 2289d8a5e7007dfda908bf1aab4dabae4f0455618d42aa27e10e26c88b8b9f2d`.
+      - Output directory:
+        `/tmp/igp24_final_submission_package_20260706`.
+      - Key files:
+        `package_manifest.json`, `submission_checklist.md`,
+        `submission_coefficients.txt`, and
+        `submission_coefficients.jsonl`.
+      - Package status:
+        `selected_records=5`,
+        `scoreability_status_counts={"new_pair_candidate": 5}`,
+        `exact_r_status_counts={"ok": 5}`,
+        `exact_nfdisc_status_counts={"ok": 5}`, and
+        `sair_submission=false`.
+      - Audit checks: 39 files in the package, 5 coefficient-only rows, 5
+        structured coefficient rows, 5 plan rows, 5 raw Magma XML files, and
+        no obvious `api_key`/secret/password strings beyond the manifest safety
+        flag `contains_api_keys=false`.
+      - Manifest selected pairs:
+        `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`,
+        `24T24970|r=4`, and `24T24648|r=4`.
+      - Remaining caveat: local `magma` and `gp` are still unavailable, so the
+        package includes ready-to-run Magma copy/paste scripts with
+        `IGP24_SIGNATURE` instead of fresh local Magma/PARI output.
+    - [done] Update README, experiments, notes, and this TODO with the final
+      package path, contents, status counts, and caveats.
+    - [done] Run final validation gates and process/GPU/cache audits.
+      - Focused package tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_submission_package.py`
+        passed with 2 tests in 0.02s.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` passed with
+        124 tests in 7.48s.
+      - Compile check:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - Helper `--help` checks passed for
+        `scripts/igp24_submission_package.py`,
+        `scripts/igp24_submission_plan.py`, and
+        `scripts/igp24_offline_verify.py`.
+      - `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 5481 after this TODO update.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        returned no running Python processes.
+      - GPU audit:
+        `nvidia-smi` found no running GPU compute processes; the RTX 5090 was
+        at 6% utilization with display memory only.
+      - Cache cleanup:
+        `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+        completed, and the follow-up `find . -type d -name __pycache__ -print`
+        returned no paths.
+    - [pending] Commit documentation/checklist updates and push `igp24-dev`.
 
 ## Tests And Checks
 

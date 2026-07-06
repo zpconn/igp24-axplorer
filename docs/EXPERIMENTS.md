@@ -370,6 +370,42 @@ fallback `nfdisc`. The helper still does not submit to SAIR, and Magma/PARI
 remain preferred independent cross-checks when available, but the planner now
 correctly marks the five rows as `new_pair_candidate`.
 
+A final local/manual submission-review package was then built at
+`/tmp/igp24_final_submission_package_20260706` using
+`scripts/igp24_submission_package.py`. The package is not a SAIR submission and
+does not call SAIR, Magma, PARI, online calculators, training, GPU sampling, or
+search loops.
+
+Package contents and checks:
+
+- `package_manifest.json`: structured manifest with five selected row
+  summaries, official baseline CSV hash, source artifact paths, copied-file
+  checksums, local tool availability, and safety flags.
+- `submission_checklist.md`: human-readable checklist confirming exactly five
+  rows, one row per `(24Tt, r)` pair, all five absent from the baseline, saved
+  Magma label provenance, SymPy exact-r and exact-nfdisc evidence, no SAIR/API
+  submission, and the local Magma/PARI cross-check caveat.
+- `submission_coefficients.txt`: coefficient-only file with five 25-integer
+  rows and no comments.
+- `submission_coefficients.jsonl`: structured coefficient export with rank,
+  pair, canonical hash, and coefficients.
+- copied plan artifacts under `plan/`,
+  exact-evidence artifacts under `evidence/`, saved raw Magma XML under
+  `raw_magma_xml/`, and the frozen baseline CSV under `baseline/`.
+
+Package audit status:
+
+- `selected_records=5`
+- `selected_pairs=["24T9683|r=4", "24T24979|r=4", "24T24759|r=4", "24T24970|r=4", "24T24648|r=4"]`
+- `baseline_status_counts={"non_baseline_candidate": 5}`
+- `scoreability_status_counts={"new_pair_candidate": 5}`
+- `exact_r_status_counts={"ok": 5}`
+- `exact_nfdisc_status_counts={"ok": 5}`
+- 5 coefficient rows, 5 structured coefficient rows, 5 plan rows, and 5 raw
+  Magma XML provenance files.
+- Local tool availability in the manifest remains
+  `magma.available=false`, `pari_gp.available=false`.
+
 The four calculator-disabled rows were not automatically retried online. A
 manual retry packet was prepared at `/tmp/igp24_pending_four_retry_20260706`
 instead. It contains one-candidate Magma copy/paste scripts with
@@ -444,6 +480,8 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
 - `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
 - `scripts/igp24_submission_plan.py`: one-per-pair manual submission planning.
+- `scripts/igp24_submission_package.py`: local/manual submission-review
+  package builder.
 
 ## Reproducibility Notes
 

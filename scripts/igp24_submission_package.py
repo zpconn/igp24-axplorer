@@ -174,6 +174,8 @@ def validate_plan_rows(rows: list[dict[str, Any]], expected_hashes: list[str]) -
         raise PackageError(f"plan hash set mismatch: expected {sorted(expected_set)}, found {sorted(actual_set)}")
     pair_counts = Counter(str(row.get("pair_key") or "") for row in rows)
     duplicate_pairs = sorted(pair for pair, count in pair_counts.items() if count != 1)
+    if "" in pair_counts:
+        raise PackageError("expected every plan row to include pair_key")
     if duplicate_pairs:
         raise PackageError(f"expected one row per pair; duplicate/missing pair counts for {duplicate_pairs}")
     for row in rows:
@@ -191,6 +193,26 @@ def validate_plan_rows(rows: list[dict[str, Any]], expected_hashes: list[str]) -
             if row.get(key) != expected:
                 raise PackageError(f"{prefix}: expected {key}={expected!r}, found {row.get(key)!r}")
     return rows
+
+
+def summarize_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "rank": row.get("submission_plan_rank"),
+        "pair_key": row.get("pair_key"),
+        "verified_group_label": row.get("verified_group_label"),
+        "expected_r": row.get("expected_r"),
+        "expected_r_source": row.get("expected_r_source"),
+        "canonical_hash": row.get("canonical_hash"),
+        "short_hash": row.get("short_hash"),
+        "baseline_status": row.get("baseline_status"),
+        "baseline_rows": row.get("baseline_rows"),
+        "scoreability_status": row.get("scoreability_status"),
+        "exact_r_status": row.get("exact_r_status"),
+        "exact_nfdisc_status": row.get("exact_nfdisc_status"),
+        "exact_nfdisc_source": row.get("exact_nfdisc_source"),
+        "exact_nfdisc_abs": row.get("exact_nfdisc_abs"),
+        "discriminant_rank_category": row.get("discriminant_rank_category"),
+    }
 
 
 def raw_magma_xml_paths(raw_magma_dir: Path, rows: list[dict[str, Any]]) -> list[Path]:
@@ -232,6 +254,7 @@ def build_manifest(
         "selected_records": len(rows),
         "selected_hashes": [str(row.get("canonical_hash")) for row in rows],
         "selected_pairs": [str(row.get("pair_key")) for row in rows],
+        "selected_record_summaries": [summarize_row(row) for row in rows],
         "baseline": baseline_info,
         "plan_summary": {
             "source_commit": plan_summary.get("source_commit"),
@@ -264,21 +287,34 @@ def build_manifest(
 
 
 def build_checklist(manifest: dict[str, Any], rows: list[dict[str, Any]]) -> str:
+    pair_counts = Counter(str(row.get("pair_key") or "") for row in rows)
+    one_row_per_pair = bool(rows) and all(count == 1 for count in pair_counts.values())
+    all_absent_from_baseline = all(row.get("baseline_status") == "non_baseline_candidate" for row in rows)
+    exact_label_sources = all(row.get("verified_group_label") for row in rows)
+    exact_r_sources = all(row.get("exact_r_status") == "ok" and row.get("expected_r_source") for row in rows)
+    exact_nfdisc_sources = all(row.get("exact_nfdisc_status") == "ok" and row.get("exact_nfdisc_source") for row in rows)
+    no_submission = not manifest.get("safety", {}).get("sair_submission") and not manifest.get("safety", {}).get("sair_api_calls")
+    local_tools = manifest.get("local_tool_availability", {})
+    cross_check_unavailable = not local_tools.get("magma", {}).get("available") and not local_tools.get("pari_gp", {}).get("available")
+
+    def mark(value: bool) -> str:
+        return "x" if value else " "
+
     lines = [
         "# IGP24 Manual Submission Package Checklist",
         "",
         "This package is for manual review only. No SAIR submission or API call was performed.",
         "",
-        "## Required Checks",
+        "## Builder-Verified Checks",
         "",
-        f"- [ ] Exactly five rows: `{manifest.get('selected_records') == 5}`",
-        "- [ ] One row per `(24Tt, r)` pair.",
-        "- [ ] All five rows are absent from the official baseline.",
-        "- [ ] Exact labels are backed by saved/manual Magma output.",
-        "- [ ] Exact `r` is backed by local SymPy fallback evidence.",
-        "- [ ] Exact `nfdisc` is backed by local SymPy fallback evidence.",
-        "- [ ] Magma/PARI independent cross-check is still unavailable on this host, if not separately supplied.",
-        "- [ ] No SAIR/API submission has been performed.",
+        f"- [{mark(manifest.get('selected_records') == 5)}] Exactly five rows: `{manifest.get('selected_records') == 5}`",
+        f"- [{mark(one_row_per_pair)}] One row per `(24Tt, r)` pair.",
+        f"- [{mark(all_absent_from_baseline)}] All selected rows are absent from the official baseline.",
+        f"- [{mark(exact_label_sources)}] Exact labels are backed by saved/manual Magma output.",
+        f"- [{mark(exact_r_sources)}] Exact `r` is backed by local SymPy fallback evidence.",
+        f"- [{mark(exact_nfdisc_sources)}] Exact `nfdisc` is backed by local SymPy fallback evidence.",
+        f"- [{mark(cross_check_unavailable)}] Magma/PARI independent cross-check is still unavailable on this host, if not separately supplied.",
+        f"- [{mark(no_submission)}] No SAIR/API submission has been performed.",
         "",
         "## Selected Rows",
         "",

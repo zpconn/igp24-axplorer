@@ -60,6 +60,9 @@ baseline. The current five one-per-pair representatives are absent from that
 baseline and now have local SymPy exact real-root-count and
 number-field-discriminant fallback evidence. They are still manual-review
 candidates; Magma/PARI cross-checks and any SAIR submission remain explicit.
+A local/manual packaging helper can assemble those representatives, copied
+evidence, a manifest, and a human checklist for review without submitting
+anything.
 
 ## Capabilities
 
@@ -73,6 +76,8 @@ candidates; Magma/PARI cross-checks and any SAIR submission remain explicit.
 - Shortlist, review, and offline verification handoff tools.
 - PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and SAIR
   verifier/planning stubs that are explicit and opt-in.
+- Manual submission-review packaging with coefficient-only export, copied
+  provenance, structured manifest, and checklist.
 
 ## Safety Boundaries
 
@@ -246,6 +251,22 @@ This helper is local/file-only. It selects one representative per expected
 `(24Tt, r)` pair and writes manual review artifacts; it does not submit to
 SAIR or claim scoreability without exact `r` and discriminant evidence.
 
+Build a manual submission-review package from a verified plan:
+
+```bash
+python3 scripts/igp24_submission_package.py \
+  --plan_dir /tmp/igp24_submission_grade_five_plan_with_sympy_exact_20260706 \
+  --evidence_dir /tmp/igp24_submission_grade_five_20260706_sympy_exact \
+  --baseline_csv data/igp24/lmfdb_baseline.csv \
+  --output_dir /tmp/igp24_final_submission_package_20260706 \
+  --candidate_hash <canonical-hash> \
+  --candidate_hash <canonical-hash>
+```
+
+Repeat `--candidate_hash` once for each selected row. The package helper is
+local/file-only: it copies saved evidence, writes coefficient exports, and
+does not call SAIR, Magma, PARI, online calculators, training, or search loops.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -284,6 +305,9 @@ that branch.
 - `scripts/igp24_offline_verify.py`: offline/local/manual verification handoff.
 - `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
 - `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
+- `scripts/igp24_submission_plan.py`: one-per-pair manual submission planner.
+- `scripts/igp24_submission_package.py`: local/manual submission-review
+  package builder.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

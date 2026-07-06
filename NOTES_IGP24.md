@@ -814,6 +814,16 @@ official baseline and have exact local `r` plus exact local `nfdisc` evidence.
 Magma and PARI/GP remain the preferred independent cross-checks when available,
 and any SAIR submission should stay explicit and human-controlled.
 
+A final local/manual package has been assembled at
+`/tmp/igp24_final_submission_package_20260706`. It contains a coefficient-only
+five-row export, structured coefficient JSONL, the final planner artifacts,
+SymPy exact-r and exact-nfdisc evidence, saved Magma label provenance including
+raw XML and ready-to-run `IGP24_SIGNATURE` scripts, the official baseline CSV,
+a manifest, and a checklist. This is the right handoff shape before any
+submission attempt: it makes the five rows auditable without adding an
+automatic SAIR/API path. The remaining caveat is still independent Magma/PARI
+cross-checking on a host where those tools are installed.
+
 The four calculator-disabled rows now have a bounded manual retry packet at
 `/tmp/igp24_pending_four_retry_20260706`. This did not contact the online
 calculator; it only generated one-candidate Magma scripts with

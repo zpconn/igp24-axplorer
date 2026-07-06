@@ -110,6 +110,42 @@ def test_build_package_writes_manifest_checklist_and_clean_coefficients(tmp_path
     checklist = paths["submission_checklist_md"].read_text(encoding="utf-8")
 
     assert manifest["selected_records"] == 2
+    assert manifest["selected_record_summaries"] == [
+        {
+            "rank": 1,
+            "pair_key": "24T1|r=4",
+            "verified_group_label": "24T1",
+            "expected_r": 4,
+            "expected_r_source": "verified.sympy_real_root_count",
+            "canonical_hash": rows[0]["canonical_hash"],
+            "short_hash": rows[0]["short_hash"],
+            "baseline_status": "non_baseline_candidate",
+            "baseline_rows": None,
+            "scoreability_status": "new_pair_candidate",
+            "exact_r_status": "ok",
+            "exact_nfdisc_status": "ok",
+            "exact_nfdisc_source": "sympy_algebraic_field_discriminant",
+            "exact_nfdisc_abs": 1001,
+            "discriminant_rank_category": "exact_nfdisc",
+        },
+        {
+            "rank": 2,
+            "pair_key": "24T2|r=4",
+            "verified_group_label": "24T2",
+            "expected_r": 4,
+            "expected_r_source": "verified.sympy_real_root_count",
+            "canonical_hash": rows[1]["canonical_hash"],
+            "short_hash": rows[1]["short_hash"],
+            "baseline_status": "non_baseline_candidate",
+            "baseline_rows": None,
+            "scoreability_status": "new_pair_candidate",
+            "exact_r_status": "ok",
+            "exact_nfdisc_status": "ok",
+            "exact_nfdisc_source": "sympy_algebraic_field_discriminant",
+            "exact_nfdisc_abs": 1002,
+            "discriminant_rank_category": "exact_nfdisc",
+        },
+    ]
     assert manifest["plan_summary"]["scoreability_status_counts"] == {"new_pair_candidate": 2}
     assert manifest["safety"]["sair_submission"] is False
     assert all("#" not in line for line in coefficient_lines)
@@ -117,7 +153,8 @@ def test_build_package_writes_manifest_checklist_and_clean_coefficients(tmp_path
         "2," + ",".join(["0"] * 23) + ",1",
         "3," + ",".join(["0"] * 23) + ",1",
     ]
-    assert "Exactly five rows" in checklist
+    assert "- [ ] Exactly five rows: `False`" in checklist
+    assert "- [x] One row per `(24Tt, r)` pair." in checklist
     assert (output_dir / "raw_magma_xml" / f"online_magma_manual_output_{rows[0]['short_hash']}_20260706.xml").exists()
 
 
