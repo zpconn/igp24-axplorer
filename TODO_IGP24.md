@@ -3260,6 +3260,24 @@ results change.
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up `find . -type d -name __pycache__ -print`
         returned no paths.
+    - [in_progress] Add explicit SymPy number-field-discriminant fallback
+      evidence while PARI/GP remains unavailable.
+      - Rationale: local `gp`, `magma`, `sage`, `wolframscript`, `singular`,
+        `gap`, `cypari2`, `sageall`, and `cypari` are unavailable, but SymPy's
+        `AlgebraicField.discriminant()` is installed and computed field
+        discriminants quickly for the five selected degree-24 rows.
+      - Safety/source boundary: this is local/file-only exact nfdisc fallback
+        evidence, not the official PARI/GP workflow and not a Magma signature
+        substitute.
+      - Code changes in progress: add `--run_sympy_nfdisc` to
+        `scripts/igp24_offline_verify.py`, write
+        `sympy_nfdisc_results.jsonl` / summary / report artifacts, and let
+        `scripts/igp24_submission_plan.py` merge those rows as exact
+        `nfdisc` evidence with source
+        `sympy_algebraic_field_discriminant`.
+      - Focused tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py`
+        passed with 21 tests in 4.60s after the SymPy artifact changes.
 
 ## Tests And Checks
 

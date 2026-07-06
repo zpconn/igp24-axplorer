@@ -14,6 +14,8 @@ from scripts.igp24_offline_verify import (
     ONLINE_MAGMA_SUMMARY_JSON,
     PARI_INPUT_GP,
     PARI_RESULTS_JSONL,
+    SYMPY_NFDISC_RESULTS_JSONL,
+    SYMPY_NFDISC_SUMMARY_JSON,
     VERIFICATION_PLAN_MD,
     ReviewBatchError,
     build_online_magma_manual_input,
@@ -23,6 +25,7 @@ from scripts.igp24_offline_verify import (
     build_magma_verification_input,
     build_pari_input,
     cache_key_for_record,
+    compute_sympy_nfdisc_result,
     discover_magma_executable,
     load_review_batch,
     load_verification_input,
@@ -233,6 +236,21 @@ def test_parse_pari_output_records_nfdisc_and_poly_disc():
     ]
 
 
+def test_compute_sympy_nfdisc_result_records_exact_field_discriminant():
+    parsed = compute_sympy_nfdisc_result(_record("nfdisc_hash", -5), index=1)
+
+    assert parsed["status"] == "nfdisc_ok"
+    assert parsed["nfdisc_source"] == "sympy_algebraic_field_discriminant"
+    assert parsed["exact_nfdisc_status"] == "ok"
+    assert parsed["degree"] == 24
+    assert parsed["nfdisc_abs"] == 947676267664323379200000000000000000000000
+    assert parsed["exact_nfdisc_abs"] == parsed["nfdisc_abs"]
+    assert parsed["poly_disc_to_nfdisc_index_square"] == 16777216
+    assert parsed["poly_disc_to_nfdisc_quotient_is_square"] is True
+    assert parsed["provenance"]["official_pari_gp_workflow"] is False
+    assert parsed["safety"]["network_calls"] is False
+
+
 def test_discover_magma_executable_checks_path_common_and_extra_patterns(tmp_path):
     fake_magma = tmp_path / "MagmaFake" / "magma"
     fake_magma.parent.mkdir()
@@ -423,6 +441,7 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     assert (output_dir / "verification_coefficients.txt").exists()
     assert (output_dir / PARI_INPUT_GP).exists()
     assert (output_dir / PARI_RESULTS_JSONL).exists()
+    assert (output_dir / SYMPY_NFDISC_RESULTS_JSONL).exists()
     assert (output_dir / MAGMA_INPUT_M).exists()
     assert (output_dir / VERIFICATION_PLAN_MD).exists()
     assert (output_dir / MAGMA_RESULTS_JSONL).exists()
@@ -432,12 +451,14 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     manifest = json.loads((output_dir / OFFLINE_MANIFEST_JSON).read_text(encoding="utf-8"))
     magma_summary = json.loads((output_dir / MAGMA_SUMMARY_JSON).read_text(encoding="utf-8"))
     pari_summary = json.loads((output_dir / "pari_nfdisc_summary.json").read_text(encoding="utf-8"))
+    sympy_summary = json.loads((output_dir / SYMPY_NFDISC_SUMMARY_JSON).read_text(encoding="utf-8"))
     magma_results = [json.loads(line) for line in (output_dir / MAGMA_RESULTS_JSONL).read_text(encoding="utf-8").splitlines()]
 
     assert manifest["selected_records"] == 2
     assert manifest["selected_hashes"] == ["a", "b"]
     assert manifest["output_files"]["verification_batch_jsonl"] == str(output_dir / "verification_batch.jsonl")
     assert manifest["output_files"]["pari_results_jsonl"] == str(output_dir / "pari_nfdisc_results.jsonl")
+    assert manifest["output_files"]["sympy_nfdisc_results_jsonl"] == str(output_dir / SYMPY_NFDISC_RESULTS_JSONL)
     assert manifest["diagnostic_queue_summary"]["flag_counts"] == {
         "exact_composed_support": 2,
         "no_long_cycle_witness_in_sample": 2,
@@ -450,6 +471,9 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     assert manifest["execution"]["magma"]["status"] == "unavailable"
     assert pari_summary["status_counts"] == {}
     assert pari_summary["nfdisc_records"] == 0
+    assert sympy_summary["requested"] is False
+    assert sympy_summary["status_counts"] == {}
+    assert sympy_summary["nfdisc_records"] == 0
     assert manifest["magma_discovery"]["available"] is False
     assert manifest["magma_rerun_guidance"]["status"] == "unavailable"
     assert "--run_magma" in manifest["magma_rerun_guidance"]["rerun_command_text"]
@@ -469,7 +493,49 @@ def test_write_outputs_creates_manifest_scripts_plan_and_safety_flags(tmp_path):
     assert not manifest["safety"]["exact_group_labels_parsed"]
     assert not manifest["safety"]["exact_group_claims"]
     assert not manifest["safety"]["pari_nfdisc_results_parsed"]
+    assert not manifest["safety"]["sympy_nfdisc_executed"]
+    assert not manifest["safety"]["sympy_nfdisc_results_parsed"]
     assert not manifest["safety"]["exact_nfdisc_claims"]
+
+
+def test_write_outputs_can_run_explicit_sympy_nfdisc(tmp_path):
+    review_dir = tmp_path / "review"
+    _write_review_batch(review_dir, [_record("nfdisc_hash", -5)])
+    loaded, loaded_dir, source_manifest = load_review_batch(review_dir)
+    output_dir = tmp_path / "offline"
+
+    paths = write_outputs(
+        records=loaded,
+        input_path=loaded_dir,
+        input_kind="review_batch",
+        source_review_manifest=source_manifest,
+        output_dir=output_dir,
+        command=["python3", "scripts/igp24_offline_verify.py", "--run_sympy_nfdisc"],
+        source_commit="abc123",
+        pari_executable="definitely_missing_gp",
+        magma_executable="definitely_missing_magma",
+        run_pari=False,
+        run_magma=False,
+        run_sympy_nfdisc=True,
+        timeout_seconds=5,
+        magma_common_search_patterns=[],
+    )
+
+    manifest = json.loads(paths["offline_verification_manifest_json"].read_text(encoding="utf-8"))
+    sympy_summary = json.loads(paths["sympy_nfdisc_summary_json"].read_text(encoding="utf-8"))
+    sympy_results = [
+        json.loads(line)
+        for line in paths["sympy_nfdisc_results_jsonl"].read_text(encoding="utf-8").splitlines()
+    ]
+
+    assert sympy_summary["requested"] is True
+    assert sympy_summary["status_counts"] == {"nfdisc_ok": 1}
+    assert sympy_summary["nfdisc_records"] == 1
+    assert sympy_results[0]["exact_nfdisc_status"] == "ok"
+    assert sympy_results[0]["nfdisc_source"] == "sympy_algebraic_field_discriminant"
+    assert manifest["safety"]["sympy_nfdisc_executed"] is True
+    assert manifest["safety"]["sympy_nfdisc_results_parsed"] is True
+    assert manifest["safety"]["exact_nfdisc_claims"] is True
 
 
 def test_write_outputs_creates_online_magma_manual_artifacts_and_parses_paste(tmp_path):

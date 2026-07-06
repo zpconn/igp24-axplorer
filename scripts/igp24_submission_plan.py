@@ -43,6 +43,7 @@ VERIFIED_RESULT_NAMES = (
     "online_magma_manual_results.jsonl",
     "magma_verification_results.jsonl",
     "pari_nfdisc_results.jsonl",
+    "sympy_nfdisc_results.jsonl",
     "verification_results.jsonl",
 )
 CANDIDATE_NAMES = (

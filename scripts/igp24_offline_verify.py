@@ -15,6 +15,7 @@ import glob
 import hashlib
 import html
 import json
+import math
 import os
 import re
 import shlex
@@ -44,6 +45,9 @@ PARI_INPUT_GP = "pari_input.gp"
 PARI_RESULTS_JSONL = "pari_nfdisc_results.jsonl"
 PARI_SUMMARY_JSON = "pari_nfdisc_summary.json"
 PARI_REPORT_MD = "pari_nfdisc_report.md"
+SYMPY_NFDISC_RESULTS_JSONL = "sympy_nfdisc_results.jsonl"
+SYMPY_NFDISC_SUMMARY_JSON = "sympy_nfdisc_summary.json"
+SYMPY_NFDISC_REPORT_MD = "sympy_nfdisc_report.md"
 MAGMA_INPUT_M = "magma_input.m"
 VERIFICATION_PLAN_MD = "verification_plan.md"
 PARI_RAW_OUTPUT = "pari_raw_output.txt"
@@ -1432,6 +1436,193 @@ def write_pari_artifacts(
     }
 
 
+def compute_sympy_nfdisc_result(record: dict[str, Any], *, index: int) -> dict[str, Any]:
+    """Compute exact number-field discriminant with SymPy's AlgebraicField API."""
+
+    candidate_hash = str(record.get("canonical_hash") or record.get("candidate_hash") or "")
+    base = {
+        "schema_version": 1,
+        "record_type": "igp24_sympy_nfdisc_result",
+        "input_index": int(record.get("input_index") or index),
+        "candidate_hash": candidate_hash,
+        "canonical_hash": candidate_hash,
+        "parsed_at": datetime.now(timezone.utc).isoformat(),
+        "nfdisc_source": "sympy_algebraic_field_discriminant",
+        "exact_nfdisc_source": "sympy_algebraic_field_discriminant",
+        "provenance": {
+            "tool": "SymPy",
+            "workflow": "AlgebraicField.discriminant",
+            "local_output": True,
+            "official_pari_gp_workflow": False,
+        },
+        "safety": {
+            "local_file_only": True,
+            "sair_submission": False,
+            "network_calls": False,
+            "runs_inside_train_loop": False,
+            "runs_inside_gpu_sampling_loop": False,
+            "runs_inside_cpu_proxy_scoring_loop": False,
+        },
+    }
+    try:
+        import sympy as sp
+
+        coeffs = _validate_coefficients(record.get("exported_coefficients"), context=candidate_hash or f"record {index}")
+        x = sp.Symbol("x")
+        polynomial = sp.Poly(sum(int(coefficient) * x**power for power, coefficient in enumerate(coeffs)), x)
+        if polynomial.degree() != 24:
+            raise ReviewBatchError(f"{candidate_hash}: expected degree 24 polynomial, found {polynomial.degree()}")
+        field = sp.QQ.alg_field_from_poly(polynomial)
+        nfdisc_abs = abs(int(field.discriminant()))
+        poly_disc_abs = abs(int(sp.discriminant(polynomial.as_expr(), x)))
+        index_square = poly_disc_abs // nfdisc_abs if nfdisc_abs else None
+        index_factor = math.isqrt(index_square) if index_square is not None else None
+        quotient_is_square = bool(index_factor is not None and index_factor * index_factor == index_square)
+        base.update(
+            {
+                "status": "nfdisc_ok",
+                "nfdisc_status": "ok",
+                "exact_nfdisc_status": "ok",
+                "degree": polynomial.degree(),
+                "nfdisc_abs": nfdisc_abs,
+                "exact_nfdisc_abs": nfdisc_abs,
+                "field_disc_abs": nfdisc_abs,
+                "poly_disc_abs": poly_disc_abs,
+                "polynomial_discriminant_abs": poly_disc_abs,
+                "poly_disc_to_nfdisc_index_square": index_square,
+                "poly_disc_to_nfdisc_index_factor": index_factor,
+                "poly_disc_to_nfdisc_quotient_is_square": quotient_is_square,
+            }
+        )
+    except Exception as exc:  # pragma: no cover - exact exception shape depends on SymPy internals.
+        base.update(
+            {
+                "status": "nfdisc_error",
+                "nfdisc_status": "error",
+                "exact_nfdisc_status": "error",
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+            }
+        )
+    return base
+
+
+def compute_sympy_nfdisc_results(records: list[dict[str, Any]], *, run_sympy_nfdisc: bool) -> list[dict[str, Any]]:
+    if not run_sympy_nfdisc:
+        return []
+    return [compute_sympy_nfdisc_result(record, index=index) for index, record in enumerate(records, start=1)]
+
+
+def build_sympy_nfdisc_summary(
+    *,
+    records: list[dict[str, Any]],
+    results: list[dict[str, Any]],
+    output_dir: Path,
+    input_path: Path,
+    input_kind: str,
+    command: list[str],
+    source_commit: str | None,
+    requested: bool,
+) -> dict[str, Any]:
+    status_counts = Counter(str(result.get("status")) for result in results)
+    nfdisc_ok = [result for result in results if result.get("nfdisc_abs") is not None]
+    return {
+        "schema_version": 1,
+        "record_type": "igp24_sympy_nfdisc_summary",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "tool": "scripts/igp24_offline_verify.py",
+        "source_commit": source_commit,
+        "command": command,
+        "input_path": str(input_path),
+        "input_kind": input_kind,
+        "records_loaded": len(records),
+        "requested": bool(requested),
+        "parsed_result_records": len(results),
+        "nfdisc_records": len(nfdisc_ok),
+        "status_counts": dict(sorted(status_counts.items())),
+        "output_files": {
+            "sympy_nfdisc_results_jsonl": str(output_dir / SYMPY_NFDISC_RESULTS_JSONL),
+            "sympy_nfdisc_summary_json": str(output_dir / SYMPY_NFDISC_SUMMARY_JSON),
+            "sympy_nfdisc_report_md": str(output_dir / SYMPY_NFDISC_REPORT_MD),
+        },
+        "safety": {
+            "local_file_only": True,
+            "sair_submission": False,
+            "network_calls": False,
+            "runs_inside_train_loop": False,
+            "runs_inside_gpu_sampling_loop": False,
+            "runs_inside_cpu_proxy_scoring_loop": False,
+            "exact_nfdisc_claims": bool(nfdisc_ok),
+            "official_pari_gp_workflow": False,
+            "note": "SymPy nfdisc artifacts are explicit local fallback evidence; PARI/GP remains the official workflow when available.",
+        },
+    }
+
+
+def build_sympy_nfdisc_report(summary: dict[str, Any], results: list[dict[str, Any]]) -> str:
+    lines = [
+        "# IGP24 SymPy nfdisc Report",
+        "",
+        "SymPy nfdisc artifacts are explicit local fallback evidence. PARI/GP remains the official workflow when available.",
+        "",
+        f"- Input: `{summary.get('input_path')}`",
+        f"- Input kind: `{summary.get('input_kind')}`",
+        f"- Records loaded: {summary.get('records_loaded')}",
+        f"- Requested: `{summary.get('requested')}`",
+        f"- Exact nfdisc records: {summary.get('nfdisc_records')}",
+        f"- Status counts: `{json.dumps(summary.get('status_counts', {}), sort_keys=True)}`",
+        "",
+        "| status | hash | degree | nfdisc | poly_disc | quotient_square |",
+        "| --- | --- | ---: | ---: | ---: | --- |",
+    ]
+    if not results:
+        lines.append("|  |  |  |  |  |  |")
+    for result in results:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(result.get("status") or ""),
+                    f"`{_short_hash(result.get('candidate_hash'))}`",
+                    str(result.get("degree") or ""),
+                    str(result.get("nfdisc_abs") if result.get("nfdisc_abs") is not None else ""),
+                    str(result.get("poly_disc_abs") if result.get("poly_disc_abs") is not None else ""),
+                    str(result.get("poly_disc_to_nfdisc_quotient_is_square") if result.get("poly_disc_to_nfdisc_quotient_is_square") is not None else ""),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "Artifacts:",
+            f"- Results JSONL: `{summary.get('output_files', {}).get('sympy_nfdisc_results_jsonl')}`",
+            f"- Summary JSON: `{summary.get('output_files', {}).get('sympy_nfdisc_summary_json')}`",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def write_sympy_nfdisc_artifacts(
+    *,
+    summary: dict[str, Any],
+    results: list[dict[str, Any]],
+    output_dir: Path,
+) -> dict[str, Path]:
+    results_path = output_dir / SYMPY_NFDISC_RESULTS_JSONL
+    summary_path = output_dir / SYMPY_NFDISC_SUMMARY_JSON
+    report_path = output_dir / SYMPY_NFDISC_REPORT_MD
+    _write_jsonl(results_path, results)
+    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report_path.write_text(build_sympy_nfdisc_report(summary, results), encoding="utf-8")
+    return {
+        "sympy_nfdisc_results_jsonl": results_path,
+        "sympy_nfdisc_summary_json": summary_path,
+        "sympy_nfdisc_report_md": report_path,
+    }
+
+
 def load_online_magma_pasted_outputs(paths: list[Path] | None) -> list[dict[str, Any]]:
     """Load pasted online-calculator outputs from JSONL or raw text files."""
 
@@ -2169,6 +2360,7 @@ def write_outputs(
     run_pari: bool,
     run_magma: bool,
     timeout_seconds: int,
+    run_sympy_nfdisc: bool = False,
     cache_path: Path | None = None,
     refresh_cache: bool = False,
     max_records: int | None = None,
@@ -2239,6 +2431,22 @@ def write_outputs(
         pasted_output_paths=pari_pasted_outputs,
     )
     pari_paths = write_pari_artifacts(summary=pari_summary, results=pari_results, output_dir=output_dir)
+    sympy_nfdisc_results = compute_sympy_nfdisc_results(records, run_sympy_nfdisc=run_sympy_nfdisc)
+    sympy_nfdisc_summary = build_sympy_nfdisc_summary(
+        records=records,
+        results=sympy_nfdisc_results,
+        output_dir=output_dir,
+        input_path=input_path,
+        input_kind=input_kind,
+        command=command,
+        source_commit=source_commit,
+        requested=run_sympy_nfdisc,
+    )
+    sympy_nfdisc_paths = write_sympy_nfdisc_artifacts(
+        summary=sympy_nfdisc_summary,
+        results=sympy_nfdisc_results,
+        output_dir=output_dir,
+    )
     magma_summary = build_magma_summary(
         records=records,
         results=magma_results,
@@ -2310,9 +2518,16 @@ def write_outputs(
     manifest["pari_nfdisc"] = pari_summary
     manifest["output_files"].update({name: str(path) for name, path in pari_paths.items()})
     pari_nfdisc_parsed = bool(pari_summary.get("nfdisc_records"))
+    manifest["sympy_nfdisc"] = sympy_nfdisc_summary
+    manifest["output_files"].update({name: str(path) for name, path in sympy_nfdisc_paths.items()})
+    sympy_nfdisc_parsed = bool(sympy_nfdisc_summary.get("nfdisc_records"))
     manifest["safety"]["pari_nfdisc_results_parsed"] = pari_nfdisc_parsed
-    manifest["safety"]["exact_nfdisc_claims"] = pari_nfdisc_parsed
-    manifest["safety"]["dry_run_preparation_only"] = bool(manifest["safety"]["dry_run_preparation_only"] and not pari_nfdisc_parsed)
+    manifest["safety"]["sympy_nfdisc_executed"] = bool(run_sympy_nfdisc)
+    manifest["safety"]["sympy_nfdisc_results_parsed"] = sympy_nfdisc_parsed
+    manifest["safety"]["exact_nfdisc_claims"] = bool(pari_nfdisc_parsed or sympy_nfdisc_parsed)
+    manifest["safety"]["dry_run_preparation_only"] = bool(
+        manifest["safety"]["dry_run_preparation_only"] and not (pari_nfdisc_parsed or sympy_nfdisc_parsed)
+    )
     manifest_path = output_dir / OFFLINE_MANIFEST_JSON
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return {
@@ -2320,6 +2535,7 @@ def write_outputs(
         **batch_paths,
         "pari_input_gp": pari_path,
         **pari_paths,
+        **sympy_nfdisc_paths,
         "magma_input_m": magma_path,
         "verification_plan_md": plan_path,
         **magma_paths,
@@ -2338,6 +2554,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--run_pari", action="store_true", help="Explicitly run local PARI/GP if available")
     parser.add_argument("--run_magma", action="store_true", help="Explicitly run local per-candidate MAGMA exact verification if available")
+    parser.add_argument(
+        "--run_sympy_nfdisc",
+        action="store_true",
+        help="Explicitly compute local SymPy AlgebraicField discriminants as non-PARI nfdisc fallback evidence",
+    )
     parser.add_argument("--pari_executable", default="gp")
     parser.add_argument("--magma_executable", default="magma")
     parser.add_argument("--timeout_seconds", type=int, default=60)
@@ -2403,6 +2624,7 @@ def main(argv: list[str] | None = None) -> int:
         run_pari=args.run_pari,
         run_magma=args.run_magma,
         timeout_seconds=max(1, int(args.timeout_seconds)),
+        run_sympy_nfdisc=bool(args.run_sympy_nfdisc),
         cache_path=args.cache_path.resolve() if args.cache_path else None,
         refresh_cache=bool(args.refresh_cache),
         max_records=args.max_records,
@@ -2414,6 +2636,7 @@ def main(argv: list[str] | None = None) -> int:
     manifest = json.loads(paths["offline_verification_manifest_json"].read_text(encoding="utf-8"))
     magma_summary = json.loads(paths["magma_summary_json"].read_text(encoding="utf-8"))
     pari_summary = json.loads(paths["pari_summary_json"].read_text(encoding="utf-8"))
+    sympy_nfdisc_summary = json.loads(paths["sympy_nfdisc_summary_json"].read_text(encoding="utf-8"))
 
     print(f"loaded_review_records\t{len(records)}")
     print(f"input_kind\t{input_kind}")
@@ -2423,6 +2646,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"magma_executed\t{manifest['safety']['magma_executed']}")
     print(f"pari_nfdisc_status_counts\t{json.dumps(pari_summary['status_counts'], sort_keys=True)}")
     print(f"pari_nfdisc_records\t{pari_summary['nfdisc_records']}")
+    print(f"sympy_nfdisc_status_counts\t{json.dumps(sympy_nfdisc_summary['status_counts'], sort_keys=True)}")
+    print(f"sympy_nfdisc_records\t{sympy_nfdisc_summary['nfdisc_records']}")
     print(f"magma_status_counts\t{json.dumps(magma_summary['status_counts'], sort_keys=True)}")
     print(f"magma_discovery_checked\t{len((magma_summary.get('magma_discovery') or {}).get('candidates_checked') or [])}")
     print(f"magma_selected_path\t{(magma_summary.get('magma_discovery') or {}).get('path')}")
