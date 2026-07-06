@@ -848,3 +848,16 @@ The four calculator-disabled rows now have a bounded manual retry packet at
 calculator; it only generated one-candidate Magma scripts with
 `IGP24_SIGNATURE` and PARI/GP `nfdisc` input for a later manual/local exact
 verification pass.
+
+That pending-four queue was then resolved with the fixed workflow. PARI/GP
+confirmed exact `nfdisc`, and the online Magma calculator verified all four
+rows as degree 24, irreducible, and `r=4`. Two rows were accepted-pair
+duplicates with larger exact `nfdisc` than our already accepted representatives
+for `24T24648|r=4` and `24T24759|r=4`. The two remaining rows were both
+`24T25000|r=4`; the lower-discriminant representative was packaged at
+`/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt`.
+This is generic full symmetric group territory, but the exact pair is absent
+from the frozen official baseline, so it is a valid incremental manual
+submission candidate under the current rules. After that handoff, the next
+search priority should return to non-generic label discovery rather than more
+generic `S_24` variants.

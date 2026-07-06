@@ -3584,9 +3584,144 @@ results change.
       `/tmp/igp24_final_submission_package_20260706_crosschecked/submission_coefficients.txt`.
     - Interpretation: the SAIR verifier accepted all five cross-checked
       one-per-pair representatives with the expected labels and `r=4`.
+  - [done] Retry and resolve the four pending fresh rows.
+    - [done] Pull latest.
+      - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
+    - [done] Inspect existing pending-four artifacts.
+      - Source artifact directory:
+        `/tmp/igp24_pending_four_retry_sympy_exact_20260706`.
+      - Source queue:
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl`.
+      - Selected hashes:
+        `198ac88fa21641db5d47feceec3ca0743a16c023cd85b72c5d9a6bc7763e0009`,
+        `20b35a3fd41d4ef30a3582c463bdb19446c08cfe8872f156bd24bbb33f027b30`,
+        `88437a372524fc59b12d88f01c8cf7929b778c4efad3edc3a53ebe411ab9b406`,
+        and `0f3ad8602d895b7e44729fbe5604fd904f6181c786c865c1e6da4bfaf151ab33`.
+      - Existing SymPy exact-r status:
+        `sympy_signature_status_counts={"signature_ok": 4}`, all with
+        `r=4` from `sympy_poly_count_roots`.
+      - Existing SymPy exact-nfdisc status:
+        `sympy_nfdisc_status_counts={"nfdisc_ok": 4}`.
+      - Existing exact local fallback `nfdisc` values:
+        - `198ac88fa216`: 574784031237204017882937809358206854761709291280481792.
+        - `20b35a3fd41d`: 34458474498929325531941539978424194438259580701589504.
+        - `88437a372524`: 32520883031235746009482154821400124768241521.
+        - `0f3ad8602d89`: 76732333707577227709347318376172659671040.
+      - Existing row strategies:
+        `198ac88fa216` and `20b35a3fd41d` came from
+        `fixed_sparse_template`; `88437a372524` and `0f3ad8602d89` came from
+        `quartic_lift`.
+    - [done] Regenerate verifier artifacts with the fixed current PARI/GP and
+      Magma script emitters.
+      - Output directory:
+        `/tmp/igp24_pending_four_retry_fixed_20260706`.
+      - Command included:
+        `--online_magma_manual --run_pari --pari_executable /tmp/pari-gp-local/usr/bin/gp --run_sympy_nfdisc --run_sympy_signature`.
+      - PARI status:
+        `pari_available=true`, `pari_executed=true`,
+        `pari_nfdisc_status_counts={"nfdisc_ok": 4}`.
+      - SymPy status:
+        `sympy_signature_status_counts={"signature_ok": 4}` and
+        `sympy_nfdisc_status_counts={"nfdisc_ok": 4}`.
+      - PARI/SymPy comparison:
+        all four PARI `nfdisc` values match the prior SymPy exact `nfdisc`
+        values; all four PARI rows are degree 24, irreducible, and have
+        `pari_r=4`.
+      - Script check:
+        regenerated Magma scripts use
+        `Zx<x> := PolynomialRing(Integers())` and print
+        `IGP24_SIGNATURE`.
+    - [done] Check the four fixed Magma scripts with the free online Magma
+      calculator, one candidate at a time.
+      - Raw XML directory:
+        `/tmp/igp24_pending_four_retry_fixed_20260706/online_magma_manual/checked_xml`.
+      - Parsed integrated artifact:
+        `/tmp/igp24_pending_four_retry_fixed_parsed_20260706`.
+      - Parser status:
+        `online_magma_manual_summary.json` reports
+        `status_counts={"verified": 4}`.
+      - Online Magma labels/signatures:
+        - `198ac88fa216`: `24T24648`, `r=4`, degree 24, irreducible,
+          Magma V2.29-8, runtime 1.129s, no warnings.
+        - `20b35a3fd41d`: `24T24759`, `r=4`, degree 24, irreducible,
+          Magma V2.29-8, runtime 1.320s, no warnings.
+        - `88437a372524`: `24T25000`, `r=4`, degree 24, irreducible,
+          Magma V2.29-8, runtime 0.350s, no warnings.
+        - `0f3ad8602d89`: `24T25000`, `r=4`, degree 24, irreducible,
+          Magma V2.29-8, runtime 0.380s, no warnings.
+    - [done] Build baseline and accepted-submission scoreability review.
+      - Helper added: `scripts/igp24_scoreability_review.py`.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_scoreability_review.py`
+        passed with 2 tests.
+      - Review command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_scoreability_review.py --verified_results /tmp/igp24_pending_four_retry_fixed_parsed_20260706 --candidate_jsonl /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --baseline_csv data/igp24/lmfdb_baseline.csv --accepted_package_manifest /tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json --evidence_dir /tmp/igp24_pending_four_retry_fixed_parsed_20260706 --output_dir /tmp/igp24_pending_four_scoreability_review_20260706`.
+      - Review artifact:
+        `/tmp/igp24_pending_four_scoreability_review_20260706`.
+      - Review counts:
+        `reviewed_rows=4`, `actionable_rows=1`,
+        `classification_counts={"accepted_pair_duplicate_not_improved": 2, "duplicate_pending_pair_not_best": 1, "scoreable_new_pair_generic_s24": 1}`.
+      - Accepted-pair comparison:
+        - `198ac88fa216` is another `24T24648|r=4` row, but its exact
+          `nfdisc` is larger than the already accepted `2289d8a5e700`
+          representative, so it is not a discriminant improvement.
+        - `20b35a3fd41d` is another `24T24759|r=4` row, but its exact
+          `nfdisc` is larger than the already accepted `4be66a510402`
+          representative, so it is not a discriminant improvement.
+      - Duplicate pending-pair comparison:
+        `88437a372524` is a lower-ranked duplicate of the same
+        `24T25000|r=4` pending pair; `0f3ad8602d89` is the selected
+        representative under the planner's exact-discriminant ordering.
+      - Actionable manual file:
+        `/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt`.
+      - Actionable row:
+        `0f3ad8602d89`, `24T25000|r=4`,
+        `nfdisc=76732333707577227709347318376172659671040`.
+      - Interpretation: `24T25000` is generic full symmetric group, but the
+        exact `24T25000|r=4` pair is absent from the frozen official baseline,
+        so it is a valid incremental manual-submission candidate under the
+        official scoring rules. It is strategically lower-signal than a new
+        non-generic label, but it is not a no-score row.
+    - [done] Package outcome.
+      - The review directory contains a clean coefficient file, annotated
+        coefficient file, all-four-row review JSONL, actionable-row JSONL,
+        manifest, checklist, copied baseline CSV, copied exact evidence, and
+        raw online Magma XML for the actionable row.
+      - No SAIR API call, automatic submission, GPU/model search, CPU search
+        loop, or local search was performed.
 
 ## Tests And Checks
 
+- [done] Run final pending-four scoreability validation.
+  - Focused test:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_scoreability_review.py`.
+    - Result: 2 passed in 0.03s.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 126 passed in 7.58s.
+  - Full compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+    - Result: passed.
+  - Helper help check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_scoreability_review.py --help`.
+    - Result: passed.
+  - Diff whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "Stage 4|stage 4|Stage-4|stage-4" TODO_IGP24.md`.
+    - Result: Stage 4 remains present; main heading is still present.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | rg 'python|train.py|igp24|pytest|magma|gp'`.
+    - Result: no lingering Python, training, pytest, Magma, or GP worker
+      processes beyond the audit command itself.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps reported.
+  - Cache cleanup:
+    `find . -type d -name __pycache__ -prune -exec rm -rf {} +`,
+    followed by `find . -type d -name __pycache__ -print`.
+    - Result: no `__pycache__` directories remain.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
   - Latest result: 115 passed in 3.87s after fresh online-verification
     documentation and XML provenance work.

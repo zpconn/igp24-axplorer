@@ -241,6 +241,40 @@ and expanded the planning set from three to five expected pairs. The next
 verification work should retry the four pending rows and add exact signature,
 exact `nfdisc`, and official baseline comparison before submission decisions.
 
+## Pending-Four Retry Resolution
+
+The four calculator-disabled fresh rows were retried with the fixed PARI/GP
+and Magma script emitters. PARI/GP ran from the user-space executable
+`/tmp/pari-gp-local/usr/bin/gp`, and the free online Magma calculator checked
+one candidate at a time. The integrated artifact is
+`/tmp/igp24_pending_four_retry_fixed_parsed_20260706`; raw calculator XML is
+preserved under
+`/tmp/igp24_pending_four_retry_fixed_20260706/online_magma_manual/checked_xml`.
+
+All four rows verified as degree 24, irreducible, with exact `r=4`; PARI
+`nfdisc` matched the existing SymPy exact `nfdisc` values.
+
+| pair | hash | exact nfdisc | review class |
+| --- | --- | ---: | --- |
+| `24T24648|r=4` | `198ac88fa216` | 574784031237204017882937809358206854761709291280481792 | accepted-pair duplicate, not improved |
+| `24T24759|r=4` | `20b35a3fd41d` | 34458474498929325531941539978424194438259580701589504 | accepted-pair duplicate, not improved |
+| `24T25000|r=4` | `0f3ad8602d89` | 76732333707577227709347318376172659671040 | actionable generic `S24` new pair |
+| `24T25000|r=4` | `88437a372524` | 32520883031235746009482154821400124768241521 | duplicate pending pair, lower ranked |
+
+The scoreability review helper is `scripts/igp24_scoreability_review.py`.
+Output was written to `/tmp/igp24_pending_four_scoreability_review_20260706`.
+It compares exact labels/signatures, PARI `nfdisc`, the frozen baseline, the
+five already accepted pairs, and duplicate pending pairs. The clean manual
+coefficient file for the single actionable row is:
+`/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt`.
+
+Interpretation: `24T25000` is the generic full symmetric group, so it is less
+interesting as search guidance than the non-generic labels. However, the
+official scoring rules score verified `(24Tt, r)` pairs outside the frozen
+baseline, and `24T25000|r=4` is absent from the frozen baseline. The one-line
+package is therefore a valid incremental manual-submission candidate. The two
+accepted-pair duplicates do not improve our already accepted discriminants.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from
