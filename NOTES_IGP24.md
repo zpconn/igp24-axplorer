@@ -1134,3 +1134,27 @@ unique hashes, and no overlap with locally accepted hashes. The selected
 coefficient heights range from `773136` to `4410912`, making this a compact
 manual probe of whether structure-preserving high-real-root rows avoid the
 generic-collapse behavior seen in the odd-perturbed r16/r20/r24 lanes.
+
+The user-reported SAIR feedback for that r12 structured queue accepted all ten
+rows and, importantly, no row landed as generic `24T25000`. Rows 1 and 5 were
+accepted as `24T22770|r=12`, row 3 as `24T24970|r=12`, and the remaining seven
+rows as `24T24979|r=12`. This confirms the local r12 validation and SAIR export
+format while showing that exact `g(x^2)` support can preserve non-generic label
+structure in a way the low-odd r16/r20/r24 lanes did not. The follow-up should
+therefore stay in the exact-composed lane, but use the accepted labels as
+negative feedback: avoid resubmitting the same hashes or exact family keys,
+measure distance from the accepted base coefficients, and deliberately broaden
+root layouts plus multi-coefficient base perturbations away from the dominant
+`24T24979` basin.
+
+The feedback-aware follow-up helper implements that exact next step. The
+tracked run under `data/igp24/r12_structured_followup_20260706` attempted 240
+bounded CPU-only trials, found 155 valid local `r=12` rows, and selected a
+10-row manual queue with no accepted r12 hash overlap and no accepted r12
+structural-family overlap. All selected rows still have exact even support and
+local irreducible/squarefree `r=12` checks. Because all selected rows remain
+nearest to a previously accepted `24T24979` row in base-coefficient L1
+distance, this is not evidence that the basin is escaped yet; it is a clean,
+low-cost probe of whether wider exact-composed root layouts and multi-base
+perturbations can produce fresh labels without reintroducing generic
+`24T25000` collapse.

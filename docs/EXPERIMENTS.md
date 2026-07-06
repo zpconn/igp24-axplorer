@@ -1565,6 +1565,106 @@ the generic-collapse behavior of the low-odd r16/r20/r24 perturbation lanes.
 It remains proxy/local only: no exact `24Tt` labels are claimed, no SAIR API or
 network service was used, and no automatic submission path exists.
 
+SAIR feedback:
+
+- user-reported UI result: 10/10 accepted,
+- row labels:
+  - rows 1 and 5: `24T22770|r=12`,
+  - row 3: `24T24970|r=12`,
+  - rows 2, 4, 6, 7, 8, 9, and 10: `24T24979|r=12`,
+- tracked feedback:
+  `data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json`,
+- pair-status ledger updated with new accepted pairs
+  `24T22770|r=12`, `24T24970|r=12`, and `24T24979|r=12`.
+
+Updated interpretation: exact `g(x^2)` support avoided `24T25000`, local r12
+validation was correct, and label diversity appeared. `24T24979` is still the
+dominant basin, so the next r12 pass should stay exact-composed but widen root
+layouts and multi-coefficient base perturbations while filtering known hashes,
+accepted family keys, and rows too close to the accepted r12 base coefficients.
+
+## R12 Structured Feedback-Aware Follow-Up
+
+The follow-up helper is
+`scripts/igp24_r12_structured_followup.py`. It loads the accepted r12 feedback
+artifact, preserves exact `g(x^2)` support, avoids known accepted hashes and
+accepted structural family keys, tracks L1 distance from accepted base and
+exported coefficient rows, and writes manual-submission artifacts only. It does
+not use GPU/model training, SAIR API, Magma, PARI, network services, or
+automatic submission.
+
+Smoke command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_followup.py \
+  --output_dir /tmp/igp24_r12_structured_followup_smoke_20260706 \
+  --seed 1213 \
+  --max_trials 48 \
+  --limit 4 \
+  --per_family_cap 1 \
+  --coeff_bound 20000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0 \
+  --min_l1_to_accepted_exported 4 \
+  --min_l1_to_accepted_base_y 4
+```
+
+Smoke result:
+
+- `trials_attempted=48`
+- `valid_r12_candidates=27`
+- `selected_rows=4`
+- rejected counts:
+  `{"real_root_count_mismatch": 9, "reducible_over_q": 12}`
+
+Tracked bounded command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_followup.py \
+  --output_dir data/igp24/r12_structured_followup_20260706 \
+  --seed 1213 \
+  --max_trials 240 \
+  --limit 10 \
+  --per_family_cap 1 \
+  --coeff_bound 20000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0 \
+  --min_l1_to_accepted_exported 4 \
+  --min_l1_to_accepted_base_y 4
+```
+
+Tracked bounded result:
+
+- `trials_attempted=240`
+- `valid_r12_candidates=155`
+- `selected_rows=10`
+- queue status: `manual_queue_ready`
+- selected modes:
+  `{"two_base_wide_perturbation": 4, "three_base_balanced_perturbation": 3, "four_base_balanced_perturbation": 3}`
+- selected nearest accepted label counts:
+  `{"24T24979": 10}`
+- rows intentionally diversifying away from the 24T24979 basin by new
+  root-layout/family keys: `10`
+- rejected counts:
+  `{"real_root_count_mismatch": 54, "reducible_over_q": 31}`
+- selected coefficient-height range: `6696912` to `8796916`
+
+Tracked artifacts:
+
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_coefficients.txt`
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_queue.jsonl`
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_hashes.txt`
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_rejected_trials.jsonl`
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_summary.json`
+- `data/igp24/r12_structured_followup_20260706/r12_structured_followup_report.md`
+
+Independent validation parsed all saved artifacts, reran local exact checks on
+the 10 selected rows, and confirmed SAIR line format, monic leading
+coefficient, nonzero constant, coefficient gcd 1, local `real_root_count=12`,
+irreducible and squarefree exact checks, exact even `x` support, unique hashes,
+zero accepted-feedback hash overlap, and zero accepted structural-family-key
+overlap.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

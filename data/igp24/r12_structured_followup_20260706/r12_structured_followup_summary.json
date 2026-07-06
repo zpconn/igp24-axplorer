@@ -1,0 +1,128 @@
+{
+  "accepted_feedback_json": "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+  "accepted_feedback_rows_loaded": 10,
+  "accepted_label_counts": {
+    "24T22770": 2,
+    "24T24970": 1,
+    "24T24979": 7
+  },
+  "accepted_structural_family_keys_loaded": 10,
+  "coefficient_height_max": 8796916,
+  "coefficient_height_min": 6696912,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r12_structured_followup.py",
+    "--output_dir",
+    "data/igp24/r12_structured_followup_20260706",
+    "--seed",
+    "1213",
+    "--max_trials",
+    "240",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "20000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0",
+    "--min_l1_to_accepted_exported",
+    "4",
+    "--min_l1_to_accepted_base_y",
+    "4"
+  ],
+  "construction_family": "degree12_base_six_positive_roots_lifted_by_x2_feedback_aware",
+  "created_at": "2026-07-06T23:46:31.400400+00:00",
+  "known_hashes_loaded": 74,
+  "min_l1_to_accepted_base_y": 4,
+  "min_l1_to_accepted_exported": 4,
+  "observed_root_count_counts": {
+    "12": 155,
+    "4": 7,
+    "8": 47
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_rejected_trials.jsonl",
+    "report_md": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_report.md",
+    "summary_json": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_summary.json"
+  },
+  "queue_status": "manual_queue_ready",
+  "recommendation": "manual_review_then_submit_small_r12_feedback_followup",
+  "rejected_counts": {
+    "real_root_count_mismatch": 54,
+    "reducible_over_q": 31
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_diversify_away_from_24T24979_intent_count": 10,
+  "selected_family_keys": [
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,6",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
+    "pos=1,2,4,5,7,8|neg=1,2,4,5,7,9|y=0,3,6,9",
+    "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=5,10",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=1,5,9",
+    "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,6,8|y=5,10",
+    "pos=1,2,4,5,7,9|neg=1,2,3,5,7,9|y=1,5,9",
+    "pos=1,2,4,5,6,8|neg=1,2,4,5,7,9|y=0,3,6,9",
+    "pos=1,2,4,5,7,9|neg=1,2,3,5,7,9|y=3,8"
+  ],
+  "selected_hashes": [
+    "4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+    "5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+    "87fdb1807f059c982734392f8303ada475d40dc0cc22ec4aad089050e84406bc",
+    "cac0a5d4e36ed5f08191926987066fb99c2b958336e7fee3dea593927c3287be",
+    "c06c11583c9422ccf18962b22e749bca8250c9cca0480382fb452862579ab1fa",
+    "90b3dec7d4e7d7afe501ed40e34aaae6d33c001e95e71c8fa107e2a8a0ebc9f8",
+    "981ec514837a93d24a36667290483a791e1349b804722515cf238a11ddd2e55d",
+    "02fd97dc677451684b5e7c6dba02a1c1f918d5814741ac82c32e379cca306b38",
+    "4a7c7e377901b902bce1a6b372276440a4e04f4e0f346eabff562ea928c05100",
+    "7066d7a3cfee685b4178e513ce34ef2cddddabc336d18eddc6dddad3298e21a9"
+  ],
+  "selected_mode_counts": {
+    "four_base_balanced_perturbation": 3,
+    "three_base_balanced_perturbation": 3,
+    "two_base_wide_perturbation": 4
+  },
+  "selected_nearest_base_label_counts": {
+    "24T24979": 10
+  },
+  "selected_nearest_non_24T24979_count": 0,
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "4d7fcabc2a86",
+    "5eee184fe28f",
+    "87fdb1807f05",
+    "cac0a5d4e36e",
+    "c06c11583c94",
+    "90b3dec7d4e7",
+    "981ec514837a",
+    "02fd97dc6774",
+    "4a7c7e377901",
+    "7066d7a3cfee"
+  ],
+  "source_commit": "6c5e815a943eb45bfe5b687d93ad0476431da406",
+  "structure_preservation": "exact g(x^2) composed support; no odd x-power perturbations",
+  "target_r": 12,
+  "tool": "scripts/igp24_r12_structured_followup.py",
+  "trials_attempted": 240,
+  "valid_mode_counts": {
+    "four_base_balanced_perturbation": 16,
+    "three_base_balanced_perturbation": 45,
+    "two_base_wide_perturbation": 94
+  },
+  "valid_r12_candidates": 155
+}

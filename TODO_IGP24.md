@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
-  the r16 pending-scoring/import and diversification work.
+  the r12 accepted-label feedback and follow-up work.
 - Active focus: six local pairs are now accepted/credited:
   `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
   `24T24648|r=4`, and `24T25000|r=4`. The first five accepted rows have
@@ -194,6 +194,43 @@ results change.
     `git diff --check` passed; and
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
     confirmed Stage 4 remains present.
+  - SAIR feedback result: user reported that all 10 rows were accepted.
+    Rows 1 and 5 landed as `24T22770|r=12`, row 3 landed as
+    `24T24970|r=12`, and rows 2, 4, 6, 7, 8, 9, and 10 landed as
+    `24T24979|r=12`. Tracked feedback is recorded in
+    `data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json`,
+    and `data/igp24/pair_status_20260706.json` now records the three new
+    accepted r12 pair keys plus duplicate accepted alternates. Lesson: exact
+    `g(x^2)` support avoided `24T25000`, local r12 validation and SAIR
+    formatting were correct, label diversity appeared, and `24T24979` is the
+    dominant basin but not the only one.
+  - Follow-up result: added
+    `scripts/igp24_r12_structured_followup.py`, a bounded CPU-only,
+    label-feedback-aware r12 structured helper that keeps exact `g(x^2)`
+    support, avoids known accepted hashes/family keys where possible, tracks
+    distance from the accepted r12 rows, and writes manual-submission artifacts
+    only.
+    - Smoke result:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_followup.py --output_dir /tmp/igp24_r12_structured_followup_smoke_20260706 --seed 1213 --max_trials 48 --limit 4 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 5.0 --min_l1_to_accepted_exported 4 --min_l1_to_accepted_base_y 4`
+      completed in about 2.5s, attempted 48 trials, found 27 valid local
+      `r=12` candidates, selected 4 smoke rows, and rejected 9 real-root
+      mismatches plus 12 reducible rows.
+    - Bounded tracked result:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_followup.py --output_dir data/igp24/r12_structured_followup_20260706 --seed 1213 --max_trials 240 --limit 10 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 5.0 --min_l1_to_accepted_exported 4 --min_l1_to_accepted_base_y 4`
+      completed in about 12s, attempted 240 trials, found 155 valid local
+      `r=12` candidates, selected 10 manual-queue rows, and rejected 54
+      real-root mismatches plus 31 reducible rows. The selected queue has 4
+      `two_base_wide_perturbation`, 3 `three_base_balanced_perturbation`, and
+      3 `four_base_balanced_perturbation` rows, with coefficient heights from
+      `6696912` to `8796916`. Tracked artifacts are under
+      `data/igp24/r12_structured_followup_20260706/`.
+    - Independent validation result: parsed the new JSON/JSONL/TXT artifacts,
+      reran local exact checks on all 10 selected rows, and confirmed 25
+      integer coefficients per row, monic leading coefficient, nonzero
+      constant, coefficient gcd 1, local `real_root_count=12`, irreducible and
+      squarefree exact checks, exact even `x` support, unique hashes, no
+      accepted r12 feedback-hash overlap, and no accepted r12 structural-family
+      overlap.
 
 ## Stage 0: Scaffold
 
@@ -7394,6 +7431,10 @@ down further as they become active.
   - [done] first structure-preserving `r=12` exact-composed prototype:
     degree-12 base perturbations lifted as `g(x^2)`, tracked under
     `data/igp24/r12_structured_probe_20260706`,
+  - [done] feedback-aware `r=12` exact-composed follow-up:
+    record SAIR labels for the first r12 structured queue, then search nearby
+    but structurally distinct `g(x^2)` base perturbation families without
+    adding odd `x` powers,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,

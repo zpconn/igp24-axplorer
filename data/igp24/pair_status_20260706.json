@@ -689,6 +689,135 @@
           "note": "Accepted duplicate r=20 pair from the 10-row r20 high-real-root probe submission; all rows landed as 24T25000|r=20. Keep as pending alternate until SAIR scores are available."
         }
       ]
+    },
+    {
+      "pair_key": "24T22770|r=12",
+      "label": "24T22770",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "short_hash": "23ab54762bd5",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+      "source_row_number": 1,
+      "source_mode": "single_base_coefficient_perturbation",
+      "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+      "note": "Exact g(x^2) r12 structured probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+          "short_hash": "9eff4260b12d",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 5,
+          "source_mode": "single_base_coefficient_perturbation",
+          "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        }
+      ]
+    },
+    {
+      "pair_key": "24T24970|r=12",
+      "label": "24T24970",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+      "short_hash": "694d5370d953",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+      "source_row_number": 3,
+      "source_mode": "single_base_coefficient_perturbation",
+      "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=5",
+      "note": "Exact g(x^2) r12 structured probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available."
+    },
+    {
+      "pair_key": "24T24979|r=12",
+      "label": "24T24979",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "ce09a0129584a7374c088352087fc96b169d1604881ee80cb6c0a5a63d5acc36",
+      "short_hash": "ce09a0129584",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+      "source_row_number": 2,
+      "source_mode": "structured_base_coefficient_perturbation",
+      "source_family_key": "structured_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,7|y=1,4,7",
+      "note": "Exact g(x^2) r12 structured probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "c1ce7abab479b0e2759be4d942ec6539a27d944d27fcd13d0f3a37aaa9986dbd",
+          "short_hash": "c1ce7abab479",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 4,
+          "source_mode": "structured_base_coefficient_perturbation",
+          "source_family_key": "structured_base_coefficient_perturbation|pos=1,2,3,4,5,7|neg=1,2,3,4,5,6|y=1,5",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "002c52e1c2c2637f966fe7bf1de2d554d8fa2aa38718c40d25e5dfd00713dd14",
+          "short_hash": "002c52e1c2c2",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 6,
+          "source_mode": "structured_base_coefficient_perturbation",
+          "source_family_key": "structured_base_coefficient_perturbation|pos=1,3,4,5,7,8|neg=1,2,3,4,6,7|y=1,4,7",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "5927a1af8dd6017a576b2cffaf3d7cca3abe65cf811f4f549bc1791bef57a3f4",
+          "short_hash": "5927a1af8dd6",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 7,
+          "source_mode": "single_base_coefficient_perturbation",
+          "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,7|y=4",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "e8f187d5e7f29e227108c40164eaf7f48d60c998c6e2d87d112664f5bf3633cf",
+          "short_hash": "e8f187d5e7f2",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 8,
+          "source_mode": "single_base_coefficient_perturbation",
+          "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,7|neg=1,2,3,4,5,6|y=3",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "7bf15e9a1190c9d0d9f08236a659af5cdeb366b4694af67ab6e31c0f46d73510",
+          "short_hash": "7bf15e9a1190",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 9,
+          "source_mode": "single_base_coefficient_perturbation",
+          "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,7|neg=1,2,3,4,5,6|y=0",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "4ba559ad7f24c1603d468f4c7e45a6acdbc7813359cb682ccb2dbec5513e915e",
+          "short_hash": "4ba559ad7f24",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 10,
+          "source_mode": "single_base_coefficient_perturbation",
+          "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,7|y=1",
+          "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
+        }
+      ]
     }
   ],
   "notes": [
@@ -703,6 +832,7 @@
     "The 10-row diversified r16 probe submission was accepted by the SAIR verifier; exact-composed rows landed as 24T24979|r=16 and odd-perturbed rows landed as 24T25000|r=16. Both pairs are absent from the frozen baseline; scores were pending when recorded.",
     "The 12-row anti-collapse r16 probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=16 alternates. Multi-off-block divisor-2 perturbations did not escape the 24T25000 r16 basin, so future r16 work should require a genuinely different construction.",
     "The 8-row r24 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=24 alternates. The local r24 construction and SAIR formatting worked, but the low-odd perturbation family is generic-label collapsed, so future high-real-root work should pivot to r20 or a genuinely more structure-preserving anti-generic r24 family.",
-    "The 10-row r20 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=20 alternates. The local r20 construction and SAIR formatting worked, but the low-odd mixed quadratic perturbation family is generic-label collapsed, so future high-real-root work should preserve more algebraic structure rather than widening this perturbation style."
+    "The 10-row r20 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=20 alternates. The local r20 construction and SAIR formatting worked, but the low-odd mixed quadratic perturbation family is generic-label collapsed, so future high-real-root work should preserve more algebraic structure rather than widening this perturbation style.",
+    "The 10-row r12 exact-composed structured probe submission was accepted by the SAIR verifier; it added 24T22770|r=12, 24T24970|r=12, and 24T24979|r=12. Exact g(x^2) support avoided 24T25000, while 24T24979 was the dominant accepted basin. Scores were pending when recorded."
   ]
 }
