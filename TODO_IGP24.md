@@ -2661,6 +2661,50 @@ results change.
         were strongly predictive here. This branch should now prioritize
         exact-label feedback into shortlist analysis and composed-support
         family expansion, not an immediate large GPU run.
+  - [in_progress] Feed verified non-generic exact labels back into
+    diagnostic/search planning.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Read TODO, README, NOTES, non-generic diagnostic helper, queue
+      structure audit helper, offline verifier helper, structure-audit
+      artifacts, parsed online-Magma results, and committed XML provenance.
+      - Result: current authoritative inputs are the 25-row structure audit
+        under `/tmp/igp24_non_generic_structure_audit_20260705`, parsed
+        online-Magma results under
+        `/tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual`,
+        and committed XML files under `data/igp24/`.
+    - [done] Add a local/file-only exact-label feedback helper that
+      joins verified labels to structure-audit rows by canonical hash and
+      reports label counts, label-by-structure summaries, representatives,
+      and next-run recommendations.
+      - Helper: `scripts/igp24_verified_label_feedback.py`.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_verified_label_feedback.py`
+        passed with 3 tests.
+      - Compile/help checks:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_verified_label_feedback.py tests/test_igp24_verified_label_feedback.py`
+        passed, and
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --help`
+        passed.
+    - [done] Run the helper against the verified 25-row non-generic queue.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl --magma_results_jsonl /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_results.jsonl --diagnostic_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl --output_dir /tmp/igp24_verified_label_feedback_20260705`
+      - Results: 25 joined rows, 25 verified rows, 25 degree-24 irreducible
+        rows, exact labels `{"24T24759": 1, "24T24970": 18, "24T24979": 6}`,
+        and 0 generic `24T25000` rows.
+      - Structure mapping: square-discriminant divisor-2/base-degree-12 rows
+        are `24T24970`; nonsquare divisor-2/base-degree-12 rows are
+        `24T24979`; the divisor-3/base-degree-8 row `27eaf2acac9f` is
+        `24T24759`.
+      - Artifacts:
+        `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl`,
+        `/tmp/igp24_verified_label_feedback_20260705/verified_label_representatives.jsonl`,
+        `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback_summary.json`,
+        and
+        `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback_report.md`.
+    - [in_progress] Update README/NOTES/experiment notes with concise public
+      helper context and move detailed benchmark/reporting material out of
+      the README.
 
 ## Tests And Checks
 
