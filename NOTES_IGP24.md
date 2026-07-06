@@ -838,6 +838,11 @@ The refreshed review package is
 Local system Magma is still unavailable, and no SAIR/API submission was
 performed.
 
+The five-row manual SAIR submission from that cross-checked package was
+accepted for all five rows, with labels `24T9683`, `24T24979`, `24T24759`,
+`24T24970`, and `24T24648`, all at `r=4`. This turns the five-row package from
+a review artifact into a confirmed submission result.
+
 The four calculator-disabled rows now have a bounded manual retry packet at
 `/tmp/igp24_pending_four_retry_20260706`. This did not contact the online
 calculator; it only generated one-candidate Magma scripts with

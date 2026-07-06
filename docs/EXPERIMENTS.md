@@ -467,6 +467,24 @@ The helper still did not submit to SAIR. The remaining exact-tool caveat is
 only that Magma was not installed locally; the five fixed scripts were checked
 through the free online Magma calculator and parsed back into local artifacts.
 
+Manual SAIR submission result:
+
+The five-row coefficient file from
+`/tmp/igp24_final_submission_package_20260706_crosschecked/submission_coefficients.txt`
+was submitted manually through the SAIR UI. The reported verifier response
+accepted all five rows:
+
+| row | status | label | r | reason |
+| ---: | --- | --- | ---: | --- |
+| 1 | accepted | `24T9683` | 4 | — |
+| 2 | accepted | `24T24979` | 4 | — |
+| 3 | accepted | `24T24759` | 4 | — |
+| 4 | accepted | `24T24970` | 4 | — |
+| 5 | accepted | `24T24648` | 4 | — |
+
+This confirms that the submitted rows passed SAIR verification with the same
+labels and signatures as the local/online cross-check artifacts.
+
 The four calculator-disabled rows were not automatically retried online. A
 manual retry packet was prepared at `/tmp/igp24_pending_four_retry_20260706`
 instead. It contains one-candidate Magma copy/paste scripts with

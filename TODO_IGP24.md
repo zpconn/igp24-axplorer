@@ -29,11 +29,11 @@ results change.
   `/tmp/igp24_pari_magma_crosscheck_20260706_parsed`. PARI/GP 2.15.4 was
   unpacked in user space and confirmed all five number-field discriminants;
   the free online Magma calculator confirmed all five labels and
-  `IGP24_SIGNATURE 4`. No SAIR/API submission was performed, and no GPU/model
-  search was run.
-- Next follow-up: decide whether to do a human SAIR submission from the
-  five-row package plus cross-check artifacts. Separately, retry the four
-  pending fresh rows only when calculator/local MAGMA availability permits.
+  `IGP24_SIGNATURE 4`. The five-row manual SAIR submission was then accepted
+  for all five rows: `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`,
+  `24T24970|r=4`, and `24T24648|r=4`. No GPU/model search was run.
+- Next follow-up: save any score/leaderboard update once it appears, then retry
+  the four pending fresh rows when calculator/local MAGMA availability permits.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3573,6 +3573,17 @@ results change.
       - Checkpoint: verifier-script fixes, PARI/GP and online Magma
         cross-check artifacts, refreshed cross-checked package notes, and
         validation results.
+  - [done] Record five-row manual SAIR submission acceptance.
+    - User-reported SAIR response:
+      - row 1: accepted, label `24T9683`, `r=4`, reason `—`.
+      - row 2: accepted, label `24T24979`, `r=4`, reason `—`.
+      - row 3: accepted, label `24T24759`, `r=4`, reason `—`.
+      - row 4: accepted, label `24T24970`, `r=4`, reason `—`.
+      - row 5: accepted, label `24T24648`, `r=4`, reason `—`.
+    - Submission source file:
+      `/tmp/igp24_final_submission_package_20260706_crosschecked/submission_coefficients.txt`.
+    - Interpretation: the SAIR verifier accepted all five cross-checked
+      one-per-pair representatives with the expected labels and `r=4`.
 
 ## Tests And Checks
 
