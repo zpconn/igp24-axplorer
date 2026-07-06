@@ -2,7 +2,7 @@
 
 [Axplorer](https://github.com/AxiomMath/axplorer)-based research code for generating and triaging monic degree-24
 integer polynomials for the
-[SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview).
+[SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview). The underlying algorithm alternates between local search (Python) and transformer-based global pattern learning (custom-trained neural net).
 
 This repository is a candidate generator, proxy scorer, and verification
 handoff toolkit. It is not an automatic submission system.
