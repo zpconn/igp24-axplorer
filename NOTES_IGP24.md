@@ -923,3 +923,22 @@ rows after one-per-family accepted-family filtering:
 `33772dd90765`, `72ed23a8d8bf`, and `33e431d55c37`. They are a credible small
 manual-verification queue, but fewer than 8 survived, so the right conclusion
 is not to pad the queue with weaker rows.
+
+That 3-row strong anti-`S24` queue was manually submitted and all three rows
+were accepted by the SAIR verifier. Row 1 added a new local pair,
+`24T21844|r=4`; rows 2-3 were accepted as `24T24970|r=4` alternates, with
+scores still pending. The feedback artifact is
+`data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json`,
+and the pair ledger now records `24T21844|r=4` as accepted plus the two
+`24T24970|r=4` alternates. A strict post-feedback rerun on the 15-row mined
+pool selected 0 rows, so that pool is exhausted for submission purposes.
+
+The user also supplied a #1-contestant score-1 snapshot. The compact local
+summary at `data/igp24/top_contestant_score1_snapshot_20260706.json` records
+50 visible score-1 `(label, r)` pairs. The key strategic signal is that these
+high-value rows are `teams_k=1`, solvable, exact-`nfdisc` pairs concentrated
+in much lower labels and mostly signatures `r=0,8,12,16,24`; only one visible
+row is `r=4`. That argues the next meaningful plan should pivot away from
+crowded high-label `r=4` mining and toward targeted lower-label solvable
+families/signature modes, with exact discriminant quality as a first-class
+goal.

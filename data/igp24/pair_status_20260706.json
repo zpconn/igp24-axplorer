@@ -29,6 +29,18 @@
       "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
     },
     {
+      "pair_key": "24T21844|r=4",
+      "label": "24T21844",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "short_hash": "33772dd90765",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "source": "data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json",
+      "note": "New pair from the 3-row strong anti-S24 manual queue; SAIR verifier accepted it, scores pending."
+    },
+    {
       "pair_key": "24T24979|r=4",
       "label": "24T24979",
       "r": 4,
@@ -80,7 +92,25 @@
         "teams_k": 51,
         "pair_score": "<0.0001"
       },
-      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+          "short_hash": "72ed23a8d8bf",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json",
+          "note": "Accepted duplicate pair from the 3-row strong anti-S24 manual queue; keep as pending alternate until SAIR scores confirm whether it improves the scored discriminant."
+        },
+        {
+          "canonical_hash": "33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+          "short_hash": "33e431d55c37",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json",
+          "note": "Accepted duplicate pair from the 3-row strong anti-S24 manual queue; keep as pending alternate until SAIR scores confirm whether it improves the scored discriminant."
+        }
+      ]
     },
     {
       "pair_key": "24T24648|r=4",
@@ -129,6 +159,7 @@
     "The one-row 24T25000|r=4 submission was reported accepted by the user after this ledger was created.",
     "The 24-row follow-up submission was accepted by the SAIR verifier, but scores were pending when recorded; it added no new pair keys and mostly collapsed to generic 24T25000.",
     "Row 6 of that follow-up is a lower exact-nfdisc 24T25000|r=4 alternate, but it is not promoted as the representative until scoring confirms an improvement.",
+    "The 3-row strong anti-S24 follow-up was accepted by the SAIR verifier; it added new pair 24T21844|r=4 and two score-pending 24T24970|r=4 alternates.",
     "Use this ledger for local queue planning only; official status remains the SAIR verifier/leaderboard."
   ]
 }

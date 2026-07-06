@@ -1,0 +1,68 @@
+{
+  "created_at": "2026-07-06T18:30:00+00:00",
+  "description": "User-reported SAIR verifier acceptance feedback for the 3-row strong anti-S24 manual queue. Scores were not available when recorded.",
+  "pair_status_ledger": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_sair_accepted_label_feedback",
+  "rows": [
+    {
+      "canonical_hash": "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "comparison_to_current_ledger": "new_pair",
+      "pair_key": "24T21844|r=4",
+      "r": 4,
+      "rank": 1,
+      "score_status": "pending",
+      "short_hash": "33772dd90765",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "structural_family_key": "square=True|divisor=4|base_degree=6|sparse=very_sparse|strategy=structured",
+      "verified_group_label": "24T21844"
+    },
+    {
+      "canonical_hash": "72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+      "comparison_to_current_ledger": "accepted_pair_duplicate_score_pending",
+      "current_ledger_short_hash": "a97caa584baa",
+      "pair_key": "24T24970|r=4",
+      "r": 4,
+      "rank": 2,
+      "score_status": "pending",
+      "short_hash": "72ed23a8d8bf",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "structural_family_key": "square=True|divisor=2|base_degree=12|sparse=very_sparse|strategy=structured",
+      "verified_group_label": "24T24970"
+    },
+    {
+      "canonical_hash": "33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+      "comparison_to_current_ledger": "accepted_pair_duplicate_score_pending",
+      "current_ledger_short_hash": "a97caa584baa",
+      "pair_key": "24T24970|r=4",
+      "r": 4,
+      "rank": 3,
+      "score_status": "pending",
+      "short_hash": "33e431d55c37",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "structural_family_key": "square=True|divisor=2|base_degree=12|sparse=sparse|strategy=sparse",
+      "verified_group_label": "24T24970"
+    }
+  ],
+  "safety": {
+    "local_file_only": true,
+    "sair_api_calls": false,
+    "sair_submission": false,
+    "score_status": "pending"
+  },
+  "source_queue": "/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue.jsonl",
+  "source_submission_file": "/tmp/igp24_strong_anti_s24_manual_queue_20260706/manual_coefficients_no_brackets.txt",
+  "summary": {
+    "accepted_rows": 3,
+    "labels_found_counts": {
+      "24T21844": 1,
+      "24T24970": 2
+    },
+    "new_pair_keys": [
+      "24T21844|r=4"
+    ],
+    "score_status": "pending"
+  }
+}

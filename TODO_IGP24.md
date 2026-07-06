@@ -3913,6 +3913,75 @@ results change.
 
 ## Tests And Checks
 
+- [done] Record the 3-row strong anti-`S24` manual submission result and the
+  new external score-1 strategy snapshot.
+  - User-reported SAIR verifier result for
+    `/tmp/igp24_strong_anti_s24_manual_queue_20260706/manual_coefficients_no_brackets.txt`:
+    all 3 rows accepted.
+    - Row 1: `24T21844`, `r=4`.
+    - Row 2: `24T24970`, `r=4`.
+    - Row 3: `24T24970`, `r=4`.
+  - Feedback artifact:
+    `data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json`.
+    - Score status: pending.
+    - Interpretation: row 1 is a new accepted local pair
+      `24T21844|r=4`; rows 2-3 are accepted `24T24970|r=4`
+      alternates/duplicates unless delayed SAIR scores show a better scored
+      discriminant.
+  - Pair-status ledger update:
+    `data/igp24/pair_status_20260706.json`.
+    - Added `24T21844|r=4` as accepted, score pending.
+    - Added the two `24T24970|r=4` accepted rows as score-pending alternates.
+  - External score-1 snapshot:
+    `data/igp24/top_contestant_score1_snapshot_20260706.json`.
+    - User supplied a #1-contestant table with 50 visible score-1 rows.
+    - Compact local summary records the score-1 `(label, r)` pairs instead of
+      copying all very large discriminant values.
+    - Strategic read: those rows are unique `teams_k=1`, solvable,
+      `exact_nfdisc` rows concentrated in low labels and mostly
+      `r in {0,8,12,16,24}`; only one visible row is `r=4`. That argues for
+      pivoting away from crowded high-label `r=4` mining toward targeted
+      lower-label solvable-family/signature exploration before the next batch.
+  - Post-feedback strict planner sanity check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_next_verification_queue.py --structure_audit_jsonl /tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --known_verified_jsonl /tmp/igp24_pending_four_scoreability_review_20260706/scoreability_review.jsonl --candidate_jsonl /tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mined.jsonl --pair_status_json data/igp24/pair_status_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --limit 12 --max_per_structural_family 1 --avoid_sair_negative_families --require_strong_anti_s24_evidence --output_dir /tmp/igp24_strong_anti_s24_post_accept_strict_queue_20260706`.
+    - Result: `annotated_records=15`, `eligible_records=0`,
+      `selected_records=0`,
+      `filter_reason_counts={"accepted_family_hint": 12, "sair_feedback_accepted_pair_duplicate_hash": 3}`,
+      `anti_s24_evidence_status_counts={"strong": 15}`, and
+      `sair_feedback_family_status_counts={"None": 12, "accepted_duplicate_prone": 3}`.
+    - Interpretation: the mined strong anti-`S24` pool is now exhausted under
+      the stricter post-acceptance filters; do not resubmit from it.
+  - Score-aware triage with the new accepted-label feedback:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --queue_jsonl /tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue.jsonl --offline_dir /tmp/igp24_strong_anti_s24_manual_queue_20260706 --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --output_dir /tmp/igp24_strong_anti_s24_sair_triage_20260706`.
+    - Result: `reviewed_rows=3`, `verified_rows=3`,
+      `pending_exact_label_rows=0`, `failed_rows=0`,
+      `submission_grade_rows=0`,
+      `classification_counts={"exact_evidence_incomplete": 3}`, and
+      `labels_found_counts={"24T21844": 1, "24T24970": 2}`.
+    - Interpretation: the accepted labels are usable feedback, but exact local
+      discriminant/scoring evidence is still incomplete; keep delayed scores
+      pending and do not promote duplicate alternates yet.
+  - Validation:
+    - JSON checks:
+      `python3 -m json.tool data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json`,
+      `python3 -m json.tool data/igp24/pair_status_20260706.json`,
+      `python3 -m json.tool data/igp24/top_contestant_score1_snapshot_20260706.json`,
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_post_accept_strict_queue_20260706/next_verification_queue_manifest.json`,
+      and
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_sair_triage_20260706/score_aware_triage_summary.json`.
+      - Result: all parsed successfully.
+    - Focused tests:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py tests/test_igp24_score_aware_triage.py`.
+      - Result: 12 passed in 0.02s.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 142 passed in 7.45s.
+    - Diff whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 6362 after this TODO update.
 - [done] Mine or create fresh strong anti-`S24` evidence after the
   exhausted strict saved-pool pass.
   - Goal source:

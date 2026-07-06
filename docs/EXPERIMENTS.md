@@ -512,6 +512,54 @@ training were needed. The 3 survivors are credible enough for optional manual
 verification, but not enough for a full 8-12 row batch. Do not pad with weaker
 rows.
 
+Manual SAIR result for the 3-row queue:
+
+```text
+row 1: accepted 24T21844 r=4
+row 2: accepted 24T24970 r=4
+row 3: accepted 24T24970 r=4
+```
+
+The feedback is recorded in
+`data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json`.
+`24T21844|r=4` is now an accepted local pair. The two `24T24970|r=4` rows are
+score-pending accepted alternates/duplicates of an already accepted pair. A
+post-feedback strict planner rerun at
+`/tmp/igp24_strong_anti_s24_post_accept_strict_queue_20260706` selected 0
+rows from the 15-row mined pool:
+
+```text
+annotated_records=15
+eligible_records=0
+selected_records=0
+filter_reason_counts={"accepted_family_hint": 12, "sair_feedback_accepted_pair_duplicate_hash": 3}
+```
+
+The 3-row probe was therefore useful: it found one new pair and converted the
+remaining strong mined pool into concrete feedback. It is now exhausted under
+the stricter filters.
+
+Score-aware triage with the new feedback, at
+`/tmp/igp24_strong_anti_s24_sair_triage_20260706`, found all three exact
+labels but still classified all rows as `exact_evidence_incomplete`. This is
+expected because the user supplied labels/statuses, not delayed score rows or
+exact local discriminants for the alternates. Keep the duplicate
+`24T24970|r=4` rows pending unless scores show an improvement.
+
+#1-contestant score-1 snapshot:
+
+The user supplied a score table for the current #1 contestant. A compact
+local summary is recorded at
+`data/igp24/top_contestant_score1_snapshot_20260706.json`: 50 visible rows,
+all `teams_k=1`, solvable, exact-`nfdisc`, and score 1. The rows are
+concentrated in lower labels such as `24T105`-`24T111` and `24T290`-`24T324`,
+with signatures mostly in `{0,8,12,16,24}` and only one visible `r=4` row.
+
+Interpretation: the next search should not merely continue high-label `r=4`
+anti-`S24` mining. To chase meaningful score, pivot toward targeted
+lower-label solvable families and non-`r=4` signature modes, while preserving
+exact `nfdisc`/baseline comparison as a gating requirement.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from
