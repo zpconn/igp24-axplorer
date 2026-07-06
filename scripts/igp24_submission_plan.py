@@ -528,7 +528,12 @@ def classify_baseline(record: dict[str, Any], baseline: dict[tuple[str, int], di
     if entry is None:
         blockers = []
         if exact_r_status != "ok":
-            blockers.append("exact_magma_r_missing")
+            blockers.append("exact_r_missing")
+        note = (
+            "Pair is absent from supplied baseline CSV and exact r evidence is present; official scoreability still requires official verification."
+            if not blockers
+            else "Pair is absent from supplied baseline CSV, but official scoreability still requires official verification and exact r evidence."
+        )
         return {
             "baseline_status": "non_baseline_candidate",
             "baseline_nfdisc_abs": None,
@@ -537,13 +542,13 @@ def classify_baseline(record: dict[str, Any], baseline: dict[tuple[str, int], di
             "scoreability_status": "new_pair_candidate" if not blockers else "new_pair_needs_exact_r",
             "scoreability_blockers": blockers,
             "scoreable_claimed": False,
-            "scoreability_note": "Pair is absent from supplied baseline CSV, but official scoreability still requires official verification and exact r evidence.",
+            "scoreability_note": note,
         }
     baseline_nfdisc = entry.get("baseline_nfdisc_abs")
     exact_disc = record.get("exact_nfdisc_abs")
     blockers = []
     if exact_r_status != "ok":
-        blockers.append("exact_magma_r_missing")
+        blockers.append("exact_r_missing")
     if exact_nfdisc_status != "ok":
         blockers.append("exact_nfdisc_missing")
     if exact_disc is not None and baseline_nfdisc is not None and int(exact_disc) < int(baseline_nfdisc):
