@@ -805,16 +805,14 @@ The refreshed submission plan now has five expected pairs:
 planner indexed 1,480 rows into 622 `(label, r)` pairs and classified all five
 selected representatives as `non_baseline_candidate`.
 
-This is still a review plan, not a submission claim. All five rows are
-`new_pair_needs_exact_r`: the saved online-Magma XML predates the
-`IGP24_SIGNATURE` marker, so `r=4` still comes from local candidate
-`real_root_count`. Local PARI/GP is unavailable, but an explicit SymPy
-fallback pass computed exact number-field discriminants for all five rows with
-source `sympy_algebraic_field_discriminant`; PARI/GP remains the preferred
-official cross-check when available. The next scoring-oriented step is to
-rerun the five copy/paste Magma scripts or a local Magma pass to capture exact
-`r`. Retry the four calculator-disabled rows afterward, without blocking the
-five-representative exact-evidence pass.
+This is still a manual review plan, not an automatic submission path. An
+explicit SymPy fallback pass computed exact real-root counts and exact
+number-field discriminants for all five rows, with sources
+`sympy_poly_count_roots` and `sympy_algebraic_field_discriminant`. The planner
+now classifies all five as `new_pair_candidate`: they are absent from the
+official baseline and have exact local `r` plus exact local `nfdisc` evidence.
+Magma and PARI/GP remain the preferred independent cross-checks when available,
+and any SAIR submission should stay explicit and human-controlled.
 
 The four calculator-disabled rows now have a bounded manual retry packet at
 `/tmp/igp24_pending_four_retry_20260706`. This did not contact the online

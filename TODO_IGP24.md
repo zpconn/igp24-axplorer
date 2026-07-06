@@ -3317,14 +3317,14 @@ results change.
           at 7% utilization with display memory only.
         - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
           returned no paths.
-    - [in_progress] Add explicit SymPy exact real-root-count fallback evidence
+    - [done] Add explicit SymPy exact real-root-count fallback evidence
       for submission-signature `r`.
       - Rationale: local Magma remains unavailable, but SymPy's exact
         `Poly.count_roots(-oo, oo)` computes the real-root count for the five
         selected degree-24 rows immediately. This is exact local fallback
         evidence, not Magma provenance and not a replacement for exact
         `24Tt` labels.
-      - Code changes in progress: add `--run_sympy_signature` to
+      - Code changes: add `--run_sympy_signature` to
         `scripts/igp24_offline_verify.py`, write
         `sympy_signature_results.jsonl` / summary / report artifacts, and let
         `scripts/igp24_submission_plan.py` prefer Magma `r` when present but
@@ -3332,7 +3332,51 @@ results change.
         `real_root_count`.
       - Focused tests:
         `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py`
-        passed with 24 tests in 4.63s after the exact-r fallback changes.
+        passed with 24 tests in 4.63s after the exact-r fallback changes and
+        24 tests in 4.55s after the planner note/blocker cleanup.
+      - Artifact source commit for the five-row exact fallback run:
+        `ee916aab47e2f58d8791deac2af77584f9606952`.
+      - Five-row exact fallback artifact directory:
+        `/tmp/igp24_submission_grade_five_20260706_sympy_exact`.
+      - Five-row result:
+        `sympy_signature_status_counts={"signature_ok": 5}` and
+        `sympy_nfdisc_status_counts={"nfdisc_ok": 5}` with no local
+        Magma/PARI execution, no SAIR/network calls, and no GPU/model search.
+      - Final planner source commit:
+        `75fd9bf470da189aeaffe197fd987deb963d9d49`.
+      - Final planner artifact directory:
+        `/tmp/igp24_submission_grade_five_plan_with_sympy_exact_20260706`.
+      - Final planner result:
+        `baseline_status_counts={"non_baseline_candidate": 5}`,
+        `scoreability_status_counts={"new_pair_candidate": 5}`,
+        `exact_r_status_counts={"ok": 5}`,
+        `exact_nfdisc_status_counts={"ok": 5}`, and
+        `discriminant_rank_category_counts={"exact_nfdisc": 5}`.
+      - Selected rows now use exact local fallback `r` source
+        `verified.sympy_real_root_count` and exact local fallback `nfdisc`
+        source `sympy_algebraic_field_discriminant`.
+      - Pending-four refresh:
+        `/tmp/igp24_pending_four_retry_sympy_exact_20260706` has
+        `sympy_signature_status_counts={"signature_ok": 4}` and
+        `sympy_nfdisc_status_counts={"nfdisc_ok": 4}`. It still has no exact
+        group labels, no local Magma/PARI execution, no SAIR/network calls, and
+        no GPU/model search.
+      - Final validation after exact-r fallback docs:
+        - `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` passed with
+          122 tests in 7.16s.
+        - `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+          passed.
+        - Helper `--help` checks passed for `scripts/igp24_offline_verify.py`
+          and `scripts/igp24_submission_plan.py`.
+        - `git diff --check` passed.
+        - Stage 4 check:
+          `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+          found Stage 4 at line 5385 after this TODO update.
+        - Process audit returned no running Python processes.
+        - GPU audit found no running GPU compute processes; the RTX 5090 was
+          at 6% utilization with display memory only.
+        - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
+          returned no paths.
 
 ## Tests And Checks
 
