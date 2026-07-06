@@ -26,12 +26,14 @@ results change.
   MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
   hot loops, and automatic network/submission paths. Dry-run remains the
   default; local MAGMA execution still requires explicit `--run_magma`.
-- Current task: exact-label feedback and exact-label-aware shortlist planning
-  are now wired into local/file-only helpers and documentation.
-- Next follow-up: generate or collect fresh candidate rows, run local structure
-  audit, then rerun `scripts/igp24_exact_label_shortlist.py` with
-  `--exclude_verified_hashes` to produce a genuinely new manual verification
-  queue before any larger GPU training run.
+- Current task: add score-aware submission planning that collapses verified
+  variants to one best representative per expected `(24Tt, r)` pair, keeps
+  baseline status conservative, and prepares a manual candidate file without
+  any SAIR submission path.
+- Next follow-up after submission planning: generate or collect fresh candidate
+  rows, run local structure audit, then rerun exact-label and submission
+  planners to produce genuinely new manual verification/submission candidates
+  before any larger GPU training run.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -2739,7 +2741,7 @@ results change.
       - Cache cleanup:
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up count was 0.
-  - [in_progress] Add exact-label-aware shortlist planning from verified
+  - [done] Add exact-label-aware shortlist planning from verified
     feedback families.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2819,6 +2821,54 @@ results change.
       - Cache cleanup:
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up count was 0.
+  - [in_progress] Add baseline/discriminant-aware submission planning.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Read README, TODO, NOTES, experiment notes, current verifier and
+      planner helpers, saved verified artifacts, and live SAIR scoring rules.
+      - Scoring implication: the scoring unit is `(24Tt, r)` per team, not a
+        polynomial row. Multiple variants of the same pair should collapse to
+        one best representative in a submission candidate file.
+      - Current artifact caveat: saved online-Magma rows verify exact labels
+        but do not carry Magma-computed `r`; the candidate/diagnostic rows
+        carry local `real_root_count=4`, so the submission planner must record
+        the `r` source instead of pretending this is official submitted output.
+    - [done] Implement `scripts/igp24_submission_plan.py` and focused
+      tests for grouping, duplicate-pair suppression, discriminant ranking,
+      baseline handling, and candidate-text formatting.
+      - Helper: `scripts/igp24_submission_plan.py`.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_submission_plan.py`
+        passed with 4 tests.
+      - Compile/help checks:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_submission_plan.py tests/test_igp24_submission_plan.py`
+        passed, and
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --help`
+        passed.
+    - [done] Run the planner on the current verified non-generic artifacts,
+      without a baseline CSV, to collapse duplicate variants by expected
+      `(24Tt, r)`.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --verified_results /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl --candidate_jsonl /tmp/igp24_exact_label_shortlist_20260705 --output_dir /tmp/igp24_submission_plan_20260705`
+      - Results: 25 verified rows loaded, 25 joined rows, 3 selected
+        one-per-pair rows, 3 unique expected pairs, 22 duplicate pair
+        candidates suppressed, and 3 coefficient lines written.
+      - Selected expected pairs:
+        `24T24970|r=4`, `24T24979|r=4`, and `24T24759|r=4`.
+      - Baseline/discriminant status: no baseline CSV was supplied, so all
+        selected rows are `baseline_unknown`; all three discriminant choices
+        use `log_abs_discriminant` as a polynomial-discriminant proxy rather
+        than exact `nfdisc`.
+      - Caveat: `r=4` comes from candidate `real_root_count`, not from the
+        saved online-Magma exact-label rows.
+      - Artifacts:
+        `/tmp/igp24_submission_plan_20260705/submission_plan.jsonl`,
+        `/tmp/igp24_submission_plan_20260705/submission_candidates.txt`,
+        `/tmp/igp24_submission_plan_20260705/submission_plan_summary.json`,
+        and
+        `/tmp/igp24_submission_plan_20260705/submission_plan_report.md`.
+    - [in_progress] Commit the submission planner checkpoint before broader
+      documentation updates.
 
 ## Tests And Checks
 
