@@ -1010,3 +1010,16 @@ six submissions. The accepted-label feedback is tracked in
 local pair-status ledger now includes those four score-pending pairs. Scores,
 scoring discriminants, discriminant type, teams/k, and solvability remain
 pending.
+
+The same composed-family idea also reaches `r=16` locally. The opt-in
+`r16_quadratic_lift` strategy uses degree-24 polynomials `g(x^2)` where a
+degree-12 base `g` has eight positive real roots. A first near-product search
+found valid templates at coefficient height 3158; a lower-height
+integer-convolution probe found perturbations at height 703. The tiny smoke
+run produced 4/4 local `r=16` matches, and the bounded run produced 19/19
+ledger `r=16` matches. The diagnostic/queue pass selected 8 rows at
+`/tmp/igp24_r16_quadratic_lift_score1_analysis_20260706` and the structure
+audit confirmed exact composed support with divisor 2 for all 8. Unlike the
+`r=8` batch, these rows are dense and have no square-discriminant claim; exact
+24T labels and score value are still pending manual verifier/submission
+feedback.

@@ -767,6 +767,68 @@ The six accepted rows cover four distinct accepted pair keys:
 `24T657|r=8`, `24T661|r=8`, `24T1310|r=8`, and `24T9993|r=8`. Scores and
 scoring discriminants were not available when recorded.
 
+## Explicit R16 Quadratic-Lift Probe
+
+The `r=16` extension follows the successful composed-family pattern: use
+degree-24 polynomials `g(x^2)` where degree-12 `g` has eight positive real
+roots. A cheap construction probe found exact-valid perturbations at
+coefficient height 703, so the implementation is opt-in as
+`r16_quadratic_lift` and excluded from default benchmark runs.
+
+Artifacts:
+
+- Smoke:
+  `/tmp/igp24_r16_quadratic_lift_smoke_20260706`
+- Bounded benchmark:
+  `/tmp/igp24_r16_quadratic_lift_bench_20260706`
+- Non-generic diagnostic:
+  `/tmp/igp24_r16_quadratic_lift_diagnostic_20260706`
+- Score-1 queue analysis:
+  `/tmp/igp24_r16_quadratic_lift_score1_analysis_20260706`
+- Structure audit:
+  `/tmp/igp24_r16_quadratic_lift_structure_audit_20260706`
+- Dry-run manual verification packet:
+  `/tmp/igp24_r16_quadratic_lift_manual_queue_20260706`
+
+Smoke result:
+
+```text
+valid_candidates=4
+ledger_records=4
+target_matches=4
+match_rate=1.000
+best_matching_score=9411.793318
+```
+
+Bounded result:
+
+```text
+runs=3
+valid_candidates_total=17
+ledger_records_total=19
+target_r_match_total=19
+avg_match_rate=1.000
+best_score=9414.762585
+```
+
+Diagnostic and audit summary:
+
+```text
+diagnosed_records=10
+selected_records=10
+flag_counts={"exact_composed_support": 10, "near_composed_support": 10, "no_long_cycle_witness_in_sample": 6}
+structure_audit_records=8
+exact_composed_claim_status_counts={"confirmed": 8}
+primary_block_divisor_counts={"2": 8}
+square_claim_status_counts={"not_claimed": 8}
+```
+
+The score-1 queue analysis produced 8 local `r=16` rows. The no-brackets
+coefficient file is
+`/tmp/igp24_r16_quadratic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+These are ready for manual verifier/submission feedback, but no exact 24T
+labels or score claims are made yet.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

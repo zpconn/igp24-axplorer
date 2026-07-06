@@ -4177,7 +4177,7 @@ results change.
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
     - Result: Stage 4 remains present at line 6899 after this TODO update.
 
-- [in_progress] Test whether the explicit composed-family path extends to
+- [done] Test whether the explicit composed-family path extends to
   `r=16` via `r16_quadratic_lift`.
   - Goal source:
     `/home/zpconn/.codex/attachments/ad505068-bc52-4f56-a222-4d8899d61bfd/pasted-text-1.txt`.
@@ -4230,6 +4230,73 @@ results change.
   - Stage 4 check:
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
     - Result: Stage 4 remains present at line 6953 after this TODO update.
+  - Periodic checkpoint commit:
+    `b66a2a0 Add explicit r16 quadratic lift strategy`.
+  - Tiny smoke probe:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r16_quadratic_lift --seeds 1601 --target_rs 16 --gensize 4 --pop_size 4 --ntest 1 --gen_batch_size 1 --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 3.0 --coeff_bound 703 --output_dir /tmp/igp24_r16_quadratic_lift_smoke_20260706`.
+    - Result: 1 CPU-only run, returncode 0, 4 valid examples, 4 ledger
+      records, 4 `r=16` matches, match rate 1.000, best matching score
+      9411.793318.
+  - Bounded construction probe:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r16_quadratic_lift --seeds 1601,1602,1603 --target_rs 16 --gensize 8 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 1 --prime_limit 7 --exact_score_timeout 3.0 --coeff_bound 703 --output_dir /tmp/igp24_r16_quadratic_lift_bench_20260706`.
+    - Result: 3 CPU-only runs, all returncode 0, 17 valid examples, 19
+      ledger records, 19 `r=16` matches, average match rate 1.000, and best
+      matching score 9414.762585.
+    - Artifacts:
+      `/tmp/igp24_r16_quadratic_lift_bench_20260706/summary.json`,
+      `/tmp/igp24_r16_quadratic_lift_bench_20260706/summary.jsonl`,
+      and
+      `/tmp/igp24_r16_quadratic_lift_bench_20260706/aggregate_summary.json`.
+  - Non-generic diagnostic:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_r16_quadratic_lift_bench_20260706 --target_r 16 --strategies r16_quadratic_lift --limit 12 --output_dir /tmp/igp24_r16_quadratic_lift_diagnostic_20260706`.
+    - Result: `loaded_records=19`, `diagnosed_records=10`,
+      `selected_records=10`, `top_non_generic_score=725.0`,
+      `flag_counts={"exact_composed_support": 10, "near_composed_support": 10, "no_long_cycle_witness_in_sample": 6}`,
+      and `skipped_counts={"duplicate_canonical_hash": 9}`.
+  - Score-1 target-analysis queue:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score1_target_analysis.py --score1_snapshot_json data/igp24/top_contestant_score1_snapshot_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --sair_label_feedback_json data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json --candidate_input /tmp/igp24_r16_quadratic_lift_bench_20260706 --diagnostic_jsonl /tmp/igp24_r16_quadratic_lift_diagnostic_20260706/non_generic_diagnostic.jsonl --target_rs 16 --candidate_limit 8 --output_dir /tmp/igp24_r16_quadratic_lift_score1_analysis_20260706`.
+    - Result: `selected_candidate_records=8`,
+      `selected_candidate_r_counts={"16": 8}`, and
+      `queue_status=produced`.
+    - No-brackets coefficient file:
+      `/tmp/igp24_r16_quadratic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+  - Structure audit:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_r16_quadratic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl --priority_limit 8 --output_dir /tmp/igp24_r16_quadratic_lift_structure_audit_20260706`.
+    - Result: `records_loaded=8`, `records_audited=8`,
+      `square_claim_status_counts={"not_claimed": 8}`,
+      `exact_composed_claim_status_counts={"confirmed": 8}`,
+      `primary_block_divisor_counts={"2": 8}`, `priority_records=8`,
+      `square_claim_refuted=0`, and `exact_composed_claim_refuted=0`.
+  - Dry-run manual verification packet:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r16_quadratic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl --output_dir /tmp/igp24_r16_quadratic_lift_manual_queue_20260706 --timeout_seconds 5 --online_magma_manual`.
+    - Result: `loaded_review_records=8`, `input_kind=candidate_jsonl`,
+      `pari_available=false`, `magma_available=false`,
+      `pari_executed=false`, `magma_executed=false`, and
+      `magma_status_counts={"dry_run": 8}`.
+  - Artifact and coefficient validation:
+    - Result: parsed the smoke, bounded probe, diagnostic, score-1 queue,
+      structure audit, and manual verification JSON/JSONL artifacts.
+    - Result: the no-brackets queue coefficient file has 8 rows, each with
+      exactly 25 integer coefficients, no brackets, nonzero constant
+      coefficient, monic leading coefficient, and coefficient gcd 1.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 151 passed in 6.13s.
+  - Current recommendation: manually submit/verify the 8-row `r=16`
+    queue before widening this family. The construction reliably reaches
+    local `r=16`, but exact 24T labels and score value remain unknown.
+  - Final whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Final Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 7020 after this TODO update.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | awk '$4 ~ /^(python|python3|pytest|magma|gp)$/ {print}'`.
+    - Result: no lingering Python, pytest, Magma, or GP workers.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps; no GPU/model training was started.
 
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
