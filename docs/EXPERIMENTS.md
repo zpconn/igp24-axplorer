@@ -560,6 +560,61 @@ anti-`S24` mining. To chase meaningful score, pivot toward targeted
 lower-label solvable families and non-`r=4` signature modes, while preserving
 exact `nfdisc`/baseline comparison as a gating requirement.
 
+Score-1 target-analysis pass:
+
+- Helper: `scripts/igp24_score1_target_analysis.py`
+- Saved `r=0` diagnostic:
+  `/tmp/igp24_score1_r0_saved_diagnostic_20260706`
+- Target analysis:
+  `/tmp/igp24_score1_target_analysis_20260706`
+- Structure audit:
+  `/tmp/igp24_score1_saved_candidate_structure_audit_20260706`
+- Manual dry-run packet:
+  `/tmp/igp24_score1_saved_candidate_manual_queue_20260706`
+
+The helper is file-only and keeps exact targets separate from proxy
+candidates. It ranks score-1 snapshot `(label, r)` pairs against the frozen
+baseline, the local accepted-pair ledger, saved exact-label feedback, and the
+saved proxy candidate coverage.
+
+Target-analysis result:
+
+```text
+target_rows=50
+target_r_counts={"0": 12, "8": 13, "12": 8, "16": 10, "24": 6, "4": 1}
+target_baseline_presence_counts={"not_in_baseline": 50}
+target_local_pair_status_counts={"not_in_local_ledger": 50}
+target_generator_plausibility_counts={"needs_targeted_generation": 37, "saved_candidates_present": 13}
+```
+
+Interpretation: every visible score-1 target pair is absent from our local
+accepted ledger and from the frozen baseline. The existing saved artifacts
+only cover `r=0` and the single visible `r=4` target signature, not the
+high-priority `r=8/12/16/24` signatures.
+
+The saved `r=0` diagnostic loaded 8,290 saved records, diagnosed 351 `r=0`
+records, selected 80, and found 40 square-discriminant rows. The target
+analysis selected a 12-row `r=0` manual-verification queue:
+
+```text
+selected_candidate_records=12
+selected_candidate_r_counts={"0": 12}
+selected_candidate_strategy_counts={"structured": 12}
+candidate_skipped_counts={"duplicate_hash": 1674, "target_r_mismatch": 1496, "weak_proxy_evidence": 243}
+```
+
+The structure audit confirmed all 12 square-discriminant and exact-composed
+claims, with zero refutations. `scripts/igp24_offline_verify.py` then wrote a
+dry-run manual verification packet with 12 one-candidate Magma scripts and no
+local Magma/PARI execution. The no-brackets coefficient file is
+`/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+
+Recommendation: this 12-row `r=0` queue is a reasonable immediate manual
+probe, but it is still proxy-only until exact labels return. The next search
+work should prioritize a bounded `r=8` generator/diagnostic pass, then
+`r=12/16/24`, because those high-value score-1 signatures are uncovered in the
+saved pool.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

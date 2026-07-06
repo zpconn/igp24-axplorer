@@ -3913,6 +3913,94 @@ results change.
 
 ## Tests And Checks
 
+- [in_progress] Build score-1-style lower-label target analysis and saved
+  manual-verification queue.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/ba85c5a5-ecaf-42f6-b983-06600b8e11a8/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev` at `1912baf`.
+  - Implementation:
+    `scripts/igp24_score1_target_analysis.py`.
+    - Local/file-only helper that joins
+      `data/igp24/top_contestant_score1_snapshot_20260706.json`,
+      `data/igp24/lmfdb_baseline.csv`,
+      `data/igp24/pair_status_20260706.json`, saved exact-label feedback,
+      SAIR accepted-label feedback, and saved proxy candidate/diagnostic
+      artifacts.
+    - It ranks target `(label, r)` pairs separately from proxy candidate rows
+      and never claims exact labels from proxy evidence.
+    - Safety: no SAIR/API calls, no online Magma automation, no Magma/PARI
+      execution, no model training, no GPU sampling, no local search, and no
+      CPU search loop.
+  - Focused implementation tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_score1_target_analysis.py tests/test_igp24_next_verification_queue.py tests/test_igp24_score_aware_triage.py`.
+    - Result: 17 passed in 0.05s.
+  - Saved-artifact diagnostic for the available score-1 signature mode:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_target_r_bench_larger_20260704 /tmp/igp24_target_r_bench /tmp/igp24_strategy_bench_final /tmp/igp24_quartic_lift_bench_20260704 /tmp/igp24_fixed_sparse_template_bench_20260704 /tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/gpu_model_sample_export_diversity_mixed_t12_open_topk.jsonl --target_r 0 --limit 80 --output_dir /tmp/igp24_score1_r0_saved_diagnostic_20260706`.
+    - Result: `loaded_records=8290`, `diagnosed_records=351`,
+      `selected_records=80`, `top_non_generic_score=2085.0`.
+      Flag counts:
+      `{"all_sampled_frobenius_even": 40, "exact_composed_support": 80, "near_composed_support": 80, "near_square_discriminant": 1, "no_long_cycle_witness_in_sample": 66, "sparse_support": 2, "square_discriminant_excludes_s24": 40, "very_near_square_discriminant": 40, "very_sparse_support": 78}`.
+    - Artifacts:
+      `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_diagnostic.jsonl`,
+      `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_shortlist.jsonl`,
+      `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_summary.json`,
+      and
+      `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_report.md`.
+  - Score-1 target analysis and saved-candidate queue:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score1_target_analysis.py --score1_snapshot_json data/igp24/top_contestant_score1_snapshot_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --candidate_input /tmp/igp24_target_r_bench_larger_20260704 --candidate_input /tmp/igp24_target_r_bench --candidate_input /tmp/igp24_strategy_bench_final --candidate_input /tmp/igp24_quartic_lift_bench_20260704 --candidate_input /tmp/igp24_fixed_sparse_template_bench_20260704 --candidate_input /tmp/igp24_gpu_sample_export_split_score_all_20260704/gpu_model_sample_export.jsonl --candidate_input /tmp/igp24_gpu_sample_export_diversity_fixed_20260704/gpu_model_sample_export_diversity_fixed_template_t09_top9.jsonl --candidate_input /tmp/igp24_gpu_sample_export_diversity_mixed_20260704/gpu_model_sample_export_diversity_mixed_t12_open_topk.jsonl --diagnostic_jsonl /tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_diagnostic.jsonl --target_rs 0,8,12,16,24 --candidate_limit 12 --output_dir /tmp/igp24_score1_target_analysis_20260706`.
+    - Result:
+      `target_rows=50`,
+      `target_r_counts={"0": 12, "8": 13, "12": 8, "16": 10, "24": 6, "4": 1}`,
+      `target_baseline_presence_counts={"not_in_baseline": 50}`,
+      `target_local_pair_status_counts={"not_in_local_ledger": 50}`,
+      `target_generator_plausibility_counts={"needs_targeted_generation": 37, "saved_candidates_present": 13}`,
+      `selected_candidate_records=12`,
+      `selected_candidate_r_counts={"0": 12}`,
+      and `queue_status=produced`.
+    - Interpretation: the score-1 snapshot is completely absent from both the
+      frozen baseline and our accepted ledger. Saved artifacts only cover
+      `r=0` plus the single visible `r=4` signature; they do not cover the
+      high-priority `r=8/12/16/24` modes. The saved `r=0` pool still yields a
+      credible 12-row proxy-strong manual-verification queue.
+    - Artifacts:
+      `/tmp/igp24_score1_target_analysis_20260706/score1_target_rankings.jsonl`,
+      `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_queue.jsonl`,
+      `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_coefficients.txt`,
+      `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_hashes.txt`,
+      `/tmp/igp24_score1_target_analysis_20260706/score1_target_analysis_summary.json`,
+      and
+      `/tmp/igp24_score1_target_analysis_20260706/score1_target_analysis_report.md`.
+  - Structure audit for the 12-row saved `r=0` queue:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_queue.jsonl --priority_limit 12 --output_dir /tmp/igp24_score1_saved_candidate_structure_audit_20260706`.
+    - Result: `records_loaded=12`, `records_audited=12`,
+      `square_claim_status_counts={"confirmed": 12}`,
+      `exact_composed_claim_status_counts={"confirmed": 12}`,
+      `priority_records=12`, `square_claim_refuted=0`, and
+      `exact_composed_claim_refuted=0`.
+  - Dry-run manual verification packet:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_queue.jsonl --output_dir /tmp/igp24_score1_saved_candidate_manual_queue_20260706 --timeout_seconds 5 --online_magma_manual`.
+    - Result: `loaded_review_records=12`, `input_kind=candidate_jsonl`,
+      `pari_available=false`, `magma_available=false`,
+      `pari_executed=false`, `magma_executed=false`, and
+      `magma_status_counts={"dry_run": 12}`.
+    - Artifacts:
+      `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/verification_batch.jsonl`,
+      `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/verification_plan.md`,
+      and
+      `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/online_magma_manual`.
+  - Coefficient-format check:
+    `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+    - Result: 12 valid no-brackets lines, each with 25 integers, nonzero
+      constant coefficient, and leading coefficient 1.
+  - Current recommendation: use the 12 saved `r=0` proxy-strong candidates
+    for manual exact verification if the user wants an immediate probe. For
+    the next search step, prioritize a bounded generator/diagnostic pass for
+    `r=8` first, then `r=12/16/24`, because the score-1 target ranking says
+    those signatures are high-value and currently uncovered locally.
+  - [pending] Run final validation, update notes/experiments, commit, and
+    push.
 - [done] Record the 3-row strong anti-`S24` manual submission result and the
   new external score-1 strategy snapshot.
   - User-reported SAIR verifier result for

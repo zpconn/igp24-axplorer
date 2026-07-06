@@ -942,3 +942,15 @@ row is `r=4`. That argues the next meaningful plan should pivot away from
 crowded high-label `r=4` mining and toward targeted lower-label solvable
 families/signature modes, with exact discriminant quality as a first-class
 goal.
+
+The score-1 target-analysis helper now makes that pivot concrete. The snapshot
+contains 50 visible `(label, r)` targets, and all 50 are absent from both the
+frozen baseline and our accepted-pair ledger. Existing saved artifacts cover
+only `r=0` plus the single visible `r=4` signature; they do not cover the
+high-priority `r=8/12/16/24` modes. A saved `r=0` diagnostic nevertheless
+found 12 proxy-strong candidates with square discriminants and exact-composed
+support, all structure-audit confirmed, and prepared a dry-run manual
+verification packet at `/tmp/igp24_score1_saved_candidate_manual_queue_20260706`.
+These rows are not exact lower-label claims yet. They are a useful immediate
+probe, while the next bounded search should target `r=8` first, then
+`r=12/16/24`.
