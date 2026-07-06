@@ -237,9 +237,8 @@ Important caveats:
 
 Interpretation: the novelty pressure worked. The fresh queue found two exact
 labels not present in the previous 25 verified rows, `24T9683` and `24T24648`,
-and expanded the planning set from three to five expected pairs. The next
-verification work should retry the four pending rows and add exact signature,
-exact `nfdisc`, and official baseline comparison before submission decisions.
+and expanded the planning set from three to five expected pairs. The remaining
+four calculator-disabled rows were resolved in the follow-up retry pass below.
 
 ## Pending-Four Retry Resolution
 
@@ -274,6 +273,69 @@ official scoring rules score verified `(24Tt, r)` pairs outside the frozen
 baseline, and `24T25000|r=4` is absent from the frozen baseline. The one-line
 package is therefore a valid incremental manual-submission candidate. The two
 accepted-pair duplicates do not improve our already accepted discriminants.
+
+The one-line `24T25000|r=4` submission was later accepted by the SAIR verifier,
+so local planning now treats it as a sixth accepted/credited pair. The next
+queue work deliberately shifts back to non-generic discovery rather than more
+generic `S_24` variants.
+
+## Next Non-Generic Queue After Six Accepted Pairs
+
+The next queue pass is local/file-only. It uses saved scored/search artifacts,
+the official frozen baseline CSV, exact-label feedback from prior Magma
+checks, and a committed local pair-status ledger. It does not run GPU/model
+search, CPU generation/search loops, Magma/PARI, online requests, or SAIR
+submissions.
+
+Committed helper artifacts:
+
+- Pair-status ledger: `data/igp24/pair_status_20260706.json`
+- Planner: `scripts/igp24_next_verification_queue.py`
+- Focused tests: `tests/test_igp24_next_verification_queue.py`
+
+The ledger records six accepted local pairs:
+`24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
+`24T24648|r=4`, and `24T25000|r=4`. For the first five accepted rows, it also
+records the user-reported leaderboard scoring discriminants, `D0` values,
+discriminant type, team count `k`, and pair-score text.
+
+Source pass:
+
+- Diagnostic output: `/tmp/igp24_next_non_generic_diagnostic_20260706`
+- Structure audit: `/tmp/igp24_next_non_generic_structure_audit_20260706`
+- Queue output: `/tmp/igp24_next_non_generic_queue_20260706`
+- Manual review packet:
+  `/tmp/igp24_next_non_generic_manual_queue_20260706`
+
+The broader diagnostic scanned saved artifacts only:
+`/tmp/igp24_fresh_pair_bench_20260706`,
+`/tmp/igp24_r4_second_confirm_20260704`, and
+`/tmp/igp24_r4_dual_quality_confirm_20260704`. It loaded 5,087 saved records,
+diagnosed 1,919 target-`r=4` records, and selected 160. The structure audit
+then confirmed 21 square-discriminant claims and 136 exact-composed-support
+claims, with no refutations.
+
+The ledger-aware planner loaded 622 official baseline pairs and six accepted
+local ledger pairs. It annotated 160 audited rows, found 24 eligible rows, and
+selected all 24. Filter counts were:
+
+```text
+accepted_family_hint: 95
+known_exact_accepted_pair: 41
+survived_accepted_pending_baseline_generic_filters: 24
+```
+
+All 24 selected rows are unmatched by prior exact-label feedback. Strategy
+counts are 16 `quartic_lift` rows and 8 `four_real_seed` rows. The manual
+review packet contains 24 one-candidate online-Magma copy/paste scripts, a
+coefficient file, PARI input, manifest, and dry-run reports. Local Magma and
+PARI were unavailable in this pass, and neither tool was executed.
+
+Interpretation: this is a better waiting-period task than more GPU training.
+The six accepted pairs are already credited; the next score bottleneck is
+discovering another exact non-baseline `(24Tt, r)` pair. These 24 rows are not
+submission candidates yet, but they are a clean manual-verification queue
+designed to avoid already accepted, baseline, generic, and duplicate-hash rows.
 
 ## Five-Representative Baseline Pass
 

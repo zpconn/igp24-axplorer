@@ -10,30 +10,24 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   final five-row manual package work.
-- Active focus: the first 25-row non-generic queue remains fully
-  exact-verified via saved online Magma calculator XML: 18 rows are
-  `24T24970`, 6 rows are `24T24979`, and the divisor-3 coverage row is
-  `24T24759`. The fresh 2026-07-06 pair-diversity queue under
-  `/tmp/igp24_fresh_pair_diversity_queue_20260706` has now been partially
-  exact-verified: 12/16 rows parsed as degree 24 and irreducible, with labels
-  `24T24979` (5), `24T24759` (3), `24T24970` (2), `24T9683` (1), and
-  `24T24648` (1). The remaining four rows are still proxy-only because the
-  online calculator returned a temporarily-disabled response. MAGMA/PARI/SAIR
-  remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
-  automatic network/submission paths. Dry-run remains the default; local MAGMA
-  execution still requires explicit `--run_magma`.
-- Current result: the final five selected one-per-pair representatives are
-  packaged for local/manual review at
-  `/tmp/igp24_final_submission_package_20260706_crosschecked`, and now have
-  independent exact-tool cross-check artifacts at
-  `/tmp/igp24_pari_magma_crosscheck_20260706_parsed`. PARI/GP 2.15.4 was
-  unpacked in user space and confirmed all five number-field discriminants;
-  the free online Magma calculator confirmed all five labels and
-  `IGP24_SIGNATURE 4`. The five-row manual SAIR submission was then accepted
-  for all five rows: `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`,
-  `24T24970|r=4`, and `24T24648|r=4`. No GPU/model search was run.
-- Next follow-up: save any score/leaderboard update once it appears, then retry
-  the four pending fresh rows when calculator/local MAGMA availability permits.
+- Active focus: six local pairs are now accepted/credited:
+  `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
+  `24T24648|r=4`, and `24T25000|r=4`. The first five accepted rows have
+  user-reported leaderboard scoring details recorded in
+  `data/igp24/pair_status_20260706.json`; the one-row `24T25000|r=4`
+  submission was also reported accepted. MAGMA/PARI/SAIR remain out of
+  `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
+  network/submission paths. Dry-run remains the default; local MAGMA execution
+  still requires explicit `--run_magma`.
+- Current result: a ledger-aware, baseline-aware, non-generic next manual
+  verification queue has been built from saved artifacts only. It selected 24
+  unmatched `r=4` rows after filtering accepted pairs, baseline pairs, generic
+  `24T25000` hints, accepted-family repeats, and duplicate hashes. Queue
+  artifacts are under `/tmp/igp24_next_non_generic_queue_20260706`; manual
+  online-Magma copy/paste scripts and dry-run exact-review artifacts are under
+  `/tmp/igp24_next_non_generic_manual_queue_20260706`.
+- Next follow-up: manually verify the 24-row next queue, then update the local
+  pair-status ledger before another planning or search pass.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3584,6 +3578,27 @@ results change.
       `/tmp/igp24_final_submission_package_20260706_crosschecked/submission_coefficients.txt`.
     - Interpretation: the SAIR verifier accepted all five cross-checked
       one-per-pair representatives with the expected labels and `r=4`.
+    - User-reported leaderboard/scoring details for this five-row batch:
+      - `24T9683|r=4`: solvable yes, scoring discriminant
+        955418808601874103055463744199932705243136,
+        `D0=1085452710404880000732025061376`, `exact_nfdisc`, `k=32`,
+        pair score `<0.0001`.
+      - `24T24648|r=4`: solvable no, scoring discriminant
+        66729031783492569072130229117096669442371830499819295396528130410433747980288,
+        `D0=1240040809067081589350688687340077`, `mixed_disc`, `k=28`,
+        pair score `<0.0001`.
+      - `24T24759|r=4`: solvable no, scoring discriminant
+        767458693251145954924041967612518686365057724321977014092994900933771147,
+        `D0=358371793820386579322349030641282253`, `mixed_disc`, `k=30`,
+        pair score `<0.0001`.
+      - `24T24970|r=4`: solvable no, scoring discriminant
+        483860401956763489669011989577899250603371798115505401757696,
+        `D0=3509318011999541951139623123560000`, `mixed_disc`, `k=51`,
+        pair score `<0.0001`.
+      - `24T24979|r=4`: solvable no, scoring discriminant
+        752880562130512465229258492699316353904979173801601362034688,
+        `D0=87306114061160641264533591554033`, `mixed_disc`, `k=52`,
+        pair score `<0.0001`.
   - [done] Retry and resolve the four pending fresh rows.
     - [done] Pull latest.
       - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
@@ -3689,9 +3704,149 @@ results change.
         raw online Magma XML for the actionable row.
       - No SAIR API call, automatic submission, GPU/model search, CPU search
         loop, or local search was performed.
+  - [done] Record one-row `24T25000|r=4` submission acceptance.
+    - User reported the one-row submission from
+      `/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt`
+      was accepted.
+    - Local status change: treat `24T25000|r=4` as accepted/credited, not
+      pending, for all subsequent queue planning.
+  - [done] Prepare the next non-generic manual-verification queue after
+    six accepted pairs.
+    - [done] Pull latest.
+      - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
+    - [done] Inspect existing queue-building tooling and artifacts.
+      - Existing helpers inspected:
+        `scripts/igp24_non_generic_diagnostic.py`,
+        `scripts/igp24_queue_structure_audit.py`,
+        `scripts/igp24_exact_label_shortlist.py`, and
+        `scripts/igp24_offline_verify.py`.
+      - Source artifacts selected for this no-GPU planning pass:
+        `/tmp/igp24_fresh_pair_structure_audit_20260706/structure_audit.jsonl`,
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl`,
+        `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl`,
+        `/tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl`,
+        and
+        `/tmp/igp24_pending_four_scoreability_review_20260706/scoreability_review.jsonl`.
+      - Design decision: add a small committed pair-status ledger and a
+        ledger-aware queue planner that reuses the existing exact-label family
+        matching logic, then hand the selected JSONL to
+        `scripts/igp24_offline_verify.py` for one-candidate online-Magma
+        copy/paste scripts. No GPU/model search is needed for this pass.
+    - [done] Add local pair-status ledger.
+      - File: `data/igp24/pair_status_20260706.json`.
+      - Accepted pairs now recorded:
+        `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`,
+        `24T24970|r=4`, `24T24648|r=4`, and `24T25000|r=4`.
+      - The ledger also records user-reported leaderboard scoring
+        discriminants, `D0`, discriminant type, `k`, and pair-score text for
+        the first five accepted rows.
+    - [done] Add ledger-aware next-queue planner and focused tests.
+      - Helper: `scripts/igp24_next_verification_queue.py`.
+      - Tests: `tests/test_igp24_next_verification_queue.py`.
+      - Behavior: reuses existing exact-label family rules and saved
+        structure-audit rows, then filters duplicate canonical hashes,
+        accepted pairs, pending pairs, baseline pairs, generic `24T25000`
+        hints unless explicitly allowed, and accepted/pending/baseline family
+        hints.
+      - First focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py`
+        passed with 4 tests.
+    - [done] Run a strict fresh-only planner dry run.
+      - Source audit:
+        `/tmp/igp24_next_queue_structure_audit_20260706/structure_audit.jsonl`.
+      - Result:
+        `annotated_records=40`, `eligible_records=15`,
+        `selected_records=15`,
+        `filter_reason_counts={"accepted_family_hint": 7, "known_exact_accepted_pair": 18, "survived_accepted_pending_baseline_generic_filters": 15}`.
+      - Decision: 15 rows was below the desired 20-30 range, so broadened to
+        older saved scored artifacts while staying file-only and avoiding any
+        GPU/model search.
+    - [done] Broaden the file-only diagnostic input from saved artifacts.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_fresh_pair_bench_20260706 /tmp/igp24_r4_second_confirm_20260704 /tmp/igp24_r4_dual_quality_confirm_20260704 --target_r 4 --limit 160 --output_dir /tmp/igp24_next_non_generic_diagnostic_20260706`.
+      - Result:
+        `loaded_records=5087`, `diagnosed_records=1919`,
+        `selected_records=160`, `top_non_generic_score=2035.0`.
+      - Flag counts:
+        `{"all_sampled_frobenius_even": 46, "exact_composed_support": 136, "near_composed_support": 160, "no_long_cycle_witness_in_sample": 112, "sparse_support": 92, "square_discriminant_excludes_s24": 21, "very_near_square_discriminant": 21, "very_sparse_support": 68}`.
+    - [done] Structure-audit the broadened shortlist.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_next_non_generic_diagnostic_20260706/non_generic_shortlist.jsonl --priority_limit 160 --output_dir /tmp/igp24_next_non_generic_structure_audit_20260706`.
+      - Result:
+        `records_loaded=160`, `records_audited=160`,
+        `square_claim_status_counts={"confirmed": 21, "not_claimed": 139}`,
+        `exact_composed_claim_status_counts={"confirmed": 136, "not_claimed": 24}`,
+        `square_claim_refuted=0`, `exact_composed_claim_refuted=0`.
+    - [done] Build the next ledger-aware manual-verification queue.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_next_verification_queue.py --structure_audit_jsonl /tmp/igp24_next_non_generic_structure_audit_20260706/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --known_verified_jsonl /tmp/igp24_pending_four_scoreability_review_20260706/scoreability_review.jsonl --candidate_jsonl /tmp/igp24_next_non_generic_diagnostic_20260706/non_generic_shortlist.jsonl --pair_status_json data/igp24/pair_status_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --limit 25 --max_per_structural_family 2 --output_dir /tmp/igp24_next_non_generic_queue_20260706`.
+      - Result:
+        `annotated_records=160`, `eligible_records=24`,
+        `selected_records=24`.
+      - Filter counts:
+        `{"accepted_family_hint": 95, "known_exact_accepted_pair": 41, "survived_accepted_pending_baseline_generic_filters": 24}`.
+      - Baseline/ledger inputs:
+        622 official baseline pairs loaded from
+        `data/igp24/lmfdb_baseline.csv`; 6 accepted local ledger pairs loaded
+        from `data/igp24/pair_status_20260706.json`.
+      - Selected-row summary:
+        all 24 rows are `unmatched`; strategy counts are
+        `{"four_real_seed": 8, "quartic_lift": 16}`.
+      - Artifacts:
+        `/tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl`,
+        `/tmp/igp24_next_non_generic_queue_20260706/next_verification_coefficients.txt`,
+        `/tmp/igp24_next_non_generic_queue_20260706/next_verification_hashes.txt`,
+        `/tmp/igp24_next_non_generic_queue_20260706/next_verification_queue_manifest.json`,
+        and
+        `/tmp/igp24_next_non_generic_queue_20260706/next_verification_queue_report.md`.
+    - [done] Generate the manual Magma/PARI review packet.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl --output_dir /tmp/igp24_next_non_generic_manual_queue_20260706 --timeout_seconds 5 --online_magma_manual`.
+      - Result:
+        `loaded_review_records=24`, `input_kind=candidate_jsonl`,
+        `pari_available=False`, `magma_available=False`,
+        `pari_executed=False`, `magma_executed=False`,
+        `magma_status_counts={"dry_run": 24}`.
+      - Manual artifact:
+        `/tmp/igp24_next_non_generic_manual_queue_20260706`.
+      - The online-Magma copy/paste directory contains 24 one-candidate
+        scripts under
+        `/tmp/igp24_next_non_generic_manual_queue_20260706/online_magma_manual/copy_paste_scripts`.
 
 ## Tests And Checks
 
+- [done] Run final next-queue planning validation.
+  - Focused test:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py`.
+    - Result: 4 passed in 0.01s.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 130 passed in 7.21s.
+  - Full compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+    - Result: passed.
+  - Helper help checks:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_next_verification_queue.py --help`
+    and
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
+    - Result: both passed.
+  - Diff whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 5882 after this TODO update.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | rg 'python|train.py|igp24|pytest|magma|gp'`.
+    - Result: no lingering Python, training, pytest, Magma, or GP worker
+      processes beyond the audit command itself.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps reported.
+  - Cache cleanup:
+    `find . -type d -name __pycache__ -prune -exec rm -rf {} +`,
+    followed by `find . -type d -name __pycache__ -print`.
+    - Result: no `__pycache__` directories remain.
 - [done] Run final pending-four scoreability validation.
   - Focused test:
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_scoreability_review.py`.

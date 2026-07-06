@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_pair_status_ledger",
+  "created_at": "2026-07-06T00:00:00Z",
+  "description": "Local team-status ledger for filtering future IGP24 verification queues. This is not official SAIR state.",
+  "safety": {
+    "local_file_only": true,
+    "sair_submission": false,
+    "sair_api_calls": false,
+    "network_calls": false
+  },
+  "pairs": [
+    {
+      "pair_key": "24T9683|r=4",
+      "label": "24T9683",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131",
+      "short_hash": "9c45c5493e7a",
+      "exact_nfdisc_abs": 955418808601874103055463744199932705243136,
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 955418808601874103055463744199932705243136,
+        "best_pair_discriminant_abs": 1085452710404880000732025061376,
+        "discriminant_type": "exact_nfdisc",
+        "teams_k": 32,
+        "pair_score": "<0.0001"
+      },
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+    },
+    {
+      "pair_key": "24T24979|r=4",
+      "label": "24T24979",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5",
+      "short_hash": "981a94588aab",
+      "exact_nfdisc_abs": 1861637811973941745404031266095896941559808,
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 752880562130512465229258492699316353904979173801601362034688,
+        "best_pair_discriminant_abs": 87306114061160641264533591554033,
+        "discriminant_type": "mixed_disc",
+        "teams_k": 52,
+        "pair_score": "<0.0001"
+      },
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+    },
+    {
+      "pair_key": "24T24759|r=4",
+      "label": "24T24759",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "4be66a510402f26a3da7dcc6a03fbf64c0d915dcc53a01a48ea904ad8555e64e",
+      "short_hash": "4be66a510402",
+      "exact_nfdisc_abs": 7257477504600764033843223515092729030395849,
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 767458693251145954924041967612518686365057724321977014092994900933771147,
+        "best_pair_discriminant_abs": 358371793820386579322349030641282253,
+        "discriminant_type": "mixed_disc",
+        "teams_k": 30,
+        "pair_score": "<0.0001"
+      },
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+    },
+    {
+      "pair_key": "24T24970|r=4",
+      "label": "24T24970",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a",
+      "short_hash": "a97caa584baa",
+      "exact_nfdisc_abs": 6681964085859090457451944972407263119355674624,
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 483860401956763489669011989577899250603371798115505401757696,
+        "best_pair_discriminant_abs": 3509318011999541951139623123560000,
+        "discriminant_type": "mixed_disc",
+        "teams_k": 51,
+        "pair_score": "<0.0001"
+      },
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+    },
+    {
+      "pair_key": "24T24648|r=4",
+      "label": "24T24648",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "2289d8a5e7007dfda908bf1aab4dabae4f0455618d42aa27e10e26c88b8b9f2d",
+      "short_hash": "2289d8a5e700",
+      "exact_nfdisc_abs": 3025607503381130745702964775405115504596600759660544,
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 66729031783492569072130229117096669442371830499819295396528130410433747980288,
+        "best_pair_discriminant_abs": 1240040809067081589350688687340077,
+        "discriminant_type": "mixed_disc",
+        "teams_k": 28,
+        "pair_score": "<0.0001"
+      },
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+    },
+    {
+      "pair_key": "24T25000|r=4",
+      "label": "24T25000",
+      "r": 4,
+      "status": "accepted",
+      "canonical_hash": "0f3ad8602d895b7e44729fbe5604fd904f6181c786c865c1e6da4bfaf151ab33",
+      "short_hash": "0f3ad8602d89",
+      "exact_nfdisc_abs": 76732333707577227709347318376172659671040,
+      "accepted_reported_by_user": true,
+      "source": "/tmp/igp24_pending_four_scoreability_review_20260706/submission_coefficients.txt"
+    }
+  ],
+  "notes": [
+    "Treat accepted rows as already credited by the first manual SAIR submission.",
+    "The one-row 24T25000|r=4 submission was reported accepted by the user after this ledger was created.",
+    "Use this ledger for local queue planning only; official status remains the SAIR verifier/leaderboard."
+  ]
+}

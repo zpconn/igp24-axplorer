@@ -861,3 +861,16 @@ from the frozen official baseline, so it is a valid incremental manual
 submission candidate under the current rules. After that handoff, the next
 search priority should return to non-generic label discovery rather than more
 generic `S_24` variants.
+
+The one-row `24T25000|r=4` submission was accepted, making six credited local
+pairs total. The next planning pass therefore added
+`data/igp24/pair_status_20260706.json` and a ledger-aware queue planner,
+`scripts/igp24_next_verification_queue.py`, so future manual queues explicitly
+avoid accepted pairs, baseline pairs, generic `24T25000` hints, duplicate
+canonical hashes, and accepted-family repeats when alternatives exist. A
+file-only diagnostic over saved artifacts scanned 5,087 rows, audited a
+160-row shortlist, and selected 24 unmatched `r=4` candidates for manual exact
+verification at `/tmp/igp24_next_non_generic_manual_queue_20260706`. This is
+the right waiting-period work: no new GPU/model search is needed until these
+manual-verification targets either produce new exact labels or show the current
+saved-artifact pool is exhausted.
