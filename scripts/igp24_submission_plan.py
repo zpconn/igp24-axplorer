@@ -346,6 +346,18 @@ def _first_int_field(records: Iterable[dict[str, Any] | None], fields: tuple[str
     return None, None
 
 
+def _first_exact_nfdisc(records: Iterable[dict[str, Any] | None]) -> tuple[str | None, int | None]:
+    for record in records:
+        if not record:
+            continue
+        for field in EXACT_DISC_FIELDS:
+            value = _coerce_int(record.get(field))
+            if value is not None:
+                source = record.get("exact_nfdisc_source") or record.get("nfdisc_source") or field
+                return str(source), abs(value)
+    return None, None
+
+
 def _first_float_field(records: Iterable[dict[str, Any] | None], fields: tuple[str, ...]) -> tuple[str | None, float | None]:
     for record in records:
         if not record:
@@ -363,8 +375,16 @@ def discriminant_choice(
     candidate: dict[str, Any] | None,
 ) -> dict[str, Any]:
     records = [verified, candidate or {}]
+    field, value = _first_exact_nfdisc(records)
+    if value is not None:
+        return {
+            "rank_category": "exact_nfdisc",
+            "source": field,
+            "value": value,
+            "sort_value": value,
+            "kind": "exact_nfdisc",
+        }
     for category, fields, source_name in (
-        ("exact_nfdisc", EXACT_DISC_FIELDS, "exact_nfdisc"),
         ("scoring_or_mixed_disc", SCORING_DISC_FIELDS + MIXED_DISC_FIELDS, "scoring_or_mixed_disc"),
         ("polynomial_disc", POLY_DISC_FIELDS, "polynomial_disc"),
     ):
@@ -559,7 +579,7 @@ def build_joined_rows(
         r_value, r_source = extract_r(verified=verified, candidate=candidate)
         exact_r_status = exact_r_status_for_source(r_source)
         disc = discriminant_choice(verified=verified, candidate=candidate)
-        exact_field, exact_nfdisc = _first_int_field([verified, candidate or {}], EXACT_DISC_FIELDS)
+        exact_field, exact_nfdisc = _first_exact_nfdisc([verified, candidate or {}])
         exact_nfdisc_status = "ok" if exact_nfdisc is not None else "missing"
         coeffs = exported_coefficients(candidate) or exported_coefficients(verified)
         pair_key = f"{label}|r={r_value if r_value is not None else 'unknown'}"

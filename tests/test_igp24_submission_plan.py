@@ -90,6 +90,7 @@ def test_verified_label_and_pari_nfdisc_rows_merge_by_hash():
             "record_type": "igp24_pari_nfdisc_result",
             "status": "nfdisc_ok",
             "nfdisc_abs": 321,
+            "nfdisc_source": "pari_gp_nfdisc",
             "poly_disc_abs": 999,
             "pari_real_root_count": 4,
         },
@@ -113,6 +114,8 @@ def test_verified_label_and_pari_nfdisc_rows_merge_by_hash():
     assert joined[0]["exact_r_status"] == "ok"
     assert joined[0]["exact_nfdisc_abs"] == 321
     assert joined[0]["exact_nfdisc_status"] == "ok"
+    assert joined[0]["exact_nfdisc_source"] == "pari_gp_nfdisc"
+    assert joined[0]["discriminant_source"] == "pari_gp_nfdisc"
     assert joined[0]["discriminant_rank_category"] == "exact_nfdisc"
 
 
