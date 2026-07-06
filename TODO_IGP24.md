@@ -72,6 +72,42 @@ results change.
   action order `r=24,20,8,12,16` because the current r16 construction family
   has now repeatedly collapsed. It does not recommend GPU/model training until
   there is a target-conditioned sampling objective.
+- Active r24 prototype: started a CPU-only explicit high-real-root probe based
+  on `prod_{a=1}^{12}(x^2-a)` plus small low-odd perturbations. A scratch local
+  check found irreducible, squarefree `r=24` rows at coefficient height
+  `1931559552`, so the next work is to promote that into a tracked helper,
+  smoke/bounded artifacts under `data/igp24/r24_high_real_probe_20260706/`,
+  focused tests, and validation. This probe does not use GPU/model training,
+  SAIR API, Magma/PARI, online calculators, network services, or automatic
+  submission.
+  - Smoke result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_high_real_probe.py --output_dir /tmp/igp24_r24_high_real_smoke_20260706 --seed 2424 --max_trials 24 --limit 4 --coeff_bound 5000000000 --prime_limit 7 --exact_score_timeout 5.0`
+    completed in about 1.4s, attempted 24 trials, found 22 valid local `r=24`
+    irreducible/squarefree candidates, selected 4 smoke rows, and rejected 2
+    reducible rows. Selected coefficient heights ranged from `1931559552` to
+    `2258902656`. No GPU, model training, SAIR API, Magma/PARI, network, or
+    automatic submission was used.
+  - Bounded tracked result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_high_real_probe.py --output_dir data/igp24/r24_high_real_probe_20260706 --seed 2424 --max_trials 120 --limit 8 --per_family_cap 1 --coeff_bound 5000000000 --prime_limit 7 --exact_score_timeout 5.0`
+    completed in about 7s, attempted 120 trials, found 113 valid local `r=24`
+    candidates, selected 8 manual-queue rows, and rejected 7 reducible rows.
+    The selected queue has 3 `single_low_odd_break`, 3 `two_low_odd_break`,
+    and 2 `three_low_odd_break` rows, with coefficient heights from
+    `1931559552` to `2258902656`. Tracked artifacts are under
+    `data/igp24/r24_high_real_probe_20260706/`.
+  - Independent validation result: parsed the queue JSONL and no-brackets TXT,
+    reran local exact checks on all 8 selected rows, and confirmed exactly 25
+    integer coefficients per row, monic leading coefficient, nonzero constant,
+    coefficient gcd 1, local `real_root_count=24`, irreducible and squarefree
+    exact checks, unique hashes, and no overlap against 46 locally known
+    accepted hashes from `data/igp24/pair_status_20260706.json`.
+  - Test/check result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_r24_high_real_probe.py`
+    -> 3 passed;
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` -> 159 passed;
+    `git diff --check` passed; and
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+    confirmed Stage 4 remains present.
 
 ## Stage 0: Scaffold
 
@@ -7262,6 +7298,9 @@ down further as they become active.
   - [pending] sparse families with fixed support templates,
   - [done] first compositional/tower-style construction:
     `quartic_lift`, a quartic-in-`x^6` family for `target_r=4`,
+  - [done] first high-real-root `r=24` local prototype:
+    positive quadratic product seeds plus low-odd perturbations, tracked under
+    `data/igp24/r24_high_real_probe_20260706`,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,

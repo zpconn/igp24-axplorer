@@ -1310,6 +1310,80 @@ divisor-2 perturbation family. It recommends a new explicit r24
 solvable/high-real-root construction first, then r20/r12 construction work,
 while keeping r8 active because it already produced multiple accepted labels.
 
+## R24 High-Real-Root Probe
+
+The first r24 target-aware construction is a standalone local helper,
+`scripts/igp24_r24_high_real_probe.py`. It starts from explicit all-real seeds
+`prod(x^2-a)` and adds one to three small low-odd perturbations. The base seed
+has 24 real roots but is reducible; the perturbations test whether
+irreducibility can be recovered while preserving `real_root_count=24`.
+
+Smoke command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_high_real_probe.py \
+  --output_dir /tmp/igp24_r24_high_real_smoke_20260706 \
+  --seed 2424 \
+  --max_trials 24 \
+  --limit 4 \
+  --coeff_bound 5000000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Smoke result:
+
+- `trials_attempted=24`
+- `valid_r24_candidates=22`
+- `selected_rows=4`
+- rejected counts: `{"reducible_over_q": 2}`
+
+Tracked bounded command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_high_real_probe.py \
+  --output_dir data/igp24/r24_high_real_probe_20260706 \
+  --seed 2424 \
+  --max_trials 120 \
+  --limit 8 \
+  --per_family_cap 1 \
+  --coeff_bound 5000000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Tracked bounded result:
+
+- `trials_attempted=120`
+- `valid_r24_candidates=113`
+- `selected_rows=8`
+- queue status: `manual_queue_ready`
+- selected modes:
+  `{"single_low_odd_break": 3, "three_low_odd_break": 2, "two_low_odd_break": 3}`
+- rejected counts: `{"reducible_over_q": 7}`
+- selected coefficient-height range: `1931559552` to `2258902656`
+
+Tracked artifacts:
+
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_candidate_coefficients.txt`
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_candidate_queue.jsonl`
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_candidate_hashes.txt`
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_summary.json`
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_rejected_trials.jsonl`
+- `data/igp24/r24_high_real_probe_20260706/r24_high_real_report.md`
+
+Independent validation reran local exact checks on all 8 selected rows and
+confirmed 25 integer coefficients, monic leading coefficient, nonzero constant
+coefficient, coefficient gcd 1, local `real_root_count=24`, irreducible and
+squarefree exact checks, unique hashes, and no overlap against 46 locally known
+accepted hashes from `data/igp24/pair_status_20260706.json`.
+
+Interpretation: this is the first successful local r24 high-real-root queue.
+It is useful because r24 is the largest remaining aggregate bucket in the
+snapshot-derived plan. It is still proxy/local only: no exact `24Tt` labels are
+claimed, no SAIR API or network service was used, and no automatic submission
+path exists.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

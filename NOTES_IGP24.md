@@ -1079,3 +1079,17 @@ collapsed; `r=8` is smaller but already productive; `r=24`, `r=20`, and
 `r=12` need explicit solvable/high-real-root constructions. This is not a
 case for broad GPU/model training yet; the missing piece is exact target data
 from the SAIR API or a new target-conditioned construction family.
+
+The first explicit `r=24` construction is now a standalone CPU-only probe:
+start with the all-real but reducible seed `prod_{a=1}^{12}(x^2-a)`, then add
+small low-odd perturbations to break the divisor-2 composed support. This works
+locally: the tracked bounded run at
+`data/igp24/r24_high_real_probe_20260706` attempted 120 rows, found 113
+irreducible squarefree local `r=24` candidates, and selected an 8-row manual
+queue. Independent validation reran exact local checks on all eight selected
+rows, confirmed SAIR line format and hash uniqueness, and found no overlap
+with locally known accepted hashes. The tradeoff is height: selected rows have
+coefficient height about `1.93e9` to `2.26e9`, far larger than the earlier
+r8/r16 constructed queues. Treat this as a valuable high-real-root novelty
+probe, not as evidence of any exact `24Tt` label or solvable score outcome
+until SAIR/Magma feedback exists.
