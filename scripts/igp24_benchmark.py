@@ -29,9 +29,11 @@ DEFAULT_STRATEGIES = [
     "structured",
     "four_real_seed",
     "quartic_lift",
+    "r8_quartic_lift",
     "fixed_sparse_template",
     "mixed",
 ]
+DEFAULT_STRATEGY_RUN_SET = [strategy for strategy in DEFAULT_STRATEGIES if strategy != "r8_quartic_lift"]
 DEFAULT_PRESETS = ["none", "r0", "r2", "r4"]
 MIXED_VARIANT_WEIGHTS = {
     "mix_r4_yield": "four_real_seed:1.0",
@@ -357,10 +359,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Short CPU-only benchmark runner for IGP24 generation strategies")
     parser.add_argument(
         "--strategies",
-        default=",".join(DEFAULT_STRATEGIES),
+        default=",".join(DEFAULT_STRATEGY_RUN_SET),
         help=(
             "Comma-separated generation strategies, including quartic_lift "
-            "and fixed_sparse_template; "
+            "and fixed_sparse_template; r8_quartic_lift is opt-in and "
+            "requires coeff_bound >= 14; "
             "use preset_r0/preset_r2/preset_r4 for presets or "
             "benchmark-only r4 mix labels such as mix_r4_yield, "
             "mix_r4_balanced, mix_r4_diverse, mix_r4_dual_yield, "

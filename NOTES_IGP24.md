@@ -969,3 +969,20 @@ toward `r=0/2/4` and do not currently reach the high-value `r=8` target mode.
 The next meaningful search step should be a new explicit `r=8`
 solvable/composed-family construction, not a larger run of the same generator
 mix and not a big GPU/model run yet.
+
+That explicit `r=8` construction now exists as the opt-in
+`r8_quartic_lift` generation strategy. It uses pure quartic lifts
+`g(x^6)` where `g` has four positive real roots, so each positive quartic
+fiber contributes two real roots and the degree-24 polynomial has
+`real_root_count=8`. The construction needs a higher small coefficient bound
+than the earlier bound-4 probes: exhaustive checking found no bound-4 pure
+quartic lift, while bound 16 yielded six valid pure templates. A tiny smoke
+run produced 4 valid rows and 4 `r=8` matches; the bounded run produced
+16 valid rows and 16 `r=8` matches, deduplicating to 6 proxy-strong rows.
+All six have square discriminants, exact composed support with divisor 6,
+very sparse support, all sampled Frobenius even, and no sampled long-cycle
+witness. A 6-row dry-run manual verification packet is at
+`/tmp/igp24_r8_quartic_lift_manual_queue_20260706`. These are still not exact
+24T label claims; the right next step is manual exact verification of the
+six-row `r=8` queue before widening this construction or starting GPU/model
+sampling.

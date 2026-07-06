@@ -655,6 +655,81 @@ score-1 target mode. The next useful step is a new explicit `r=8`
 solvable/composed-family construction or template, not widening this same
 benchmark shape and not launching a big GPU/model run yet.
 
+Explicit `r=8` quartic-lift construction:
+
+- Strategy: `r8_quartic_lift`
+- Smoke artifacts:
+  `/tmp/igp24_r8_quartic_lift_smoke_20260706`
+- Bounded benchmark artifacts:
+  `/tmp/igp24_r8_quartic_lift_bench_20260706`
+- Non-generic diagnostic:
+  `/tmp/igp24_r8_quartic_lift_diagnostic_20260706`
+- Score-1 queue analysis:
+  `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706`
+- Structure audit:
+  `/tmp/igp24_r8_quartic_lift_structure_audit_20260706`
+- Dry-run manual verification packet:
+  `/tmp/igp24_r8_quartic_lift_manual_queue_20260706`
+
+Construction: pure quartic lifts `g(x^6)` where `g` has four positive real
+roots. Each positive quartic fiber gives two real roots for `x^6=y`, so the
+degree-24 lift has intended `real_root_count=8`. The previous coefficient
+bound 4 cannot support a pure quartic lift with four positive roots; the
+implemented opt-in strategy uses bound-16 templates and records metadata for
+core support, quartic coefficients, positive-root count, minimum coefficient
+bound, and exact composed-support divisor.
+
+Smoke command:
+
+```text
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift --seeds 824 --target_rs 8 --gensize 6 --pop_size 4 --ntest 1 --gen_batch_size 1 --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 16 --output_dir /tmp/igp24_r8_quartic_lift_smoke_20260706
+```
+
+Smoke result:
+
+```text
+valid_candidates=4
+ledger_records=4
+target_matches=4
+match_rate=1.000
+best_matching_score=10185.844543
+```
+
+Bounded command:
+
+```text
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift --seeds 824,825,826 --target_rs 8 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 2 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 16 --output_dir /tmp/igp24_r8_quartic_lift_bench_20260706
+```
+
+Bounded result:
+
+```text
+runs=3
+valid_candidates_total=16
+ledger_records_total=16
+target_r_match_total=16
+avg_match_rate=1.0
+best_score=10185.844542850695
+```
+
+The diagnostic deduplicated the bounded output to 6 rows:
+
+```text
+diagnosed_records=6
+selected_records=6
+top_non_generic_score=2038.711136
+flag_counts={"all_sampled_frobenius_even": 6, "exact_composed_support": 6, "near_composed_support": 6, "no_long_cycle_witness_in_sample": 6, "square_discriminant_excludes_s24": 6, "very_near_square_discriminant": 6, "very_sparse_support": 6}
+```
+
+The score-1 queue analysis produced a 6-row `r=8` queue, and the structure
+audit confirmed all 6 square-discriminant and exact-composed-support claims
+with zero refutations. The no-brackets coefficient file is
+`/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+
+Recommendation: manually verify the six `r=8` rows before widening the
+construction. The construction solves the local `r=8` generation problem, but
+exact 24T labels are still unknown and must remain outside proxy claims.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

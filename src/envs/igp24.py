@@ -30,6 +30,7 @@ IGP24_GENERATION_STRATEGIES = [
     "structured",
     "four_real_seed",
     "quartic_lift",
+    "r8_quartic_lift",
     "fixed_sparse_template",
 ]
 DEFAULT_MIXED_STRATEGY_WEIGHTS = {
@@ -40,6 +41,7 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "structured": 0.25,
     "four_real_seed": 0.0,
     "quartic_lift": 0.0,
+    "r8_quartic_lift": 0.0,
     "fixed_sparse_template": 0.0,
 }
 IGP24_GENERATION_PRESETS = {
@@ -348,6 +350,79 @@ class IGP24DataPoint(DataPoint):
         return tuple(coeffs)
 
     @staticmethod
+    def _r8_quartic_lift_core_support():
+        return (0, 6, 12, 18)
+
+    @staticmethod
+    def _r8_quartic_lift_templates():
+        return (
+            {
+                "name": "four_positive_fibers_a",
+                "coefficients_y": (1, -7, 14, -8, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 14,
+            },
+            {
+                "name": "four_positive_fibers_b",
+                "coefficients_y": (1, -8, 14, -7, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 14,
+            },
+            {
+                "name": "four_positive_fibers_c",
+                "coefficients_y": (1, -8, 15, -8, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 15,
+            },
+            {
+                "name": "four_positive_fibers_d",
+                "coefficients_y": (1, -8, 16, -8, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 16,
+            },
+            {
+                "name": "four_positive_fibers_e",
+                "coefficients_y": (1, -8, 16, -9, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 16,
+            },
+            {
+                "name": "four_positive_fibers_f",
+                "coefficients_y": (1, -9, 16, -8, 1),
+                "positive_quartic_roots": 4,
+                "minimum_coeff_bound": 16,
+            },
+        )
+
+    @classmethod
+    def _r8_quartic_lift_coefficients(cls):
+        templates = [
+            template
+            for template in cls._r8_quartic_lift_templates()
+            if int(template["minimum_coeff_bound"]) <= int(cls.COEFF_BOUND)
+        ]
+        if not templates:
+            raise ValueError("r8_quartic_lift requires coeff_bound >= 14")
+
+        template = templates[int(np.random.randint(len(templates)))]
+        y_coefficients = tuple(int(value) for value in template["coefficients_y"])
+        coeffs = [0] * DEGREE
+        for exponent, coefficient in zip(cls._r8_quartic_lift_core_support(), y_coefficients[:4]):
+            coeffs[exponent] = int(coefficient)
+
+        cls.LAST_GENERATION_DETAILS = {
+            "r8_quartic_lift_template_name": template["name"],
+            "r8_quartic_lift_core_support": list(cls._r8_quartic_lift_core_support()),
+            "r8_quartic_lift_coefficients_y": list(y_coefficients),
+            "r8_quartic_lift_positive_quartic_roots": int(template["positive_quartic_roots"]),
+            "r8_quartic_lift_minimum_coeff_bound": int(template["minimum_coeff_bound"]),
+            "r8_quartic_lift_perturbation": "none_pure_composed_seed",
+            "target_r_heuristic": 8,
+            "composed_support_divisor": 6,
+        }
+        return tuple(coeffs)
+
+    @staticmethod
     def _fixed_sparse_templates():
         return (
             {
@@ -415,6 +490,8 @@ class IGP24DataPoint(DataPoint):
             return cls._four_real_seed_coefficients(), strategy
         if strategy == "quartic_lift":
             return cls._quartic_lift_coefficients(), strategy
+        if strategy == "r8_quartic_lift":
+            return cls._r8_quartic_lift_coefficients(), strategy
         if strategy == "fixed_sparse_template":
             return cls._fixed_sparse_template_coefficients(), strategy
         raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
@@ -513,6 +590,36 @@ class IGP24DataPoint(DataPoint):
                     ],
                     "perturbation": "one_to_three_non_core_coefficients",
                     "perturbation_coefficients": perturbations,
+                }
+            )
+        if self.generation_strategy == "r8_quartic_lift":
+            details = dict(self.generation_details)
+            core_support = self._r8_quartic_lift_core_support()
+            y_coefficients = [
+                int(self.coefficients[0]),
+                int(self.coefficients[6]),
+                int(self.coefficients[12]),
+                int(self.coefficients[18]),
+                1,
+            ]
+            generation_metadata.update(
+                {
+                    "target_r_heuristic": 8,
+                    "seed_template": "pure_g(y)_with_four_positive_roots_and_y=x^6",
+                    "r8_quartic_lift_template_name": details.get("r8_quartic_lift_template_name", "manual_or_unknown"),
+                    "r8_quartic_lift_core_support": list(core_support),
+                    "r8_quartic_lift_coefficients_y": y_coefficients,
+                    "r8_quartic_lift_positive_quartic_roots": int(
+                        details.get("r8_quartic_lift_positive_quartic_roots", 4)
+                    ),
+                    "r8_quartic_lift_minimum_coeff_bound": int(
+                        details.get("r8_quartic_lift_minimum_coeff_bound", max(abs(value) for value in y_coefficients))
+                    ),
+                    "r8_quartic_lift_perturbation": details.get(
+                        "r8_quartic_lift_perturbation", "none_pure_composed_seed"
+                    ),
+                    "exact_composed_support_divisor": 6,
+                    "composed_support": True,
                 }
             )
         if self.generation_strategy == "fixed_sparse_template":

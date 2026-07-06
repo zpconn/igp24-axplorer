@@ -3913,6 +3913,121 @@ results change.
 
 ## Tests And Checks
 
+- [in_progress] Add and test an explicit `r=8` solvable/composed-family
+  construction.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/58476f2b-b483-4310-adce-d9507baf5cc4/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev` at `ecd3192`.
+  - Starting status:
+    `git status --short --branch`.
+    - Result: clean on `igp24-dev`.
+  - Required artifacts read:
+    `/tmp/igp24_r8_targeted_bench_20260706/aggregate_summary.json`,
+    `/tmp/igp24_r8_targeted_bench_20260706/summary.json`,
+    `/tmp/igp24_r8_targeted_diagnostic_20260706/non_generic_summary.json`,
+    and
+    `/tmp/igp24_r8_targeted_score1_analysis_20260706/score1_target_analysis_summary.json`.
+    - Result: previous bounded `r=8` run covered 10 short CPU-only runs,
+      160 valid examples, 297 ledger records, and 0 `r=8` rows; every tested
+      existing strategy had `target_r_match_total=0`.
+  - Existing-template diagnosis:
+    - `four_real_seed` and `quartic_lift` are intentionally biased toward
+      `r=4`: they use two positive quadratic/quartic-lift roots, giving two
+      positive `x^2` or `x^6` fibers and therefore four real roots.
+    - `structured` and `fixed_sparse_template` favor sparse/exact-composed
+      support, but do not encode four positive lower-degree fibers; in the
+      bounded `r=8` pass they landed mostly at `r=0/2/4`.
+    - A pure `g(x^6)` `r=8` seed would need a monic quartic `g` with four
+      positive real roots. Exhaustive exact checking for coefficient bound 4
+      found no such quartic, so a coefficient-bound-4 pure quartic lift cannot
+      be the whole construction.
+  - [pending] Design and implement a narrow explicit construction, add tests,
+    run a tiny smoke, and only scale if smoke produces valid `r=8` rows.
+  - Implementation:
+    - Added opt-in generation strategy `r8_quartic_lift` to
+      `src/envs/igp24.py`.
+    - Construction: pure `g(x^6)` quartic lifts where `g` has four positive
+      real roots, so each positive quartic fiber contributes two real roots
+      and the degree-24 lift has intended `real_root_count=8`.
+    - Metadata records template name, core support `[0,6,12,18]`, quartic
+      coefficients, positive-root count, minimum coefficient bound,
+      perturbation method `none_pure_composed_seed`, `target_r_heuristic=8`,
+      and exact composed-support divisor `6`.
+    - Added `r8_quartic_lift` to `scripts/igp24_benchmark.py` as an accepted
+      explicit strategy, but kept it out of the default benchmark run set
+      because it requires `coeff_bound >= 14`.
+  - Focused tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`.
+    - Result: 26 passed in 1.09s.
+  - Compile check for changed files:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src/envs/igp24.py scripts/igp24_benchmark.py tests/test_igp24.py tests/test_igp24_benchmark.py`.
+    - Result: passed.
+  - Tiny smoke probe:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift --seeds 824 --target_rs 8 --gensize 6 --pop_size 4 --ntest 1 --gen_batch_size 1 --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 16 --output_dir /tmp/igp24_r8_quartic_lift_smoke_20260706`.
+    - Result: 1 CPU-only run, returncode 0, 4 valid examples, 4 ledger
+      records, 4 `r=8` matches, match rate 1.000, best matching score
+      10185.844543.
+    - Interpretation: the explicit construction clears the smoke gate; it can
+      intentionally produce valid degree-24 `r=8` candidates locally.
+  - Bounded construction probe:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift --seeds 824,825,826 --target_rs 8 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 2 --prime_limit 11 --exact_score_timeout 3.0 --coeff_bound 16 --output_dir /tmp/igp24_r8_quartic_lift_bench_20260706`.
+    - Result: 3 CPU-only runs, all returncode 0, 16 valid examples, 16
+      ledger records, 16 `r=8` matches, average match rate 1.000, and best
+      matching score 10185.844543.
+    - Artifacts:
+      `/tmp/igp24_r8_quartic_lift_bench_20260706/summary.json`,
+      `/tmp/igp24_r8_quartic_lift_bench_20260706/summary.jsonl`,
+      and
+      `/tmp/igp24_r8_quartic_lift_bench_20260706/aggregate_summary.json`.
+  - Non-generic diagnostic:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_r8_quartic_lift_bench_20260706 --target_r 8 --strategies r8_quartic_lift --limit 12 --output_dir /tmp/igp24_r8_quartic_lift_diagnostic_20260706`.
+    - Result: `loaded_records=16`, `diagnosed_records=6`,
+      `selected_records=6`, `top_non_generic_score=2038.711136`.
+    - Flag counts:
+      `{"all_sampled_frobenius_even": 6, "exact_composed_support": 6, "near_composed_support": 6, "no_long_cycle_witness_in_sample": 6, "square_discriminant_excludes_s24": 6, "very_near_square_discriminant": 6, "very_sparse_support": 6}`.
+    - Artifacts:
+      `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_summary.json`,
+      `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_diagnostic.jsonl`,
+      `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_shortlist.jsonl`,
+      and
+      `/tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_report.md`.
+  - Score-1 target-analysis rerun on the explicit `r=8` construction:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score1_target_analysis.py --score1_snapshot_json data/igp24/top_contestant_score1_snapshot_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json --candidate_input /tmp/igp24_r8_quartic_lift_bench_20260706 --diagnostic_jsonl /tmp/igp24_r8_quartic_lift_diagnostic_20260706/non_generic_diagnostic.jsonl --target_rs 8 --candidate_limit 12 --output_dir /tmp/igp24_r8_quartic_lift_score1_analysis_20260706`.
+    - Result: `selected_candidate_records=6`,
+      `selected_candidate_r_counts={"8": 6}`, and `queue_status=produced`.
+    - Artifacts:
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_target_analysis_summary.json`,
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_target_rankings.jsonl`,
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl`,
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`,
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_hashes.txt`,
+      and
+      `/tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_target_analysis_report.md`.
+  - Structure audit:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl --priority_limit 6 --output_dir /tmp/igp24_r8_quartic_lift_structure_audit_20260706`.
+    - Result: `records_loaded=6`, `records_audited=6`,
+      `square_claim_status_counts={"confirmed": 6}`,
+      `exact_composed_claim_status_counts={"confirmed": 6}`,
+      `priority_records=6`, `square_claim_refuted=0`, and
+      `exact_composed_claim_refuted=0`.
+  - Dry-run manual verification packet:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_r8_quartic_lift_score1_analysis_20260706/score1_saved_candidate_queue.jsonl --output_dir /tmp/igp24_r8_quartic_lift_manual_queue_20260706 --timeout_seconds 5 --online_magma_manual`.
+    - Result: `loaded_review_records=6`, `input_kind=candidate_jsonl`,
+      `pari_available=false`, `magma_available=false`,
+      `pari_executed=false`, `magma_executed=false`, and
+      `magma_status_counts={"dry_run": 6}`.
+    - Artifacts:
+      `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/verification_batch.jsonl`,
+      `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/verification_coefficients.txt`,
+      `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/verification_plan.md`,
+      and
+      `/tmp/igp24_r8_quartic_lift_manual_queue_20260706/online_magma_manual`.
+  - Current recommendation: manually verify the 6-row `r=8` queue before
+    widening the construction. The construction works locally and gives strong
+    proxy anti-`S24`/imprimitive evidence, but exact labels are still unknown.
+
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
   - Goal source:

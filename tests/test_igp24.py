@@ -265,6 +265,35 @@ def test_fixed_sparse_template_generation_is_deterministic_and_cli_selectable(tm
     assert sorted(index for index, coeff in enumerate(first_coeffs) if coeff != 0) == sorted(first_details["fixed_sparse_support"])
 
 
+def test_r8_quartic_lift_generation_emits_valid_composed_r8_template():
+    IGP24DataPoint.COEFF_BOUND = 16
+    IGP24DataPoint.SPARSE_TERMS = 4
+    IGP24DataPoint.LOW_HEIGHT_BOUND = 2
+    IGP24DataPoint.GENERATION_STRATEGY = "r8_quartic_lift"
+
+    np.random.seed(824)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+
+    assert "r8_quartic_lift" in IGP24_GENERATION_STRATEGIES
+    assert observed == "r8_quartic_lift"
+    assert len(coeffs) == DEGREE
+    assert coeffs[0] != 0
+    assert max(abs(c) for c in coeffs) <= IGP24DataPoint.COEFF_BOUND
+    assert sorted(index for index, coeff in enumerate(coeffs) if coeff != 0) == [0, 6, 12, 18]
+    assert details["r8_quartic_lift_template_name"]
+    assert details["r8_quartic_lift_core_support"] == [0, 6, 12, 18]
+    assert details["r8_quartic_lift_positive_quartic_roots"] == 4
+    assert details["r8_quartic_lift_perturbation"] == "none_pure_composed_seed"
+    assert details["target_r_heuristic"] == 8
+    assert details["composed_support_divisor"] == 6
+
+    score, analysis = IGP24DataPoint._score_coefficients(coeffs)
+    assert score >= 0
+    assert analysis.valid
+    assert analysis.real_root_count == 8
+
+
 def test_mixed_strategy_weights_are_normalized_and_selectable():
     weights = parse_mixed_strategy_weights("uniform:1,structured:3")
     assert weights["uniform"] == 0.25
@@ -272,6 +301,7 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert weights["sparse"] == 0.0
     assert weights["four_real_seed"] == 0.0
     assert weights["quartic_lift"] == 0.0
+    assert weights["r8_quartic_lift"] == 0.0
     assert weights["fixed_sparse_template"] == 0.0
     assert "structured:0.7500" in format_mixed_strategy_weights(weights)
 
@@ -288,6 +318,13 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert observed == "fixed_sparse_template"
     assert len(coeffs) == DEGREE
 
+    IGP24DataPoint.COEFF_BOUND = 16
+    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("r8_quartic_lift:1")
+    np.random.seed(102)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    assert observed == "r8_quartic_lift"
+    assert len(coeffs) == DEGREE
+
 
 def test_generation_presets_resolve_explicitly_without_changing_default():
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["uniform"] == 0.10
@@ -297,6 +334,7 @@ def test_generation_presets_resolve_explicitly_without_changing_default():
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["structured"] == 0.25
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["four_real_seed"] == 0.0
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["quartic_lift"] == 0.0
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["r8_quartic_lift"] == 0.0
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["fixed_sparse_template"] == 0.0
 
     no_preset = resolve_generation_preset(
@@ -478,6 +516,69 @@ def test_quartic_lift_ledger_metadata_identifies_template_and_perturbations(tmp_
     assert latest["generation_metadata"]["quartic_lift_coefficients_y"] == [2, 1, -3, -1, 1]
     assert latest["generation_metadata"]["perturbation_coefficients"] == {"1": 1}
     assert "y=x^6" in latest["generation_metadata"]["seed_template"]
+
+
+def test_r8_quartic_lift_ledger_metadata_identifies_composed_template(tmp_path):
+    IGP24DataPoint._update_class_params(
+        {
+            "COEFF_BOUND": 16,
+            "TARGET_R": 8,
+            "TARGET_T": None,
+            "PRIME_LIMIT": 7,
+            "MAX_LOCAL_SEARCH_STEPS": 0,
+            "DISCRIMINANT_WEIGHT": 1.0,
+            "HEIGHT_WEIGHT": 1.0,
+            "CYCLE_DIVERSITY_WEIGHT": 5.0,
+            "EXACT_SCORE_TIMEOUT": 0.0,
+            "LEDGER_PATH": str(tmp_path / "r8_quartic_lift_ledger.jsonl"),
+            "WRITE_LEDGER": True,
+            "EXPERIMENT_NAME": "pytest",
+            "SEED": 824,
+            "TRANSLATION_RADIUS": 2,
+            "KNOWN_HASHES": set(),
+            "GENERATION_STRATEGY": "r8_quartic_lift",
+            "SPARSE_TERMS": 4,
+            "LOW_HEIGHT_BOUND": 2,
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("r8_quartic_lift:1"),
+            "GENERATION_PRESET": "none",
+            "GENERATION_PRESET_TARGET_R": None,
+            "LAST_GENERATION_DETAILS": {
+                "r8_quartic_lift_template_name": "four_positive_fibers_a",
+                "r8_quartic_lift_core_support": [0, 6, 12, 18],
+                "r8_quartic_lift_coefficients_y": [1, -7, 14, -8, 1],
+                "r8_quartic_lift_positive_quartic_roots": 4,
+                "r8_quartic_lift_minimum_coeff_bound": 14,
+                "r8_quartic_lift_perturbation": "none_pure_composed_seed",
+            },
+            "ALWAYS_SEARCH": False,
+            "REDEEM_ONLY": False,
+        }
+    )
+    coeffs = [0] * DEGREE
+    coeffs[0] = 1
+    coeffs[6] = -7
+    coeffs[12] = 14
+    coeffs[18] = -8
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=tuple(coeffs), generation_strategy="r8_quartic_lift")
+    datapoint.generation_details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+    datapoint.calc_score()
+    records = CandidateLedger(tmp_path / "r8_quartic_lift_ledger.jsonl").records()
+
+    assert records
+    latest = records[-1]
+    metadata = latest["generation_metadata"]
+    assert latest["real_root_count"] == 8
+    assert metadata["strategy"] == "r8_quartic_lift"
+    assert metadata["target_r_heuristic"] == 8
+    assert metadata["seed_template"] == "pure_g(y)_with_four_positive_roots_and_y=x^6"
+    assert metadata["r8_quartic_lift_template_name"] == "four_positive_fibers_a"
+    assert metadata["r8_quartic_lift_core_support"] == [0, 6, 12, 18]
+    assert metadata["r8_quartic_lift_coefficients_y"] == [1, -7, 14, -8, 1]
+    assert metadata["r8_quartic_lift_positive_quartic_roots"] == 4
+    assert metadata["r8_quartic_lift_minimum_coeff_bound"] == 14
+    assert metadata["r8_quartic_lift_perturbation"] == "none_pure_composed_seed"
+    assert metadata["exact_composed_support_divisor"] == 6
+    assert metadata["composed_support"]
 
 
 def test_fixed_sparse_template_ledger_metadata_identifies_support(tmp_path):
