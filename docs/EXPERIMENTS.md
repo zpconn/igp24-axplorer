@@ -454,6 +454,62 @@ The next bounded search should target stronger anti-`S24` evidence up front,
 especially exact square discriminants or new verified non-generic families,
 before another manual verification queue is worth the user effort.
 
+Fresh strong anti-`S24` saved mining:
+
+- Broad diagnostic output:
+  `/tmp/igp24_strong_anti_s24_broad_diagnostic_20260706`
+- Mined pool:
+  `/tmp/igp24_strong_anti_s24_saved_mining_20260706`
+- Structure audit:
+  `/tmp/igp24_strong_anti_s24_structure_audit_20260706`
+- Strict planner:
+  `/tmp/igp24_strong_anti_s24_strict_queue_20260706`
+- Manual dry-run packet:
+  `/tmp/igp24_strong_anti_s24_manual_queue_20260706`
+
+The first attempt to diagnose all `/tmp/igp24_*` ledgers hit a malformed old
+`candidates.jsonl`, so the run was narrowed to known clean saved benchmark
+directories. That local-only diagnostic loaded 9,080 records, diagnosed 3,071
+`r=4` rows, selected 500 diagnostics, and found 36 rows with
+`square_discriminant_excludes_s24`.
+
+`scripts/igp24_strong_anti_s24_mine.py` then excluded the exhausted 160-row
+pool, joined saved exact-label feedback, joined the 24-row SAIR accepted-label
+feedback, applied baseline and pair-status filters, and kept only square
+anti-`S24` rows outside generic-prone or accepted-duplicate feedback families:
+
+```text
+records_scanned=3071
+strong_anti_s24_records=36
+eligible_records=15
+selected_records=15
+filter_reason_counts={"exhausted_pool_hash": 160, "missing_strong_anti_s24_evidence": 2896, "survived_strong_anti_s24_mining_filters": 15}
+selected_strategy_counts={"fixed_sparse_template": 3, "quartic_lift": 6, "sparse": 4, "structured": 2}
+```
+
+The structure audit confirmed all 15 square-discriminant and exact-composed
+claims. The strict feedback-aware planner, with
+`--avoid_sair_negative_families`, `--require_strong_anti_s24_evidence`, and
+one representative per structural family, reduced the pool to 3 unmatched
+strong rows:
+
+```text
+annotated_records=15
+eligible_records=3
+selected_records=3
+filter_reason_counts={"accepted_family_hint": 12, "survived_accepted_pending_baseline_generic_filters": 3}
+selected_hashes=[
+  "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+  "72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+  "33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d"
+]
+```
+
+Interpretation: saved mining was enough; no CPU generation and no GPU/model
+training were needed. The 3 survivors are credible enough for optional manual
+verification, but not enough for a full 8-12 row batch. Do not pad with weaker
+rows.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

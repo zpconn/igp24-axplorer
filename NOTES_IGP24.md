@@ -910,3 +910,16 @@ only medium anti-`S24` evidence. A contrast run without the strong anti-`S24`
 requirement still selected 0 rows, so the saved pool is exhausted after the
 SAIR feedback update. The next useful search should create new evidence, not
 repackage this pool.
+
+The follow-up saved-artifact mining pass created that fresh evidence without a
+new CPU search or any GPU/model training. `scripts/igp24_strong_anti_s24_mine.py`
+mined the broader saved diagnostics at
+`/tmp/igp24_strong_anti_s24_broad_diagnostic_20260706`, excluded the exhausted
+160-row pool, joined saved exact-label feedback plus the 24-row SAIR
+accepted-label feedback, and selected 15 fresh square-discriminant rows from
+3,071 diagnosed records. The structure audit confirmed all 15 square and
+exact-composed claims. The strict feedback-aware planner then selected only 3
+rows after one-per-family accepted-family filtering:
+`33772dd90765`, `72ed23a8d8bf`, and `33e431d55c37`. They are a credible small
+manual-verification queue, but fewer than 8 survived, so the right conclusion
+is not to pad the queue with weaker rows.

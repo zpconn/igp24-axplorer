@@ -3913,6 +3913,137 @@ results change.
 
 ## Tests And Checks
 
+- [in_progress] Mine or create fresh strong anti-`S24` evidence after the
+  exhausted strict saved-pool pass.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/49ecb61a-27a4-434d-8fa6-e0b516ebc9c9/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev` at `b3932c9`.
+  - Initial saved-artifact finding:
+    `/tmp/igp24_next_non_generic_diagnostic_20260706/non_generic_diagnostic.jsonl`
+    has 1,919 diagnosed `r=4` rows, but after excluding the exhausted
+    160-row structure-audit pool, 0 remaining rows have square-discriminant
+    anti-`S24` evidence. Broader `/tmp/igp24_*` saved ledgers exist, so the
+    next step is broader saved mining before any new CPU generation.
+  - [done] Add a local/file-only saved-mining helper:
+    `scripts/igp24_strong_anti_s24_mine.py`.
+    - It reads diagnostic JSONL, excludes exhausted hashes, derives structural
+      family keys, joins saved exact-label feedback and user-reported SAIR
+      accepted-label feedback, avoids generic-prone and accepted-duplicate
+      families, and writes a fresh strong anti-`S24` pool.
+    - Safety: no SAIR/API calls, no online Magma automation, no Magma/PARI
+      execution, no model training, no GPU sampling, no local search, and no
+      CPU search loop.
+  - [done] Add focused tests:
+    `tests/test_igp24_strong_anti_s24_mine.py`.
+    - Focused check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_strong_anti_s24_mine.py tests/test_igp24_next_verification_queue.py`.
+      - Result: 10 passed in 0.02s.
+  - [done] Attempt broad saved-artifact diagnostic over `/tmp/igp24_*`.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_* --target_r 4 --limit 500 --output_dir /tmp/igp24_strong_anti_s24_broad_diagnostic_20260706`.
+    - Result: failed on one malformed old `candidates.jsonl`
+      (`JSONDecodeError`), so the broad pass was narrowed to known clean saved
+      benchmark ledgers.
+  - [done] Run the broad saved-artifact diagnostic on clean saved ledgers.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_fresh_pair_bench_20260706 /tmp/igp24_r4_second_confirm_20260704 /tmp/igp24_r4_dual_quality_confirm_20260704 /tmp/igp24_quartic_lift_bench_20260704 /tmp/igp24_r4_dual_mix_bench_20260704 /tmp/igp24_r4_mix_variant_bench_20260704 /tmp/igp24_fixed_sparse_template_bench_20260704 /tmp/igp24_four_real_seed_bench_20260704 /tmp/igp24_r4_preset_bench_20260704 --target_r 4 --limit 500 --output_dir /tmp/igp24_strong_anti_s24_broad_diagnostic_20260706`.
+    - Result: `loaded_records=9080`, `diagnosed_records=3071`,
+      `selected_records=500`, `top_non_generic_score=2035.0`.
+      Important flag counts include
+      `square_discriminant_excludes_s24=36`,
+      `very_near_square_discriminant=36`, `near_square_discriminant=2`,
+      `exact_composed_support=186`, and `near_composed_support=500`.
+    - Artifacts:
+      `/tmp/igp24_strong_anti_s24_broad_diagnostic_20260706/non_generic_diagnostic.jsonl`
+      and the matching shortlist/report files.
+  - [done] Mine saved diagnostics for fresh strong anti-`S24` rows.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_strong_anti_s24_mine.py --diagnostic_jsonl /tmp/igp24_strong_anti_s24_broad_diagnostic_20260706/non_generic_diagnostic.jsonl --exclude_hash_jsonl /tmp/igp24_next_non_generic_structure_audit_20260706/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --known_verified_jsonl /tmp/igp24_pending_four_scoreability_review_20260706/scoreability_review.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --pair_status_json data/igp24/pair_status_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --target_r 4 --limit 40 --output_dir /tmp/igp24_strong_anti_s24_saved_mining_20260706`.
+    - Result: `records_scanned=3071`, `strong_anti_s24_records=36`,
+      `eligible_records=15`, `selected_records=15`.
+      `filter_reason_counts={"exhausted_pool_hash": 160, "missing_strong_anti_s24_evidence": 2896, "survived_strong_anti_s24_mining_filters": 15}`.
+      Selected strategy counts:
+      `{"fixed_sparse_template": 3, "quartic_lift": 6, "sparse": 4, "structured": 2}`.
+    - Artifacts:
+      `/tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mined.jsonl`,
+      `/tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_coefficients.txt`,
+      `/tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_hashes.txt`,
+      `/tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mining_summary.json`,
+      and
+      `/tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mining_report.md`.
+  - [done] Run structure audit on the 15 mined rows.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mined.jsonl --priority_limit 15 --output_dir /tmp/igp24_strong_anti_s24_structure_audit_20260706`.
+    - Result: `records_loaded=15`, `records_audited=15`,
+      `square_claim_status_counts={"confirmed": 15}`,
+      `exact_composed_claim_status_counts={"confirmed": 15}`,
+      `priority_records=15`, `square_claim_refuted=0`,
+      and `exact_composed_claim_refuted=0`.
+    - Artifacts:
+      `/tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_audit.jsonl`,
+      `/tmp/igp24_strong_anti_s24_structure_audit_20260706/manual_priority.jsonl`,
+      `/tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_summary.json`,
+      and
+      `/tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_report.md`.
+  - [done] Rerun the strict feedback-aware planner on the mined/audited rows.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_next_verification_queue.py --structure_audit_jsonl /tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --verified_label_feedback_jsonl /tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl --sair_label_feedback_json data/igp24/sair_accepted_label_feedback_20260706_next_queue.json --known_verified_jsonl /tmp/igp24_pending_four_scoreability_review_20260706/scoreability_review.jsonl --candidate_jsonl /tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mined.jsonl --pair_status_json data/igp24/pair_status_20260706.json --baseline_csv data/igp24/lmfdb_baseline.csv --limit 12 --max_per_structural_family 1 --avoid_sair_negative_families --require_strong_anti_s24_evidence --output_dir /tmp/igp24_strong_anti_s24_strict_queue_20260706`.
+    - Result: `annotated_records=15`, `eligible_records=3`,
+      `selected_records=3`.
+      `filter_reason_counts={"accepted_family_hint": 12, "survived_accepted_pending_baseline_generic_filters": 3}`.
+      All 15 had `anti_s24_evidence_status_counts={"strong": 15}` and
+      no SAIR negative-family match
+      (`sair_feedback_family_status_counts={"None": 15}`).
+    - Selected hashes:
+      `33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da`,
+      `72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50`,
+      and
+      `33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d`.
+    - Selected structural families:
+      `square=True|divisor=4|base_degree=6|sparse=very_sparse|strategy=structured`,
+      `square=True|divisor=2|base_degree=12|sparse=very_sparse|strategy=structured`,
+      and
+      `square=True|divisor=2|base_degree=12|sparse=sparse|strategy=sparse`.
+    - Artifacts:
+      `/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue.jsonl`,
+      `/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_coefficients.txt`,
+      `/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_hashes.txt`,
+      `/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue_manifest.json`,
+      and
+      `/tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue_report.md`.
+  - [done] Prepare a manual dry-run verification packet for the 3 survivors.
+    - Command:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue.jsonl --output_dir /tmp/igp24_strong_anti_s24_manual_queue_20260706 --timeout_seconds 5 --online_magma_manual`.
+    - Result: `loaded_review_records=3`, `input_kind=candidate_jsonl`,
+      `pari_available=false`, `magma_available=false`,
+      `pari_executed=false`, `magma_executed=false`, and
+      `magma_status_counts={"dry_run": 3}`.
+    - Artifacts:
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/verification_batch.jsonl`,
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/verification_coefficients.txt`,
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/verification_plan.md`,
+      and
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/online_magma_manual`.
+  - [done] Check for locally available scores for the 24-row accepted-label
+    feedback batch.
+    - Search scope: `data/igp24`, TODO/docs/notes, and `/tmp` score/SAIR
+      artifacts.
+    - Result: no new score artifact found; keep
+      `data/igp24/sair_accepted_label_feedback_20260706_next_queue.json`
+      score fields pending.
+  - Current interpretation: saved-artifact mining was sufficient; no CPU
+    generation and no GPU/model training were needed. The strict planner found
+    3 credible fresh rows, all strong square-discriminant anti-`S24` and
+    unmatched. Because fewer than 8 survived, do not pad the queue. Treat this
+    as a small optional manual-verification queue rather than a full batch.
+  - [pending] Run final validation, confirm Stage 4 remains present, audit
+    process/GPU state, update notes/experiments, commit, and push.
+    reads diagnostic JSONL, excludes exhausted hashes, derives structural
+    family keys, avoids SAIR generic-prone and accepted-duplicate families,
+    and writes a fresh strong anti-`S24` candidate pool for structure audit and
+    strict planning.
 - [done] Turn the 24-row SAIR acceptance feedback into stricter
   anti-generic queue planning.
   - Goal source:
