@@ -769,3 +769,16 @@ proxies are useful for ordering candidates, but they do not prove a baseline
 improvement. The saved online-Magma rows also do not carry a Magma-computed
 real-root count, so the current `r=4` annotation is sourced from local candidate
 `real_root_count` and should stay labeled as such.
+
+The first fresh pair-diversity pass confirmed that the exact-label-aware
+planner needs explicit novelty pressure. A naive fill after quotas selected too
+many fresh hashes from the already known `24T24979` feedback family. The planner
+now supports `--max_per_family_label` and `--prefer_unmatched`, which let a
+queue reserve one or two known-family controls while filling the rest with
+structurally unmatched rows.
+
+For the current queue, that produced one controlled `24T24979` family row and
+15 unmatched rows with zero overlap against the previously verified 25 hashes.
+This is the right shape for the next manual verification pass: it is not a
+submission plan, and it does not claim new labels, but it spends verifier
+attention where new `(24Tt, r)` pairs are more plausible.

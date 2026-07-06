@@ -109,6 +109,65 @@ discriminant proxy, not exact `nfdisc`. The `r=4` value comes from candidate
 `real_root_count`, because the saved online-Magma exact-label rows do not carry
 a Magma-computed `r`.
 
+## Fresh Pair-Diversity Queue
+
+The 2026-07-06 fresh queue tested whether a small bounded local generation
+pass could find new structural families instead of more variants of the three
+already verified expected pairs.
+
+Fresh source artifact:
+
+- `/tmp/igp24_fresh_pair_bench_20260706`
+
+Command:
+
+```bash
+python3 scripts/igp24_benchmark.py \
+  --strategies sparse,structured,quartic_lift,fixed_sparse_template,mix_r4_dual_balanced \
+  --seeds 2601,2602 \
+  --target_rs 4 \
+  --coeff_bound 4 \
+  --gensize 16 \
+  --pop_size 8 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 1 \
+  --prime_limit 11 \
+  --exact_score_timeout 3 \
+  --output_dir /tmp/igp24_fresh_pair_bench_20260706
+```
+
+The sweep completed 10 tiny CPU runs and wrote 217 ledger rows. The r4 matches
+were concentrated in `mix_r4_dual_balanced` (24/37 ledger rows),
+`quartic_lift` (23/40), and `fixed_sparse_template` (15/48), with a small
+`sparse` contribution (3/49). The tiny `structured` runs produced no r4 rows.
+
+Diagnostic and audit artifacts:
+
+- `/tmp/igp24_fresh_pair_diagnostic_20260706`
+- `/tmp/igp24_fresh_pair_structure_audit_20260706`
+- `/tmp/igp24_fresh_pair_diversity_queue_20260706`
+
+The non-generic diagnostic loaded 217 rows, diagnosed 59 target-r rows, and
+selected 40. The local structure audit confirmed 3 square-discriminant claims
+and 23 exact-composed-support claims, with no refutations. Primary block
+divisor counts were `2:16`, `3:6`, `6:1`, and `None:17`.
+
+The final diversity queue used exact-label-aware planning with:
+`--family_key_mode full`, `--include_unmatched`, `--exclude_verified_hashes`,
+`--max_per_family_label 1`, and `--prefer_unmatched`. It selected 16 unique
+fresh hashes with zero overlap against the 25 verified feedback hashes:
+one controlled `24T24979` feedback-family row and 15 unmatched rows.
+
+Interpretation: the most interesting fresh rows are not proven new scoreable
+pairs yet, but they are better verification targets than repeating the old
+three expected pairs. They include square-discriminant divisor-6/base-degree-4
+evidence, fixed-template square divisor-2/base-degree-12 evidence,
+divisor-3/base-degree-8 coverage, sparse divisor-2/base-degree-12 coverage,
+and non-composed sparse coverage. Submission planning remains blocked until
+these fresh candidates receive exact labels, exact signatures, and preferably
+exact `nfdisc` evidence.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

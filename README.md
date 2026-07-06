@@ -210,6 +210,10 @@ python3 scripts/igp24_exact_label_shortlist.py \
 
 This uses saved feedback as family-planning evidence; it does not claim fresh
 exact labels.
+For fresh diversity queues, add `--include_unmatched`,
+`--exclude_verified_hashes`, `--max_per_family_label`, and
+`--prefer_unmatched` to avoid filling the queue with many variants from one
+known feedback family.
 
 Build a manual submission plan from saved verified rows:
 
