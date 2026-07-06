@@ -29,7 +29,7 @@ Exported candidates append the fixed leading coefficient:
 
 ## Current State
 
-The most important current result is a verified non-generic queue:
+The current verified result set includes a 25-row non-generic queue:
 
 - 25/25 selected non-generic candidates were verified with Magma.
 - All 25 are degree 24 and irreducible.
@@ -47,6 +47,12 @@ artifact paths.
 The verified-label feedback helper maps those exact labels back to local
 structure-audit rows so future shortlist work can distinguish the
 `24T24970`, `24T24979`, and `24T24759` families.
+
+A fresh 2026-07-06 diversity queue has also been partially verified: 12/16
+rows parsed as degree 24 and irreducible, adding exact labels `24T9683` and
+`24T24648` alongside the previously seen families. Four rows are still pending
+because the online calculator returned a temporarily-disabled response. See
+[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) for details and caveats.
 
 ## Capabilities
 

@@ -159,14 +159,88 @@ The final diversity queue used exact-label-aware planning with:
 fresh hashes with zero overlap against the 25 verified feedback hashes:
 one controlled `24T24979` feedback-family row and 15 unmatched rows.
 
-Interpretation: the most interesting fresh rows are not proven new scoreable
-pairs yet, but they are better verification targets than repeating the old
-three expected pairs. They include square-discriminant divisor-6/base-degree-4
-evidence, fixed-template square divisor-2/base-degree-12 evidence,
-divisor-3/base-degree-8 coverage, sparse divisor-2/base-degree-12 coverage,
-and non-composed sparse coverage. Submission planning remains blocked until
-these fresh candidates receive exact labels, exact signatures, and preferably
-exact `nfdisc` evidence.
+Interpretation: the most interesting fresh rows were not proven new scoreable
+pairs at queue-construction time, but they were better verification targets
+than repeating the old three expected pairs. They included
+square-discriminant divisor-6/base-degree-4 evidence, fixed-template square
+divisor-2/base-degree-12 evidence, divisor-3/base-degree-8 coverage, sparse
+divisor-2/base-degree-12 coverage, and non-composed sparse coverage.
+
+## Fresh Online Magma Verification
+
+The 2026-07-06 fresh queue was partially exact-verified through saved online
+Magma calculator output.
+
+Source and provenance artifacts:
+
+- Queue:
+  `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl`
+- Manual calculator artifacts:
+  `/tmp/igp24_fresh_pair_manual_verify_20260706/online_magma_manual`
+- Parsed online Magma results:
+  `/tmp/igp24_fresh_pair_verified_20260706/online_magma_manual`
+- Fresh exact-label feedback:
+  `/tmp/igp24_fresh_pair_verified_label_feedback_20260706`
+- Fresh submission plan:
+  `/tmp/igp24_fresh_pair_submission_plan_20260706`
+- Raw saved Magma calculator XML:
+  `data/igp24/online_magma_manual_output_*_20260706.xml`
+
+Local MAGMA was unavailable, so the offline verifier helper stayed in dry-run
+mode for local execution. The helper generated one-candidate calculator
+scripts and parsed a saved pasted-output JSONL. The helper itself did not make
+network calls; the raw XML files were collected separately by bounded
+one-candidate `curl` POSTs to the online calculator and then parsed from disk.
+No SAIR submission or API call was made.
+
+Parsing results:
+
+- 16 fresh queue rows selected.
+- 12 rows verified; 4 rows returned a calculator-disabled response.
+- All 12 verified rows were degree 24 and irreducible.
+- No verified row was generic `24T25000`.
+
+| exact label | count | structural source |
+| --- | ---: | --- |
+| `24T24979` | 5 | nonsquare divisor-2/base-degree-12 rows |
+| `24T24759` | 3 | divisor-3/base-degree-8 rows |
+| `24T24970` | 2 | square fixed-template divisor-2/base-degree-12 rows |
+| `24T9683` | 1 | square divisor-6/base-degree-4 `quartic_lift` row |
+| `24T24648` | 1 | fixed-template divisor-3/base-degree-8 row |
+
+Pending rows from calculator-disabled responses:
+
+- `198ac88fa216`
+- `20b35a3fd41d`
+- `88437a372524`
+- `0f3ad8602d89`
+
+The refreshed local/file-only submission planner selected one representative
+per expected pair:
+
+| pair | hash | discriminant source |
+| --- | --- | --- |
+| `24T24979|r=4` | `981a94588aab` | `log_abs_discriminant` |
+| `24T24759|r=4` | `4be66a510402` | `log_abs_discriminant` |
+| `24T9683|r=4` | `9c45c5493e7a` | `log_abs_discriminant` |
+| `24T24970|r=4` | `a97caa584baa` | `log_abs_discriminant` |
+| `24T24648|r=4` | `2289d8a5e700` | `log_abs_discriminant` |
+
+Important caveats:
+
+- All five selected rows are `baseline_unknown`.
+- The discriminant ordering is still polynomial log-discriminant proxy
+  evidence, not exact `nfdisc`.
+- The `r=4` values come from local candidate `real_root_count`; the saved
+  online Magma rows do not yet carry a Magma-computed signature field.
+- The planner writes manual review artifacts only and has
+  `scoreable_claims=false`.
+
+Interpretation: the novelty pressure worked. The fresh queue found two exact
+labels not present in the previous 25 verified rows, `24T9683` and `24T24648`,
+and expanded the planning set from three to five expected pairs. The next
+verification work should retry the four pending rows and add exact signature,
+exact `nfdisc`, and official baseline comparison before submission decisions.
 
 ## GPU And Split Export Findings
 

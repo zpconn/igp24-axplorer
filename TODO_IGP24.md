@@ -10,27 +10,25 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   fresh pair-diversity candidate work.
-- Active focus: the 25-row proxy-only non-generic diagnostic shortlist has a
-  complete manual exact-verification queue under
-  `/tmp/igp24_non_generic_manual_queue_20260705`. Candidate order, hashes,
-  coefficients, diagnostic flags, and proxy/exact separation are preserved.
-  A local exact-algebra structure audit under
-  `/tmp/igp24_non_generic_structure_audit_20260705` confirmed the 18
-  square-discriminant claims and all 25 exact composed-support claims with no
-  refutations. The full 25-row queue has now been exact-verified via the free
-  online Magma calculator, with raw XML responses preserved under
-  `data/igp24/online_magma_manual_output_*_20260705.xml` and parsed artifacts
-  under `/tmp/igp24_non_generic_manual_queue_verified_20260705`: 18 rows are
+- Active focus: the first 25-row non-generic queue remains fully
+  exact-verified via saved online Magma calculator XML: 18 rows are
   `24T24970`, 6 rows are `24T24979`, and the divisor-3 coverage row is
-  `24T24759`. All 25 parsed rows are degree 24 and irreducible.
-  MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
-  hot loops, and automatic network/submission paths. Dry-run remains the
-  default; local MAGMA execution still requires explicit `--run_magma`.
-- Current task: fresh pair-diversity planning is complete; the current fresh
-  queue is under `/tmp/igp24_fresh_pair_diversity_queue_20260706`.
-- Next follow-up: manually exact-verify the strongest fresh queue rows, then
-  rerun the submission planner only after verified rows with labels/signatures
-  exist.
+  `24T24759`. The fresh 2026-07-06 pair-diversity queue under
+  `/tmp/igp24_fresh_pair_diversity_queue_20260706` has now been partially
+  exact-verified: 12/16 rows parsed as degree 24 and irreducible, with labels
+  `24T24979` (5), `24T24759` (3), `24T24970` (2), `24T9683` (1), and
+  `24T24648` (1). The remaining four rows are still proxy-only because the
+  online calculator returned a temporarily-disabled response. MAGMA/PARI/SAIR
+  remain out of `train.py`, GPU sampling, CPU proxy scoring, hot loops, and
+  automatic network/submission paths. Dry-run remains the default; local MAGMA
+  execution still requires explicit `--run_magma`.
+- Current result: the fresh online verification pass is documented with saved
+  raw XML provenance, exact-label feedback, and refreshed one-per-pair
+  submission planning caveats.
+- Next follow-up: retry the four pending fresh rows when calculator/local
+  MAGMA availability permits, then add exact Magma signature `r`, exact
+  `nfdisc`, and official baseline comparison before making scoreability
+  claims or submitting anything.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3035,12 +3033,133 @@ results change.
     - [done] Commit the docs/TODO validation update and push.
       - Result: committed `625407e` (`Document fresh IGP24 diversity queue`)
         and pushed `igp24-dev` to `zpconn/igp24-axplorer`.
+  - [in_progress] Exact-verify the fresh pair-diversity queue and rerun
+    submission planning.
+    - [done] Confirm local exact-verifier availability before using online
+      provenance.
+      - Result: local MAGMA remains unavailable on this host; the helper
+        recorded `local_magma_executed=false` and local status counts
+        `{"dry_run": 16}`. No local MAGMA/PARI/SAIR execution occurred.
+    - [done] Prepare online Magma manual artifacts for all 16 fresh queue
+      rows.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --output_dir /tmp/igp24_fresh_pair_manual_verify_20260706 --max_records 16 --online_magma_manual --timeout_seconds 60`
+      - Result: one candidate-per-script copy/paste artifacts were written
+        under
+        `/tmp/igp24_fresh_pair_manual_verify_20260706/online_magma_manual`.
+        The largest script was 843 bytes, under the observed 50000-byte
+        calculator cap.
+    - [done] Run bounded one-candidate online calculator checks and preserve
+      raw XML provenance.
+      - Result: 12 requests returned parseable Magma output from V2.29-8; the
+        final four requests returned `<offline>The Magma calculator is
+        temporarily disabled.</offline>`. Raw responses are preserved in
+        `/tmp/igp24_fresh_pair_manual_verify_20260706/online_magma_manual`
+        and copied into `data/igp24/online_magma_manual_output_*_20260706.xml`.
+      - Provenance note: the helper is still manual/file-only and reports
+        `network_calls_by_helper=false`; these bounded online POSTs were run
+        separately with `curl` by the agent, not by `train.py`, GPU sampling,
+        CPU proxy scoring, local search, SAIR, or the helper itself.
+    - [done] Parse saved online calculator outputs with the offline verifier
+      helper.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --output_dir /tmp/igp24_fresh_pair_verified_20260706 --max_records 16 --online_magma_manual --online_magma_pasted_output /tmp/igp24_fresh_pair_manual_verify_20260706/online_magma_manual/online_magma_pasted_outputs_20260706.jsonl --timeout_seconds 60`
+      - Result: 16 selected rows, status counts
+        `{"verified": 12, "parse_error": 4}`. All 12 verified rows were
+        degree 24 and irreducible. Exact labels were `24T24979`: 5,
+        `24T24759`: 3, `24T24970`: 2, `24T9683`: 1, and `24T24648`: 1.
+        No row verified as generic `24T25000`.
+      - Pending hashes from calculator-disabled responses:
+        `198ac88fa216`, `20b35a3fd41d`, `88437a372524`, and
+        `0f3ad8602d89`.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_verified_20260706/online_magma_manual/online_magma_manual_results.jsonl`,
+        `/tmp/igp24_fresh_pair_verified_20260706/online_magma_manual/online_magma_manual_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_verified_20260706/online_magma_manual/online_magma_manual_report.md`.
+    - [done] Feed the fresh exact labels back into local structure summaries.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --structure_audit_jsonl /tmp/igp24_fresh_pair_structure_audit_20260706/structure_audit.jsonl --magma_results_jsonl /tmp/igp24_fresh_pair_verified_20260706/online_magma_manual/online_magma_manual_results.jsonl --diagnostic_jsonl /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --output_dir /tmp/igp24_fresh_pair_verified_label_feedback_20260706`
+      - Result: 12 joined verified rows, all degree 24 and irreducible, with
+        exact-label counts `{"24T24648": 1, "24T24759": 3, "24T24970": 2,
+        "24T24979": 5, "24T9683": 1}`.
+      - Structural implications:
+        square divisor-6/base-degree-4 `quartic_lift` produced `24T9683`;
+        fixed-template divisor-3/base-degree-8 produced one `24T24648` and
+        one `24T24759`; quartic-lift divisor-3/base-degree-8 produced two
+        more `24T24759`; square fixed-template divisor-2/base-degree-12
+        produced two `24T24970`; nonsquare divisor-2/base-degree-12 remained
+        `24T24979`.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback.jsonl`,
+        `/tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_representatives.jsonl`,
+        `/tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_verified_label_feedback_20260706/verified_label_feedback_report.md`.
+    - [done] Rerun local/file-only submission planning on the verified fresh
+      rows.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --verified_results /tmp/igp24_fresh_pair_verified_20260706/online_magma_manual --candidate_jsonl /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --candidate_jsonl /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --output_dir /tmp/igp24_fresh_pair_submission_plan_20260706`
+      - Result: 12 joined verified rows collapsed to five one-per-pair
+        selected rows, with seven duplicate pair candidates suppressed and
+        four unverified rows skipped.
+      - Selected expected pairs:
+        `24T24979|r=4` (`981a94588aab`),
+        `24T24759|r=4` (`4be66a510402`),
+        `24T9683|r=4` (`9c45c5493e7a`),
+        `24T24970|r=4` (`a97caa584baa`), and
+        `24T24648|r=4` (`2289d8a5e700`).
+      - Caveats: all five rows are `baseline_unknown`; discriminant ordering
+        uses `log_abs_discriminant` from the polynomial proxy, not exact
+        `nfdisc`; `r=4` comes from local candidate `real_root_count`, not a
+        Magma-computed signature field; `scoreable_claims=false`; no SAIR
+        submission was made.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_submission_plan_20260706/submission_plan.jsonl`,
+        `/tmp/igp24_fresh_pair_submission_plan_20260706/submission_candidates.txt`,
+        `/tmp/igp24_fresh_pair_submission_plan_20260706/submission_plan_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_submission_plan_20260706/submission_plan_report.md`.
+    - [done] Update README, experiment notes, and design notes with the fresh
+      verification result.
+      - Result: documentation records the 12/16 parsed verification result,
+        the two fresh labels beyond the prior verified set (`24T9683` and
+        `24T24648`), the four calculator-disabled pending rows, raw XML
+        provenance, the five expected pairs in the refreshed plan, and the
+        remaining exact `r`/`nfdisc`/baseline caveats.
+    - [done] Run final validation, confirm Stage 4 remains present, audit
+      GPU/process state, and clean caches.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        passed with 115 tests in 3.87s.
+      - Compileall:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - Helper help checks:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`,
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --help`,
+        and
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --help`
+        passed.
+      - Diff check: `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 5162 after this TODO update.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        returned no running Python processes.
+      - GPU audit: `nvidia-smi` found no running GPU compute processes; the
+        RTX 5090 was at 3% utilization with display memory only.
+      - Cache cleanup:
+        `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+        completed, and the follow-up `find . -type d -name __pycache__ -print`
+        returned no paths.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 110 passed in 4.03s after exact-label shortlist planning
-    work.
+  - Latest result: 115 passed in 3.87s after fresh online-verification
+    documentation and XML provenance work.
 - [done] Run focused non-generic diagnostic/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`.
   - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
@@ -3059,13 +3178,13 @@ results change.
   - Latest result: 19 passed in 1.28s for the focused offline/review/shortlist
     queue subset after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
-  - Latest result: passed after queue structure-audit work.
+  - Latest result: passed after fresh online-verification documentation work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_review_shortlist.py --help`.
   - Latest result: passed after verification-queue work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
-  - Latest result: passed after queue structure-audit final validation; helper exposes
+  - Latest result: passed after fresh online-verification final validation; helper exposes
     `--candidate_hash`, `--online_magma_manual`, and
     `--online_magma_pasted_output`.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py --help`.
@@ -3073,7 +3192,7 @@ results change.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py --help`.
   - Latest result: passed after queue structure-audit work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --help`.
-  - Latest result: passed after verified-label feedback work.
+  - Latest result: passed after fresh online-verification final validation.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --help`.
   - Latest result: passed after exact-label shortlist planning work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.

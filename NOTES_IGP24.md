@@ -782,3 +782,29 @@ For the current queue, that produced one controlled `24T24979` family row and
 This is the right shape for the next manual verification pass: it is not a
 submission plan, and it does not claim new labels, but it spends verifier
 attention where new `(24Tt, r)` pairs are more plausible.
+
+The fresh online-verification pass validated that choice. Twelve of the 16
+fresh rows parsed successfully from saved online Magma calculator output before
+the calculator returned temporarily-disabled responses for the final four
+rows. The verified label counts were `24T24979`: 5, `24T24759`: 3,
+`24T24970`: 2, `24T9683`: 1, and `24T24648`: 1. All 12 verified rows were
+degree 24 and irreducible, and none were `24T25000`.
+
+The two most useful new signals are `24T9683` and `24T24648`, because neither
+appeared in the earlier 25-row verified queue. The `24T9683` row came from the
+square divisor-6/base-degree-4 `quartic_lift` family, and the `24T24648` row
+came from a fixed-template divisor-3/base-degree-8 family. That means the
+novelty-first queue logic did exactly what it was supposed to do: it moved
+verifier attention away from repeated variants of the already known three
+pairs and found two additional exact labels.
+
+The refreshed submission plan now has five expected pairs:
+`24T24979|r=4`, `24T24759|r=4`, `24T9683|r=4`, `24T24970|r=4`, and
+`24T24648|r=4`. This is still a review plan, not a submission claim. Baseline
+status is unknown, discriminants are still ordered by polynomial
+log-discriminant proxy rather than exact `nfdisc`, and `r=4` still comes from
+local candidate real-root counts rather than a Magma-computed signature. The
+next scoring-oriented step is to obtain exact `r`, exact `nfdisc`, and
+official baseline comparisons for the five selected representatives, while
+retrying the four calculator-disabled rows when a local or online exact
+verifier is available.
