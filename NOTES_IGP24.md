@@ -874,3 +874,12 @@ verification at `/tmp/igp24_next_non_generic_manual_queue_20260706`. This is
 the right waiting-period work: no new GPU/model search is needed until these
 manual-verification targets either produce new exact labels or show the current
 saved-artifact pool is exhausted.
+
+The 24-row queue now has a score-aware local triage pass. There were no saved
+online-Magma outputs to parse, so exact labels remain missing, but PARI/GP and
+SymPy fallback evidence confirmed exact `nfdisc` and exact `r=4` for all
+24 rows. `scripts/igp24_score_aware_triage.py` classified all 24 as
+`exact_result_missing` and wrote the review artifact at
+`/tmp/igp24_next_non_generic_score_triage_20260706`; no row is
+submission-grade yet. This sharpens the next bottleneck: run the manual Magma
+scripts and parse exact labels before doing more search or packaging.

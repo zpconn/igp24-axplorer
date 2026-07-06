@@ -1,0 +1,184 @@
+import json
+
+from scripts.igp24_score_aware_triage import (
+    build_summary,
+    build_triage_rows,
+    load_baseline_pairs,
+    load_pair_status,
+    write_outputs,
+)
+
+
+def _queue_row(candidate_hash="abc123", coeff0=1):
+    return {
+        "canonical_hash": candidate_hash,
+        "short_hash": candidate_hash[:12],
+        "source_strategy": "quartic_lift",
+        "score": 10.0,
+        "non_generic_score": 5.0,
+        "exported_coefficients": [coeff0] + [0] * 23 + [1],
+    }
+
+
+def _empty_evidence():
+    return {
+        "online_magma": {},
+        "local_magma": {},
+        "pari_nfdisc": {},
+        "sympy_nfdisc": {},
+        "sympy_signature": {},
+    }
+
+
+def _evidence_for(candidate_hash, *, label=None, r=4, nfdisc=100, degree=24, irreducible=True):
+    evidence = _empty_evidence()
+    if label is not None:
+        evidence["online_magma"][candidate_hash] = {
+            "candidate_hash": candidate_hash,
+            "status": "verified",
+            "verified_group_label": label,
+            "computed_r": r,
+            "signature_r": r,
+            "degree": degree,
+            "is_irreducible": irreducible,
+        }
+    evidence["pari_nfdisc"][candidate_hash] = {
+        "candidate_hash": candidate_hash,
+        "status": "nfdisc_ok",
+        "exact_nfdisc_abs": nfdisc,
+        "nfdisc_source": "pari_gp_nfdisc",
+        "pari_degree": degree,
+        "pari_is_irreducible": irreducible,
+        "pari_real_root_count": r,
+    }
+    evidence["sympy_signature"][candidate_hash] = {
+        "candidate_hash": candidate_hash,
+        "status": "signature_ok",
+        "computed_r": r,
+        "signature_r": r,
+        "exact_r_source": "sympy_poly_count_roots",
+    }
+    return evidence
+
+
+def test_missing_exact_label_is_not_submission_grade():
+    rows = build_triage_rows(
+        [_queue_row("missing_label")],
+        evidence=_evidence_for("missing_label", label=None, nfdisc=123),
+        baseline_pairs={},
+        pair_status={},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert rows[0]["exact_r_status"] == "ok"
+    assert rows[0]["exact_nfdisc_status"] == "ok"
+    assert rows[0]["exact_label_status"] == "missing"
+    assert rows[0]["score_aware_classification"] == "exact_result_missing"
+    assert rows[0]["submission_grade_candidate"] is False
+
+
+def test_new_non_baseline_pair_is_submission_grade():
+    rows = build_triage_rows(
+        [_queue_row("new_pair")],
+        evidence=_evidence_for("new_pair", label="24T123", nfdisc=99),
+        baseline_pairs={},
+        pair_status={},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert rows[0]["pair_key"] == "24T123|r=4"
+    assert rows[0]["score_aware_classification"] == "new_non_baseline_pair"
+    assert rows[0]["submission_grade_candidate"] is True
+
+
+def test_baseline_and_generic_pairs_are_not_auto_submission_grade():
+    baseline_rows = build_triage_rows(
+        [_queue_row("baseline")],
+        evidence=_evidence_for("baseline", label="24T1", nfdisc=99),
+        baseline_pairs={"24T1|r=4": {"baseline_nfdisc_abs": 100, "baseline_scoring_disc": "nfdisc"}},
+        pair_status={},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+    generic_rows = build_triage_rows(
+        [_queue_row("generic")],
+        evidence=_evidence_for("generic", label="24T25000", nfdisc=99),
+        baseline_pairs={},
+        pair_status={},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert baseline_rows[0]["score_aware_classification"] == "baseline_pair"
+    assert baseline_rows[0]["submission_grade_candidate"] is False
+    assert generic_rows[0]["score_aware_classification"] == "generic_24T25000"
+    assert generic_rows[0]["submission_grade_candidate"] is False
+
+
+def test_accepted_pair_requires_material_improvement():
+    duplicate_rows = build_triage_rows(
+        [_queue_row("accepted_dup")],
+        evidence=_evidence_for("accepted_dup", label="24T123", nfdisc=90),
+        baseline_pairs={},
+        pair_status={"24T123|r=4": {"status": "accepted", "exact_nfdisc_abs": 100, "short_hash": "old"}},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+    improvement_rows = build_triage_rows(
+        [_queue_row("accepted_better")],
+        evidence=_evidence_for("accepted_better", label="24T123", nfdisc=49),
+        baseline_pairs={},
+        pair_status={"24T123|r=4": {"status": "accepted", "exact_nfdisc_abs": 100, "short_hash": "old"}},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert duplicate_rows[0]["accepted_pair_status"] == "accepted_pair_minor_discriminant_improvement"
+    assert duplicate_rows[0]["score_aware_classification"] == "accepted_pair_duplicate"
+    assert duplicate_rows[0]["submission_grade_candidate"] is False
+    assert improvement_rows[0]["accepted_pair_status"] == "accepted_pair_material_discriminant_improvement"
+    assert improvement_rows[0]["score_aware_classification"] == "accepted_pair_material_discriminant_improvement"
+    assert improvement_rows[0]["submission_grade_candidate"] is True
+
+
+def test_loaders_and_write_outputs(tmp_path):
+    baseline_path = tmp_path / "baseline.csv"
+    baseline_path.write_text("label,r,poly_disc_abs,nfdisc_abs,scoring_disc,coeffs\n24T1,4,9,8,nfdisc,\"1,1\"\n", encoding="utf-8")
+    pair_status_path = tmp_path / "pairs.json"
+    pair_status_path.write_text(
+        json.dumps({"pairs": [{"pair_key": "24T2|r=4", "status": "accepted", "exact_nfdisc_abs": 7}]}),
+        encoding="utf-8",
+    )
+    baseline, baseline_info = load_baseline_pairs(baseline_path)
+    pairs, pair_info = load_pair_status(pair_status_path)
+    rows = build_triage_rows(
+        [_queue_row("new_pair", coeff0=5)],
+        evidence=_evidence_for("new_pair", label="24T123", nfdisc=99),
+        baseline_pairs=baseline,
+        pair_status=pairs,
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+    submission_rows = [row for row in rows if row["submission_grade_candidate"]]
+    summary = build_summary(
+        queue_path=tmp_path / "queue.jsonl",
+        offline_dir=tmp_path / "offline",
+        baseline_info=baseline_info,
+        pair_status_info=pair_info,
+        triage_rows=rows,
+        submission_rows=submission_rows,
+        output_dir=tmp_path / "out",
+        command=["python3", "scripts/igp24_score_aware_triage.py"],
+        source_commit="abc123",
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    paths = write_outputs(output_dir=tmp_path / "out", summary=summary, triage_rows=rows, submission_rows=submission_rows)
+
+    assert summary["submission_grade_rows"] == 1
+    assert json.loads(paths["triage_jsonl"].read_text(encoding="utf-8").splitlines()[0])["pair_key"] == "24T123|r=4"
+    assert paths["submission_coefficients_txt"].read_text(encoding="utf-8").strip().startswith("5,0,0")
+    assert "Manual Magma Checklist" in paths["manual_checklist_md"].read_text(encoding="utf-8")

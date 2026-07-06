@@ -337,6 +337,51 @@ discovering another exact non-baseline `(24Tt, r)` pair. These 24 rows are not
 submission candidates yet, but they are a clean manual-verification queue
 designed to avoid already accepted, baseline, generic, and duplicate-hash rows.
 
+Follow-up exact fallback and score-aware triage:
+
+- Exact fallback artifact:
+  `/tmp/igp24_next_non_generic_exact_fallback_20260706`
+- Score-aware triage artifact:
+  `/tmp/igp24_next_non_generic_score_triage_20260706`
+- New helper: `scripts/igp24_score_aware_triage.py`
+- Focused tests: `tests/test_igp24_score_aware_triage.py`
+
+No pasted online-Magma results were present for this queue:
+`online_magma_manual_results.jsonl` had 0 rows and the pasted-output template
+still had 24 blank `pasted_output` fields. A local exact fallback pass was run
+instead, using the user-space PARI/GP binary at `/tmp/pari-gp-local/usr/bin/gp`
+plus explicit SymPy fallback evidence. It produced:
+
+```text
+pari_nfdisc_status_counts={"nfdisc_ok": 24}
+sympy_nfdisc_status_counts={"nfdisc_ok": 24}
+sympy_signature_status_counts={"signature_ok": 24}
+magma_status_counts={"dry_run": 24}
+```
+
+The score-aware triage then reviewed all 24 rows against the official baseline
+and the local accepted-pair ledger. Because exact Magma labels were still
+missing, all rows were classified as `exact_result_missing`:
+
+```text
+reviewed_rows=24
+verified_rows=0
+pending_exact_label_rows=24
+failed_rows=0
+submission_grade_rows=0
+classification_counts={"exact_result_missing": 24}
+exact_r_status_counts={"ok": 24}
+exact_nfdisc_status_counts={"ok": 24}
+```
+
+Interpretation: exact `r` and exact `nfdisc` are no longer the bottleneck for
+this queue; exact Magma labels are. The triage helper records the SAIR scoring
+lesson explicitly: the first accepted five rows all scored `<0.0001`, so
+accepted-pair duplicates should only be considered if their exact
+discriminants improve materially. No manual submission package was built from
+this queue yet. The next required action is manual Magma verification using
+`/tmp/igp24_next_non_generic_score_triage_20260706/manual_magma_checklist.md`.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

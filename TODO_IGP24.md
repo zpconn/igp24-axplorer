@@ -19,15 +19,19 @@ results change.
   `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
   network/submission paths. Dry-run remains the default; local MAGMA execution
   still requires explicit `--run_magma`.
-- Current result: a ledger-aware, baseline-aware, non-generic next manual
-  verification queue has been built from saved artifacts only. It selected 24
-  unmatched `r=4` rows after filtering accepted pairs, baseline pairs, generic
-  `24T25000` hints, accepted-family repeats, and duplicate hashes. Queue
-  artifacts are under `/tmp/igp24_next_non_generic_queue_20260706`; manual
-  online-Magma copy/paste scripts and dry-run exact-review artifacts are under
-  `/tmp/igp24_next_non_generic_manual_queue_20260706`.
-- Next follow-up: manually verify the 24-row next queue, then update the local
-  pair-status ledger before another planning or search pass.
+- Current result: the 24-row next non-generic queue now has exact local
+  fallback evidence for all rows: PARI/GP `nfdisc_ok=24`, SymPy
+  `nfdisc_ok=24`, and SymPy exact `r=4` for all 24. No saved/pasted Magma
+  labels are present yet, so the score-aware triage artifact classifies all
+  24 rows as `exact_result_missing`, with 0 submission-grade rows. Exact
+  fallback artifacts are under
+  `/tmp/igp24_next_non_generic_exact_fallback_20260706`; score-aware triage
+  and the manual Magma checklist are under
+  `/tmp/igp24_next_non_generic_score_triage_20260706`.
+- Next follow-up: manually verify the 24-row next queue in Magma, paste the
+  outputs into the template, rerun offline parsing plus score-aware triage,
+  and then update the local pair-status ledger before another planning or
+  search pass.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -3812,9 +3816,103 @@ results change.
       - The online-Magma copy/paste directory contains 24 one-candidate
         scripts under
         `/tmp/igp24_next_non_generic_manual_queue_20260706/online_magma_manual/copy_paste_scripts`.
+  - [done] Process the 24-row queue into a score-aware decision set.
+    - [done] Pull latest.
+      - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
+    - [done] Inspect queue and manual exact-output state.
+      - Queue artifact:
+        `/tmp/igp24_next_non_generic_queue_20260706`.
+      - Manual packet:
+        `/tmp/igp24_next_non_generic_manual_queue_20260706`.
+      - Existing manual-output status:
+        `online_magma_manual_results.jsonl` has 0 rows; the pasted-output
+        template has 24 blank `pasted_output` fields. Therefore exact Magma
+        labels are not available yet.
+    - [done] Run exact local fallback evidence for all 24 rows.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py /tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl --output_dir /tmp/igp24_next_non_generic_exact_fallback_20260706 --timeout_seconds 30 --online_magma_manual --run_pari --pari_executable /tmp/pari-gp-local/usr/bin/gp --run_sympy_nfdisc --run_sympy_signature`.
+      - Result:
+        `loaded_review_records=24`, `pari_available=True`,
+        `magma_available=False`, `pari_executed=True`,
+        `magma_executed=False`,
+        `pari_nfdisc_status_counts={"nfdisc_ok": 24}`,
+        `sympy_nfdisc_status_counts={"nfdisc_ok": 24}`,
+        `sympy_signature_status_counts={"signature_ok": 24}`,
+        `magma_status_counts={"dry_run": 24}`.
+      - Exact fallback artifact:
+        `/tmp/igp24_next_non_generic_exact_fallback_20260706`.
+    - [done] Add score-aware triage helper and focused tests.
+      - Helper: `scripts/igp24_score_aware_triage.py`.
+      - Tests: `tests/test_igp24_score_aware_triage.py`.
+      - Behavior: joins queue rows, saved Magma/manual labels when present,
+        PARI/SymPy exact fallback evidence, official baseline pairs, and the
+        local pair-status ledger. It classifies rows as new non-baseline pair,
+        accepted-pair duplicate/improvement, baseline pair, generic
+        `24T25000`, invalid/unverified, or exact-result missing. It also
+        encodes the SAIR scoring lesson: prior accepted rows scored `<0.0001`,
+        so accepted-pair duplicates are only interesting if exact
+        discriminants improve materially.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_score_aware_triage.py`
+        passed with 5 tests.
+    - [done] Run score-aware triage on the 24-row queue.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --queue_jsonl /tmp/igp24_next_non_generic_queue_20260706/next_verification_queue.jsonl --offline_dir /tmp/igp24_next_non_generic_exact_fallback_20260706 --baseline_csv data/igp24/lmfdb_baseline.csv --pair_status_json data/igp24/pair_status_20260706.json --output_dir /tmp/igp24_next_non_generic_score_triage_20260706`.
+      - Result:
+        `reviewed_rows=24`, `verified_rows=0`,
+        `pending_exact_label_rows=24`, `failed_rows=0`,
+        `submission_grade_rows=0`,
+        `classification_counts={"exact_result_missing": 24}`,
+        `labels_found_counts={}`,
+        `exact_r_status_counts={"ok": 24}`,
+        `exact_nfdisc_status_counts={"ok": 24}`.
+      - Decision: do not build or submit a manual coefficient package yet.
+        Exact `r` and `nfdisc` are present, but exact Magma labels are still
+        required for score-aware submission decisions.
+      - Artifacts:
+        `/tmp/igp24_next_non_generic_score_triage_20260706/score_aware_triage.jsonl`,
+        `/tmp/igp24_next_non_generic_score_triage_20260706/score_aware_triage_summary.json`,
+        `/tmp/igp24_next_non_generic_score_triage_20260706/score_aware_triage_report.md`,
+        `/tmp/igp24_next_non_generic_score_triage_20260706/manual_magma_checklist.md`,
+        and empty submission-grade files
+        `/tmp/igp24_next_non_generic_score_triage_20260706/submission_grade_rows.jsonl`
+        and
+        `/tmp/igp24_next_non_generic_score_triage_20260706/submission_grade_coefficients.txt`.
 
 ## Tests And Checks
 
+- [done] Run final 24-row score-aware triage validation.
+  - Focused tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_score_aware_triage.py tests/test_igp24_next_verification_queue.py`.
+    - Result: 9 passed in 0.03s.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 135 passed in 7.55s.
+  - Full compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+    - Result: passed.
+  - Helper help checks:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_triage.py --help`
+    and
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_offline_verify.py --help`.
+    - Result: both passed.
+  - Diff whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 5980 after this TODO update.
+  - Process audit:
+    `ps -eo pid,ppid,stat,comm,args | rg 'python|train.py|igp24|pytest|magma|gp'`.
+    - Result: no lingering Python, training, pytest, Magma, or GP worker
+      processes beyond the audit command itself.
+  - GPU audit:
+    `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+    - Result: no GPU compute apps reported.
+  - Cache cleanup:
+    `find . -type d -name __pycache__ -prune -exec rm -rf {} +`,
+    followed by `find . -type d -name __pycache__ -print`.
+    - Result: no `__pycache__` directories remain.
 - [done] Run final next-queue planning validation.
   - Focused test:
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_next_verification_queue.py`.
