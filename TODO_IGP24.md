@@ -4177,6 +4177,60 @@ results change.
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
     - Result: Stage 4 remains present at line 6899 after this TODO update.
 
+- [in_progress] Test whether the explicit composed-family path extends to
+  `r=16` via `r16_quadratic_lift`.
+  - Goal source:
+    `/home/zpconn/.codex/attachments/ad505068-bc52-4f56-a222-4d8899d61bfd/pasted-text-1.txt`.
+  - Pull/latest check:
+    `git pull --ff-only`.
+    - Result: already up to date on `igp24-dev`.
+  - Required files read:
+    `TODO_IGP24.md`, `NOTES_IGP24.md`, `docs/EXPERIMENTS.md`,
+    `src/envs/igp24.py`, `scripts/igp24_benchmark.py`,
+    `tests/test_igp24.py`, `tests/test_igp24_benchmark.py`,
+    `data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json`,
+    and `data/igp24/pair_status_20260706.json`.
+  - Current intent: cheaply find explicit degree-12 base polynomials `g(y)`
+    with exactly 8 positive real roots, form `g(x^2)`, and only then add an
+    opt-in generator/tests/smoke if local `real_root_count=16` is confirmed.
+  - Safety scope: no GPU/model training, broad search, SAIR API automation,
+    online Magma automation, or long benchmark in this goal.
+  - Construction probe:
+    - A first near-product perturbation search found exact-valid
+      `g(x^2)` candidates with local `real_root_count=16` at coefficient
+      height 3158.
+    - A faster integer-convolution scan over small quadratic factors found a
+      lower-height product family around coefficient height 703. Small
+      coefficient perturbations of that base stayed `r=16` and passed local
+      irreducible/exact scoring.
+    - Selected eight explicit base templates of degree 12 with 8 positive
+      base roots and minimum `coeff_bound=703`.
+  - Implementation checkpoint:
+    - Added opt-in strategy `r16_quadratic_lift` to `src/envs/igp24.py`.
+    - Construction: pure `g(x^2)` degree-24 lifts where degree-12 `g` has
+      exactly 8 positive real roots, so each positive base fiber contributes
+      two real roots and the degree-24 polynomial has intended
+      `real_root_count=16`.
+    - Metadata records template name, core support `[0,2,...,22]`, base
+      coefficients, positive base root count, base degree, minimum coefficient
+      bound, perturbation source, `target_r_heuristic=16`, and composed
+      support divisor `2`.
+    - Added `r16_quadratic_lift` to `scripts/igp24_benchmark.py` as an
+      accepted explicit strategy, but kept it out of the default benchmark run
+      set alongside `r8_quartic_lift`.
+  - Focused tests:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py tests/test_igp24_benchmark.py`.
+    - Result: 28 passed in 0.85s.
+  - Compile check for changed files:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall src/envs/igp24.py scripts/igp24_benchmark.py tests/test_igp24.py tests/test_igp24_benchmark.py`.
+    - Result: passed.
+  - Whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 6953 after this TODO update.
+
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.
   - Goal source:

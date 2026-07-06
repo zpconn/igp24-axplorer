@@ -31,6 +31,7 @@ IGP24_GENERATION_STRATEGIES = [
     "four_real_seed",
     "quartic_lift",
     "r8_quartic_lift",
+    "r16_quadratic_lift",
     "fixed_sparse_template",
 ]
 DEFAULT_MIXED_STRATEGY_WEIGHTS = {
@@ -42,6 +43,7 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "four_real_seed": 0.0,
     "quartic_lift": 0.0,
     "r8_quartic_lift": 0.0,
+    "r16_quadratic_lift": 0.0,
     "fixed_sparse_template": 0.0,
 }
 IGP24_GENERATION_PRESETS = {
@@ -423,6 +425,108 @@ class IGP24DataPoint(DataPoint):
         return tuple(coeffs)
 
     @staticmethod
+    def _r16_quadratic_lift_core_support():
+        return tuple(range(0, DEGREE, 2))
+
+    @staticmethod
+    def _r16_quadratic_lift_templates():
+        return (
+            {
+                "name": "eight_positive_fibers_c2_minus1",
+                "coefficients_y": (8, -48, 9, 364, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c2_minus1",
+            },
+            {
+                "name": "eight_positive_fibers_c2_plus1",
+                "coefficients_y": (8, -48, 11, 364, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c2_plus1",
+            },
+            {
+                "name": "eight_positive_fibers_c3_minus3",
+                "coefficients_y": (8, -48, 10, 361, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c3_minus3",
+            },
+            {
+                "name": "eight_positive_fibers_c3_minus2",
+                "coefficients_y": (8, -48, 10, 362, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c3_minus2",
+            },
+            {
+                "name": "eight_positive_fibers_c3_plus1",
+                "coefficients_y": (8, -48, 10, 365, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c3_plus1",
+            },
+            {
+                "name": "eight_positive_fibers_c3_plus2",
+                "coefficients_y": (8, -48, 10, 366, -543, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c3_plus2",
+            },
+            {
+                "name": "eight_positive_fibers_c4_minus1",
+                "coefficients_y": (8, -48, 10, 364, -544, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c4_minus1",
+            },
+            {
+                "name": "eight_positive_fibers_c4_plus1",
+                "coefficients_y": (8, -48, 10, 364, -542, -216, 703, -176, -186, 84, 7, -8, 1),
+                "positive_base_roots": 8,
+                "base_degree": 12,
+                "minimum_coeff_bound": 703,
+                "perturbation": "near_product_quadratic_factors_c4_plus1",
+            },
+        )
+
+    @classmethod
+    def _r16_quadratic_lift_coefficients(cls):
+        templates = [
+            template
+            for template in cls._r16_quadratic_lift_templates()
+            if int(template["minimum_coeff_bound"]) <= int(cls.COEFF_BOUND)
+        ]
+        if not templates:
+            raise ValueError("r16_quadratic_lift requires coeff_bound >= 703")
+
+        template = templates[int(np.random.randint(len(templates)))]
+        y_coefficients = tuple(int(value) for value in template["coefficients_y"])
+        coeffs = [0] * DEGREE
+        for exponent, coefficient in zip(cls._r16_quadratic_lift_core_support(), y_coefficients[:12]):
+            coeffs[exponent] = int(coefficient)
+
+        cls.LAST_GENERATION_DETAILS = {
+            "r16_quadratic_lift_template_name": template["name"],
+            "r16_quadratic_lift_core_support": list(cls._r16_quadratic_lift_core_support()),
+            "r16_quadratic_lift_coefficients_y": list(y_coefficients),
+            "r16_quadratic_lift_positive_base_roots": int(template["positive_base_roots"]),
+            "r16_quadratic_lift_base_degree": int(template["base_degree"]),
+            "r16_quadratic_lift_minimum_coeff_bound": int(template["minimum_coeff_bound"]),
+            "r16_quadratic_lift_perturbation": template["perturbation"],
+            "target_r_heuristic": 16,
+            "composed_support_divisor": 2,
+        }
+        return tuple(coeffs)
+
+    @staticmethod
     def _fixed_sparse_templates():
         return (
             {
@@ -492,6 +596,8 @@ class IGP24DataPoint(DataPoint):
             return cls._quartic_lift_coefficients(), strategy
         if strategy == "r8_quartic_lift":
             return cls._r8_quartic_lift_coefficients(), strategy
+        if strategy == "r16_quadratic_lift":
+            return cls._r16_quadratic_lift_coefficients(), strategy
         if strategy == "fixed_sparse_template":
             return cls._fixed_sparse_template_coefficients(), strategy
         raise ValueError(f"Unknown IGP24 generation strategy: {strategy}")
@@ -619,6 +725,36 @@ class IGP24DataPoint(DataPoint):
                         "r8_quartic_lift_perturbation", "none_pure_composed_seed"
                     ),
                     "exact_composed_support_divisor": 6,
+                    "composed_support": True,
+                }
+            )
+        if self.generation_strategy == "r16_quadratic_lift":
+            details = dict(self.generation_details)
+            core_support = self._r16_quadratic_lift_core_support()
+            y_coefficients = [int(self.coefficients[index]) for index in core_support] + [1]
+            generation_metadata.update(
+                {
+                    "target_r_heuristic": 16,
+                    "seed_template": "pure_g(y)_with_eight_positive_roots_and_y=x^2",
+                    "r16_quadratic_lift_template_name": details.get(
+                        "r16_quadratic_lift_template_name", "manual_or_unknown"
+                    ),
+                    "r16_quadratic_lift_core_support": list(core_support),
+                    "r16_quadratic_lift_coefficients_y": y_coefficients,
+                    "r16_quadratic_lift_positive_base_roots": int(
+                        details.get("r16_quadratic_lift_positive_base_roots", 8)
+                    ),
+                    "r16_quadratic_lift_base_degree": int(details.get("r16_quadratic_lift_base_degree", 12)),
+                    "r16_quadratic_lift_minimum_coeff_bound": int(
+                        details.get(
+                            "r16_quadratic_lift_minimum_coeff_bound",
+                            max(abs(value) for value in y_coefficients),
+                        )
+                    ),
+                    "r16_quadratic_lift_perturbation": details.get(
+                        "r16_quadratic_lift_perturbation", "near_product_quadratic_factors"
+                    ),
+                    "exact_composed_support_divisor": 2,
                     "composed_support": True,
                 }
             )

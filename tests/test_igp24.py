@@ -294,6 +294,37 @@ def test_r8_quartic_lift_generation_emits_valid_composed_r8_template():
     assert analysis.real_root_count == 8
 
 
+def test_r16_quadratic_lift_generation_emits_valid_composed_r16_template():
+    IGP24DataPoint.COEFF_BOUND = 703
+    IGP24DataPoint.SPARSE_TERMS = 4
+    IGP24DataPoint.LOW_HEIGHT_BOUND = 2
+    IGP24DataPoint.GENERATION_STRATEGY = "r16_quadratic_lift"
+    IGP24DataPoint.EXACT_SCORE_TIMEOUT = 3.0
+
+    np.random.seed(1601)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+
+    assert "r16_quadratic_lift" in IGP24_GENERATION_STRATEGIES
+    assert observed == "r16_quadratic_lift"
+    assert len(coeffs) == DEGREE
+    assert coeffs[0] != 0
+    assert max(abs(c) for c in coeffs) <= IGP24DataPoint.COEFF_BOUND
+    assert sorted(index for index, coeff in enumerate(coeffs) if coeff != 0) == list(range(0, DEGREE, 2))
+    assert details["r16_quadratic_lift_template_name"]
+    assert details["r16_quadratic_lift_core_support"] == list(range(0, DEGREE, 2))
+    assert details["r16_quadratic_lift_positive_base_roots"] == 8
+    assert details["r16_quadratic_lift_base_degree"] == 12
+    assert details["r16_quadratic_lift_minimum_coeff_bound"] == 703
+    assert details["target_r_heuristic"] == 16
+    assert details["composed_support_divisor"] == 2
+
+    score, analysis = IGP24DataPoint._score_coefficients(coeffs)
+    assert score >= 0
+    assert analysis.valid
+    assert analysis.real_root_count == 16
+
+
 def test_mixed_strategy_weights_are_normalized_and_selectable():
     weights = parse_mixed_strategy_weights("uniform:1,structured:3")
     assert weights["uniform"] == 0.25
@@ -302,10 +333,12 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert weights["four_real_seed"] == 0.0
     assert weights["quartic_lift"] == 0.0
     assert weights["r8_quartic_lift"] == 0.0
+    assert weights["r16_quadratic_lift"] == 0.0
     assert weights["fixed_sparse_template"] == 0.0
     assert "structured:0.7500" in format_mixed_strategy_weights(weights)
 
     IGP24DataPoint.GENERATION_STRATEGY = "mixed"
+    IGP24DataPoint.COEFF_BOUND = 5
     IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("quartic_lift:1")
     np.random.seed(100)
     coeffs, observed = IGP24DataPoint._generate_coefficients()
@@ -325,6 +358,13 @@ def test_mixed_strategy_weights_are_normalized_and_selectable():
     assert observed == "r8_quartic_lift"
     assert len(coeffs) == DEGREE
 
+    IGP24DataPoint.COEFF_BOUND = 703
+    IGP24DataPoint.MIXED_STRATEGY_WEIGHTS = parse_mixed_strategy_weights("r16_quadratic_lift:1")
+    np.random.seed(103)
+    coeffs, observed = IGP24DataPoint._generate_coefficients()
+    assert observed == "r16_quadratic_lift"
+    assert len(coeffs) == DEGREE
+
 
 def test_generation_presets_resolve_explicitly_without_changing_default():
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["uniform"] == 0.10
@@ -335,6 +375,7 @@ def test_generation_presets_resolve_explicitly_without_changing_default():
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["four_real_seed"] == 0.0
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["quartic_lift"] == 0.0
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["r8_quartic_lift"] == 0.0
+    assert DEFAULT_MIXED_STRATEGY_WEIGHTS["r16_quadratic_lift"] == 0.0
     assert DEFAULT_MIXED_STRATEGY_WEIGHTS["fixed_sparse_template"] == 0.0
 
     no_preset = resolve_generation_preset(
@@ -578,6 +619,70 @@ def test_r8_quartic_lift_ledger_metadata_identifies_composed_template(tmp_path):
     assert metadata["r8_quartic_lift_minimum_coeff_bound"] == 14
     assert metadata["r8_quartic_lift_perturbation"] == "none_pure_composed_seed"
     assert metadata["exact_composed_support_divisor"] == 6
+    assert metadata["composed_support"]
+
+
+def test_r16_quadratic_lift_ledger_metadata_identifies_composed_template(tmp_path):
+    IGP24DataPoint._update_class_params(
+        {
+            "COEFF_BOUND": 703,
+            "TARGET_R": 16,
+            "TARGET_T": None,
+            "PRIME_LIMIT": 7,
+            "MAX_LOCAL_SEARCH_STEPS": 0,
+            "DISCRIMINANT_WEIGHT": 1.0,
+            "HEIGHT_WEIGHT": 1.0,
+            "CYCLE_DIVERSITY_WEIGHT": 5.0,
+            "EXACT_SCORE_TIMEOUT": 3.0,
+            "LEDGER_PATH": str(tmp_path / "r16_quadratic_lift_ledger.jsonl"),
+            "WRITE_LEDGER": True,
+            "EXPERIMENT_NAME": "pytest",
+            "SEED": 1601,
+            "TRANSLATION_RADIUS": 2,
+            "KNOWN_HASHES": set(),
+            "GENERATION_STRATEGY": "r16_quadratic_lift",
+            "SPARSE_TERMS": 4,
+            "LOW_HEIGHT_BOUND": 2,
+            "MIXED_STRATEGY_WEIGHTS": parse_mixed_strategy_weights("r16_quadratic_lift:1"),
+            "GENERATION_PRESET": "none",
+            "GENERATION_PRESET_TARGET_R": None,
+            "LAST_GENERATION_DETAILS": {
+                "r16_quadratic_lift_template_name": "eight_positive_fibers_c2_minus1",
+                "r16_quadratic_lift_core_support": list(range(0, DEGREE, 2)),
+                "r16_quadratic_lift_coefficients_y": [8, -48, 9, 364, -543, -216, 703, -176, -186, 84, 7, -8, 1],
+                "r16_quadratic_lift_positive_base_roots": 8,
+                "r16_quadratic_lift_base_degree": 12,
+                "r16_quadratic_lift_minimum_coeff_bound": 703,
+                "r16_quadratic_lift_perturbation": "near_product_quadratic_factors_c2_minus1",
+            },
+            "ALWAYS_SEARCH": False,
+            "REDEEM_ONLY": False,
+        }
+    )
+    y_coefficients = [8, -48, 9, 364, -543, -216, 703, -176, -186, 84, 7, -8, 1]
+    coeffs = [0] * DEGREE
+    for exponent, coefficient in zip(range(0, DEGREE, 2), y_coefficients[:12]):
+        coeffs[exponent] = coefficient
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=tuple(coeffs), generation_strategy="r16_quadratic_lift")
+    datapoint.generation_details = dict(IGP24DataPoint.LAST_GENERATION_DETAILS)
+    datapoint.calc_score()
+    records = CandidateLedger(tmp_path / "r16_quadratic_lift_ledger.jsonl").records()
+
+    assert records
+    latest = records[-1]
+    metadata = latest["generation_metadata"]
+    assert latest["real_root_count"] == 16
+    assert metadata["strategy"] == "r16_quadratic_lift"
+    assert metadata["target_r_heuristic"] == 16
+    assert metadata["seed_template"] == "pure_g(y)_with_eight_positive_roots_and_y=x^2"
+    assert metadata["r16_quadratic_lift_template_name"] == "eight_positive_fibers_c2_minus1"
+    assert metadata["r16_quadratic_lift_core_support"] == list(range(0, DEGREE, 2))
+    assert metadata["r16_quadratic_lift_coefficients_y"] == y_coefficients
+    assert metadata["r16_quadratic_lift_positive_base_roots"] == 8
+    assert metadata["r16_quadratic_lift_base_degree"] == 12
+    assert metadata["r16_quadratic_lift_minimum_coeff_bound"] == 703
+    assert metadata["r16_quadratic_lift_perturbation"] == "near_product_quadratic_factors_c2_minus1"
+    assert metadata["exact_composed_support_divisor"] == 2
     assert metadata["composed_support"]
 
 
