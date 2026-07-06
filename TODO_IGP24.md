@@ -3913,7 +3913,7 @@ results change.
 
 ## Tests And Checks
 
-- [in_progress] Build score-1-style lower-label target analysis and saved
+- [done] Build score-1-style lower-label target analysis and saved
   manual-verification queue.
   - Goal source:
     `/home/zpconn/.codex/attachments/ba85c5a5-ecaf-42f6-b983-06600b8e11a8/pasted-text-1.txt`.
@@ -3999,8 +3999,59 @@ results change.
     the next search step, prioritize a bounded generator/diagnostic pass for
     `r=8` first, then `r=12/16/24`, because the score-1 target ranking says
     those signatures are high-value and currently uncovered locally.
-  - [pending] Run final validation, update notes/experiments, commit, and
+  - Periodic checkpoint commit:
+    `76fc040 Add score-1 target analysis`.
+  - [done] Run final validation, update notes/experiments, commit, and
     push.
+    - Helper smoke check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score1_target_analysis.py --help`.
+      - Result: CLI help rendered successfully.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 147 passed in 6.49s.
+    - Compile check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+      - Result: passed.
+    - JSON/JSONL artifact validation:
+      - Parsed JSON summaries/manifests:
+        `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_summary.json`,
+        `/tmp/igp24_score1_target_analysis_20260706/score1_target_analysis_summary.json`,
+        `/tmp/igp24_score1_saved_candidate_structure_audit_20260706/structure_summary.json`,
+        `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/offline_verification_manifest.json`,
+        `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/magma_verification_summary.json`,
+        and
+        `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/online_magma_manual/online_magma_manual_summary.json`.
+      - Parsed JSONL artifacts:
+        `/tmp/igp24_score1_r0_saved_diagnostic_20260706/non_generic_diagnostic.jsonl`
+        with 351 records,
+        `/tmp/igp24_score1_target_analysis_20260706/score1_target_rankings.jsonl`
+        with 50 records,
+        `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_queue.jsonl`
+        with 12 records,
+        `/tmp/igp24_score1_saved_candidate_structure_audit_20260706/structure_audit.jsonl`
+        with 12 records,
+        `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/verification_batch.jsonl`
+        with 12 records, and
+        `/tmp/igp24_score1_saved_candidate_manual_queue_20260706/online_magma_manual/online_magma_manual_results.jsonl`
+        with 0 records.
+    - Coefficient validation:
+      `/tmp/igp24_score1_target_analysis_20260706/score1_saved_candidate_coefficients.txt`.
+      - Result: 12 valid no-brackets rows, each with 25 integer
+        coefficients, nonzero constant coefficient, monic leading
+        coefficient, and coefficient gcd 1.
+    - Whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 6501 after this TODO
+        update.
+    - Process audit:
+      `ps -eo pid,ppid,stat,comm,args | awk '$4 ~ /^(python|python3|pytest|magma|gp)$/ {print}'`.
+      - Result: no lingering Python, pytest, Magma, or GP workers.
+    - GPU audit:
+      `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+      - Result: no GPU compute apps; no GPU/model training was started.
 - [done] Record the 3-row strong anti-`S24` manual submission result and the
   new external score-1 strategy snapshot.
   - User-reported SAIR verifier result for
