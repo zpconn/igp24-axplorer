@@ -44,6 +44,7 @@ VERIFIED_RESULT_NAMES = (
     "magma_verification_results.jsonl",
     "pari_nfdisc_results.jsonl",
     "sympy_nfdisc_results.jsonl",
+    "sympy_signature_results.jsonl",
     "verification_results.jsonl",
 )
 CANDIDATE_NAMES = (
@@ -67,7 +68,16 @@ LABEL_FIELDS = (
     "galois_group",
     "group_label",
 )
-R_FIELDS = ("computed_r", "signature_r", "magma_signature_r", "pari_real_root_count", "real_root_count", "r", "expected_r")
+R_FIELDS = (
+    "computed_r",
+    "signature_r",
+    "magma_signature_r",
+    "pari_real_root_count",
+    "sympy_real_root_count",
+    "real_root_count",
+    "r",
+    "expected_r",
+)
 EXACT_DISC_FIELDS = (
     "field_disc_abs",
     "nfdisc_abs",
@@ -181,6 +191,10 @@ def extract_r(
     verified: dict[str, Any],
     candidate: dict[str, Any] | None,
 ) -> tuple[int | None, str]:
+    if verified.get("exact_r_source") == "sympy_poly_count_roots":
+        value = _coerce_int(verified.get("sympy_real_root_count"))
+        if value is not None:
+            return value, "verified.sympy_real_root_count"
     for field in ("computed_r", "signature_r", "magma_signature_r"):
         value = _coerce_int(verified.get(field))
         if value is not None:
@@ -188,6 +202,9 @@ def extract_r(
     value = _coerce_int(verified.get("pari_real_root_count"))
     if value is not None:
         return value, "verified.pari_real_root_count"
+    value = _coerce_int(verified.get("sympy_real_root_count"))
+    if value is not None:
+        return value, "verified.sympy_real_root_count"
     for field in ("real_root_count", "r", "expected_r"):
         value = _coerce_int((candidate or {}).get(field))
         if value is not None:
@@ -199,7 +216,9 @@ def exact_r_status_for_source(source: str) -> str:
     if source in {"verified.computed_r", "verified.signature_r", "verified.magma_signature_r"}:
         return "ok"
     if source == "verified.pari_real_root_count":
-        return "pari_exact_count_no_magma_signature"
+        return "ok"
+    if source == "verified.sympy_real_root_count":
+        return "ok"
     if source.startswith("candidate."):
         return "candidate_proxy"
     return "missing"

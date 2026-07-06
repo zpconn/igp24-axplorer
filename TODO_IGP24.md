@@ -3317,6 +3317,22 @@ results change.
           at 7% utilization with display memory only.
         - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
           returned no paths.
+    - [in_progress] Add explicit SymPy exact real-root-count fallback evidence
+      for submission-signature `r`.
+      - Rationale: local Magma remains unavailable, but SymPy's exact
+        `Poly.count_roots(-oo, oo)` computes the real-root count for the five
+        selected degree-24 rows immediately. This is exact local fallback
+        evidence, not Magma provenance and not a replacement for exact
+        `24Tt` labels.
+      - Code changes in progress: add `--run_sympy_signature` to
+        `scripts/igp24_offline_verify.py`, write
+        `sympy_signature_results.jsonl` / summary / report artifacts, and let
+        `scripts/igp24_submission_plan.py` prefer Magma `r` when present but
+        accept `sympy_real_root_count` before falling back to candidate
+        `real_root_count`.
+      - Focused tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py`
+        passed with 24 tests in 4.63s after the exact-r fallback changes.
 
 ## Tests And Checks
 

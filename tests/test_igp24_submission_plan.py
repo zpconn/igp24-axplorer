@@ -119,6 +119,36 @@ def test_verified_label_and_pari_nfdisc_rows_merge_by_hash():
     assert joined[0]["discriminant_rank_category"] == "exact_nfdisc"
 
 
+def test_sympy_signature_row_supplies_exact_r_for_non_baseline_pair():
+    verified = [
+        _verified("hash_a", "24T24648"),
+        {
+            "candidate_hash": "hash_a",
+            "record_type": "igp24_sympy_signature_result",
+            "status": "signature_ok",
+            "sympy_real_root_count": 4,
+            "exact_r_source": "sympy_poly_count_roots",
+            "exact_r_status": "ok",
+        },
+    ]
+    candidates = [_candidate("hash_a", coeff0=1, r=2, log_disc=200.0)]
+
+    joined, diagnostics = build_joined_rows(
+        verified_rows=verified,
+        candidate_rows=candidates,
+        baseline={},
+        baseline_loaded=True,
+    )
+
+    assert diagnostics["verified_evidence_rows_after_merge"] == 1
+    assert joined[0]["expected_r"] == 4
+    assert joined[0]["expected_r_source"] == "verified.sympy_real_root_count"
+    assert joined[0]["exact_r_status"] == "ok"
+    assert joined[0]["baseline_status"] == "non_baseline_candidate"
+    assert joined[0]["scoreability_status"] == "new_pair_candidate"
+    assert joined[0]["scoreability_blockers"] == []
+
+
 def test_baseline_csv_classifies_unknown_new_and_improvement_states(tmp_path):
     baseline_path = tmp_path / "baseline.csv"
     baseline_path.write_text(

@@ -48,6 +48,9 @@ PARI_REPORT_MD = "pari_nfdisc_report.md"
 SYMPY_NFDISC_RESULTS_JSONL = "sympy_nfdisc_results.jsonl"
 SYMPY_NFDISC_SUMMARY_JSON = "sympy_nfdisc_summary.json"
 SYMPY_NFDISC_REPORT_MD = "sympy_nfdisc_report.md"
+SYMPY_SIGNATURE_RESULTS_JSONL = "sympy_signature_results.jsonl"
+SYMPY_SIGNATURE_SUMMARY_JSON = "sympy_signature_summary.json"
+SYMPY_SIGNATURE_REPORT_MD = "sympy_signature_report.md"
 MAGMA_INPUT_M = "magma_input.m"
 VERIFICATION_PLAN_MD = "verification_plan.md"
 PARI_RAW_OUTPUT = "pari_raw_output.txt"
@@ -1623,6 +1626,181 @@ def write_sympy_nfdisc_artifacts(
     }
 
 
+def compute_sympy_signature_result(record: dict[str, Any], *, index: int) -> dict[str, Any]:
+    """Compute exact real-root count r with SymPy's polynomial root counter."""
+
+    candidate_hash = str(record.get("canonical_hash") or record.get("candidate_hash") or "")
+    base = {
+        "schema_version": 1,
+        "record_type": "igp24_sympy_signature_result",
+        "input_index": int(record.get("input_index") or index),
+        "candidate_hash": candidate_hash,
+        "canonical_hash": candidate_hash,
+        "parsed_at": datetime.now(timezone.utc).isoformat(),
+        "exact_r_source": "sympy_poly_count_roots",
+        "provenance": {
+            "tool": "SymPy",
+            "workflow": "Poly.count_roots(-oo, oo)",
+            "local_output": True,
+            "magma_signature_workflow": False,
+        },
+        "safety": {
+            "local_file_only": True,
+            "sair_submission": False,
+            "network_calls": False,
+            "runs_inside_train_loop": False,
+            "runs_inside_gpu_sampling_loop": False,
+            "runs_inside_cpu_proxy_scoring_loop": False,
+        },
+    }
+    try:
+        import sympy as sp
+
+        coeffs = _validate_coefficients(record.get("exported_coefficients"), context=candidate_hash or f"record {index}")
+        x = sp.Symbol("x")
+        polynomial = sp.Poly(sum(int(coefficient) * x**power for power, coefficient in enumerate(coeffs)), x)
+        if polynomial.degree() != 24:
+            raise ReviewBatchError(f"{candidate_hash}: expected degree 24 polynomial, found {polynomial.degree()}")
+        real_root_count = int(polynomial.count_roots(sp.S.NegativeInfinity, sp.S.Infinity))
+        base.update(
+            {
+                "status": "signature_ok",
+                "signature_status": "ok",
+                "exact_r_status": "ok",
+                "degree": polynomial.degree(),
+                "sympy_real_root_count": real_root_count,
+                "signature_r": real_root_count,
+                "computed_r": real_root_count,
+            }
+        )
+    except Exception as exc:  # pragma: no cover - exact exception shape depends on SymPy internals.
+        base.update(
+            {
+                "status": "signature_error",
+                "signature_status": "error",
+                "exact_r_status": "error",
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+            }
+        )
+    return base
+
+
+def compute_sympy_signature_results(records: list[dict[str, Any]], *, run_sympy_signature: bool) -> list[dict[str, Any]]:
+    if not run_sympy_signature:
+        return []
+    return [compute_sympy_signature_result(record, index=index) for index, record in enumerate(records, start=1)]
+
+
+def build_sympy_signature_summary(
+    *,
+    records: list[dict[str, Any]],
+    results: list[dict[str, Any]],
+    output_dir: Path,
+    input_path: Path,
+    input_kind: str,
+    command: list[str],
+    source_commit: str | None,
+    requested: bool,
+) -> dict[str, Any]:
+    status_counts = Counter(str(result.get("status")) for result in results)
+    signature_ok = [result for result in results if result.get("sympy_real_root_count") is not None]
+    return {
+        "schema_version": 1,
+        "record_type": "igp24_sympy_signature_summary",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "tool": "scripts/igp24_offline_verify.py",
+        "source_commit": source_commit,
+        "command": command,
+        "input_path": str(input_path),
+        "input_kind": input_kind,
+        "records_loaded": len(records),
+        "requested": bool(requested),
+        "parsed_result_records": len(results),
+        "signature_records": len(signature_ok),
+        "status_counts": dict(sorted(status_counts.items())),
+        "output_files": {
+            "sympy_signature_results_jsonl": str(output_dir / SYMPY_SIGNATURE_RESULTS_JSONL),
+            "sympy_signature_summary_json": str(output_dir / SYMPY_SIGNATURE_SUMMARY_JSON),
+            "sympy_signature_report_md": str(output_dir / SYMPY_SIGNATURE_REPORT_MD),
+        },
+        "safety": {
+            "local_file_only": True,
+            "sair_submission": False,
+            "network_calls": False,
+            "runs_inside_train_loop": False,
+            "runs_inside_gpu_sampling_loop": False,
+            "runs_inside_cpu_proxy_scoring_loop": False,
+            "exact_r_claims": bool(signature_ok),
+            "magma_signature_workflow": False,
+            "note": "SymPy signature artifacts are explicit local exact-r fallback evidence; Magma remains the preferred exact-label/signature workflow when available.",
+        },
+    }
+
+
+def build_sympy_signature_report(summary: dict[str, Any], results: list[dict[str, Any]]) -> str:
+    lines = [
+        "# IGP24 SymPy Signature Report",
+        "",
+        "SymPy signature artifacts are explicit local exact-r fallback evidence. Magma remains the preferred exact-label/signature workflow when available.",
+        "",
+        f"- Input: `{summary.get('input_path')}`",
+        f"- Input kind: `{summary.get('input_kind')}`",
+        f"- Records loaded: {summary.get('records_loaded')}",
+        f"- Requested: `{summary.get('requested')}`",
+        f"- Exact r records: {summary.get('signature_records')}",
+        f"- Status counts: `{json.dumps(summary.get('status_counts', {}), sort_keys=True)}`",
+        "",
+        "| status | hash | degree | r | source |",
+        "| --- | --- | ---: | ---: | --- |",
+    ]
+    if not results:
+        lines.append("|  |  |  |  |  |")
+    for result in results:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(result.get("status") or ""),
+                    f"`{_short_hash(result.get('candidate_hash'))}`",
+                    str(result.get("degree") or ""),
+                    str(result.get("sympy_real_root_count") if result.get("sympy_real_root_count") is not None else ""),
+                    str(result.get("exact_r_source") or ""),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "Artifacts:",
+            f"- Results JSONL: `{summary.get('output_files', {}).get('sympy_signature_results_jsonl')}`",
+            f"- Summary JSON: `{summary.get('output_files', {}).get('sympy_signature_summary_json')}`",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def write_sympy_signature_artifacts(
+    *,
+    summary: dict[str, Any],
+    results: list[dict[str, Any]],
+    output_dir: Path,
+) -> dict[str, Path]:
+    results_path = output_dir / SYMPY_SIGNATURE_RESULTS_JSONL
+    summary_path = output_dir / SYMPY_SIGNATURE_SUMMARY_JSON
+    report_path = output_dir / SYMPY_SIGNATURE_REPORT_MD
+    _write_jsonl(results_path, results)
+    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report_path.write_text(build_sympy_signature_report(summary, results), encoding="utf-8")
+    return {
+        "sympy_signature_results_jsonl": results_path,
+        "sympy_signature_summary_json": summary_path,
+        "sympy_signature_report_md": report_path,
+    }
+
+
 def load_online_magma_pasted_outputs(paths: list[Path] | None) -> list[dict[str, Any]]:
     """Load pasted online-calculator outputs from JSONL or raw text files."""
 
@@ -2361,6 +2539,7 @@ def write_outputs(
     run_magma: bool,
     timeout_seconds: int,
     run_sympy_nfdisc: bool = False,
+    run_sympy_signature: bool = False,
     cache_path: Path | None = None,
     refresh_cache: bool = False,
     max_records: int | None = None,
@@ -2447,6 +2626,22 @@ def write_outputs(
         results=sympy_nfdisc_results,
         output_dir=output_dir,
     )
+    sympy_signature_results = compute_sympy_signature_results(records, run_sympy_signature=run_sympy_signature)
+    sympy_signature_summary = build_sympy_signature_summary(
+        records=records,
+        results=sympy_signature_results,
+        output_dir=output_dir,
+        input_path=input_path,
+        input_kind=input_kind,
+        command=command,
+        source_commit=source_commit,
+        requested=run_sympy_signature,
+    )
+    sympy_signature_paths = write_sympy_signature_artifacts(
+        summary=sympy_signature_summary,
+        results=sympy_signature_results,
+        output_dir=output_dir,
+    )
     magma_summary = build_magma_summary(
         records=records,
         results=magma_results,
@@ -2521,12 +2716,21 @@ def write_outputs(
     manifest["sympy_nfdisc"] = sympy_nfdisc_summary
     manifest["output_files"].update({name: str(path) for name, path in sympy_nfdisc_paths.items()})
     sympy_nfdisc_parsed = bool(sympy_nfdisc_summary.get("nfdisc_records"))
+    manifest["sympy_signature"] = sympy_signature_summary
+    manifest["output_files"].update({name: str(path) for name, path in sympy_signature_paths.items()})
+    sympy_signature_parsed = bool(sympy_signature_summary.get("signature_records"))
     manifest["safety"]["pari_nfdisc_results_parsed"] = pari_nfdisc_parsed
     manifest["safety"]["sympy_nfdisc_executed"] = bool(run_sympy_nfdisc)
     manifest["safety"]["sympy_nfdisc_results_parsed"] = sympy_nfdisc_parsed
+    manifest["safety"]["sympy_signature_executed"] = bool(run_sympy_signature)
+    manifest["safety"]["sympy_signature_results_parsed"] = sympy_signature_parsed
+    manifest["safety"]["exact_r_claims"] = bool(
+        manifest["safety"].get("exact_group_claims") or sympy_signature_parsed
+    )
     manifest["safety"]["exact_nfdisc_claims"] = bool(pari_nfdisc_parsed or sympy_nfdisc_parsed)
     manifest["safety"]["dry_run_preparation_only"] = bool(
-        manifest["safety"]["dry_run_preparation_only"] and not (pari_nfdisc_parsed or sympy_nfdisc_parsed)
+        manifest["safety"]["dry_run_preparation_only"]
+        and not (pari_nfdisc_parsed or sympy_nfdisc_parsed or sympy_signature_parsed)
     )
     manifest_path = output_dir / OFFLINE_MANIFEST_JSON
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -2536,6 +2740,7 @@ def write_outputs(
         "pari_input_gp": pari_path,
         **pari_paths,
         **sympy_nfdisc_paths,
+        **sympy_signature_paths,
         "magma_input_m": magma_path,
         "verification_plan_md": plan_path,
         **magma_paths,
@@ -2558,6 +2763,11 @@ def get_parser() -> argparse.ArgumentParser:
         "--run_sympy_nfdisc",
         action="store_true",
         help="Explicitly compute local SymPy AlgebraicField discriminants as non-PARI nfdisc fallback evidence",
+    )
+    parser.add_argument(
+        "--run_sympy_signature",
+        action="store_true",
+        help="Explicitly compute local SymPy exact real-root count r as non-Magma signature fallback evidence",
     )
     parser.add_argument("--pari_executable", default="gp")
     parser.add_argument("--magma_executable", default="magma")
@@ -2625,6 +2835,7 @@ def main(argv: list[str] | None = None) -> int:
         run_magma=args.run_magma,
         timeout_seconds=max(1, int(args.timeout_seconds)),
         run_sympy_nfdisc=bool(args.run_sympy_nfdisc),
+        run_sympy_signature=bool(args.run_sympy_signature),
         cache_path=args.cache_path.resolve() if args.cache_path else None,
         refresh_cache=bool(args.refresh_cache),
         max_records=args.max_records,
@@ -2637,6 +2848,7 @@ def main(argv: list[str] | None = None) -> int:
     magma_summary = json.loads(paths["magma_summary_json"].read_text(encoding="utf-8"))
     pari_summary = json.loads(paths["pari_summary_json"].read_text(encoding="utf-8"))
     sympy_nfdisc_summary = json.loads(paths["sympy_nfdisc_summary_json"].read_text(encoding="utf-8"))
+    sympy_signature_summary = json.loads(paths["sympy_signature_summary_json"].read_text(encoding="utf-8"))
 
     print(f"loaded_review_records\t{len(records)}")
     print(f"input_kind\t{input_kind}")
@@ -2648,6 +2860,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"pari_nfdisc_records\t{pari_summary['nfdisc_records']}")
     print(f"sympy_nfdisc_status_counts\t{json.dumps(sympy_nfdisc_summary['status_counts'], sort_keys=True)}")
     print(f"sympy_nfdisc_records\t{sympy_nfdisc_summary['nfdisc_records']}")
+    print(f"sympy_signature_status_counts\t{json.dumps(sympy_signature_summary['status_counts'], sort_keys=True)}")
+    print(f"sympy_signature_records\t{sympy_signature_summary['signature_records']}")
     print(f"magma_status_counts\t{json.dumps(magma_summary['status_counts'], sort_keys=True)}")
     print(f"magma_discovery_checked\t{len((magma_summary.get('magma_discovery') or {}).get('candidates_checked') or [])}")
     print(f"magma_selected_path\t{(magma_summary.get('magma_discovery') or {}).get('path')}")
