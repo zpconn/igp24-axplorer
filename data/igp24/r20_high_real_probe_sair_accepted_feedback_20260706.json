@@ -1,0 +1,292 @@
+{
+  "created_at": "2026-07-06T23:16:55.571345+00:00",
+  "description": "User-reported SAIR verifier acceptance feedback for the 10-row r20 high-real-root probe submission. All rows were accepted as 24T25000|r=20; scores and scoring discriminants were not available when recorded.",
+  "record_type": "igp24_r20_high_real_probe_sair_accepted_label_feedback",
+  "source_queue": "data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_queue.jsonl",
+  "source_submission_file": "data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_coefficients.txt",
+  "rows": [
+    {
+      "row_number": 1,
+      "rank": 1,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "47f1cf331e34643d3c06a46412a22195e30ff52db494c2f6cc2d0595e230b4fe",
+      "short_hash": "47f1cf331e34",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": -1,
+          "x_exponent": 7
+        },
+        {
+          "delta": 1,
+          "x_exponent": 11
+        }
+      ],
+      "coefficient_height": 10813088
+    },
+    {
+      "row_number": 2,
+      "rank": 2,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "73c1fa372bc11e78ec1d6d541dfe107789f64bf8b3445d0356688c82d0876c92",
+      "short_hash": "73c1fa372bc1",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "single_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 2,
+          "x_exponent": 9
+        }
+      ],
+      "coefficient_height": 10813088
+    },
+    {
+      "row_number": 3,
+      "rank": 3,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "426f4be4aca57022d22489b716b4eb53a66d4fe55dde702a06efda505e368b5e",
+      "short_hash": "426f4be4aca5",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": 1,
+          "x_exponent": 7
+        }
+      ],
+      "coefficient_height": 14683640
+    },
+    {
+      "row_number": 4,
+      "rank": 4,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "e9ca5d4d1887a6b4e22409109d6aa40f23c5dbd3e5cbc25cf2506cd6e8e6d141",
+      "short_hash": "e9ca5d4d1887",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": -1,
+          "x_exponent": 7
+        },
+        {
+          "delta": 1,
+          "x_exponent": 11
+        }
+      ],
+      "coefficient_height": 11857252
+    },
+    {
+      "row_number": 5,
+      "rank": 5,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "5768787e466305ed0f381d04f2e71abd1392a135cf9a4b0076d7c3ca947c939c",
+      "short_hash": "5768787e4663",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "single_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 2,
+          "x_exponent": 5
+        }
+      ],
+      "coefficient_height": 11857252
+    },
+    {
+      "row_number": 6,
+      "rank": 6,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "6b00bef14865e2da5a2d219dd6f83d9802a097f55012e62268e8d2232068e7bc",
+      "short_hash": "6b00bef14865",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": 1,
+          "x_exponent": 7
+        }
+      ],
+      "coefficient_height": 34326000
+    },
+    {
+      "row_number": 7,
+      "rank": 7,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "b8b9b30434b68ed4729a7629520561243d7fa64a7ada34013a016eba527daaa7",
+      "short_hash": "b8b9b30434b6",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": -1,
+          "x_exponent": 1
+        },
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": 1,
+          "x_exponent": 7
+        }
+      ],
+      "coefficient_height": 13121856
+    },
+    {
+      "row_number": 8,
+      "rank": 8,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "e7b078cbd8c6ddf78e63c78e0048f86e43751e41bc1dea498fbef124cfc7baf6",
+      "short_hash": "e7b078cbd8c6",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "single_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 3
+        }
+      ],
+      "coefficient_height": 11857252
+    },
+    {
+      "row_number": 9,
+      "rank": 9,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "0673a8670cb256b1a1c9bfc14104aceaaa60a8339ff910a5113a91e5723bed9b",
+      "short_hash": "0673a8670cb2",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": 1,
+          "x_exponent": 1
+        },
+        {
+          "delta": 1,
+          "x_exponent": 5
+        }
+      ],
+      "coefficient_height": 49972896
+    },
+    {
+      "row_number": 10,
+      "rank": 10,
+      "status": "accepted",
+      "verified_group_label": "24T25000",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "28a5db6ea30c454d8c60b8c3b2afc33df802cc5931ca0c4fdbbbd4bd76c8200b",
+      "short_hash": "28a5db6ea30c",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_low_odd_break",
+      "source_perturbations": [
+        {
+          "delta": -1,
+          "x_exponent": 1
+        },
+        {
+          "delta": 1,
+          "x_exponent": 3
+        },
+        {
+          "delta": 1,
+          "x_exponent": 7
+        }
+      ],
+      "coefficient_height": 22700672
+    }
+  ],
+  "summary": {
+    "submitted_rows": 10,
+    "accepted_rows": 10,
+    "rejected_rows": 0,
+    "labels_found_counts": {
+      "24T25000": 10
+    },
+    "accepted_pair_keys": [
+      "24T25000|r=20"
+    ],
+    "baseline_rows_by_pair": {
+      "24T25000|r=20": 0
+    },
+    "score_status": "pending",
+    "submitted_at_reported": "2026-07-06 18:13 user report",
+    "source_probe_selected_mode_counts": {
+      "three_low_odd_break": 4,
+      "single_low_odd_break": 3,
+      "two_low_odd_break": 3
+    },
+    "source_probe_selected_rows": 10,
+    "interpretation": "The local r20 high-real-root construction was accepted by SAIR, but all rows collapsed to the generic endpoint 24T25000|r=20."
+  },
+  "safety": {
+    "local_file_only": true,
+    "sair_api_calls": false,
+    "sair_submission": false,
+    "score_status": "pending"
+  }
+}

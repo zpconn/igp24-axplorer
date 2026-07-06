@@ -1112,3 +1112,25 @@ queue. The selected coefficient heights range from about `1.08e7` to
 `5.00e7`, much lower than the r24 queue. This is still not an exact-label
 claim, but it is a clean manual probe for a large undercovered bucket where we
 previously had no local accepted lane.
+
+The user-reported SAIR result for that r20 probe accepted all ten rows as
+`24T25000|r=20`. Together with the r16 and r24 follow-ups, this makes the
+pattern hard to ignore: product/composed seeds plus tiny odd `x` perturbations
+are reliable real-root-bucket hitters, but they tend to land in the generic
+`24T25000` basin. This does not make those rows useless, since each new
+generic `(24T25000, r)` pair can still matter, but it means the next useful
+search step should preserve more algebraic structure instead of widening the
+same perturbation family.
+
+The first structure-preserving pivot is the r12 exact-composed probe at
+`data/igp24/r12_structured_probe_20260706`. It keeps degree-24 support exactly
+of the form `g(x^2)`: the degree-12 base `g(y)` starts with six positive and
+six negative real roots, then only base coefficients are perturbed before the
+lift. The bounded CPU-only run attempted 180 rows, found 111 irreducible
+squarefree local `r=12` candidates, and selected a 10-row manual queue.
+Independent validation confirmed every selected row has exact even/composed
+support, local `r=12`, irreducible and squarefree status, SAIR line format,
+unique hashes, and no overlap with locally accepted hashes. The selected
+coefficient heights range from `773136` to `4410912`, making this a compact
+manual probe of whether structure-preserving high-real-root rows avoid the
+generic-collapse behavior seen in the odd-perturbed r16/r20/r24 lanes.

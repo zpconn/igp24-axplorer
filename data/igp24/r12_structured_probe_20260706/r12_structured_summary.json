@@ -1,0 +1,96 @@
+{
+  "coefficient_height_max": 4410912,
+  "coefficient_height_min": 773136,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r12_structured_probe.py",
+    "--output_dir",
+    "data/igp24/r12_structured_probe_20260706",
+    "--seed",
+    "1212",
+    "--max_trials",
+    "180",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "5000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "construction_family": "degree12_base_six_positive_roots_lifted_by_x2",
+  "created_at": "2026-07-06T23:20:53.436421+00:00",
+  "known_hashes_loaded": 64,
+  "observed_root_count_counts": {
+    "12": 111,
+    "4": 8,
+    "8": 13
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r12_structured_probe_20260706/r12_structured_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r12_structured_probe_20260706/r12_structured_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r12_structured_probe_20260706/r12_structured_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r12_structured_probe_20260706/r12_structured_rejected_trials.jsonl",
+    "report_md": "data/igp24/r12_structured_probe_20260706/r12_structured_report.md",
+    "summary_json": "data/igp24/r12_structured_probe_20260706/r12_structured_summary.json"
+  },
+  "queue_status": "manual_queue_ready",
+  "recommendation": "manual_review_then_submit_small_r12_probe",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 39,
+    "real_root_count_mismatch": 21,
+    "reducible_over_q": 9
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_hashes": [
+    "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+    "ce09a0129584a7374c088352087fc96b169d1604881ee80cb6c0a5a63d5acc36",
+    "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+    "c1ce7abab479b0e2759be4d942ec6539a27d944d27fcd13d0f3a37aaa9986dbd",
+    "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+    "002c52e1c2c2637f966fe7bf1de2d554d8fa2aa38718c40d25e5dfd00713dd14",
+    "5927a1af8dd6017a576b2cffaf3d7cca3abe65cf811f4f549bc1791bef57a3f4",
+    "e8f187d5e7f29e227108c40164eaf7f48d60c998c6e2d87d112664f5bf3633cf",
+    "7bf15e9a1190c9d0d9f08236a659af5cdeb366b4694af67ab6e31c0f46d73510",
+    "4ba559ad7f24c1603d468f4c7e45a6acdbc7813359cb682ccb2dbec5513e915e"
+  ],
+  "selected_mode_counts": {
+    "single_base_coefficient_perturbation": 7,
+    "structured_base_coefficient_perturbation": 3
+  },
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "23ab54762bd5",
+    "ce09a0129584",
+    "694d5370d953",
+    "c1ce7abab479",
+    "9eff4260b12d",
+    "002c52e1c2c2",
+    "5927a1af8dd6",
+    "e8f187d5e7f2",
+    "7bf15e9a1190",
+    "4ba559ad7f24"
+  ],
+  "source_commit": "199cf172a257560bfd3f73a6c41525a6f66fff71",
+  "structure_preservation": "exact g(x^2) composed support; no odd x-power perturbations",
+  "target_r": 12,
+  "tool": "scripts/igp24_r12_structured_probe.py",
+  "trials_attempted": 180,
+  "valid_mode_counts": {
+    "single_base_coefficient_perturbation": 108,
+    "structured_base_coefficient_perturbation": 3
+  },
+  "valid_r12_candidates": 111
+}

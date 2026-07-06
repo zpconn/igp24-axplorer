@@ -1473,6 +1473,98 @@ large undercovered bucket. It is still proxy/local only: no exact `24Tt` labels
 are claimed, no SAIR API or network service was used, and no automatic
 submission path exists.
 
+SAIR feedback:
+
+- user-reported result: 10/10 accepted,
+- all 10 rows landed as `24T25000|r=20`,
+- tracked feedback:
+  `data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json`,
+- pair-status ledger updated with one `24T25000|r=20` representative and
+  nine accepted alternates.
+
+Updated interpretation: local r20 construction and SAIR formatting worked, but
+the low-odd mixed quadratic perturbation family is generic-label collapsed.
+Together with r16 and r24, this argues against widening low-odd product
+perturbation families for high-real-root buckets.
+
+## R12 Structured Probe
+
+The r12 pivot keeps exact composed support rather than adding off-block odd
+`x` powers. It starts with a degree-12 base polynomial `g(y)` with six positive
+and six negative real roots, perturbs coefficients inside `g`, then lifts to
+`g(x^2)`. The lifted degree-24 polynomial therefore keeps only even powers of
+`x`.
+
+Smoke command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_probe.py \
+  --output_dir /tmp/igp24_r12_structured_smoke_20260706 \
+  --seed 1212 \
+  --max_trials 36 \
+  --limit 4 \
+  --coeff_bound 5000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Smoke result:
+
+- `trials_attempted=36`
+- `valid_r12_candidates=26`
+- `selected_rows=4`
+- rejected counts:
+  `{"coefficient_height_exceeds_bound": 5, "real_root_count_mismatch": 4, "reducible_over_q": 1}`
+
+Tracked bounded command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_probe.py \
+  --output_dir data/igp24/r12_structured_probe_20260706 \
+  --seed 1212 \
+  --max_trials 180 \
+  --limit 10 \
+  --per_family_cap 1 \
+  --coeff_bound 5000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Tracked bounded result:
+
+- `trials_attempted=180`
+- `valid_r12_candidates=111`
+- `selected_rows=10`
+- queue status: `manual_queue_ready`
+- selected modes:
+  `{"single_base_coefficient_perturbation": 7, "structured_base_coefficient_perturbation": 3}`
+- rejected counts:
+  `{"coefficient_height_exceeds_bound": 39, "real_root_count_mismatch": 21, "reducible_over_q": 9}`
+- selected coefficient-height range: `773136` to `4410912`
+- structure preservation: exact `g(x^2)` support, no odd `x` powers
+
+Tracked artifacts:
+
+- `data/igp24/r12_structured_probe_20260706/r12_structured_candidate_coefficients.txt`
+- `data/igp24/r12_structured_probe_20260706/r12_structured_candidate_queue.jsonl`
+- `data/igp24/r12_structured_probe_20260706/r12_structured_candidate_hashes.txt`
+- `data/igp24/r12_structured_probe_20260706/r12_structured_summary.json`
+- `data/igp24/r12_structured_probe_20260706/r12_structured_rejected_trials.jsonl`
+- `data/igp24/r12_structured_probe_20260706/r12_structured_report.md`
+
+Independent validation reran local exact checks on all 10 selected rows and
+confirmed 25 integer coefficients, monic leading coefficient, nonzero constant
+coefficient, coefficient gcd 1, local `real_root_count=12`, irreducible and
+squarefree exact checks, exact even `x` support, unique hashes, and no overlap
+against 64 locally known accepted hashes from
+`data/igp24/pair_status_20260706.json`.
+
+Interpretation: this is the first successful local r12 structure-preserving
+high-real-root queue. It directly tests whether exact composed support avoids
+the generic-collapse behavior of the low-odd r16/r20/r24 perturbation lanes.
+It remains proxy/local only: no exact `24Tt` labels are claimed, no SAIR API or
+network service was used, and no automatic submission path exists.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

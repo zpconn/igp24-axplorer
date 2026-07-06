@@ -114,7 +114,7 @@ results change.
     `24T25000|r=24` pair plus seven accepted alternates. Lesson: local `r=24`
     and SAIR formatting worked, but this low-odd perturbation family is
     generic-label collapsed and should not be widened as-is.
-- Active r20 prototype: added a standalone CPU-only
+- Completed r20 prototype: added a standalone CPU-only
   `scripts/igp24_r20_high_real_probe.py` using ten positive quadratic factors
   and two no-real-root quadratic factors,
   `prod(x^2-a) * prod(x^2+b)`, plus small low-odd perturbations. The base seed
@@ -146,6 +146,51 @@ results change.
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_r20_high_real_probe.py tests/test_igp24_r24_high_real_probe.py`
     -> 6 passed;
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` -> 162 passed;
+    `git diff --check` passed; and
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+    confirmed Stage 4 remains present.
+  - SAIR feedback result: user reported that all 10 rows were accepted as
+    `24T25000|r=20`. Tracked feedback is recorded in
+    `data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json`,
+    and `data/igp24/pair_status_20260706.json` now records the new
+    `24T25000|r=20` pair plus nine accepted alternates. Lesson: local `r=20`
+    and SAIR formatting worked, but this low-odd mixed quadratic perturbation
+    family is generic-label collapsed and should not be widened as-is.
+- Active r12 structured prototype: added a standalone CPU-only
+  `scripts/igp24_r12_structured_probe.py` using exact composed support
+  `g(x^2)`. The degree-12 base `g(y)` starts with six positive and six
+  negative real roots, then only the base coefficients are perturbed before
+  lifting. This preserves exact even/composed support and introduces no odd
+  powers of `x`.
+  - Smoke result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_probe.py --output_dir /tmp/igp24_r12_structured_smoke_20260706 --seed 1212 --max_trials 36 --limit 4 --coeff_bound 5000000 --prime_limit 7 --exact_score_timeout 5.0`
+    completed in about 1.5s, attempted 36 trials, found 26 valid local
+    `r=12` candidates, selected 4 smoke rows, rejected 5 rows over the 5M
+    height bound, rejected 4 real-root mismatches, and rejected 1 reducible
+    row.
+  - Bounded tracked result:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_structured_probe.py --output_dir data/igp24/r12_structured_probe_20260706 --seed 1212 --max_trials 180 --limit 10 --per_family_cap 1 --coeff_bound 5000000 --prime_limit 7 --exact_score_timeout 5.0`
+    completed in about 7.2s, attempted 180 trials, found 111 valid local
+    `r=12` candidates, selected 10 manual-queue rows, rejected 39 rows over
+    the 5M height bound, rejected 21 real-root mismatches, and rejected 9
+    reducible rows. The selected queue has 7
+    `single_base_coefficient_perturbation` rows and 3
+    `structured_base_coefficient_perturbation` rows, with coefficient heights
+    from `773136` to `4410912`. Tracked artifacts are under
+    `data/igp24/r12_structured_probe_20260706/`.
+  - Independent validation result: parsed the r12 queue JSONL and no-brackets
+    TXT, reran local exact checks on all 10 selected rows, and confirmed
+    exactly 25 integer coefficients per row, monic leading coefficient,
+    nonzero constant, coefficient gcd 1, local `real_root_count=12`,
+    irreducible and squarefree exact checks, unique hashes, no odd `x` support,
+    and no overlap against 64 locally known accepted hashes from
+    `data/igp24/pair_status_20260706.json`.
+  - Test/check result:
+    structured artifact checks confirmed 10 r20 feedback rows, 15 pair-status
+    pairs, and 10 selected r12 rows;
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_r12_structured_probe.py tests/test_igp24_r20_high_real_probe.py tests/test_igp24_r24_high_real_probe.py`
+    -> 9 passed;
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` -> 165 passed;
     `git diff --check` passed; and
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
     confirmed Stage 4 remains present.
@@ -7346,6 +7391,9 @@ down further as they become active.
     ten-positive/two-negative quadratic product seeds plus low-odd
     perturbations, tracked under
     `data/igp24/r20_high_real_probe_20260706`,
+  - [done] first structure-preserving `r=12` exact-composed prototype:
+    degree-12 base perturbations lifted as `g(x^2)`, tracked under
+    `data/igp24/r12_structured_probe_20260706`,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,
