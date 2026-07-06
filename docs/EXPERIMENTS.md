@@ -897,6 +897,30 @@ coefficient, coefficient gcd 1, `real_root_count=16`, irreducible and
 squarefree status, a unique canonical hash, and no overlap with accepted/known
 ledger hashes. The helper makes no exact 24T-label claim.
 
+User-reported SAIR feedback accepted all 10 diversified rows:
+
+| Row | Local mode | Label | r | Status |
+| ---: | --- | --- | ---: | --- |
+| 1 | exact-composed | `24T24979` | 16 | accepted |
+| 2 | odd-perturbed | `24T25000` | 16 | accepted |
+| 3 | exact-composed | `24T24979` | 16 | accepted |
+| 4 | odd-perturbed | `24T25000` | 16 | accepted |
+| 5 | exact-composed | `24T24979` | 16 | accepted |
+| 6 | odd-perturbed | `24T25000` | 16 | accepted |
+| 7 | exact-composed | `24T24979` | 16 | accepted |
+| 8 | odd-perturbed | `24T25000` | 16 | accepted |
+| 9 | exact-composed | `24T24979` | 16 | accepted |
+| 10 | odd-perturbed | `24T25000` | 16 | accepted |
+
+Accepted-feedback artifact:
+
+- `data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json`
+
+Both `24T24979|r=16` and `24T25000|r=16` are absent from the frozen baseline.
+This confirms that odd-power perturbations can move the exact label, but this
+particular escape route moved to generic-looking `24T25000|r=16`. Scores and
+scoring discriminants were not available when recorded.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

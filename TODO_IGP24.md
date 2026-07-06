@@ -43,7 +43,9 @@ results change.
   `scoringStatus=pending` and `scoringReason=discriminant_pending`, so it is
   treated as provisional pending discriminant scoring, not final no-score
   status. A short CPU-only r16 diversity probe produced a 10-row manual queue
-  under `data/igp24/r16_diversity_probe_20260706`.
+  under `data/igp24/r16_diversity_probe_20260706`; SAIR accepted all 10 rows,
+  with exact-composed rows as `24T24979|r=16` and odd-perturbed rows as
+  `24T25000|r=16`.
 
 ## Stage 0: Scaffold
 
@@ -4348,6 +4350,31 @@ results change.
       odd-perturbed rows carry near-composed divisor-2 support. All selected
       rows record modular-factorization proxy evidence and their minimum L1
       distance from the accepted r16 even-coefficient templates.
+  - SAIR verifier feedback for diversified r16 queue:
+    - User-reported at `Jul 6, 2026, 04:20 PM`: 10/10 accepted.
+    - Tracked feedback artifact:
+      `data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json`.
+    - Row labels: rows 1, 3, 5, 7, and 9 were accepted as `24T24979|r=16`;
+      rows 2, 4, 6, 8, and 10 were accepted as `24T25000|r=16`.
+    - Baseline check: both `24T24979|r=16` and `24T25000|r=16` have 0 rows
+      in the frozen baseline.
+    - Ledger update: appended five accepted `24T24979|r=16` alternates and
+      added new accepted score-pending pair `24T25000|r=16` with four
+      alternates.
+    - Interpretation: exact-composed new-base rows still collapse to
+      `24T24979|r=16`; odd-power perturbations do move the exact label, but
+      this batch moved into generic-looking `24T25000|r=16`, not a lower
+      non-generic label. Scores, scoring discriminants, solvability, and
+      teams/k remain pending.
+  - Acceptance feedback validation:
+    - Result: parsed
+      `data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json`;
+      confirmed 10 accepted rows, label counts `{"24T24979": 5, "24T25000": 5}`,
+      ledger updates for `24T24979|r=16` and `24T25000|r=16`, and 0 frozen
+      baseline rows for both pairs.
+    - Full test suite rerun:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 152 passed in 7.61s.
   - Structured artifact validation:
     - Result: parsed the SAIR status CSV, pair-status JSON, r16 accepted
       feedback JSON, diversified queue JSONL, diversified summary JSON, and
@@ -4361,7 +4388,7 @@ results change.
     - Result: passed.
   - Final Stage 4 check:
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
-    - Result: Stage 4 remains present at line 7114 after this TODO update.
+    - Result: Stage 4 remains present at line 7141 after this TODO update.
   - Process/GPU audit:
     - `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`
       returned no GPU compute apps.

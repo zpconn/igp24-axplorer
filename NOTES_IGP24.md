@@ -1048,3 +1048,10 @@ has 10 local exact `r=16` rows: five exact `g(x^2)` composed rows and five
 near-composed rows with one tiny odd-power perturbation. All selected hashes
 are novel against the local accepted/known ledger. This is the right next
 manual submission size before widening the r16 search.
+
+SAIR accepted that 10-row diversified r16 queue. The five exact-composed rows
+landed as `24T24979|r=16`, while the five odd-perturbed near-composed rows
+landed as `24T25000|r=16`. Both pairs are absent from the frozen baseline, and
+scores remain pending. The useful lesson is narrower than hoped but still
+real: tiny odd perturbations can escape `24T24979`, though this first escape
+path goes to the generic endpoint rather than to a lower/non-generic label.

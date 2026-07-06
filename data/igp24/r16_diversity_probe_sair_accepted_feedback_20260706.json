@@ -1,0 +1,167 @@
+{
+  "created_at": "2026-07-06T16:20:00-05:00",
+  "description": "User-reported SAIR verifier acceptance feedback for the 10-row diversified r16 probe submission. Scores and scoring discriminants were not available when recorded.",
+  "record_type": "igp24_r16_diversity_probe_sair_accepted_label_feedback",
+  "rows": [
+    {
+      "canonical_hash": "4d1e653e605a04718149468459a9dc0012acf0937c499203925df67242975216",
+      "pair_key": "24T24979|r=16",
+      "r": 16,
+      "rank": 1,
+      "reason": null,
+      "row_number": 1,
+      "score_status": "pending",
+      "short_hash": "4d1e653e605a",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T24979"
+    },
+    {
+      "canonical_hash": "13094bd39221df048cb6a46f78ad15a39a9ffc1234104601d18bf1911e641170",
+      "pair_key": "24T25000|r=16",
+      "r": 16,
+      "rank": 2,
+      "reason": null,
+      "row_number": 2,
+      "score_status": "pending",
+      "short_hash": "13094bd39221",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T25000"
+    },
+    {
+      "canonical_hash": "707b2cbef38073fd7e3878883b9093d8061636462108e847823e6d662043eae1",
+      "pair_key": "24T24979|r=16",
+      "r": 16,
+      "rank": 3,
+      "reason": null,
+      "row_number": 3,
+      "score_status": "pending",
+      "short_hash": "707b2cbef380",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T24979"
+    },
+    {
+      "canonical_hash": "7bcf04f2e733f0e9717d2998fa3531fdfceb2dfeaa35086e62ed1d8d2dfd6503",
+      "pair_key": "24T25000|r=16",
+      "r": 16,
+      "rank": 4,
+      "reason": null,
+      "row_number": 4,
+      "score_status": "pending",
+      "short_hash": "7bcf04f2e733",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T25000"
+    },
+    {
+      "canonical_hash": "ec8fd21eb76d0bdd5ba28df745c6712bd286105bad9eef985ff7a5f1d9abcabb",
+      "pair_key": "24T24979|r=16",
+      "r": 16,
+      "rank": 5,
+      "reason": null,
+      "row_number": 5,
+      "score_status": "pending",
+      "short_hash": "ec8fd21eb76d",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T24979"
+    },
+    {
+      "canonical_hash": "c9e9a939971206b117126872728965c1ab1562474d179fab95f695c0ebae8865",
+      "pair_key": "24T25000|r=16",
+      "r": 16,
+      "rank": 6,
+      "reason": null,
+      "row_number": 6,
+      "score_status": "pending",
+      "short_hash": "c9e9a9399712",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T25000"
+    },
+    {
+      "canonical_hash": "71f1618abe1a390c142407fdb0f827cbd728efb5db5a74444494cb4157653b94",
+      "pair_key": "24T24979|r=16",
+      "r": 16,
+      "rank": 7,
+      "reason": null,
+      "row_number": 7,
+      "score_status": "pending",
+      "short_hash": "71f1618abe1a",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T24979"
+    },
+    {
+      "canonical_hash": "e7657687d139edfe1e53b7899acc15853ec781ee81a1a345b3c7d6c5a8bb10d1",
+      "pair_key": "24T25000|r=16",
+      "r": 16,
+      "rank": 8,
+      "reason": null,
+      "row_number": 8,
+      "score_status": "pending",
+      "short_hash": "e7657687d139",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T25000"
+    },
+    {
+      "canonical_hash": "b69dd0857b61613943c4b4da5e7f64d1f6c6059645147b51045dffeefff649e3",
+      "pair_key": "24T24979|r=16",
+      "r": 16,
+      "rank": 9,
+      "reason": null,
+      "row_number": 9,
+      "score_status": "pending",
+      "short_hash": "b69dd0857b61",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T24979"
+    },
+    {
+      "canonical_hash": "dbce4e2bc909f7db2c11bb9a6b57cfc371d4cf8f310de79b487753e2c1daf503",
+      "pair_key": "24T25000|r=16",
+      "r": 16,
+      "rank": 10,
+      "reason": null,
+      "row_number": 10,
+      "score_status": "pending",
+      "short_hash": "dbce4e2bc909",
+      "source": "user_reported_sair_submission_status",
+      "status": "accepted",
+      "verified_group_label": "24T25000"
+    }
+  ],
+  "safety": {
+    "local_file_only": true,
+    "sair_api_calls": false,
+    "sair_submission": false,
+    "score_status": "pending"
+  },
+  "source_queue": "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl",
+  "source_submission_file": "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_coefficients.txt",
+  "summary": {
+    "accepted_pair_keys": [
+      "24T24979|r=16",
+      "24T25000|r=16"
+    ],
+    "accepted_rows": 10,
+    "baseline_rows_by_pair": {
+      "24T24979|r=16": 0,
+      "24T25000|r=16": 0
+    },
+    "labels_found_counts": {
+      "24T24979": 5,
+      "24T25000": 5
+    },
+    "new_pair_keys_vs_local_ledger_before_submission": [
+      "24T25000|r=16"
+    ],
+    "rejected_rows": 0,
+    "score_status": "pending",
+    "submitted_at_reported": "Jul 6, 2026, 04:20 PM",
+    "submitted_rows": 10
+  }
+}
