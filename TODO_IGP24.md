@@ -2894,7 +2894,7 @@ results change.
       - Diff check: `git diff --check` passed.
       - Stage 4 check:
         `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
-        found Stage 4 at line 4912 after this TODO update.
+        found Stage 4 at line 4914 after this TODO update.
       - Process audit:
         `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
         returned no running Python processes.
@@ -2903,7 +2903,9 @@ results change.
       - Cache cleanup:
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up count was 0.
-    - [in_progress] Commit the docs/TODO validation update and push.
+    - [done] Commit the docs/TODO validation update and push.
+      - Result: committed `f1a79ad` (`Document IGP24 submission planning`) and
+        pushed `igp24-dev` to `zpconn/igp24-axplorer`.
 
 ## Tests And Checks
 
