@@ -466,6 +466,8 @@ Fresh strong anti-`S24` saved mining:
   `/tmp/igp24_strong_anti_s24_strict_queue_20260706`
 - Manual dry-run packet:
   `/tmp/igp24_strong_anti_s24_manual_queue_20260706`
+- Manual no-brackets coefficients:
+  `/tmp/igp24_strong_anti_s24_manual_queue_20260706/manual_coefficients_no_brackets.txt`
 
 The first attempt to diagnose all `/tmp/igp24_*` ledgers hit a malformed old
 `candidates.jsonl`, so the run was narrowed to known clean saved benchmark

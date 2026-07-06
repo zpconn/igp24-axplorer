@@ -3913,7 +3913,7 @@ results change.
 
 ## Tests And Checks
 
-- [in_progress] Mine or create fresh strong anti-`S24` evidence after the
+- [done] Mine or create fresh strong anti-`S24` evidence after the
   exhausted strict saved-pool pass.
   - Goal source:
     `/home/zpconn/.codex/attachments/49ecb61a-27a4-434d-8fa6-e0b516ebc9c9/pasted-text-1.txt`.
@@ -4026,6 +4026,11 @@ results change.
       `/tmp/igp24_strong_anti_s24_manual_queue_20260706/verification_plan.md`,
       and
       `/tmp/igp24_strong_anti_s24_manual_queue_20260706/online_magma_manual`.
+  - [done] Add a no-brackets manual coefficient file for possible hand use.
+    - Artifact:
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/manual_coefficients_no_brackets.txt`.
+    - Result: 3 lines, each with exactly 25 comma-separated integers, nonzero
+      constant coefficient, and leading coefficient 1.
   - [done] Check for locally available scores for the 24-row accepted-label
     feedback batch.
     - Search scope: `data/igp24`, TODO/docs/notes, and `/tmp` score/SAIR
@@ -4038,12 +4043,49 @@ results change.
     3 credible fresh rows, all strong square-discriminant anti-`S24` and
     unmatched. Because fewer than 8 survived, do not pad the queue. Treat this
     as a small optional manual-verification queue rather than a full batch.
-  - [pending] Run final validation, confirm Stage 4 remains present, audit
-    process/GPU state, update notes/experiments, commit, and push.
-    reads diagnostic JSONL, excludes exhausted hashes, derives structural
-    family keys, avoids SAIR generic-prone and accepted-duplicate families,
-    and writes a fresh strong anti-`S24` candidate pool for structure audit and
-    strict planning.
+  - [done] Periodic implementation checkpoint:
+    `5db2c92 Add strong anti-S24 saved mining pass`.
+  - [done] Update `NOTES_IGP24.md` and `docs/EXPERIMENTS.md`; README unchanged
+    because no public/basic workflow changed.
+  - [done] Run final validation, confirm Stage 4 remains present, and audit
+    process/GPU state.
+    - Focused tests:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_strong_anti_s24_mine.py tests/test_igp24_next_verification_queue.py tests/test_igp24_queue_structure_audit.py`.
+      - Result: 16 passed in 0.21s.
+    - Full test suite:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+      - Result: 142 passed in 7.11s.
+    - Full compile check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`.
+      - Result: passed.
+    - Helper help check:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_strong_anti_s24_mine.py --help`.
+      - Result: passed and shows diagnostic, feedback, baseline, target-r,
+        limit, and output options.
+    - JSON validation:
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_saved_mining_20260706/strong_anti_s24_mining_summary.json`,
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_structure_audit_20260706/structure_summary.json`,
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_strict_queue_20260706/next_verification_queue_manifest.json`,
+      and
+      `python3 -m json.tool /tmp/igp24_strong_anti_s24_manual_queue_20260706/offline_verification_manifest.json`.
+      - Result: all parsed successfully.
+    - No-brackets coefficient validation:
+      `/tmp/igp24_strong_anti_s24_manual_queue_20260706/manual_coefficients_no_brackets.txt`.
+      - Result: 3 valid lines, 25 integers per line, no brackets, nonzero
+        constant coefficient, leading coefficient 1.
+    - Diff whitespace check:
+      `git diff --check`.
+      - Result: passed.
+    - Stage 4 check:
+      `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+      - Result: Stage 4 remains present at line 6293 after this TODO update.
+    - Process audit:
+      `ps -eo pid,ppid,stat,comm,args | awk '$4 ~ /^(python|python3|pytest|magma|gp)$/ {print}'`.
+      - Result: no lingering Python, training, pytest, Magma, or GP worker
+        processes.
+    - GPU audit:
+      `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`.
+      - Result: no GPU compute apps reported.
 - [done] Turn the 24-row SAIR acceptance feedback into stricter
   anti-generic queue planning.
   - Goal source:
