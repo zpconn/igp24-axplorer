@@ -826,8 +826,31 @@ square_claim_status_counts={"not_claimed": 8}
 The score-1 queue analysis produced 8 local `r=16` rows. The no-brackets
 coefficient file is
 `/tmp/igp24_r16_quadratic_lift_score1_analysis_20260706/score1_saved_candidate_coefficients.txt`.
-These are ready for manual verifier/submission feedback, but no exact 24T
-labels or score claims are made yet.
+User-reported SAIR feedback accepted all eight table rows as `24T24979|r=16`
+(the pasted count line said 6/6, but the table contained rows 1-8). No scores
+or scoring discriminants were available when recorded.
+
+Accepted feedback:
+
+| Row | Label | r | Status |
+| --- | --- | --- | --- |
+| 1 | `24T24979` | 16 | accepted |
+| 2 | `24T24979` | 16 | accepted |
+| 3 | `24T24979` | 16 | accepted |
+| 4 | `24T24979` | 16 | accepted |
+| 5 | `24T24979` | 16 | accepted |
+| 6 | `24T24979` | 16 | accepted |
+| 7 | `24T24979` | 16 | accepted |
+| 8 | `24T24979` | 16 | accepted |
+
+Accepted-feedback artifact:
+
+- `data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json`
+
+The eight accepted rows cover one distinct accepted pair key,
+`24T24979|r=16`, plus seven accepted alternates. The pair is absent from the
+frozen baseline, so the label/signature is potentially scoreable; final score
+depends on the pending scoring discriminant and team count.
 
 ## Five-Representative Baseline Pass
 

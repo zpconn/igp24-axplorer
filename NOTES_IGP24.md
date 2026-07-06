@@ -1023,3 +1023,11 @@ audit confirmed exact composed support with divisor 2 for all 8. Unlike the
 `r=8` batch, these rows are dense and have no square-discriminant claim; exact
 24T labels and score value are still pending manual verifier/submission
 feedback.
+
+The user-reported SAIR verifier result for that `r16_quadratic_lift` packet
+accepted all eight table rows as `24T24979|r=16` (the pasted count line said
+6/6, but the rows were numbered 1-8). This proves the construction can create
+accepted `r=16` submissions, but this first packet did not diversify labels:
+it yielded one distinct accepted pair and seven accepted alternates. The pair
+is absent from the frozen baseline, and scores/scoring discriminants remain
+pending.

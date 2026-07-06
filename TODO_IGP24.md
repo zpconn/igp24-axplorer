@@ -4273,6 +4273,19 @@ results change.
       `pari_available=false`, `magma_available=false`,
       `pari_executed=false`, `magma_executed=false`, and
       `magma_status_counts={"dry_run": 8}`.
+  - SAIR verifier feedback:
+    - User-reported table rows 1-8 were all accepted as `24T24979|r=16`;
+      the pasted count line said 6/6, but the row table contained eight rows.
+    - Tracked coefficient copy:
+      `data/igp24/r16_quadratic_lift_submission_coefficients_20260706.txt`.
+    - Tracked feedback artifact:
+      `data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json`.
+    - Ledger update: added one distinct accepted pair,
+      `24T24979|r=16`, with rows 2-8 preserved as accepted alternates.
+    - Baseline check: `24T24979|r=16` has 0 rows in the frozen baseline, so
+      this is a potentially scoreable new pair once SAIR scoring returns.
+    - Scores, scoring discriminants, discriminant type, solvability, and
+      teams/k remain pending.
   - Artifact and coefficient validation:
     - Result: parsed the smoke, bounded probe, diagnostic, score-1 queue,
       structure audit, and manual verification JSON/JSONL artifacts.
@@ -4282,9 +4295,9 @@ results change.
   - Full test suite:
     `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
     - Result: 151 passed in 6.13s.
-  - Current recommendation: manually submit/verify the 8-row `r=16`
-    queue before widening this family. The construction reliably reaches
-    local `r=16`, but exact 24T labels and score value remain unknown.
+  - Current recommendation: wait for the `24T24979|r=16` score details and
+    then diversify the `r=16` family, because this first accepted packet
+    proves the construction works but collapsed to one label.
   - Final whitespace check:
     `git diff --check`.
     - Result: passed.
