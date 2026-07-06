@@ -2867,8 +2867,43 @@ results change.
         `/tmp/igp24_submission_plan_20260705/submission_plan_summary.json`,
         and
         `/tmp/igp24_submission_plan_20260705/submission_plan_report.md`.
-    - [in_progress] Commit the submission planner checkpoint before broader
+    - [done] Commit the submission planner checkpoint before broader
       documentation updates.
+      - Result: committed `a10d3c5` (`Add IGP24 submission planning`) after
+        `git diff --check` passed.
+    - [done] Update README, experiment notes, and design notes with the
+      submission planner command, artifacts, and score-strategy caveats.
+      - README now documents the simple local/file-only submission-plan
+        command.
+      - `docs/EXPERIMENTS.md` records the 25 joined verified rows collapsing
+        to 3 expected pairs with 22 duplicate pair candidates suppressed.
+      - `NOTES_IGP24.md` records the scoring implication: pair diversity and
+        exact discriminant/baseline evidence matter more than many variants of
+        the same expected pair.
+    - [done] Run final validation, confirm Stage 4 remains present,
+      audit GPU/process state, and clean caches.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        passed with 114 tests.
+      - Compileall:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - Helper help:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --help`
+        passed.
+      - Diff check: `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 4912 after this TODO update.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        returned no running Python processes.
+      - GPU audit: `nvidia-smi` found no running GPU compute processes; the
+        RTX 5090 was at 7% utilization with display memory only.
+      - Cache cleanup:
+        `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+        completed, and the follow-up count was 0.
+    - [in_progress] Commit the docs/TODO validation update and push.
 
 ## Tests And Checks
 

@@ -84,6 +84,31 @@ back into shortlist analysis and deliberately expand composed-support families,
 especially the divisor-2 `quartic_lift` branch while keeping a small divisor-3
 coverage track.
 
+Submission planning artifacts:
+
+- Plan:
+  `/tmp/igp24_submission_plan_20260705/submission_plan.jsonl`
+- Candidate text:
+  `/tmp/igp24_submission_plan_20260705/submission_candidates.txt`
+- Summary:
+  `/tmp/igp24_submission_plan_20260705/submission_plan_summary.json`
+- Report:
+  `/tmp/igp24_submission_plan_20260705/submission_plan_report.md`
+
+The submission planner joined the 25 saved verified rows to the diagnostic and
+exact-label shortlist artifacts, then collapsed them to one representative per
+expected `(24Tt, r)` pair. It selected three candidate lines:
+`24T24970|r=4`, `24T24979|r=4`, and `24T24759|r=4`. The remaining 22 rows were
+suppressed as duplicate expected pairs.
+
+No baseline CSV was supplied, so all three selected rows remain
+`baseline_unknown`; they should not be described as scoreable until official
+baseline and exact discriminant evidence is available. The selected
+discriminant source is currently `log_abs_discriminant`, a polynomial
+discriminant proxy, not exact `nfdisc`. The `r=4` value comes from candidate
+`real_root_count`, because the saved online-Magma exact-label rows do not carry
+a Magma-computed `r`.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -140,6 +165,7 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_offline_verify.py`: exact verification handoff and parsing.
 - `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
 - `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
+- `scripts/igp24_submission_plan.py`: one-per-pair manual submission planning.
 
 ## Reproducibility Notes
 

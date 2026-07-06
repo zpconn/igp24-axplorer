@@ -749,3 +749,23 @@ or near zero during the run. Treat this as evidence that the current settings
 are CPU-bound by scoring/local search or too small to load the RTX 5090. Do not
 move to a 30-60 minute GPU run until another short probe demonstrates
 nontrivial monitored GPU utilization.
+
+## Submission Planning Notes
+
+Competition scoring is pair-centric: the useful planning unit is the verified
+`(24Tt, r)` pair, not the raw polynomial row. Inside one candidate file, keep
+only one representative per expected pair, and use discriminant evidence to pick
+the best representative for that pair.
+
+The current saved exact-label queue is good evidence for families but not a
+large submission batch. The 25 verified rows collapse to three expected pairs:
+`24T24970|r=4`, `24T24979|r=4`, and `24T24759|r=4`. That means fresh score
+progress should come from new labels/signatures or exact discriminant
+improvements, not from submitting many variants of the same three pairs.
+
+Baseline status remains conservative until an official baseline table is
+supplied and exact `nfdisc` values are computed. Polynomial log-discriminant
+proxies are useful for ordering candidates, but they do not prove a baseline
+improvement. The saved online-Magma rows also do not carry a Magma-computed
+real-root count, so the current `r=4` annotation is sourced from local candidate
+`real_root_count` and should stay labeled as such.

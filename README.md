@@ -211,6 +211,20 @@ python3 scripts/igp24_exact_label_shortlist.py \
 This uses saved feedback as family-planning evidence; it does not claim fresh
 exact labels.
 
+Build a manual submission plan from saved verified rows:
+
+```bash
+python3 scripts/igp24_submission_plan.py \
+  --verified_results /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual \
+  --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
+  --candidate_jsonl /tmp/igp24_exact_label_shortlist_20260705 \
+  --output_dir /tmp/igp24_submission_plan_20260705
+```
+
+This helper is local/file-only. It selects one representative per expected
+`(24Tt, r)` pair and writes manual review artifacts; it does not submit to
+SAIR or claim scoreability without baseline/discriminant evidence.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
