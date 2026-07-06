@@ -42,6 +42,7 @@ SAFETY_NOTE = (
 VERIFIED_RESULT_NAMES = (
     "online_magma_manual_results.jsonl",
     "magma_verification_results.jsonl",
+    "pari_nfdisc_results.jsonl",
     "verification_results.jsonl",
 )
 CANDIDATE_NAMES = (
@@ -57,18 +58,22 @@ LABEL_FIELDS = (
     "verified_group_label",
     "expected_label",
     "label",
+    "t",
+    "T",
+    "group_t",
+    "transitive_id",
     "galois_label",
     "galois_group",
     "group_label",
 )
-R_FIELDS = ("computed_r", "signature_r", "real_root_count", "r", "expected_r")
+R_FIELDS = ("computed_r", "signature_r", "magma_signature_r", "pari_real_root_count", "real_root_count", "r", "expected_r")
 EXACT_DISC_FIELDS = (
     "field_disc_abs",
     "nfdisc_abs",
     "exact_nfdisc_abs",
     "number_field_discriminant_abs",
 )
-SCORING_DISC_FIELDS = ("scoring_disc_abs",)
+SCORING_DISC_FIELDS = ("scoring_disc_abs", "scoring_disc")
 MIXED_DISC_FIELDS = ("mixed_disc_abs",)
 POLY_DISC_FIELDS = (
     "poly_disc_abs",
@@ -175,12 +180,28 @@ def extract_r(
     verified: dict[str, Any],
     candidate: dict[str, Any] | None,
 ) -> tuple[int | None, str]:
-    for source, record in (("verified", verified), ("candidate", candidate or {})):
-        for field in R_FIELDS:
-            value = _coerce_int(record.get(field))
-            if value is not None:
-                return value, f"{source}.{field}"
+    for field in ("computed_r", "signature_r", "magma_signature_r"):
+        value = _coerce_int(verified.get(field))
+        if value is not None:
+            return value, f"verified.{field}"
+    value = _coerce_int(verified.get("pari_real_root_count"))
+    if value is not None:
+        return value, "verified.pari_real_root_count"
+    for field in ("real_root_count", "r", "expected_r"):
+        value = _coerce_int((candidate or {}).get(field))
+        if value is not None:
+            return value, f"candidate.{field}"
     return None, "missing"
+
+
+def exact_r_status_for_source(source: str) -> str:
+    if source in {"verified.computed_r", "verified.signature_r", "verified.magma_signature_r"}:
+        return "ok"
+    if source == "verified.pari_real_root_count":
+        return "pari_exact_count_no_magma_signature"
+    if source.startswith("candidate."):
+        return "candidate_proxy"
+    return "missing"
 
 
 def _path_records(paths: Iterable[Path], common_names: tuple[str, ...]) -> tuple[list[dict[str, Any]], list[Path]]:
@@ -197,6 +218,7 @@ def _path_records(paths: Iterable[Path], common_names: tuple[str, ...]) -> tuple
                 direct = path / name
                 if direct.exists():
                     candidates.append(direct)
+                candidates.extend(sorted(path.glob(f"**/{name}")))
             if not candidates:
                 candidates = sorted(path.glob("**/*.jsonl"))
         else:
@@ -240,6 +262,76 @@ def index_candidates(candidate_rows: Iterable[dict[str, Any]]) -> dict[str, dict
         item["source_candidate_paths"] = [str(row["source_jsonl_path"])] if row.get("source_jsonl_path") else []
         indexed[canonical_hash] = _merge_candidate(indexed.get(canonical_hash, {}), item)
     return indexed
+
+
+def _has_value(value: Any) -> bool:
+    return value not in (None, "", [], {})
+
+
+def _verification_hash(record: dict[str, Any]) -> str | None:
+    value = record.get("candidate_hash") or record.get("canonical_hash")
+    return value if isinstance(value, str) and value else None
+
+
+def merge_verified_evidence_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Merge exact-label, exact-r, and nfdisc evidence rows by candidate hash."""
+
+    merged_by_hash: dict[str, dict[str, Any]] = {}
+    passthrough: list[dict[str, Any]] = []
+    for row in rows:
+        candidate_hash = _verification_hash(row)
+        if candidate_hash is None:
+            passthrough.append(dict(row))
+            continue
+        item = dict(row)
+        item.setdefault("candidate_hash", candidate_hash)
+        item.setdefault("canonical_hash", candidate_hash)
+        existing = merged_by_hash.get(candidate_hash)
+        if existing is None:
+            item["merged_evidence_record_count"] = 1
+            item["merged_evidence_record_types"] = [str(item.get("record_type") or "unknown")]
+            item["merged_evidence_source_paths"] = [
+                str(item.get("source_jsonl_path") or item.get("raw_output_source_path") or "")
+            ]
+            merged_by_hash[candidate_hash] = item
+            continue
+
+        existing["merged_evidence_record_count"] = int(existing.get("merged_evidence_record_count") or 1) + 1
+        record_types = list(existing.get("merged_evidence_record_types") or [])
+        record_type = str(item.get("record_type") or "unknown")
+        if record_type not in record_types:
+            record_types.append(record_type)
+        existing["merged_evidence_record_types"] = record_types
+        source_paths = [path for path in existing.get("merged_evidence_source_paths") or [] if path]
+        source_path = str(item.get("source_jsonl_path") or item.get("raw_output_source_path") or "")
+        if source_path and source_path not in source_paths:
+            source_paths.append(source_path)
+        existing["merged_evidence_source_paths"] = source_paths
+
+        for key, value in item.items():
+            if key in {"source_jsonl_path", "raw_output_source_path"}:
+                if _has_value(value) and not _has_value(existing.get(key)):
+                    existing[key] = value
+                continue
+            if key == "status":
+                statuses = set(existing.get("merged_evidence_statuses") or [])
+                if _has_value(existing.get("status")):
+                    statuses.add(str(existing.get("status")))
+                if _has_value(value):
+                    statuses.add(str(value))
+                existing["merged_evidence_statuses"] = sorted(statuses)
+                if str(existing.get("status")) not in {"verified", "ok"} and str(value) in {"verified", "ok"}:
+                    existing["status"] = value
+                continue
+            if key in EXACT_DISC_FIELDS + POLY_DISC_FIELDS + R_FIELDS and _has_value(value):
+                existing[key] = value
+                continue
+            if not _has_value(existing.get(key)) and _has_value(value):
+                existing[key] = value
+
+        if extract_label(existing) and any(status in {"verified", "ok"} for status in existing.get("merged_evidence_statuses", [])):
+            existing["status"] = "verified"
+    return [*merged_by_hash.values(), *passthrough]
 
 
 def _first_int_field(records: Iterable[dict[str, Any] | None], fields: tuple[str, ...]) -> tuple[str | None, int | None]:
@@ -368,10 +460,16 @@ def load_baseline_csv(path: Path | None) -> tuple[dict[tuple[str, int], dict[str
 def classify_baseline(record: dict[str, Any], baseline: dict[tuple[str, int], dict[str, Any]], *, baseline_loaded: bool) -> dict[str, Any]:
     label = record.get("verified_group_label")
     r_value = record.get("expected_r")
+    exact_r_status = str(record.get("exact_r_status") or "missing")
+    exact_nfdisc_status = str(record.get("exact_nfdisc_status") or "missing")
     if not baseline_loaded:
         return {
             "baseline_status": "baseline_unknown",
             "baseline_nfdisc_abs": None,
+            "baseline_nfdisc_source": None,
+            "baseline_rows": 0,
+            "scoreability_status": "baseline_missing",
+            "scoreability_blockers": ["official_baseline_csv_missing"],
             "scoreable_claimed": False,
             "scoreability_note": "No baseline CSV was supplied; scoreability is unknown.",
         }
@@ -379,31 +477,54 @@ def classify_baseline(record: dict[str, Any], baseline: dict[tuple[str, int], di
         return {
             "baseline_status": "invalid_pair_for_baseline_check",
             "baseline_nfdisc_abs": None,
+            "baseline_nfdisc_source": None,
+            "baseline_rows": 0,
+            "scoreability_status": "invalid_pair",
+            "scoreability_blockers": ["missing_label_or_r"],
             "scoreable_claimed": False,
             "scoreability_note": "Missing label or r for baseline lookup.",
         }
     entry = baseline.get((label, r_value))
     if entry is None:
+        blockers = []
+        if exact_r_status != "ok":
+            blockers.append("exact_magma_r_missing")
         return {
             "baseline_status": "non_baseline_candidate",
             "baseline_nfdisc_abs": None,
+            "baseline_nfdisc_source": None,
+            "baseline_rows": 0,
+            "scoreability_status": "new_pair_candidate" if not blockers else "new_pair_needs_exact_r",
+            "scoreability_blockers": blockers,
             "scoreable_claimed": False,
-            "scoreability_note": "Pair is absent from supplied baseline CSV, but official scoreability still requires official verification.",
+            "scoreability_note": "Pair is absent from supplied baseline CSV, but official scoreability still requires official verification and exact r evidence.",
         }
     baseline_nfdisc = entry.get("baseline_nfdisc_abs")
     exact_disc = record.get("exact_nfdisc_abs")
+    blockers = []
+    if exact_r_status != "ok":
+        blockers.append("exact_magma_r_missing")
+    if exact_nfdisc_status != "ok":
+        blockers.append("exact_nfdisc_missing")
     if exact_disc is not None and baseline_nfdisc is not None and int(exact_disc) < int(baseline_nfdisc):
         status = "baseline_improvement_candidate"
+        scoreability_status = "baseline_improvement_candidate" if not blockers else "baseline_improvement_needs_exact_evidence"
         note = "Exact nfdisc is below supplied baseline; official scoreability still requires official verification."
     elif exact_disc is not None and baseline_nfdisc is not None:
         status = "baseline_not_improved"
+        scoreability_status = "not_scoreable_against_baseline"
         note = "Exact nfdisc is not below supplied baseline."
     else:
         status = "baseline_requires_exact_nfdisc"
+        scoreability_status = "baseline_pair_needs_exact_nfdisc"
         note = "Pair is in supplied baseline, but no exact nfdisc improvement is available."
     return {
         "baseline_status": status,
         "baseline_nfdisc_abs": baseline_nfdisc,
+        "baseline_nfdisc_source": entry.get("baseline_nfdisc_source"),
+        "baseline_rows": entry.get("baseline_rows"),
+        "scoreability_status": scoreability_status,
+        "scoreability_blockers": blockers,
         "scoreable_claimed": False,
         "scoreability_note": note,
     }
@@ -417,9 +538,10 @@ def build_joined_rows(
     baseline_loaded: bool,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     candidates = index_candidates(candidate_rows)
+    merged_verified_rows = merge_verified_evidence_rows(verified_rows)
     joined: list[dict[str, Any]] = []
     skipped: Counter[str] = Counter()
-    for verified in verified_rows:
+    for verified in merged_verified_rows:
         status = str(verified.get("status") or verified.get("exact_verification_status") or "")
         label = extract_label(verified)
         canonical_hash = verified.get("candidate_hash") or verified.get("canonical_hash")
@@ -434,8 +556,10 @@ def build_joined_rows(
             continue
         candidate = candidates.get(canonical_hash)
         r_value, r_source = extract_r(verified=verified, candidate=candidate)
+        exact_r_status = exact_r_status_for_source(r_source)
         disc = discriminant_choice(verified=verified, candidate=candidate)
         exact_field, exact_nfdisc = _first_int_field([verified, candidate or {}], EXACT_DISC_FIELDS)
+        exact_nfdisc_status = "ok" if exact_nfdisc is not None else "missing"
         coeffs = exported_coefficients(candidate) or exported_coefficients(verified)
         pair_key = f"{label}|r={r_value if r_value is not None else 'unknown'}"
         row = {
@@ -446,6 +570,7 @@ def build_joined_rows(
             "verified_group_label": label,
             "expected_r": r_value,
             "expected_r_source": r_source,
+            "exact_r_status": exact_r_status,
             "pair_key": pair_key,
             "degree": verified.get("degree"),
             "is_irreducible": verified.get("is_irreducible"),
@@ -462,6 +587,7 @@ def build_joined_rows(
             "source_ledger_path": (candidate or {}).get("source_ledger_path"),
             "exact_nfdisc_abs": exact_nfdisc,
             "exact_nfdisc_source": exact_field,
+            "exact_nfdisc_status": exact_nfdisc_status,
             "discriminant_rank_category": disc["rank_category"],
             "discriminant_source": disc["source"],
             "discriminant_value": disc["value"],
@@ -473,6 +599,7 @@ def build_joined_rows(
         joined.append(row)
     return joined, {
         "verified_rows_loaded": len(verified_rows),
+        "verified_evidence_rows_after_merge": len(merged_verified_rows),
         "candidate_rows_loaded": len(candidate_rows),
         "candidate_hashes_indexed": len(candidates),
         "joined_rows": len(joined),
@@ -539,8 +666,11 @@ def _coefficient_line(record: dict[str, Any]) -> str | None:
     comment = (
         f" # NOT_SUBMITTED expected_pair={record.get('pair_key')} "
         f"r_source={record.get('expected_r_source')} "
+        f"r_status={record.get('exact_r_status')} "
         f"baseline_status={record.get('baseline_status')} "
+        f"scoreability_status={record.get('scoreability_status')} "
         f"disc_source={record.get('discriminant_source') or 'missing'} "
+        f"nfdisc_status={record.get('exact_nfdisc_status')} "
         f"hash={record.get('short_hash')}"
     )
     return coeff_text + comment
@@ -577,6 +707,9 @@ def build_summary(
         "selected_label_counts": _counts(selected, "verified_group_label"),
         "selected_r_counts": _counts(selected, "expected_r"),
         "baseline_status_counts": _counts(selected, "baseline_status"),
+        "scoreability_status_counts": _counts(selected, "scoreability_status"),
+        "exact_r_status_counts": _counts(selected, "exact_r_status"),
+        "exact_nfdisc_status_counts": _counts(selected, "exact_nfdisc_status"),
         "discriminant_rank_category_counts": _counts(selected, "discriminant_rank_category"),
         "output_files": {
             "submission_plan_jsonl": str(output_dir / PLAN_JSONL),
@@ -588,6 +721,7 @@ def build_summary(
             "Do not submit automatically; inspect this plan and submit manually only after baseline/discriminant review.",
             "The current verified rows collapse by expected pair, so fresh scoring progress needs new labels or new signatures.",
             "Supply the official baseline CSV before claiming non-baseline status or baseline-improvement scoreability.",
+            "Treat candidate-proxy r values as planning aids only; submission-grade rows need exact Magma r.",
             "If a pair is baseline, compute exact nfdisc and compare to the baseline threshold before submission.",
             "Within one submission, keep only one row per expected pair; later submissions can improve discriminants.",
         ],
@@ -622,12 +756,15 @@ def build_report(summary: dict[str, Any], selected: list[dict[str, Any]], suppre
         f"- Duplicate pair candidates suppressed: {summary.get('duplicate_pair_candidates_suppressed')}",
         f"- Candidate lines written: {summary.get('candidate_lines_written')}",
         f"- Baseline status counts: `{json.dumps(summary.get('baseline_status_counts'), sort_keys=True)}`",
+        f"- Scoreability status counts: `{json.dumps(summary.get('scoreability_status_counts'), sort_keys=True)}`",
+        f"- Exact r status counts: `{json.dumps(summary.get('exact_r_status_counts'), sort_keys=True)}`",
+        f"- Exact nfdisc status counts: `{json.dumps(summary.get('exact_nfdisc_status_counts'), sort_keys=True)}`",
         f"- Discriminant source counts: `{json.dumps(summary.get('discriminant_rank_category_counts'), sort_keys=True)}`",
         "",
         "## Selected One-Per-Pair Rows",
         "",
-        "| rank | pair | hash | r source | baseline status | disc source | disc value | suppressed |",
-        "| ---: | --- | --- | --- | --- | --- | ---: | ---: |",
+        "| rank | pair | hash | r status | baseline status | scoreability | nfdisc status | disc source | disc value | suppressed |",
+        "| ---: | --- | --- | --- | --- | --- | --- | --- | ---: | ---: |",
     ]
     for row in selected:
         disc_value = row.get("discriminant_value")
@@ -639,8 +776,10 @@ def build_report(summary: dict[str, Any], selected: list[dict[str, Any]], suppre
                     str(row.get("submission_plan_rank")),
                     f"`{row.get('pair_key')}`",
                     f"`{row.get('short_hash')}`",
-                    str(row.get("expected_r_source")),
+                    str(row.get("exact_r_status")),
                     str(row.get("baseline_status")),
+                    str(row.get("scoreability_status")),
+                    str(row.get("exact_nfdisc_status")),
                     str(row.get("discriminant_source") or ""),
                     disc_text,
                     str(row.get("duplicate_pair_candidates_suppressed")),
@@ -762,6 +901,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"unique_pairs_selected\t{summary['unique_pairs_selected']}")
     print(f"duplicate_pair_candidates_suppressed\t{summary['duplicate_pair_candidates_suppressed']}")
     print(f"baseline_status_counts\t{json.dumps(summary['baseline_status_counts'], sort_keys=True)}")
+    print(f"scoreability_status_counts\t{json.dumps(summary['scoreability_status_counts'], sort_keys=True)}")
+    print(f"exact_r_status_counts\t{json.dumps(summary['exact_r_status_counts'], sort_keys=True)}")
+    print(f"exact_nfdisc_status_counts\t{json.dumps(summary['exact_nfdisc_status_counts'], sort_keys=True)}")
     print(f"candidate_lines_written\t{summary['candidate_lines_written']}")
     for name, path in paths.items():
         print(f"{name}\t{path}")

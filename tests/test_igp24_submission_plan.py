@@ -4,6 +4,7 @@ from scripts.igp24_submission_plan import (
     build_joined_rows,
     build_summary,
     load_baseline_csv,
+    merge_verified_evidence_rows,
     select_best_per_pair,
     write_outputs,
 )
@@ -81,6 +82,40 @@ def test_exact_nfdisc_preferred_over_proxy_discriminant():
     assert selected[0]["exact_nfdisc_abs"] == 10_000
 
 
+def test_verified_label_and_pari_nfdisc_rows_merge_by_hash():
+    verified = [
+        _verified("hash_a", "24T24970") | {"signature_r": 4, "status": "verified"},
+        {
+            "candidate_hash": "hash_a",
+            "record_type": "igp24_pari_nfdisc_result",
+            "status": "nfdisc_ok",
+            "nfdisc_abs": 321,
+            "poly_disc_abs": 999,
+            "pari_real_root_count": 4,
+        },
+    ]
+    candidates = [_candidate("hash_a", coeff0=1, r=2, log_disc=200.0)]
+
+    merged = merge_verified_evidence_rows(verified)
+    joined, diagnostics = build_joined_rows(
+        verified_rows=verified,
+        candidate_rows=candidates,
+        baseline={},
+        baseline_loaded=False,
+    )
+
+    assert len(merged) == 1
+    assert diagnostics["verified_rows_loaded"] == 2
+    assert diagnostics["verified_evidence_rows_after_merge"] == 1
+    assert joined[0]["verified_group_label"] == "24T24970"
+    assert joined[0]["expected_r"] == 4
+    assert joined[0]["expected_r_source"] == "verified.signature_r"
+    assert joined[0]["exact_r_status"] == "ok"
+    assert joined[0]["exact_nfdisc_abs"] == 321
+    assert joined[0]["exact_nfdisc_status"] == "ok"
+    assert joined[0]["discriminant_rank_category"] == "exact_nfdisc"
+
+
 def test_baseline_csv_classifies_unknown_new_and_improvement_states(tmp_path):
     baseline_path = tmp_path / "baseline.csv"
     baseline_path.write_text(
@@ -112,6 +147,13 @@ def test_baseline_csv_classifies_unknown_new_and_improvement_states(tmp_path):
         "new_pair": "non_baseline_candidate",
         "requires_nfdisc": "baseline_requires_exact_nfdisc",
     }
+    scoreability_by_hash = {row["canonical_hash"]: row["scoreability_status"] for row in joined}
+    assert scoreability_by_hash == {
+        "improved": "baseline_improvement_needs_exact_evidence",
+        "new_pair": "new_pair_needs_exact_r",
+        "requires_nfdisc": "baseline_pair_needs_exact_nfdisc",
+    }
+    assert all(row["exact_r_status"] == "candidate_proxy" for row in joined)
     assert all(row["scoreable_claimed"] is False for row in joined)
 
 
@@ -139,6 +181,8 @@ def test_no_baseline_marks_pairs_unknown_and_outputs_manual_candidate_file(tmp_p
     plan_rows = [json.loads(line) for line in paths["submission_plan_jsonl"].read_text(encoding="utf-8").splitlines()]
 
     assert reloaded_summary["baseline_status_counts"] == {"baseline_unknown": 2}
+    assert reloaded_summary["exact_r_status_counts"] == {"candidate_proxy": 2}
+    assert reloaded_summary["exact_nfdisc_status_counts"] == {"missing": 2}
     assert reloaded_summary["safety"]["sair_submission"] is False
     assert reloaded_summary["safety"]["scoreable_claims"] is False
     assert len([line for line in text_lines if not line.startswith("#")]) == 2

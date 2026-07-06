@@ -3154,6 +3154,64 @@ results change.
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up `find . -type d -name __pycache__ -print`
         returned no paths.
+  - [in_progress] Make the five verified one-per-pair representatives
+    submission-grade.
+    - [done] Pull latest and inspect current verifier/planner surfaces.
+      - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
+      - Five representatives for this goal:
+        `981a94588aab` (`24T24979|r=4`),
+        `4be66a510402` (`24T24759|r=4`),
+        `9c45c5493e7a` (`24T9683|r=4`),
+        `a97caa584baa` (`24T24970|r=4`), and
+        `2289d8a5e700` (`24T24648|r=4`).
+      - Current code state: `scripts/igp24_submission_plan.py` already has
+        `--baseline_csv`, baseline-pair lookup, and exact-`nfdisc` preference,
+        but the offline/manual verifier does not yet emit exact Magma `r` in
+        generated scripts or parseable PARI/GP `nfdisc` result rows.
+      - Local availability: `command -v gp` and `command -v magma` returned no
+        paths, so this host cannot currently compute exact `nfdisc` or local
+        Magma signatures. This goal should produce ready-to-run manual
+        artifacts and parsers, and only mark exact fields present when saved
+        exact outputs exist.
+      - Safety: no SAIR submission/API calls and no GPU/model search.
+    - [done] Add exact `r`/`nfdisc` capture to verifier artifacts and wire
+      merged exact evidence into submission planning.
+      - Code changes: `scripts/igp24_offline_verify.py` now emits
+        `IGP24_SIGNATURE` in Magma scripts, emits parseable PARI/GP
+        `IGP24_NFDISC_ABS`/status markers, parses saved PARI/GP outputs into
+        `pari_nfdisc_results.jsonl`, and writes a PARI nfdisc summary/report.
+      - Code changes: `scripts/igp24_submission_plan.py` now merges exact label,
+        exact `r`, and exact `nfdisc` evidence rows by candidate hash, searches
+        nested verifier result files, prefers exact `nfdisc`, labels candidate
+        `r` as a proxy, and records exact-`r`/exact-`nfdisc` status counts.
+      - Focused tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py`
+        passed with 19 tests in 1.34s.
+    - [done] Import the official frozen LMFDB baseline CSV.
+      - Source:
+        `https://competition.sair.foundation/downloads/igp24/lmfdb_baseline.csv`.
+      - Saved file: `data/igp24/lmfdb_baseline.csv`.
+      - Header: `label,r,poly_disc_abs,nfdisc_abs,scoring_disc,coeffs`.
+      - Load result from the planner: 1,480 rows indexed into 622 `(label, r)`
+        pairs.
+    - [in_progress] Run the updated five-representative pass against official
+      baseline data and record the remaining exact-evidence blockers.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --verified_results /tmp/igp24_submission_grade_five_20260706 --candidate_jsonl /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --candidate_jsonl /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --baseline_csv data/igp24/lmfdb_baseline.csv --output_dir /tmp/igp24_submission_grade_five_plan_with_baseline_20260706`.
+      - Result: 10 verifier rows merged to 5 selected one-per-pair rows; all
+        five are `non_baseline_candidate` against the official baseline.
+      - Current blocker: all five rows are still `new_pair_needs_exact_r`,
+        because the saved online-Magma XML predates the new `IGP24_SIGNATURE`
+        marker, local `magma` is unavailable, and no exact PARI `nfdisc` output
+        is present. Current status counts are
+        `exact_r_status_counts={"candidate_proxy": 5}` and
+        `exact_nfdisc_status_counts={"missing": 5}`.
+      - Plan artifacts:
+        `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan.jsonl`,
+        `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_candidates.txt`,
+        `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_summary.json`,
+        and
+        `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_report.md`.
 
 ## Tests And Checks
 
