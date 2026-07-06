@@ -28,6 +28,9 @@ results change.
   default; local MAGMA execution still requires explicit `--run_magma`.
 - Current task: feed the verified non-generic exact labels back into shortlist
   analysis and run planning before any larger GPU training run.
+- README cleanup: public-facing README now stays concise; benchmark and
+  verification result detail moved to `docs/EXPERIMENTS.md`, with the full
+  working log still in this TODO and design notes in `NOTES_IGP24.md`.
 
 ## Stage 0: Scaffold
 
