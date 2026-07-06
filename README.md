@@ -1,6 +1,6 @@
 # IGP24 Axplorer
 
-Axplorer-based research code for generating and triaging monic degree-24
+[Axplorer](https://github.com/AxiomMath/axplorer)-based research code for generating and triaging monic degree-24
 integer polynomials for the
 [SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview).
 
