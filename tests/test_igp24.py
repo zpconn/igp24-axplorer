@@ -35,6 +35,12 @@ from src.igp24.polynomial import (
 from src.igp24.verifiers.magma import MagmaVerifier
 from src.igp24.verifiers.pari import PARIVerifier
 from src.igp24.verifiers.sair_api import SAIRAPIVerifier
+from scripts.igp24_r16_diversity_probe import (
+    base_polynomial_from_layout,
+    coefficient_line,
+    lift_base_to_degree24,
+    multiply_polynomials,
+)
 
 
 VALID = tuple([-2] + [0] * (DEGREE - 1))  # x^24 - 2, Eisenstein at 2.
@@ -323,6 +329,20 @@ def test_r16_quadratic_lift_generation_emits_valid_composed_r16_template():
     assert score >= 0
     assert analysis.valid
     assert analysis.real_root_count == 16
+
+
+def test_r16_diversity_probe_helpers_build_degree24_lift():
+    assert multiply_polynomials([1, 2], [3, 4]) == [3, 10, 8]
+    base = base_polynomial_from_layout((1, 2, 3, 4, 6, 8, 10, 12), (((1, 1), (1, 2))))
+    coeffs = lift_base_to_degree24(base)
+
+    assert len(base) == 13
+    assert base[-1] == 1
+    assert len(coeffs) == DEGREE
+    assert coeffs[0] == base[0]
+    assert coeffs[1] == 0
+    assert coeffs[22] == base[11]
+    assert coefficient_line([*coeffs, 1]).endswith(",1")
 
 
 def test_mixed_strategy_weights_are_normalized_and_selectable():

@@ -859,6 +859,44 @@ reports `scoreable=false`, `scoringStatus=pending`,
 `inBaseline=false` for all eight rows. This is recorded as pending
 discriminant scoring rather than final unscoreable status.
 
+## Diversified R16 Probe
+
+After the first r16 submission collapsed to `24T24979|r=16`, a bounded
+CPU-only probe generated a more diverse manual queue. The helper constructs
+degree-12 base polynomials with eight positive roots, forms `g(x^2)`, and also
+tries tiny odd-power perturbations to escape the exact composed family while
+preserving local `r=16`.
+
+Command:
+
+```text
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r16_diversity_probe.py --output_dir data/igp24/r16_diversity_probe_20260706 --seed 1616 --max_trials 240 --limit 10 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 4.0 --min_l1_to_accepted_even 5000
+```
+
+Result:
+
+```text
+trials_attempted=240
+valid_r16_candidates=189
+selected_rows=10
+selected_mode_counts={"exact_composed_new_base": 5, "odd_perturbed_near_composed": 5}
+rejected_counts={"coefficient_height_exceeds_bound": 32, "real_root_count_mismatch": 19}
+queue_status=produced
+```
+
+Artifacts:
+
+- `data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_coefficients.txt`
+- `data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl`
+- `data/igp24/r16_diversity_probe_20260706/r16_diversified_summary.json`
+- `data/igp24/r16_diversity_probe_20260706/r16_diversified_report.md`
+
+Validation reran exact local scoring for all 10 selected coefficient rows:
+each row has 25 integer coefficients, nonzero constant term, monic leading
+coefficient, coefficient gcd 1, `real_root_count=16`, irreducible and
+squarefree status, a unique canonical hash, and no overlap with accepted/known
+ledger hashes. The helper makes no exact 24T-label claim.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

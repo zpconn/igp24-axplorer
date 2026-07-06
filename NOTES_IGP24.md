@@ -1039,3 +1039,12 @@ The later SAIR CSV export for submission
 provisional while field-discriminant scoring runs, not evidence of a final
 no-score outcome. Field discriminant, discriminant source, solvability,
 teams/k, and pair score remain unknown.
+
+A short CPU-only diversification probe now produces a next manual r16 queue at
+`data/igp24/r16_diversity_probe_20260706`. It tries to avoid simply cloning
+the accepted `24T24979|r=16` family by spreading 240 bounded trials across new
+degree-12 base root layouts and selecting one row per family. The final queue
+has 10 local exact `r=16` rows: five exact `g(x^2)` composed rows and five
+near-composed rows with one tiny odd-power perturbation. All selected hashes
+are novel against the local accepted/known ledger. This is the right next
+manual submission size before widening the r16 search.

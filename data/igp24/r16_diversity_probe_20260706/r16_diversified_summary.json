@@ -1,0 +1,103 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r16_diversity_probe.py",
+    "--output_dir",
+    "data/igp24/r16_diversity_probe_20260706",
+    "--seed",
+    "1616",
+    "--max_trials",
+    "240",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "20000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "4.0",
+    "--min_l1_to_accepted_even",
+    "5000"
+  ],
+  "created_at": "2026-07-06T21:13:21.036040+00:00",
+  "inputs": {
+    "accepted_even_vectors": 8,
+    "accepted_status_csv": "/home/zpconn/code/igp24-axplorer/data/igp24/r16_quadratic_lift_sair_status_export_20260706.csv",
+    "known_hashes": 24,
+    "pair_status_json": "/home/zpconn/code/igp24-axplorer/data/igp24/pair_status_20260706.json"
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r16_diversity_probe_20260706/r16_diversified_rejected_trials.jsonl",
+    "report_md": "data/igp24/r16_diversity_probe_20260706/r16_diversified_report.md",
+    "summary_json": "data/igp24/r16_diversity_probe_20260706/r16_diversified_summary.json"
+  },
+  "parameters": {
+    "coeff_bound": 20000000,
+    "exact_score_timeout": 4.0,
+    "include_exact": true,
+    "include_odd": true,
+    "limit": 10,
+    "max_trials": 240,
+    "min_l1_to_accepted_even": 5000,
+    "per_family_cap": 1,
+    "prime_limit": 7,
+    "seed": 1616
+  },
+  "queue_status": "produced",
+  "recommendation": "Manual-submit this diversified r16 queue before widening the probe.",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 32,
+    "real_root_count_mismatch": 19
+  },
+  "safety": {
+    "cpu_only": true,
+    "gpu_sampling": false,
+    "gpu_training": false,
+    "local_file_only": true,
+    "local_search_executed": false,
+    "magma_executed": false,
+    "network_calls": false,
+    "note": "CPU-only local r16 diversification probe. It does not train models, use a GPU sampler, call SAIR/Magma/PARI/network APIs, or submit anything.",
+    "pari_executed": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "selected_family_keys": [
+    "exact_composed_new_base|roots=1,2,3,4,5,6,8,9|quads=2-2,2-3",
+    "odd_perturbed_near_composed|roots=1,2,3,4,6,7,9,11|quads=1-1,1-2",
+    "exact_composed_new_base|roots=1,2,3,4,6,7,9,11|quads=1-1,1-2",
+    "odd_perturbed_near_composed|roots=1,2,3,4,6,7,9,11|quads=1-1,3-4",
+    "exact_composed_new_base|roots=1,2,3,4,6,8,10,12|quads=1-1,1-2",
+    "odd_perturbed_near_composed|roots=1,2,3,4,6,7,9,11|quads=1-2,2-2",
+    "exact_composed_new_base|roots=1,2,3,4,6,8,10,12|quads=1-1,3-4",
+    "odd_perturbed_near_composed|roots=1,2,3,4,6,8,10,12|quads=1-1,1-2",
+    "exact_composed_new_base|roots=1,2,3,4,6,8,10,12|quads=1-2,2-2",
+    "odd_perturbed_near_composed|roots=1,2,3,4,6,8,10,12|quads=1-1,3-4"
+  ],
+  "selected_hashes": [
+    "4d1e653e605a04718149468459a9dc0012acf0937c499203925df67242975216",
+    "13094bd39221df048cb6a46f78ad15a39a9ffc1234104601d18bf1911e641170",
+    "707b2cbef38073fd7e3878883b9093d8061636462108e847823e6d662043eae1",
+    "7bcf04f2e733f0e9717d2998fa3531fdfceb2dfeaa35086e62ed1d8d2dfd6503",
+    "ec8fd21eb76d0bdd5ba28df745c6712bd286105bad9eef985ff7a5f1d9abcabb",
+    "c9e9a939971206b117126872728965c1ab1562474d179fab95f695c0ebae8865",
+    "71f1618abe1a390c142407fdb0f827cbd728efb5db5a74444494cb4157653b94",
+    "e7657687d139edfe1e53b7899acc15853ec781ee81a1a345b3c7d6c5a8bb10d1",
+    "b69dd0857b61613943c4b4da5e7f64d1f6c6059645147b51045dffeefff649e3",
+    "dbce4e2bc909f7db2c11bb9a6b57cfc371d4cf8f310de79b487753e2c1daf503"
+  ],
+  "selected_mode_counts": {
+    "exact_composed_new_base": 5,
+    "odd_perturbed_near_composed": 5
+  },
+  "selected_rows": 10,
+  "source_commit": "6022309cf939c294ea9c5c175e5bcf459681dae1",
+  "tool": "scripts/igp24_r16_diversity_probe.py",
+  "trials_attempted": 240,
+  "valid_r16_candidates": 189
+}

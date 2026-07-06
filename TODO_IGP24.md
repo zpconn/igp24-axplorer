@@ -42,7 +42,8 @@ results change.
   accepted and `inBaseline=false`; `scoreable=false` is paired with
   `scoringStatus=pending` and `scoringReason=discriminant_pending`, so it is
   treated as provisional pending discriminant scoring, not final no-score
-  status.
+  status. A short CPU-only r16 diversity probe produced a 10-row manual queue
+  under `data/igp24/r16_diversity_probe_20260706`.
 
 ## Stage 0: Scaffold
 
@@ -4307,6 +4308,65 @@ results change.
     - Ledger update: `24T24979|r=16` score status refined to
       `discriminant_pending`, the SAIR submission id and CSV source were
       recorded, and all seven accepted alternates were preserved.
+  - Bounded r16 diversification helper:
+    - Added `scripts/igp24_r16_diversity_probe.py`.
+    - Purpose: build a small local queue that tries to avoid the accepted
+      `24T24979|r=16` template by using different degree-12 base root layouts
+      for `g(x^2)`, including both exact-composed rows and rows with one tiny
+      odd-power perturbation.
+    - Safety: CPU-only, file-only, no GPU/model training, no GPU sampling, no
+      SAIR API/submission, no Magma/PARI/network calls, and no local search.
+    - Added focused helper test:
+      `tests/test_igp24.py::test_r16_diversity_probe_helpers_build_degree24_lift`.
+  - Focused helper validation:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24.py::test_r16_diversity_probe_helpers_build_degree24_lift`.
+    - Result: 1 passed in 0.29s.
+  - Compile check:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_r16_diversity_probe.py tests/test_igp24.py`.
+    - Result: passed.
+  - Short CPU-only diversification probe:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r16_diversity_probe.py --output_dir data/igp24/r16_diversity_probe_20260706 --seed 1616 --max_trials 240 --limit 10 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 4.0 --min_l1_to_accepted_even 5000`.
+    - Result: `trials_attempted=240`, `valid_r16_candidates=189`,
+      `selected_rows=10`, `selected_mode_counts={"exact_composed_new_base": 5, "odd_perturbed_near_composed": 5}`,
+      `rejected_counts={"coefficient_height_exceeds_bound": 32, "real_root_count_mismatch": 19}`,
+      and `queue_status=produced`.
+    - Artifacts:
+      `data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_coefficients.txt`,
+      `data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl`,
+      `data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_hashes.txt`,
+      `data/igp24/r16_diversity_probe_20260706/r16_diversified_summary.json`,
+      and
+      `data/igp24/r16_diversity_probe_20260706/r16_diversified_report.md`.
+    - Queue shape: 10 no-brackets SAIR-format rows, 10 unique hashes, 10
+      unique family keys, and no selected hash overlaps the accepted/known
+      pair-status ledger hashes.
+    - Local exact validation: all 10 rows have 25 integer coefficients,
+      nonzero constant coefficient, monic leading coefficient, coefficient
+      gcd 1, local `real_root_count=16`, `irreducible=true`,
+      `squarefree=true`, and no exact label claim.
+    - Structural evidence: exact-composed rows carry exact divisor-2 support;
+      odd-perturbed rows carry near-composed divisor-2 support. All selected
+      rows record modular-factorization proxy evidence and their minimum L1
+      distance from the accepted r16 even-coefficient templates.
+  - Structured artifact validation:
+    - Result: parsed the SAIR status CSV, pair-status JSON, r16 accepted
+      feedback JSON, diversified queue JSONL, diversified summary JSON, and
+      diversified coefficient TXT; confirmed 8 pending-scoring SAIR rows and
+      10 diversified queue rows.
+  - Full test suite:
+    `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
+    - Result: 152 passed in 7.01s.
+  - Final whitespace check:
+    `git diff --check`.
+    - Result: passed.
+  - Final Stage 4 check:
+    `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
+    - Result: Stage 4 remains present at line 7114 after this TODO update.
+  - Process/GPU audit:
+    - `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`
+      returned no GPU compute apps.
+    - `ps -eo pid,ppid,stat,comm,args` showed no lingering Python, pytest,
+      Magma, GP, or training workers beyond the audit command itself.
   - Artifact and coefficient validation:
     - Result: parsed the smoke, bounded probe, diagnostic, score-1 queue,
       structure audit, and manual verification JSON/JSONL artifacts.
