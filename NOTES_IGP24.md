@@ -353,6 +353,20 @@ track. The next useful implementation step is to feed these exact labels back
 into shortlist analysis and run planning; do not start a large GPU run before
 the exact-label feedback loop is wired into candidate selection.
 
+That feedback loop now has a local/file-only first pass in
+`scripts/igp24_verified_label_feedback.py`. It joins the saved structure audit,
+saved parsed Magma result rows, and optional diagnostic shortlist rows by
+canonical hash, then writes joined JSONL, representative rows, a summary JSON,
+and a markdown report. On the 25-row non-generic queue, it recovered the exact
+same counts, confirmed that every joined row was degree 24 and irreducible,
+and made the structural split explicit: square divisor-2/base-degree-12 rows
+are `24T24970`; nonsquare divisor-2/base-degree-12 rows are `24T24979`; and
+`27eaf2acac9f` remains the divisor-3/base-degree-8 `24T24759` coverage row.
+The next useful code step is exact-label-aware shortlist reporting or generation
+knobs that can expand the `24T24970`/`24T24979` families while preserving the
+small `24T24759` track. These labels should remain outside training, GPU
+sampling, CPU proxy scoring, local search, SAIR, and automatic network paths.
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and

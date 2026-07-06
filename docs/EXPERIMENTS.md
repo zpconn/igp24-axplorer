@@ -44,6 +44,23 @@ Magma verification results:
 
 Every verified row was degree 24 and irreducible. None were `24T25000`.
 
+Exact-label feedback artifacts:
+
+- Joined feedback:
+  `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl`
+- Representatives:
+  `/tmp/igp24_verified_label_feedback_20260705/verified_label_representatives.jsonl`
+- Summary:
+  `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback_summary.json`
+- Report:
+  `/tmp/igp24_verified_label_feedback_20260705/verified_label_feedback_report.md`
+
+The feedback join mapped exact labels back to local structure:
+
+- Square-discriminant divisor-2/base-degree-12 rows: 18 `24T24970`.
+- Nonsquare divisor-2/base-degree-12 rows: 6 `24T24979`.
+- Divisor-3/base-degree-8 row `27eaf2acac9f`: 1 `24T24759`.
+
 Interpretation: the non-generic diagnostic and local structure audit were
 strong predictors for this queue. The next search work should feed exact labels
 back into shortlist analysis and deliberately expand composed-support families,
@@ -104,6 +121,7 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_non_generic_diagnostic.py`: proxy non-generic shortlist.
 - `scripts/igp24_queue_structure_audit.py`: exact local algebra structure audit.
 - `scripts/igp24_offline_verify.py`: exact verification handoff and parsing.
+- `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
 
 ## Reproducibility Notes
 

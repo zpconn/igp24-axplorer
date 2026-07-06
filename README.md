@@ -44,6 +44,10 @@ The raw Magma calculator XML outputs are preserved under
 [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) for the experiment summary and
 artifact paths.
 
+The verified-label feedback helper maps those exact labels back to local
+structure-audit rows so future shortlist work can distinguish the
+`24T24970`, `24T24979`, and `24T24759` families.
+
 ## Capabilities
 
 - Configurable coefficient generation strategies.
@@ -178,6 +182,19 @@ The offline verifier helper is dry-run by default. It writes PARI/GP and Magma
 input files, copied verification batches, reports, and result templates. It
 does not execute Magma unless `--run_magma` is supplied.
 
+Summarize verified exact-label feedback:
+
+```bash
+python3 scripts/igp24_verified_label_feedback.py \
+  --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl \
+  --magma_results_jsonl /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_results.jsonl \
+  --diagnostic_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
+  --output_dir /tmp/igp24_verified_label_feedback_20260705
+```
+
+This helper is local/file-only: it reads saved artifacts and does not call
+Magma, PARI, SAIR, training, GPU sampling, CPU search loops, or network APIs.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -214,6 +231,7 @@ that branch.
 - `scripts/igp24_non_generic_diagnostic.py`: proxy non-generic shortlist tool.
 - `scripts/igp24_queue_structure_audit.py`: local exact-algebra structure audit.
 - `scripts/igp24_offline_verify.py`: offline/local/manual verification handoff.
+- `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.
