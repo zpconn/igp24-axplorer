@@ -2,6 +2,7 @@ import json
 
 from scripts.igp24_next_verification_queue import (
     annotate_filter_status,
+    build_sair_feedback_rules,
     build_summary,
     load_pair_status,
     select_queue,
@@ -86,6 +87,78 @@ def test_filter_status_respects_accepted_pending_baseline_and_generic():
     assert "not_generic_s24" in by_hash["eligible_hash"]["survived_filters"]
 
 
+def test_sair_feedback_marks_generic_prone_family():
+    rows = [
+        _record("generic_hash", family="plain2"),
+        _record("same_family_fresh", family="plain2", score=99),
+        _record("other_family", family="square2", score=98),
+    ]
+    annotated_seed = annotate_filter_status(
+        rows,
+        pair_status={},
+        baseline_pairs=set(),
+        known_by_hash={},
+        target_r=4,
+        allow_generic_s24=False,
+    )
+    feedback_rows = [
+        {
+            "canonical_hash": "generic_hash",
+            "verified_group_label": "24T25000",
+            "r": 4,
+            "status": "accepted",
+        }
+    ]
+    rules, by_hash = build_sair_feedback_rules(
+        annotated_seed,
+        feedback_rows,
+        pair_status={"24T25000|r=4": {"status": "accepted"}},
+        target_r=4,
+    )
+
+    annotated = annotate_filter_status(
+        rows,
+        pair_status={"24T25000|r=4": {"status": "accepted"}},
+        baseline_pairs=set(),
+        known_by_hash={},
+        sair_feedback_by_hash=by_hash,
+        sair_feedback_family_rules=rules,
+        target_r=4,
+        allow_generic_s24=False,
+        avoid_sair_negative_families=True,
+    )
+    by_candidate = {row["canonical_hash"]: row for row in annotated}
+
+    assert by_candidate["generic_hash"]["queue_filter_reason"] == "sair_feedback_generic_hash"
+    assert by_candidate["same_family_fresh"]["queue_filter_reason"] == "sair_generic_prone_family"
+    assert by_candidate["same_family_fresh"]["sair_feedback_family_status"] == "generic_prone"
+    assert by_candidate["other_family"]["queue_filter_status"] == "eligible"
+
+
+def test_require_strong_anti_s24_evidence_filters_weak_rows():
+    rows = [
+        _record("weak_hash", family="plain2"),
+        _record("square_hash", family="square2", score=99),
+    ]
+
+    annotated = annotate_filter_status(
+        rows,
+        pair_status={},
+        baseline_pairs=set(),
+        known_by_hash={},
+        target_r=4,
+        allow_generic_s24=False,
+        require_strong_anti_s24_evidence=True,
+    )
+    by_hash = {row["canonical_hash"]: row for row in annotated}
+
+    assert by_hash["weak_hash"]["anti_s24_evidence_status"] == "weak"
+    assert by_hash["weak_hash"]["queue_filter_reason"] == "weak_anti_s24_evidence"
+    assert by_hash["square_hash"]["anti_s24_evidence_status"] == "strong"
+    assert by_hash["square_hash"]["queue_filter_status"] == "eligible"
+    assert "strong_anti_s24_evidence" in by_hash["square_hash"]["survived_filters"]
+
+
 def test_select_queue_uses_family_cap_before_relaxing():
     rows = [
         _record("a1", family="square2", score=100, coeff0=1),
@@ -127,6 +200,8 @@ def test_write_outputs_creates_queue_and_coefficients(tmp_path):
         feedback_paths=[],
         known_paths=[],
         candidate_paths=[],
+        sair_feedback_inputs=[],
+        sair_feedback_family_rules={},
         pair_status_info={"path": "pairs.json", "records": 0},
         baseline_info={"baseline_loaded": True, "pairs": 0},
         family_rules={},
