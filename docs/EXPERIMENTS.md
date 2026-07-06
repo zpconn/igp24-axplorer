@@ -748,6 +748,25 @@ feedback exists. The practical lesson is that explicit composed construction
 can reliably produce local `r=8` rows, while exact label and score value still
 depend on verifier/submission feedback.
 
+SAIR verifier feedback:
+
+| row | exact label | r | status |
+| ---: | --- | ---: | --- |
+| 1 | `24T1310` | 8 | accepted |
+| 2 | `24T1310` | 8 | accepted |
+| 3 | `24T661` | 8 | accepted |
+| 4 | `24T657` | 8 | accepted |
+| 5 | `24T9993` | 8 | accepted |
+| 6 | `24T9993` | 8 | accepted |
+
+Accepted-feedback artifact:
+
+- `data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json`
+
+The six accepted rows cover four distinct accepted pair keys:
+`24T657|r=8`, `24T661|r=8`, `24T1310|r=8`, and `24T9993|r=8`. Scores and
+scoring discriminants were not available when recorded.
+
 ## Five-Representative Baseline Pass
 
 The official frozen baseline CSV was imported from

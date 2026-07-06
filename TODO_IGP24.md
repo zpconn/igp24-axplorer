@@ -4137,6 +4137,31 @@ results change.
     update the packet or add a companion feedback JSON with exact labels,
     exact `r`, scoring discriminants, discriminant types, teams/k, solvability,
     and pair scores.
+  - SAIR acceptance feedback recorded after user report:
+    - User-reported verifier result: 6/6 rows accepted.
+    - Row labels:
+      row 1 `24T1310|r=8`, row 2 `24T1310|r=8`,
+      row 3 `24T661|r=8`, row 4 `24T657|r=8`,
+      row 5 `24T9993|r=8`, and row 6 `24T9993|r=8`.
+    - Distinct accepted pair keys:
+      `24T657|r=8`, `24T661|r=8`, `24T1310|r=8`, and
+      `24T9993|r=8`.
+    - Updated feedback CSV:
+      `data/igp24/r8_quartic_lift_sair_feedback_template_20260706.csv`.
+    - Added accepted-feedback JSON:
+      `data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json`.
+    - Updated submission packet status:
+      `accepted_labels_scores_pending`.
+    - Updated local pair-status ledger:
+      `data/igp24/pair_status_20260706.json`.
+    - Scores, scoring discriminants, discriminant types, teams/k, and
+      solvability are still pending.
+    - Accepted-feedback validation:
+      - Result: accepted-feedback JSON parsed, updated CSV parsed, packet
+        status is `accepted_labels_scores_pending`, all six packet rows carry
+        the expected accepted label/status, and the local pair-status ledger
+        includes the four accepted score-pending `r=8` pair keys with duplicate
+        accepted rows preserved as alternates.
   - Focused data validation:
     - Result: packet JSON parsed, CSV feedback template parsed, 6 packet rows
       matched the tracked coefficient file, all coefficient rows have exactly
@@ -4150,7 +4175,7 @@ results change.
     - Result: passed.
   - Stage 4 check:
     `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`.
-    - Result: Stage 4 remains present at line 6874 after this TODO update.
+    - Result: Stage 4 remains present at line 6899 after this TODO update.
 
 - [done] Run a bounded CPU-only `r=8` lower-label target-generation
   pass.

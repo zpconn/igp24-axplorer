@@ -1,6 +1,9 @@
 {
   "created_at": "2026-07-06T00:00:00-05:00",
-  "description": "Repo-tracked manual submission packet for six r8_quartic_lift rows. Labels, exact nfdisc values, solvability, teams/k, and scores are pending SAIR feedback.",
+  "description": "Repo-tracked manual submission packet for six r8_quartic_lift rows. SAIR verifier accepted all six with labels recorded; exact scoring discriminants, solvability, teams/k, and scores are pending.",
+  "feedback_artifacts": {
+    "accepted_feedback_json": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json"
+  },
   "record_type": "igp24_r8_quartic_lift_submission_packet",
   "rows": [
     {
@@ -41,19 +44,20 @@
       "local_polynomial_discriminant_square_root": 3099363912000000000,
       "local_real_root_count": 8,
       "non_generic_score": 2038.711136,
+      "pair_key": "24T1310|r=8",
       "proxy_score": 10185.844542850695,
       "row_number": 1,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T1310"
       },
       "short_hash": "85cefa437fa2",
       "source_strategy": "r8_quartic_lift",
@@ -86,7 +90,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T1310"
     },
     {
       "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
@@ -126,19 +131,20 @@
       "local_polynomial_discriminant_square_root": 3099363912000000000,
       "local_real_root_count": 8,
       "non_generic_score": 2038.711136,
+      "pair_key": "24T1310|r=8",
       "proxy_score": 10185.844542850695,
       "row_number": 2,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T1310"
       },
       "short_hash": "778075741c82",
       "source_strategy": "r8_quartic_lift",
@@ -171,7 +177,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T1310"
     },
     {
       "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
@@ -211,19 +218,20 @@
       "local_polynomial_discriminant_square_root": 179424466953345957888,
       "local_real_root_count": 8,
       "non_generic_score": 2036.681857,
+      "pair_key": "24T661|r=8",
       "proxy_score": 10175.727428007312,
       "row_number": 3,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T661"
       },
       "short_hash": "de699993e8a9",
       "source_strategy": "r8_quartic_lift",
@@ -256,7 +264,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T661"
     },
     {
       "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
@@ -296,19 +305,20 @@
       "local_polynomial_discriminant_square_root": 233584650418743410688,
       "local_real_root_count": 8,
       "non_generic_score": 2036.549962,
+      "pair_key": "24T657|r=8",
       "proxy_score": 10171.199847572272,
       "row_number": 4,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T657"
       },
       "short_hash": "86f62f433b3f",
       "source_strategy": "r8_quartic_lift",
@@ -341,7 +351,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T657"
     },
     {
       "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
@@ -381,19 +392,20 @@
       "local_polynomial_discriminant_square_root": 1143600011368757121024,
       "local_real_root_count": 8,
       "non_generic_score": 2035.755766,
+      "pair_key": "24T9993|r=8",
       "proxy_score": 10177.023063711436,
       "row_number": 5,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T9993"
       },
       "short_hash": "eb604c239982",
       "source_strategy": "r8_quartic_lift",
@@ -426,7 +438,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T9993"
     },
     {
       "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
@@ -466,19 +479,20 @@
       "local_polynomial_discriminant_square_root": 1143600011368757121024,
       "local_real_root_count": 8,
       "non_generic_score": 2035.755766,
+      "pair_key": "24T9993|r=8",
       "proxy_score": 10177.023063711436,
       "row_number": 6,
       "sair_feedback": {
-        "accepted_or_rejected": null,
+        "accepted_or_rejected": "accepted",
         "discriminant_type": null,
-        "notes": "Await manual SAIR verifier/scoring feedback; local data is proxy/structure only.",
+        "notes": "User-reported SAIR verifier acceptance on 2026-07-06; scoring details pending.",
         "pair_score": null,
         "reason": null,
         "scoring_discriminant": null,
         "solvable": null,
-        "status": "pending_sair_feedback",
+        "status": "accepted",
         "teams_k": null,
-        "verified_group_label": null
+        "verified_group_label": "24T9993"
       },
       "short_hash": "2fe4b5059101",
       "source_strategy": "r8_quartic_lift",
@@ -511,7 +525,8 @@
         "primary_exact_block_divisor": 6,
         "sparse_bucket": "very_sparse",
         "square_discriminant_claim_status": "confirmed"
-      }
+      },
+      "verified_group_label": "24T9993"
     }
   ],
   "safety": {
@@ -538,8 +553,21 @@
   },
   "source_commit_at_packet_creation": "8709e28bf7014ec7cabf64fafebb7a517e83509f",
   "status_summary": {
+    "accepted_pair_keys": [
+      "24T1310|r=8",
+      "24T657|r=8",
+      "24T661|r=8",
+      "24T9993|r=8"
+    ],
+    "accepted_rows": 6,
     "expected_r": 8,
-    "labels_known": false,
+    "labels_found_counts": {
+      "24T1310": 2,
+      "24T657": 1,
+      "24T661": 1,
+      "24T9993": 2
+    },
+    "labels_known": true,
     "local_real_root_count_counts": {
       "8": 6
     },
@@ -548,7 +576,7 @@
       "6": 6
     },
     "rows": 6,
-    "sair_feedback_status": "pending",
+    "sair_feedback_status": "accepted_labels_scores_pending",
     "scores_known": false,
     "source_strategy": "r8_quartic_lift",
     "structure_exact_composed_claim_status_counts": {

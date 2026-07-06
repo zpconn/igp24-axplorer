@@ -1000,3 +1000,13 @@ place to record accepted/rejected status, labels, exact scoring discriminants,
 discriminant type, teams/k, pair score, solvability, and notes when SAIR
 returns feedback. Until that feedback exists, these rows should be described
 as submission-ready candidates, not verified scoreable pairs.
+
+The user-reported SAIR verifier result for that six-row packet accepted all
+six rows. Exact labels were: two `24T1310|r=8` rows, one `24T661|r=8`, one
+`24T657|r=8`, and two `24T9993|r=8` rows. This means the explicit
+`r8_quartic_lift` family produced four distinct accepted `r=8` pair keys from
+six submissions. The accepted-label feedback is tracked in
+`data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json`, and the
+local pair-status ledger now includes those four score-pending pairs. Scores,
+scoring discriminants, discriminant type, teams/k, and solvability remain
+pending.
