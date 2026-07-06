@@ -1384,6 +1384,95 @@ snapshot-derived plan. It is still proxy/local only: no exact `24Tt` labels are
 claimed, no SAIR API or network service was used, and no automatic submission
 path exists.
 
+SAIR feedback:
+
+- user-reported result: 8/8 accepted,
+- all 8 rows landed as `24T25000|r=24`,
+- tracked feedback:
+  `data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json`,
+- pair-status ledger updated with one `24T25000|r=24` representative and
+  seven accepted alternates.
+
+Updated interpretation: local r24 construction and SAIR formatting worked, but
+the current low-odd perturbation family is generic-label collapsed. Do not
+widen this same r24 family as-is.
+
+## R20 High-Real-Root Probe
+
+The r20 pivot uses a distinct mixed quadratic product seed:
+`prod(x^2-a) * prod(x^2+b)`, with ten positive quadratic factors and two
+no-real-root quadratic factors. The base seed has exactly 20 real roots, and
+small low-odd perturbations are used to break reducibility while preserving the
+target real-root count.
+
+Smoke command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r20_high_real_probe.py \
+  --output_dir /tmp/igp24_r20_high_real_smoke_20260706 \
+  --seed 2020 \
+  --max_trials 32 \
+  --limit 4 \
+  --coeff_bound 100000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Smoke result:
+
+- `trials_attempted=32`
+- `valid_r20_candidates=20`
+- `selected_rows=4`
+- rejected counts:
+  `{"coefficient_height_exceeds_bound": 11, "reducible_over_q": 1}`
+
+Tracked bounded command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r20_high_real_probe.py \
+  --output_dir data/igp24/r20_high_real_probe_20260706 \
+  --seed 2020 \
+  --max_trials 160 \
+  --limit 10 \
+  --per_family_cap 1 \
+  --coeff_bound 100000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Tracked bounded result:
+
+- `trials_attempted=160`
+- `valid_r20_candidates=95`
+- `selected_rows=10`
+- queue status: `manual_queue_ready`
+- selected modes:
+  `{"single_low_odd_break": 3, "three_low_odd_break": 4, "two_low_odd_break": 3}`
+- rejected counts:
+  `{"coefficient_height_exceeds_bound": 50, "reducible_over_q": 15}`
+- selected coefficient-height range: `10813088` to `49972896`
+
+Tracked artifacts:
+
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_coefficients.txt`
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_queue.jsonl`
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_hashes.txt`
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_summary.json`
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_rejected_trials.jsonl`
+- `data/igp24/r20_high_real_probe_20260706/r20_high_real_report.md`
+
+Independent validation reran local exact checks on all 10 selected rows and
+confirmed 25 integer coefficients, monic leading coefficient, nonzero constant
+coefficient, coefficient gcd 1, local `real_root_count=20`, irreducible and
+squarefree exact checks, unique hashes, and no overlap against 54 locally known
+accepted hashes from `data/igp24/pair_status_20260706.json`.
+
+Interpretation: this is the first successful local r20 high-real-root queue.
+It is lower-height than the r24 queue and gives a clean manual probe for a
+large undercovered bucket. It is still proxy/local only: no exact `24Tt` labels
+are claimed, no SAIR API or network service was used, and no automatic
+submission path exists.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

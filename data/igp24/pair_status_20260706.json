@@ -515,6 +515,84 @@
           "note": "Accepted duplicate r=8 pair from the six-row r8_quartic_lift submission; keep as pending alternate until SAIR scores are available."
         }
       ]
+    },
+    {
+      "pair_key": "24T25000|r=24",
+      "label": "24T25000",
+      "r": 24,
+      "status": "accepted",
+      "canonical_hash": "796638a11606a06e6f764e98734dcd8a5be821a705a2cfbda459ec6f9534cb89",
+      "short_hash": "796638a11606",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+      "note": "New r=24 pair from the 8-row r24 high-real-root probe submission. SAIR accepted all eight rows as 24T25000|r=24, validating local r24 formatting but showing this low-odd perturbation family is generic-label collapsed. Scores and scoring discriminants are pending.",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "c0df7a883c8038ad7ddbcac6380ce2356b13c09a8e32a2e93af75de95fb5ab23",
+          "short_hash": "c0df7a883c80",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "0d83f03eb47509e1c76941f0ff2ba9c0f17d376d1fc46f9dc4e257bfece0271c",
+          "short_hash": "0d83f03eb475",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "da0b4b43c0e081024efd837948d49fa084b5e7c37ec3fefbbc37271d06250b07",
+          "short_hash": "da0b4b43c0e0",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "single_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "b8258363b2f7df8fe3e0a079e8044d361df1fe105ee4c8d20c9bab41cfde0948",
+          "short_hash": "b8258363b2f7",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "4aed8c4ead7757585b22d2630a0f0150b02d7d0d00217acbbb3b26ac6289b5d3",
+          "short_hash": "4aed8c4ead77",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "three_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "c05602fc0f8ce3085434de62a2a8c8595844db1e5b4bc93efcfbd5a53e4d81d8",
+          "short_hash": "c05602fc0f8c",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "single_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "f5c5a77282075916eb82ca1201ca742ee0b416e38cd6b614435ad2c23ad5f8aa",
+          "short_hash": "f5c5a7728207",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+          "source_mode": "two_low_odd_break",
+          "note": "Accepted duplicate r=24 pair from the 8-row r24 high-real-root probe submission; all rows landed as 24T25000|r=24. Keep as pending alternate until SAIR scores are available."
+        }
+      ]
     }
   ],
   "notes": [
@@ -527,6 +605,7 @@
     "The six-row r8_quartic_lift submission was accepted by the SAIR verifier; it added four r=8 pair keys: 24T657|r=8, 24T661|r=8, 24T1310|r=8, and 24T9993|r=8. Scores were pending when recorded.",
     "The eight table rows from the r16_quadratic_lift submission were accepted by the SAIR verifier; all collapsed to 24T24979|r=16. The pair is absent from the frozen baseline. The SAIR CSV export marks scoreable=false only while scoringStatus=pending and scoringReason=discriminant_pending; field discriminants, score, solvability, and teams/k were still pending when recorded.",
     "The 10-row diversified r16 probe submission was accepted by the SAIR verifier; exact-composed rows landed as 24T24979|r=16 and odd-perturbed rows landed as 24T25000|r=16. Both pairs are absent from the frozen baseline; scores were pending when recorded.",
-    "The 12-row anti-collapse r16 probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=16 alternates. Multi-off-block divisor-2 perturbations did not escape the 24T25000 r16 basin, so future r16 work should require a genuinely different construction."
+    "The 12-row anti-collapse r16 probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=16 alternates. Multi-off-block divisor-2 perturbations did not escape the 24T25000 r16 basin, so future r16 work should require a genuinely different construction.",
+    "The 8-row r24 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=24 alternates. The local r24 construction and SAIR formatting worked, but the low-odd perturbation family is generic-label collapsed, so future high-real-root work should pivot to r20 or a genuinely more structure-preserving anti-generic r24 family."
   ]
 }

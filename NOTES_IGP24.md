@@ -1093,3 +1093,22 @@ coefficient height about `1.93e9` to `2.26e9`, far larger than the earlier
 r8/r16 constructed queues. Treat this as a valuable high-real-root novelty
 probe, not as evidence of any exact `24Tt` label or solvable score outcome
 until SAIR/Magma feedback exists.
+
+The user-reported SAIR result for that r24 probe accepted all eight rows as
+`24T25000|r=24`. That validates the local `r=24` count and the submission
+format, but it also shows that low-odd perturbations of the all-real quadratic
+product seed are completely generic-label collapsed in this first batch.
+Submitting more rows from the same r24 family is therefore not the next best
+use of effort; future r24 work should either enforce a more structure-
+preserving anti-generic constraint or wait for exact target data.
+
+The immediate pivot is a distinct explicit `r=20` high-real-root construction.
+It uses ten positive quadratic factors and two no-real-root quadratic factors,
+`prod(x^2-a) * prod(x^2+b)`, then small low-odd perturbations. The base seed
+has exactly 20 real roots, and the first bounded CPU-only probe at
+`data/igp24/r20_high_real_probe_20260706` attempted 160 rows, found 95
+irreducible squarefree local `r=20` candidates, and selected a 10-row manual
+queue. The selected coefficient heights range from about `1.08e7` to
+`5.00e7`, much lower than the r24 queue. This is still not an exact-label
+claim, but it is a clean manual probe for a large undercovered bucket where we
+previously had no local accepted lane.

@@ -1,0 +1,94 @@
+{
+  "coefficient_height_max": 49972896,
+  "coefficient_height_min": 10813088,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r20_high_real_probe.py",
+    "--output_dir",
+    "data/igp24/r20_high_real_probe_20260706",
+    "--seed",
+    "2020",
+    "--max_trials",
+    "160",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "100000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "construction_family": "ten_positive_two_negative_quadratic_product_plus_low_odd_perturbation",
+  "created_at": "2026-07-06T23:01:51.234638+00:00",
+  "known_hashes_loaded": 54,
+  "observed_root_count_counts": {
+    "20": 95
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r20_high_real_probe_20260706/r20_high_real_rejected_trials.jsonl",
+    "report_md": "data/igp24/r20_high_real_probe_20260706/r20_high_real_report.md",
+    "summary_json": "data/igp24/r20_high_real_probe_20260706/r20_high_real_summary.json"
+  },
+  "queue_status": "manual_queue_ready",
+  "recommendation": "manual_review_then_submit_small_r20_probe",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 50,
+    "reducible_over_q": 15
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_hashes": [
+    "47f1cf331e34643d3c06a46412a22195e30ff52db494c2f6cc2d0595e230b4fe",
+    "73c1fa372bc11e78ec1d6d541dfe107789f64bf8b3445d0356688c82d0876c92",
+    "426f4be4aca57022d22489b716b4eb53a66d4fe55dde702a06efda505e368b5e",
+    "e9ca5d4d1887a6b4e22409109d6aa40f23c5dbd3e5cbc25cf2506cd6e8e6d141",
+    "5768787e466305ed0f381d04f2e71abd1392a135cf9a4b0076d7c3ca947c939c",
+    "6b00bef14865e2da5a2d219dd6f83d9802a097f55012e62268e8d2232068e7bc",
+    "b8b9b30434b68ed4729a7629520561243d7fa64a7ada34013a016eba527daaa7",
+    "e7b078cbd8c6ddf78e63c78e0048f86e43751e41bc1dea498fbef124cfc7baf6",
+    "0673a8670cb256b1a1c9bfc14104aceaaa60a8339ff910a5113a91e5723bed9b",
+    "28a5db6ea30c454d8c60b8c3b2afc33df802cc5931ca0c4fdbbbd4bd76c8200b"
+  ],
+  "selected_mode_counts": {
+    "single_low_odd_break": 3,
+    "three_low_odd_break": 4,
+    "two_low_odd_break": 3
+  },
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "47f1cf331e34",
+    "73c1fa372bc1",
+    "426f4be4aca5",
+    "e9ca5d4d1887",
+    "5768787e4663",
+    "6b00bef14865",
+    "b8b9b30434b6",
+    "e7b078cbd8c6",
+    "0673a8670cb2",
+    "28a5db6ea30c"
+  ],
+  "source_commit": "673bdd88a9e0990d827f843ef1ddd3bc7bfd0318",
+  "target_r": 20,
+  "tool": "scripts/igp24_r20_high_real_probe.py",
+  "trials_attempted": 160,
+  "valid_mode_counts": {
+    "single_low_odd_break": 72,
+    "three_low_odd_break": 18,
+    "two_low_odd_break": 5
+  },
+  "valid_r20_candidates": 95
+}
