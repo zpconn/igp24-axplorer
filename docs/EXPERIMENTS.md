@@ -253,6 +253,8 @@ Updated exact-evidence helpers now:
 - emit `IGP24_SIGNATURE` in generated Magma scripts,
 - emit parseable PARI/GP `IGP24_NFDISC_ABS` markers,
 - parse saved PARI/GP `nfdisc` output into `pari_nfdisc_results.jsonl`,
+- optionally compute local SymPy `AlgebraicField.discriminant()` fallback
+  evidence into `sympy_nfdisc_results.jsonl`,
 - merge exact label, exact `r`, and exact `nfdisc` evidence by candidate hash,
 - and report exact-`r`/exact-`nfdisc` status counts.
 
@@ -264,6 +266,9 @@ env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q \
 ```
 
 Result: 19 passed in 1.34s.
+
+After adding the explicit SymPy fallback, the focused validation passed again:
+21 tests in 4.55s.
 
 The five-representative artifact pass was regenerated from source commit
 `88bb0ed6b5b31cd9e81198a91b22754a933e9766`:
@@ -295,6 +300,45 @@ Interpretation: the five selected expected pairs are not in the official
 baseline, which is promising for eventual score. They are not submission-grade
 yet because the exact Magma `r` marker and exact number-field discriminant are
 still missing.
+
+An explicit local SymPy nfdisc fallback pass was then run from source commit
+`6abe150816fe36828edc8c50384f50b36fdd52ec`:
+
+- `/tmp/igp24_submission_grade_five_20260706_sympy_nfdisc/sympy_nfdisc_results.jsonl`
+- `/tmp/igp24_submission_grade_five_20260706_sympy_nfdisc/sympy_nfdisc_summary.json`
+- `/tmp/igp24_submission_grade_five_20260706_sympy_nfdisc/sympy_nfdisc_report.md`
+
+SymPy status counts: `{"nfdisc_ok": 5}`. The planner rerun from source commit
+`7ff0a210b8100cb8c36f36b2dcfaadbac9576d0e` wrote:
+
+- `/tmp/igp24_submission_grade_five_plan_with_sympy_nfdisc_20260706/submission_plan.jsonl`
+- `/tmp/igp24_submission_grade_five_plan_with_sympy_nfdisc_20260706/submission_candidates.txt`
+- `/tmp/igp24_submission_grade_five_plan_with_sympy_nfdisc_20260706/submission_plan_summary.json`
+- `/tmp/igp24_submission_grade_five_plan_with_sympy_nfdisc_20260706/submission_plan_report.md`
+
+Updated status counts:
+
+- `baseline_status_counts={"non_baseline_candidate": 5}`
+- `scoreability_status_counts={"new_pair_needs_exact_r": 5}`
+- `exact_r_status_counts={"candidate_proxy": 5}`
+- `exact_nfdisc_status_counts={"ok": 5}`
+- `discriminant_rank_category_counts={"exact_nfdisc": 5}`
+
+Exact local fallback `nfdisc` values:
+
+| pair | hash | nfdisc source | exact nfdisc |
+| --- | --- | --- | ---: |
+| `24T9683|r=4` | `9c45c5493e7a` | `sympy_algebraic_field_discriminant` | 955418808601874103055463744199932705243136 |
+| `24T24979|r=4` | `981a94588aab` | `sympy_algebraic_field_discriminant` | 1861637811973941745404031266095896941559808 |
+| `24T24759|r=4` | `4be66a510402` | `sympy_algebraic_field_discriminant` | 7257477504600764033843223515092729030395849 |
+| `24T24970|r=4` | `a97caa584baa` | `sympy_algebraic_field_discriminant` | 6681964085859090457451944972407263119355674624 |
+| `24T24648|r=4` | `2289d8a5e700` | `sympy_algebraic_field_discriminant` | 3025607503381130745702964775405115504596600759660544 |
+
+Interpretation update: exact number-field-discriminant evidence is now present
+for all five via a local SymPy fallback. The remaining submission-grade blocker
+is exact Magma `r`; `r=4` is still sourced from candidate
+`real_root_count`, so the planner correctly keeps all five rows at
+`new_pair_needs_exact_r`.
 
 The four calculator-disabled rows were not automatically retried online. A
 manual retry packet was prepared at `/tmp/igp24_pending_four_retry_20260706`

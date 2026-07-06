@@ -808,12 +808,13 @@ selected representatives as `non_baseline_candidate`.
 This is still a review plan, not a submission claim. All five rows are
 `new_pair_needs_exact_r`: the saved online-Magma XML predates the
 `IGP24_SIGNATURE` marker, so `r=4` still comes from local candidate
-`real_root_count`, and no exact `nfdisc` has been computed because local
-PARI/GP is unavailable. The next scoring-oriented step is to rerun the five
-copy/paste Magma scripts or a local Magma pass to capture exact `r`, then run
-the generated PARI/GP `nfdisc` script where PARI is available. Retry the four
-calculator-disabled rows afterward, without blocking the five-representative
-exact-evidence pass.
+`real_root_count`. Local PARI/GP is unavailable, but an explicit SymPy
+fallback pass computed exact number-field discriminants for all five rows with
+source `sympy_algebraic_field_discriminant`; PARI/GP remains the preferred
+official cross-check when available. The next scoring-oriented step is to
+rerun the five copy/paste Magma scripts or a local Magma pass to capture exact
+`r`. Retry the four calculator-disabled rows afterward, without blocking the
+five-representative exact-evidence pass.
 
 The four calculator-disabled rows now have a bounded manual retry packet at
 `/tmp/igp24_pending_four_retry_20260706`. This did not contact the online

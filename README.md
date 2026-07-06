@@ -57,8 +57,9 @@ because the online calculator returned a temporarily-disabled response. See
 The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets the
 manual planner compare verified `(24Tt, r)` pairs against the frozen LMFDB
 baseline. The current five one-per-pair representatives are absent from that
-baseline, but they still need exact Magma `r` and exact number-field
-discriminant evidence before they should be treated as submission-grade.
+baseline and now have local SymPy exact number-field-discriminant fallback
+evidence. They still need exact Magma `r` before they should be treated as
+submission-grade.
 
 ## Capabilities
 
@@ -70,8 +71,8 @@ discriminant evidence before they should be treated as submission-grade.
 - CPU benchmark helpers for generation strategy comparisons.
 - GPU training/sample-export probes with CPU scoring handoff.
 - Shortlist, review, and offline verification handoff tools.
-- PARI, Magma, official-baseline, and SAIR verifier/planning stubs that are
-  explicit and opt-in.
+- PARI, Magma, SymPy nfdisc fallback, official-baseline, and SAIR
+  verifier/planning stubs that are explicit and opt-in.
 
 ## Safety Boundaries
 
@@ -193,7 +194,9 @@ python3 scripts/igp24_offline_verify.py \
 
 The offline verifier helper is dry-run by default. It writes PARI/GP and Magma
 input files, copied verification batches, reports, and result templates. It
-does not execute Magma unless `--run_magma` is supplied.
+does not execute Magma unless `--run_magma` is supplied. Local SymPy
+number-field-discriminant fallback evidence is also explicit and requires
+`--run_sympy_nfdisc`.
 
 Summarize verified exact-label feedback:
 

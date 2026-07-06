@@ -3260,7 +3260,7 @@ results change.
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up `find . -type d -name __pycache__ -print`
         returned no paths.
-    - [in_progress] Add explicit SymPy number-field-discriminant fallback
+    - [done] Add explicit SymPy number-field-discriminant fallback
       evidence while PARI/GP remains unavailable.
       - Rationale: local `gp`, `magma`, `sage`, `wolframscript`, `singular`,
         `gap`, `cypari2`, `sageall`, and `cypari` are unavailable, but SymPy's
@@ -3269,7 +3269,7 @@ results change.
       - Safety/source boundary: this is local/file-only exact nfdisc fallback
         evidence, not the official PARI/GP workflow and not a Magma signature
         substitute.
-      - Code changes in progress: add `--run_sympy_nfdisc` to
+      - Code changes: add `--run_sympy_nfdisc` to
         `scripts/igp24_offline_verify.py`, write
         `sympy_nfdisc_results.jsonl` / summary / report artifacts, and let
         `scripts/igp24_submission_plan.py` merge those rows as exact
@@ -3277,7 +3277,46 @@ results change.
         `sympy_algebraic_field_discriminant`.
       - Focused tests:
         `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py`
-        passed with 21 tests in 4.60s after the SymPy artifact changes.
+        passed with 21 tests in 4.60s after the SymPy artifact changes and
+        21 tests in 4.55s after the planner provenance fix.
+      - Artifact source commit for the SymPy nfdisc run:
+        `6abe150816fe36828edc8c50384f50b36fdd52ec`.
+      - SymPy artifact directory:
+        `/tmp/igp24_submission_grade_five_20260706_sympy_nfdisc`.
+      - SymPy result: `sympy_nfdisc_status_counts={"nfdisc_ok": 5}` with no
+        local Magma/PARI execution, no SAIR/network calls, and no GPU/model
+        search.
+      - Planner rerun source commit:
+        `7ff0a210b8100cb8c36f36b2dcfaadbac9576d0e`.
+      - Planner artifact directory:
+        `/tmp/igp24_submission_grade_five_plan_with_sympy_nfdisc_20260706`.
+      - Updated planner result:
+        `baseline_status_counts={"non_baseline_candidate": 5}`,
+        `exact_nfdisc_status_counts={"ok": 5}`,
+        `discriminant_rank_category_counts={"exact_nfdisc": 5}`,
+        `exact_r_status_counts={"candidate_proxy": 5}`, and
+        `scoreability_status_counts={"new_pair_needs_exact_r": 5}`.
+      - Remaining blocker: exact Magma `r` is still missing because local
+        Magma is unavailable and the saved online-Magma XML predates
+        `IGP24_SIGNATURE`. The five rows now have exact local fallback
+        `nfdisc`, but they are still not submission-grade until exact `r`
+        is captured.
+      - Final validation after SymPy fallback docs:
+        - `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` passed with
+          119 tests in 7.43s.
+        - `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+          passed.
+        - Helper `--help` checks passed for `scripts/igp24_offline_verify.py`
+          and `scripts/igp24_submission_plan.py`.
+        - `git diff --check` passed.
+        - Stage 4 check:
+          `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+          found Stage 4 at line 5325 after this TODO update.
+        - Process audit returned no running Python processes.
+        - GPU audit found no running GPU compute processes; the RTX 5090 was
+          at 7% utilization with display memory only.
+        - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
+          returned no paths.
 
 ## Tests And Checks
 
