@@ -3317,7 +3317,7 @@ results change.
           at 7% utilization with display memory only.
         - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
           returned no paths.
-    - [done] Add explicit SymPy exact real-root-count fallback evidence
+  - [done] Add explicit SymPy exact real-root-count fallback evidence
       for submission-signature `r`.
       - Rationale: local Magma remains unavailable, but SymPy's exact
         `Poly.count_roots(-oo, oo)` computes the real-root count for the five
@@ -3377,6 +3377,33 @@ results change.
           at 6% utilization with display memory only.
         - Cache cleanup completed and the follow-up `find . -type d -name __pycache__ -print`
           returned no paths.
+  - [in_progress] Build a final auditable five-row manual submission package.
+    - [done] Pull latest.
+      - Result: `git pull --ff-only` was already up to date on `igp24-dev`.
+    - [done] Inspect final five-row planner/evidence artifacts.
+      - Planner artifact:
+        `/tmp/igp24_submission_grade_five_plan_with_sympy_exact_20260706`.
+      - Exact evidence artifact:
+        `/tmp/igp24_submission_grade_five_20260706_sympy_exact`.
+      - Current selected rows match the intended hashes and labels:
+        `9c45c5493e7a` (`24T9683|r=4`),
+        `981a94588aab` (`24T24979|r=4`),
+        `4be66a510402` (`24T24759|r=4`),
+        `a97caa584baa` (`24T24970|r=4`), and
+        `2289d8a5e700` (`24T24648|r=4`).
+      - Current planner status:
+        `baseline_status_counts={"non_baseline_candidate": 5}`,
+        `scoreability_status_counts={"new_pair_candidate": 5}`,
+        `exact_r_status_counts={"ok": 5}`,
+        `exact_nfdisc_status_counts={"ok": 5}`, and
+        `discriminant_rank_category_counts={"exact_nfdisc": 5}`.
+    - [done] Check for stronger local exact-verifier availability.
+      - Result: `command -v magma` and `command -v gp` returned no paths, so
+        no local Magma/PARI cross-check can be run on this host.
+      - The final package must therefore include ready-to-run Magma copy/paste
+        scripts with `IGP24_SIGNATURE` and document the cross-check blocker.
+    - [in_progress] Add a small package helper rather than assembling the
+      final directory with ad hoc shell-only copies.
 
 ## Tests And Checks
 
