@@ -118,6 +118,37 @@ def test_select_shortlist_can_include_unmatched_fill_rows():
     assert selected[1]["feedback_family_match_status"] == "unmatched"
 
 
+def test_select_shortlist_can_cap_known_family_and_prefer_unmatched_fill():
+    feedback_rows = _feedback_rows()
+    rules = build_family_rules(feedback_rows, mode="coarse")
+    annotated = annotate_records(
+        [
+            _audit("knownish_a", queue=1, square=False, divisor=2, base_degree=12, non_generic=800.0),
+            _audit("knownish_b", queue=2, square=False, divisor=2, base_degree=12, non_generic=790.0),
+            _audit("novel_high", queue=3, square=False, divisor=6, base_degree=4, non_generic=700.0),
+            _audit("novel_low", queue=4, square=False, divisor=4, base_degree=6, non_generic=600.0),
+        ],
+        family_rules=rules,
+        feedback_rows=feedback_rows,
+        mode="coarse",
+    )
+
+    selected = select_shortlist(
+        annotated,
+        family_rules=rules,
+        limit=3,
+        min_per_label=0,
+        label_quotas=parse_label_quotas("24T24979:1"),
+        include_unmatched=True,
+        max_per_family_label=1,
+        prefer_unmatched=True,
+    )
+
+    assert [record["canonical_hash"] for record in selected] == ["knownish_a", "novel_high", "novel_low"]
+    assert [record["feedback_family_match_status"] for record in selected] == ["matched", "unmatched", "unmatched"]
+    assert selected[0]["exact_label_shortlist_reason"] == "quota:24T24979"
+
+
 def test_write_outputs_creates_local_file_only_artifacts(tmp_path):
     feedback_rows = _feedback_rows()
     audit_rows = [_audit("new_square", queue=1, square=True, divisor=2, base_degree=12, non_generic=900.0)]

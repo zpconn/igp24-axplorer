@@ -8,8 +8,8 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
-- Last pull: 2026-07-05, `git pull --ff-only` -> already up to date before
-  non-generic exact-verification queue work.
+- Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
+  fresh pair-diversity candidate work.
 - Active focus: the 25-row proxy-only non-generic diagnostic shortlist has a
   complete manual exact-verification queue under
   `/tmp/igp24_non_generic_manual_queue_20260705`. Candidate order, hashes,
@@ -26,14 +26,13 @@ results change.
   MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
   hot loops, and automatic network/submission paths. Dry-run remains the
   default; local MAGMA execution still requires explicit `--run_magma`.
-- Current task: add score-aware submission planning that collapses verified
-  variants to one best representative per expected `(24Tt, r)` pair, keeps
-  baseline status conservative, and prepares a manual candidate file without
-  any SAIR submission path.
-- Next follow-up after submission planning: generate or collect fresh candidate
-  rows, run local structure audit, then rerun exact-label and submission
-  planners to produce genuinely new manual verification/submission candidates
-  before any larger GPU training run.
+- Current task: generate or collect a bounded fresh candidate queue aimed at
+  new `(24Tt, r)` diversity, using verified-label feedback to avoid treating
+  more variants of `24T24970|r=4`, `24T24979|r=4`, and `24T24759|r=4` as
+  score progress.
+- Next follow-up after fresh pair-diversity planning: manually exact-verify the
+  strongest fresh queue rows, then rerun the submission planner only after
+  verified rows with labels/signatures exist.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -2906,6 +2905,99 @@ results change.
     - [done] Commit the docs/TODO validation update and push.
       - Result: committed `f1a79ad` (`Document IGP24 submission planning`) and
         pushed `igp24-dev` to `zpconn/igp24-axplorer`.
+  - [in_progress] Build a fresh pair-diversity candidate queue.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect README, TODO, NOTES, experiment notes, and latest helper
+      scripts.
+      - Relevant helpers: `scripts/igp24_benchmark.py` for bounded CPU
+        generation, `scripts/igp24_non_generic_diagnostic.py` for proxy-only
+        non-generic triage, `scripts/igp24_queue_structure_audit.py` for local
+        exact-algebra structure, and
+        `scripts/igp24_exact_label_shortlist.py` for feedback-family planning
+        with `--exclude_verified_hashes`.
+      - Strategy: prefer a bounded CPU generation sweep over a GPU run because
+        this step is about structural/pair novelty, not longer model training.
+        Exclude already verified hashes, favor structurally unmatched or
+        weakly matched families as possible new-pair evidence, and keep a small
+        controlled track for the known verified families.
+      - Safety boundaries: no SAIR submission/API, no MAGMA/PARI execution
+        except dry-run artifact generation, no network calls, no long GPU
+        training run, and no open-ended CPU search loop.
+    - [done] Run a bounded fresh generation/collection pass under
+      `/tmp/igp24_*_20260706`.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured,quartic_lift,fixed_sparse_template,mix_r4_dual_balanced --seeds 2601,2602 --target_rs 4 --coeff_bound 4 --gensize 16 --pop_size 8 --ntest 2 --gen_batch_size 2 --max_local_search_steps 1 --prime_limit 11 --exact_score_timeout 3 --output_dir /tmp/igp24_fresh_pair_bench_20260706`
+      - Results: 10 bounded CPU runs completed in about 27 seconds total;
+        217 ledger rows were written. The strongest r4 yield came from
+        `mix_r4_dual_balanced` with 24 target-r matches across 37 ledger rows
+        and `quartic_lift` with 23 matches across 40 ledger rows. `sparse`
+        contributed 3 r4 matches; `structured` contributed no r4 matches in
+        this tiny sweep.
+      - Artifact: `/tmp/igp24_fresh_pair_bench_20260706`.
+    - [done] Run proxy-only non-generic diagnostics on the fresh rows.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_non_generic_diagnostic.py /tmp/igp24_fresh_pair_bench_20260706 --target_r 4 --limit 40 --output_dir /tmp/igp24_fresh_pair_diagnostic_20260706`
+      - Results: 217 rows loaded, 59 target-r fresh rows diagnosed, 40
+        selected, 6 duplicate canonical hashes skipped, and 152 non-r4 rows
+        skipped. Selected flags included 23 `exact_composed_support`, 3
+        `square_discriminant_excludes_s24`, 20 `very_sparse_support`, and 20
+        `sparse_support`.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl`,
+        `/tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_report.md`.
+    - [done] Run local exact-algebra structure audit on the fresh diagnostic
+      shortlist.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_queue_structure_audit.py /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --priority_limit 16 --output_dir /tmp/igp24_fresh_pair_structure_audit_20260706`
+      - Results: 40/40 rows audited; 3 square-discriminant claims confirmed,
+        23 exact-composed-support claims confirmed, and no square or exact
+        composed claims refuted. Primary block divisor counts were
+        `{"2": 16, "3": 6, "6": 1, "None": 17}`.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_structure_audit_20260706/structure_audit.jsonl`,
+        `/tmp/igp24_fresh_pair_structure_audit_20260706/manual_priority.jsonl`,
+        `/tmp/igp24_fresh_pair_structure_audit_20260706/structure_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_structure_audit_20260706/structure_report.md`.
+    - [done] Upgrade exact-label-aware shortlist planning so fresh queue fill
+      can prefer novelty instead of repeating one known feedback family.
+      - Added `--max_per_family_label` to cap repeats from known feedback
+        labels.
+      - Added `--prefer_unmatched` so fill rows favor unmatched structural
+        families after explicit label quotas are satisfied.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_exact_label_shortlist.py`
+        passed with 5 tests.
+    - [done] Build the fresh diversity queue with verified-hash exclusion and
+      novelty-first fill.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --structure_audit_jsonl /tmp/igp24_fresh_pair_structure_audit_20260706/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --candidate_jsonl /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --output_dir /tmp/igp24_fresh_pair_diversity_queue_20260706 --limit 16 --min_per_label 0 --label_quotas 24T24970:1,24T24979:1,24T24759:1 --family_key_mode full --include_unmatched --exclude_verified_hashes --max_per_family_label 1 --prefer_unmatched`
+      - Results: 40 annotated rows, 10 matched rows, 30 unmatched rows, 16
+        selected rows, 16 coefficients written, 0 known verified selected
+        records, and 0 hash overlap with the 25 verified feedback rows.
+      - Queue mix: one controlled `24T24979` feedback-family row and 15
+        unmatched rows. The unmatched rows include square-discriminant
+        divisor-6/base-degree-4 evidence, fixed-template square
+        divisor-2/base-degree-12 evidence, divisor-3/base-degree-8 coverage,
+        sparse divisor-2/base-degree-12 coverage, and non-composed sparse
+        coverage.
+      - Artifacts:
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl`,
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist_coefficients.txt`,
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist_summary.json`,
+        and
+        `/tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist_report.md`.
+    - [done] Record submission-planning status for this fresh queue.
+      - Result: submission planning is intentionally blocked pending exact
+        verification. The fresh queue has local structure and inferred
+        feedback-family planning labels only; it has no verified exact
+        `24Tt` labels, no exact submitted `r`, no exact `nfdisc`, and no
+        baseline comparison.
+    - [in_progress] Commit the planner-code checkpoint before documentation
+      updates.
 
 ## Tests And Checks
 

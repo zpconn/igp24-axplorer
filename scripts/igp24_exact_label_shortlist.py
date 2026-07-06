@@ -261,6 +261,19 @@ def _label_order(family_rules: dict[str, dict[str, Any]]) -> list[str]:
     return [label for label, _count in sorted(totals.items(), key=lambda item: (-item[1], item[0]))]
 
 
+def _fill_priority_tuple(record: dict[str, Any], *, prefer_unmatched: bool) -> tuple[int, float, float, int, str]:
+    if prefer_unmatched:
+        status_rank = {"unmatched": 2, "ambiguous": 1, "matched": 0}.get(str(record.get("feedback_family_match_status")), 0)
+        return (
+            status_rank,
+            float(record.get("non_generic_score") or 0.0),
+            float(record.get("score") or 0.0),
+            -int(record.get("queue_index") or 0),
+            str(record.get("canonical_hash") or ""),
+        )
+    return _priority_tuple(record)
+
+
 def select_shortlist(
     annotated: list[dict[str, Any]],
     *,
@@ -270,16 +283,23 @@ def select_shortlist(
     label_quotas: dict[str, int] | None = None,
     include_unmatched: bool = False,
     exclude_verified_hashes: bool = False,
+    max_per_family_label: int | None = None,
+    prefer_unmatched: bool = False,
 ) -> list[dict[str, Any]]:
     label_quotas = dict(label_quotas or {})
     limit = max(0, int(limit))
+    label_cap = None if max_per_family_label is None else max(0, int(max_per_family_label))
     selected: list[dict[str, Any]] = []
     selected_hashes: set[str] = set()
+    selected_label_counts: Counter[str] = Counter()
 
     def eligible(record: dict[str, Any]) -> bool:
         if not include_unmatched and record.get("feedback_family_match_status") == "unmatched":
             return False
         if exclude_verified_hashes and record.get("known_verified_group_label"):
+            return False
+        label = record.get("feedback_family_label")
+        if label_cap is not None and isinstance(label, str) and selected_label_counts[label] >= label_cap:
             return False
         canonical_hash = record.get("canonical_hash")
         return isinstance(canonical_hash, str) and canonical_hash not in selected_hashes
@@ -291,6 +311,9 @@ def select_shortlist(
         out["exact_label_shortlist_reason"] = reason
         selected.append(out)
         selected_hashes.add(canonical_hash)
+        label = record.get("feedback_family_label")
+        if isinstance(label, str):
+            selected_label_counts[label] += 1
 
     quotas = {label: max(0, int(min_per_label)) for label in _label_order(family_rules)}
     quotas.update(label_quotas)
@@ -304,7 +327,8 @@ def select_shortlist(
                 break
             take(record, f"quota:{label}")
 
-    for record in ordered:
+    fill_ordered = sorted(annotated, key=lambda record: _fill_priority_tuple(record, prefer_unmatched=prefer_unmatched), reverse=True)
+    for record in fill_ordered:
         if len(selected) >= limit:
             break
         if eligible(record):
@@ -498,6 +522,8 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--family_key_mode", choices=["coarse", "sparse", "strategy", "full"], default="coarse")
     parser.add_argument("--include_unmatched", action="store_true")
     parser.add_argument("--exclude_verified_hashes", action="store_true")
+    parser.add_argument("--max_per_family_label", type=int, default=None)
+    parser.add_argument("--prefer_unmatched", action="store_true")
     parser.add_argument("--repo_root", type=Path, default=Path(__file__).resolve().parents[1])
     return parser
 
@@ -532,6 +558,8 @@ def main(argv: list[str] | None = None) -> int:
             label_quotas=label_quotas,
             include_unmatched=args.include_unmatched,
             exclude_verified_hashes=args.exclude_verified_hashes,
+            max_per_family_label=args.max_per_family_label,
+            prefer_unmatched=args.prefer_unmatched,
         )
     except (FileNotFoundError, ExactLabelShortlistError, json.JSONDecodeError, ValueError) as exc:
         parser.error(str(exc))
@@ -554,6 +582,8 @@ def main(argv: list[str] | None = None) -> int:
             "family_key_mode": args.family_key_mode,
             "include_unmatched": args.include_unmatched,
             "exclude_verified_hashes": args.exclude_verified_hashes,
+            "max_per_family_label": args.max_per_family_label,
+            "prefer_unmatched": args.prefer_unmatched,
         },
     )
     paths = write_outputs(selected=selected, summary=summary, output_dir=output_dir)
