@@ -54,6 +54,12 @@ rows parsed as degree 24 and irreducible, adding exact labels `24T9683` and
 because the online calculator returned a temporarily-disabled response. See
 [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) for details and caveats.
 
+The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets the
+manual planner compare verified `(24Tt, r)` pairs against the frozen LMFDB
+baseline. The current five one-per-pair representatives are absent from that
+baseline, but they still need exact Magma `r` and exact number-field
+discriminant evidence before they should be treated as submission-grade.
+
 ## Capabilities
 
 - Configurable coefficient generation strategies.
@@ -64,7 +70,8 @@ because the online calculator returned a temporarily-disabled response. See
 - CPU benchmark helpers for generation strategy comparisons.
 - GPU training/sample-export probes with CPU scoring handoff.
 - Shortlist, review, and offline verification handoff tools.
-- PARI, Magma, and SAIR verifier stubs that are explicit and opt-in.
+- PARI, Magma, official-baseline, and SAIR verifier/planning stubs that are
+  explicit and opt-in.
 
 ## Safety Boundaries
 
@@ -228,12 +235,13 @@ python3 scripts/igp24_submission_plan.py \
   --verified_results /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual \
   --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
   --candidate_jsonl /tmp/igp24_exact_label_shortlist_20260705 \
+  --baseline_csv data/igp24/lmfdb_baseline.csv \
   --output_dir /tmp/igp24_submission_plan_20260705
 ```
 
 This helper is local/file-only. It selects one representative per expected
 `(24Tt, r)` pair and writes manual review artifacts; it does not submit to
-SAIR or claim scoreability without baseline/discriminant evidence.
+SAIR or claim scoreability without exact `r` and discriminant evidence.
 
 ## IGP24 Generation Strategies
 

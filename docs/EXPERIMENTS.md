@@ -228,7 +228,6 @@ per expected pair:
 
 Important caveats:
 
-- All five selected rows are `baseline_unknown`.
 - The discriminant ordering is still polynomial log-discriminant proxy
   evidence, not exact `nfdisc`.
 - The `r=4` values come from local candidate `real_root_count`; the saved
@@ -241,6 +240,74 @@ labels not present in the previous 25 verified rows, `24T9683` and `24T24648`,
 and expanded the planning set from three to five expected pairs. The next
 verification work should retry the four pending rows and add exact signature,
 exact `nfdisc`, and official baseline comparison before submission decisions.
+
+## Five-Representative Baseline Pass
+
+The official frozen baseline CSV was imported from
+`https://competition.sair.foundation/downloads/igp24/lmfdb_baseline.csv` and
+saved as `data/igp24/lmfdb_baseline.csv`. The planner loaded 1,480 rows and
+collapsed them into 622 official `(label, r)` pairs.
+
+Updated exact-evidence helpers now:
+
+- emit `IGP24_SIGNATURE` in generated Magma scripts,
+- emit parseable PARI/GP `IGP24_NFDISC_ABS` markers,
+- parse saved PARI/GP `nfdisc` output into `pari_nfdisc_results.jsonl`,
+- merge exact label, exact `r`, and exact `nfdisc` evidence by candidate hash,
+- and report exact-`r`/exact-`nfdisc` status counts.
+
+Focused validation passed:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q \
+  tests/test_igp24_offline_verify.py tests/test_igp24_submission_plan.py
+```
+
+Result: 19 passed in 1.34s.
+
+The five-representative artifact pass was regenerated from source commit
+`88bb0ed6b5b31cd9e81198a91b22754a933e9766`:
+
+- `/tmp/igp24_submission_grade_five_20260706/offline_verification_manifest.json`
+- `/tmp/igp24_submission_grade_five_20260706/pari_input.gp`
+- `/tmp/igp24_submission_grade_five_20260706/pari_nfdisc_results.jsonl`
+- `/tmp/igp24_submission_grade_five_20260706/online_magma_manual/copy_paste_scripts`
+
+Local verifier availability remained unchanged: no local `gp`, no local
+`magma`, no PARI execution, no Magma execution, no SAIR submission/API call,
+and no GPU/model search.
+
+Baseline-aware plan output:
+
+- `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan.jsonl`
+- `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_candidates.txt`
+- `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_summary.json`
+- `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_report.md`
+
+Status counts:
+
+- `baseline_status_counts={"non_baseline_candidate": 5}`
+- `scoreability_status_counts={"new_pair_needs_exact_r": 5}`
+- `exact_r_status_counts={"candidate_proxy": 5}`
+- `exact_nfdisc_status_counts={"missing": 5}`
+
+Interpretation: the five selected expected pairs are not in the official
+baseline, which is promising for eventual score. They are not submission-grade
+yet because the exact Magma `r` marker and exact number-field discriminant are
+still missing.
+
+The four calculator-disabled rows were not automatically retried online. A
+manual retry packet was prepared at `/tmp/igp24_pending_four_retry_20260706`
+instead. It contains one-candidate Magma copy/paste scripts with
+`IGP24_SIGNATURE` and PARI/GP input with `IGP24_NFDISC_ABS` for:
+
+- `198ac88fa216`
+- `20b35a3fd41d`
+- `88437a372524`
+- `0f3ad8602d89`
+
+That packet is dry-run/manual-only: no local Magma, no local PARI, no SAIR/API
+call, no network submission, and no GPU/model search.
 
 ## GPU And Split Export Findings
 

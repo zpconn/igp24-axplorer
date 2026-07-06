@@ -3194,8 +3194,10 @@ results change.
       - Header: `label,r,poly_disc_abs,nfdisc_abs,scoring_disc,coeffs`.
       - Load result from the planner: 1,480 rows indexed into 622 `(label, r)`
         pairs.
-    - [in_progress] Run the updated five-representative pass against official
+    - [done] Run the updated five-representative pass against official
       baseline data and record the remaining exact-evidence blockers.
+      - Artifact source commit after the checkpoint rerun:
+        `88bb0ed6b5b31cd9e81198a91b22754a933e9766`.
       - Command:
         `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_submission_plan.py --verified_results /tmp/igp24_submission_grade_five_20260706 --candidate_jsonl /tmp/igp24_fresh_pair_diagnostic_20260706/non_generic_shortlist.jsonl --candidate_jsonl /tmp/igp24_fresh_pair_diversity_queue_20260706/exact_label_shortlist.jsonl --baseline_csv data/igp24/lmfdb_baseline.csv --output_dir /tmp/igp24_submission_grade_five_plan_with_baseline_20260706`.
       - Result: 10 verifier rows merged to 5 selected one-per-pair rows; all
@@ -3212,6 +3214,52 @@ results change.
         `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_summary.json`,
         and
         `/tmp/igp24_submission_grade_five_plan_with_baseline_20260706/submission_plan_report.md`.
+    - [done] Prepare a bounded manual retry packet for the four fresh rows
+      that previously hit calculator-disabled responses.
+      - Safety: no automatic online batch verification was run; this only
+        writes one-candidate copy/paste scripts and local/manual parser
+        artifacts.
+      - Rows:
+        `198ac88fa216`,
+        `20b35a3fd41d`,
+        `88437a372524`, and
+        `0f3ad8602d89`.
+      - Artifact directory: `/tmp/igp24_pending_four_retry_20260706`.
+      - Result: 4 dry-run rows, no local Magma/PARI execution, no SAIR/network
+        calls. Each generated Magma script includes `IGP24_SIGNATURE`; the
+        generated PARI/GP input includes `IGP24_NFDISC_ABS`.
+    - [done] Update public README, notes, and experiment docs for the
+      official-baseline import, exact-evidence status fields, and current
+      five-row blocker.
+      - README now keeps public status simple: the official baseline CSV is
+        bundled, the five representatives are absent from it, and exact
+        Magma `r` plus exact `nfdisc` are still required before
+        submission-grade claims.
+      - Detailed benchmark/artifact/status notes are in `docs/EXPERIMENTS.md`,
+        `NOTES_IGP24.md`, and this TODO instead of the README.
+    - [done] Run final validation, confirm Stage 4 remains present, audit
+      process/GPU state, and clean caches.
+      - Full pytest:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        passed with 117 tests in 3.92s.
+      - Compile check:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - CLI help checks passed for `scripts/igp24_offline_verify.py --help`
+        and `scripts/igp24_submission_plan.py --help`.
+      - Diff check: `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 5268 after this TODO update.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        returned no running Python processes.
+      - GPU audit: `nvidia-smi` found no running GPU compute processes; the
+        RTX 5090 was at 7% utilization with display memory only.
+      - Cache cleanup:
+        `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+        completed, and the follow-up `find . -type d -name __pycache__ -print`
+        returned no paths.
 
 ## Tests And Checks
 

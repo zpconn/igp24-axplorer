@@ -800,11 +800,23 @@ pairs and found two additional exact labels.
 
 The refreshed submission plan now has five expected pairs:
 `24T24979|r=4`, `24T24759|r=4`, `24T9683|r=4`, `24T24970|r=4`, and
-`24T24648|r=4`. This is still a review plan, not a submission claim. Baseline
-status is unknown, discriminants are still ordered by polynomial
-log-discriminant proxy rather than exact `nfdisc`, and `r=4` still comes from
-local candidate real-root counts rather than a Magma-computed signature. The
-next scoring-oriented step is to obtain exact `r`, exact `nfdisc`, and
-official baseline comparisons for the five selected representatives, while
-retrying the four calculator-disabled rows when a local or online exact
-verifier is available.
+`24T24648|r=4`. After importing the official frozen baseline CSV from
+`https://competition.sair.foundation/downloads/igp24/lmfdb_baseline.csv`, the
+planner indexed 1,480 rows into 622 `(label, r)` pairs and classified all five
+selected representatives as `non_baseline_candidate`.
+
+This is still a review plan, not a submission claim. All five rows are
+`new_pair_needs_exact_r`: the saved online-Magma XML predates the
+`IGP24_SIGNATURE` marker, so `r=4` still comes from local candidate
+`real_root_count`, and no exact `nfdisc` has been computed because local
+PARI/GP is unavailable. The next scoring-oriented step is to rerun the five
+copy/paste Magma scripts or a local Magma pass to capture exact `r`, then run
+the generated PARI/GP `nfdisc` script where PARI is available. Retry the four
+calculator-disabled rows afterward, without blocking the five-representative
+exact-evidence pass.
+
+The four calculator-disabled rows now have a bounded manual retry packet at
+`/tmp/igp24_pending_four_retry_20260706`. This did not contact the online
+calculator; it only generated one-candidate Magma scripts with
+`IGP24_SIGNATURE` and PARI/GP `nfdisc` input for a later manual/local exact
+verification pass.
