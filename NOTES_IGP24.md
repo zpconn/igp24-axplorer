@@ -367,6 +367,21 @@ knobs that can expand the `24T24970`/`24T24979` families while preserving the
 small `24T24759` track. These labels should remain outside training, GPU
 sampling, CPU proxy scoring, local search, SAIR, and automatic network paths.
 
+The first exact-label-aware shortlist planner is
+`scripts/igp24_exact_label_shortlist.py`. It consumes saved verified-label
+feedback plus saved local structure-audit rows, learns coarse structural
+family rules, and emits a quota-balanced shortlist/report. On the current
+25-row audit, the learned coarse rules are unambiguous: square
+divisor-2/base-degree-12 maps to `24T24970`, nonsquare
+divisor-2/base-degree-12 maps to `24T24979`, and nonsquare
+divisor-3/base-degree-8 maps to `24T24759`, each with confidence 1.0 from the
+saved feedback rows. The planner selected a 12-row family-balanced queue with
+counts 9/2/1 for `24T24970`/`24T24979`/`24T24759`, and its
+`--exclude_verified_hashes` guard selected zero rows on the already verified
+audit. For the next fresh candidate batch, run structure audit first, then
+rerun this planner with `--exclude_verified_hashes` to produce a genuinely new
+manual verification queue.
+
 ## GPU Training Utilization Diagnosis
 
 The first short GPU sampler probe proved that `train.py` could run on CUDA and

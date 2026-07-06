@@ -195,6 +195,22 @@ python3 scripts/igp24_verified_label_feedback.py \
 This helper is local/file-only: it reads saved artifacts and does not call
 Magma, PARI, SAIR, training, GPU sampling, CPU search loops, or network APIs.
 
+Build an exact-label-aware shortlist plan:
+
+```bash
+python3 scripts/igp24_exact_label_shortlist.py \
+  --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl \
+  --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl \
+  --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
+  --output_dir /tmp/igp24_exact_label_shortlist_20260705 \
+  --limit 12 \
+  --min_per_label 0 \
+  --label_quotas 24T24970:8,24T24979:2,24T24759:1
+```
+
+This uses saved feedback as family-planning evidence; it does not claim fresh
+exact labels.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -232,6 +248,7 @@ that branch.
 - `scripts/igp24_queue_structure_audit.py`: local exact-algebra structure audit.
 - `scripts/igp24_offline_verify.py`: offline/local/manual verification handoff.
 - `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
+- `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

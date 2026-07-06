@@ -61,6 +61,23 @@ The feedback join mapped exact labels back to local structure:
 - Nonsquare divisor-2/base-degree-12 rows: 6 `24T24979`.
 - Divisor-3/base-degree-8 row `27eaf2acac9f`: 1 `24T24759`.
 
+Exact-label-aware shortlist artifacts:
+
+- Shortlist:
+  `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist.jsonl`
+- Coefficients:
+  `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_coefficients.txt`
+- Summary:
+  `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_summary.json`
+- Report:
+  `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_report.md`
+
+The planner selected a 12-row family-balanced queue using explicit quotas
+`24T24970:8,24T24979:2,24T24759:1` and one fill row. The selected family
+counts were 9 `24T24970`, 2 `24T24979`, and 1 `24T24759`. A guard run with
+`--exclude_verified_hashes` selected 0 rows on this already verified audit,
+which is the expected behavior for future fresh-candidate audits.
+
 Interpretation: the non-generic diagnostic and local structure audit were
 strong predictors for this queue. The next search work should feed exact labels
 back into shortlist analysis and deliberately expand composed-support families,
@@ -122,6 +139,7 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_queue_structure_audit.py`: exact local algebra structure audit.
 - `scripts/igp24_offline_verify.py`: exact verification handoff and parsing.
 - `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
+- `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
 
 ## Reproducibility Notes
 

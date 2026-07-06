@@ -26,13 +26,12 @@ results change.
   MAGMA/PARI/SAIR remain out of `train.py`, GPU sampling, CPU proxy scoring,
   hot loops, and automatic network/submission paths. Dry-run remains the
   default; local MAGMA execution still requires explicit `--run_magma`.
-- Current task: exact-label feedback is now wired into a local helper and
-  documentation; next is exact-label-aware shortlist reporting or generation
-  knobs before any larger GPU training run.
-- Active follow-up: add exact-label-aware shortlist planning that consumes
-  verified-label feedback plus local structure-audit rows, distinguishes the
-  `24T24970` square divisor-2 family from the `24T24979` nonsquare divisor-2
-  tail, preserves `24T24759` divisor-3 coverage, and remains local/file-only.
+- Current task: exact-label feedback and exact-label-aware shortlist planning
+  are now wired into local/file-only helpers and documentation.
+- Next follow-up: generate or collect fresh candidate rows, run local structure
+  audit, then rerun `scripts/igp24_exact_label_shortlist.py` with
+  `--exclude_verified_hashes` to produce a genuinely new manual verification
+  queue before any larger GPU training run.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -2787,12 +2786,45 @@ results change.
         `/tmp/igp24_exact_label_shortlist_exclude_verified_20260705` selected
         0 rows, confirming future fresh audits can avoid reselecting the
         already verified 25-row queue.
-    - [in_progress] Commit the planner checkpoint before documentation updates.
+    - [done] Commit the planner checkpoint before documentation updates.
+      - Result: committed `e14037e` (`Add IGP24 exact label shortlist
+        planner`) after `git diff --check` passed.
+    - [done] Update README/NOTES/experiment notes with the exact-label
+      shortlist planner command, artifacts, and interpretation.
+      - README now documents the planner command briefly.
+      - `docs/EXPERIMENTS.md` records the planner artifact paths, 12-row
+        selected family counts, and `--exclude_verified_hashes` guard result.
+      - `NOTES_IGP24.md` records the learned family rules and next fresh-batch
+        workflow.
+    - [done] Run final validation, confirm Stage 4 remains present,
+      audit GPU/process state, clean caches, commit docs, and push.
+      - Full tests:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`
+        passed with 110 tests.
+      - Compileall:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall train.py src tests scripts`
+        passed.
+      - Helper help:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --help`
+        passed.
+      - Diff check: `git diff --check` passed.
+      - Stage 4 check:
+        `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+        found Stage 4 at line 4827 after this TODO update.
+      - Process audit:
+        `ps -C python3 -C python3.12 -o pid=,etime=,pcpu=,pmem=,args=`
+        returned no running Python processes.
+      - GPU audit: `nvidia-smi` found no running GPU compute processes; the
+        RTX 5090 was at 5% utilization with display memory only.
+      - Cache cleanup:
+        `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
+        completed, and the follow-up count was 0.
 
 ## Tests And Checks
 
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q`.
-  - Latest result: 106 passed in 3.91s after verified-label feedback work.
+  - Latest result: 110 passed in 4.03s after exact-label shortlist planning
+    work.
 - [done] Run focused non-generic diagnostic/review/shortlist tests:
   `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_non_generic_diagnostic.py tests/test_igp24_shortlist.py tests/test_igp24_review_shortlist.py`.
   - Latest result: 11 passed in 0.05s after non-generic diagnostic work.
@@ -2826,6 +2858,8 @@ results change.
   - Latest result: passed after queue structure-audit work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_verified_label_feedback.py --help`.
   - Latest result: passed after verified-label feedback work.
+- [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --help`.
+  - Latest result: passed after exact-label shortlist planning work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --help`.
   - Latest result: passed after short GPU sampler probe work.
 - [done] Run `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_gpu_smoke.py --help`.
