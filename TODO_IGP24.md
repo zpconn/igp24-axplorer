@@ -29,6 +29,10 @@ results change.
 - Current task: exact-label feedback is now wired into a local helper and
   documentation; next is exact-label-aware shortlist reporting or generation
   knobs before any larger GPU training run.
+- Active follow-up: add exact-label-aware shortlist planning that consumes
+  verified-label feedback plus local structure-audit rows, distinguishes the
+  `24T24970` square divisor-2 family from the `24T24979` nonsquare divisor-2
+  tail, preserves `24T24759` divisor-3 coverage, and remains local/file-only.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -2662,7 +2666,7 @@ results change.
         were strongly predictive here. This branch should now prioritize
         exact-label feedback into shortlist analysis and composed-support
         family expansion, not an immediate large GPU run.
-  - [in_progress] Feed verified non-generic exact labels back into
+  - [done] Feed verified non-generic exact labels back into
     diagnostic/search planning.
     - [done] Pull latest before starting.
       - Result: `git pull --ff-only` was already up to date.
@@ -2736,6 +2740,54 @@ results change.
       - Cache cleanup:
         `find . -type d -name __pycache__ -prune -exec rm -rf {} +`
         completed, and the follow-up count was 0.
+  - [in_progress] Add exact-label-aware shortlist planning from verified
+    feedback families.
+    - [done] Pull latest before starting.
+      - Result: `git pull --ff-only` was already up to date.
+    - [done] Inspect shortlist, non-generic diagnostic, structure audit, and
+      verified-label feedback helpers.
+      - Decision: add a local/file-only planner that reads existing
+        `structure_audit.jsonl` rows and `verified_label_feedback.jsonl` rows,
+        assigns feedback-family labels by structural key, enforces label
+        coverage quotas, and writes a shortlist/report. It will not call
+        MAGMA, PARI, SAIR, training, GPU sampling, CPU proxy-search loops,
+        local search, network APIs, or submission paths.
+    - [done] Implement the planner and focused tests.
+      - Helper: `scripts/igp24_exact_label_shortlist.py`.
+      - Focused validation:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_exact_label_shortlist.py`
+        passed with 4 tests.
+      - Compile/help checks:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 -m compileall scripts/igp24_exact_label_shortlist.py tests/test_igp24_exact_label_shortlist.py`
+        passed, and
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --help`
+        passed.
+    - [done] Run the planner on the verified 25-row structure audit
+      with explicit `24T24970`/`24T24979`/`24T24759` family quotas.
+      - Command:
+        `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_exact_label_shortlist.py --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl --output_dir /tmp/igp24_exact_label_shortlist_20260705 --limit 12 --min_per_label 0 --label_quotas 24T24970:8,24T24979:2,24T24759:1`
+      - Results: 25 annotated rows, 25 matched rows, 0 ambiguous rows, 12
+        selected rows, family counts
+        `{"24T24759": 1, "24T24970": 9, "24T24979": 2}`, and 12
+        coefficient vectors written. The extra `24T24970` row is the
+        top-ranked fill row after satisfying explicit quotas.
+      - Family rules: square divisor-2/base-degree-12 -> `24T24970`
+        confidence 1.0 from 18 feedback rows; nonsquare divisor-2/base-degree
+        12 -> `24T24979` confidence 1.0 from 6 feedback rows; nonsquare
+        divisor-3/base-degree-8 -> `24T24759` confidence 1.0 from 1 feedback
+        row.
+      - Artifacts:
+        `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist.jsonl`,
+        `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_coefficients.txt`,
+        `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_summary.json`,
+        and
+        `/tmp/igp24_exact_label_shortlist_20260705/exact_label_shortlist_report.md`.
+      - Fresh-candidate guard:
+        rerunning the same command with `--exclude_verified_hashes` under
+        `/tmp/igp24_exact_label_shortlist_exclude_verified_20260705` selected
+        0 rows, confirming future fresh audits can avoid reselecting the
+        already verified 25-row queue.
+    - [in_progress] Commit the planner checkpoint before documentation updates.
 
 ## Tests And Checks
 
