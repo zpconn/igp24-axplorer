@@ -598,7 +598,7 @@ results change.
   anti-basin risk reasons; gate safety flags confirm no SAIR submission,
   no SAIR dry-run, no GPU/model training, no Magma/PARI, and no API key
   recorded; key-shaped secret scan found 0 matching files; `git diff --check`
-  passed; Stage 4 remains present at line 8085 after this TODO update.
+  passed; Stage 4 remains present at line 8117 after this TODO update.
   User-approved SAIR submission follow-up: ran local dry-run validation, then
   submitted the 10 selected rows through
   `scripts/igp24_sair_api.py submit --execute` with response artifacts saved
@@ -618,6 +618,38 @@ results change.
   pure support locally, but did not escape the tracked known high-label basin;
   do not widen this exact lane blindly before scores return or a stronger
   label-steering discriminator is added.
+  Post-feedback basin update: poll 3 for
+  `sub_4622b4196ca64a9d91441cf5184acafe` still showed 10/10 accepted,
+  labels `24T25000` x9 and `24T24979` x1, `scoreable=false`,
+  `scoringStatus=pending`, `discSource=None`, and no `fieldDiscAbs` values.
+  Updated `scripts/igp24_anti_basin_planner.py` so the default basin profile
+  ingests
+  `data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json`
+  and treats `r8_quartic_lift_perturbed` + `quartic_in_x6` + `r=8` rows as a
+  known collapsed family-pattern basin when the accepted feedback hits
+  `24T25000`/`24T24979`. Focused planner tests:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_anti_basin_planner.py`
+  -> `5 passed`; full suite -> `234 passed`. Post-feedback repeat gate:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2811/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2812/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2813/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json --output_dir data/igp24/r8_quartic_lift_perturbed_post_feedback_gate_20260707 --target_rs 8 --packet_limit 12 --min_packet_rows 8`.
+  Result: 51 candidates, 0 eligible, 0 selected, `hold_no_submission`; top
+  risk includes
+  `r8_quartic_in_x6_known_label_collapse=24T24979,24T25000`. Structurally
+  different CPU-only probe:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies sparse,structured --seeds 2911,2912,2913 --target_rs 8 --coeff_bound 8 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --max_local_search_steps 2 --prime_limit 7 --exact_score_timeout 3 --output_dir data/igp24/r8_noncomposed_sparse_structured_probe_20260707`.
+  This avoided `quartic_in_x6`, `6x4`, `8x3`, and fixed `4x6`, but produced
+  0 exact local `r=8` matches: sparse had 132 ledger rows, 72 valid
+  candidates, and 0/132 target matches; structured had 125 ledger rows, 72
+  valid candidates, and 0/125 target matches. Real-root counts were mostly
+  `r=2` (167 rows), `r=0` (74 rows), and `r=4` (16 rows). Full-sync gate:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2911/candidates.jsonl --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2912/candidates.jsonl --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2913/candidates.jsonl --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2911/candidates.jsonl --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2912/candidates.jsonl --candidate_jsonl data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json --output_dir data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707 --target_rs 8 --packet_limit 12 --min_packet_rows 8`.
+  Result: 257 candidates, 0 eligible, 0 selected, `hold_no_submission`, with
+  `real_root_count_not_target` as the gating reason. Decision: no submission;
+  generic sparse/structured search at this bound is not an r8-yield lane.
+  Final validation: JSON parsing passed for 7 JSON files, 11 JSONL files, and
+  571 JSONL rows across the new poll/probe/gate artifacts; both gate
+  coefficient exports were empty as expected; key-shaped secret scan found
+  0 matching files; `git diff --check` passed; Stage 4 remains present at
+  line 8117 after this TODO update.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

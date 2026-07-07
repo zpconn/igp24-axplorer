@@ -1,0 +1,107 @@
+INFO - 07/07/26 15:48:20 - 0:00:00 - ============ Initialized logger ============
+INFO - 07/07/26 15:48:20 - 0:00:00 - N: 24
+                                     always_search: True
+                                     batch_size: 32
+                                     coeff_bound: 8
+                                     command: python train.py --env_name igp24 --exp_name igp24_bench_structured_2913 --dump_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/dump' --seed 2913 --coeff_bound 8 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --data_generation_only true --always_search true --max_local_search_steps 2 --prime_limit 7 --exact_score_timeout '3.0' --process_pool false --num_workers 1 --cpu true --igp24_generation_strategy structured --igp24_generation_preset none --igp24_sparse_terms 4 --igp24_low_height_bound 2 --igp24_mixed_strategy_weights 'uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25' --igp24_ledger_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl' --target_r 8 --exp_id "2026_07_07_15_48_20"
+                                     cpu: True
+                                     cycle_diversity_weight: 5.0
+                                     data_generation_only: True
+                                     device: cpu
+                                     discriminant_weight: 1.0
+                                     dump_path: /home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/dump/igp24_bench_structured_2913/2026_07_07_15_48_20
+                                     encoding_tokens: coefficients
+                                     env_name: igp24
+                                     exact_score_timeout: 3.0
+                                     exp_id: 2026_07_07_15_48_20
+                                     exp_name: igp24_bench_structured_2913
+                                     gen_batch_size: 2
+                                     gensize: 24
+                                     height_weight: 1.0
+                                     igp24_generation_preset: none
+                                     igp24_generation_strategy: structured
+                                     igp24_ledger_path: /home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl
+                                     igp24_low_height_bound: 2
+                                     igp24_mixed_strategy_weights: uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
+                                     igp24_sparse_terms: 4
+                                     igp24_translation_radius: 2
+                                     igp24_write_ledger: True
+                                     inc_temp: 0.0
+                                     keep_only_unique: True
+                                     learning_rate: 0.0005
+                                     max_epochs: 2000
+                                     max_len: 500
+                                     max_local_search_steps: 2
+                                     max_steps: 50000
+                                     n_embd: 256
+                                     n_head: 8
+                                     n_layer: 4
+                                     new_proportion: 0.0
+                                     no_positional: False
+                                     ntest: 4
+                                     num_eval_steps: 500
+                                     num_samples_from_model: 500000
+                                     num_workers: 1
+                                     pop_size: 8
+                                     prime_limit: 7
+                                     process_pool: False
+                                     redeem_only: False
+                                     sample_export_dedup: False
+                                     sample_export_max_attempts: 0
+                                     sample_export_only: False
+                                     sample_export_path: 
+                                     sample_export_progress_interval: 256
+                                     sample_export_unique_target: 0
+                                     save_best: False
+                                     seed: 2913
+                                     target_r: 8
+                                     target_t: None
+                                     temp_span: 0
+                                     temperature: 1.0
+                                     top_k: -1
+                                     train_only: False
+                                     weight_decay: 0.01
+INFO - 07/07/26 15:48:20 - 0:00:00 - The experiment will be stored in /home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/dump/igp24_bench_structured_2913/2026_07_07_15_48_20
+                                     
+INFO - 07/07/26 15:48:20 - 0:00:00 - Running command: python train.py --env_name igp24 --exp_name igp24_bench_structured_2913 --dump_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/dump' --seed 2913 --coeff_bound 8 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --data_generation_only true --always_search true --max_local_search_steps 2 --prime_limit 7 --exact_score_timeout '3.0' --process_pool false --num_workers 1 --cpu true --igp24_generation_strategy structured --igp24_generation_preset none --igp24_sparse_terms 4 --igp24_low_height_bound 2 --igp24_mixed_strategy_weights 'uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25' --igp24_ledger_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl' --target_r 8
+
+INFO - 07/07/26 15:48:20 - 0:00:00 - seed: 2913
+INFO - 07/07/26 15:48:20 - 0:00:00 - Number of parameters: 3.28M
+INFO - 07/07/26 15:48:22 - 0:00:02 - Unique processing: 24 examples left, 0 duplicates
+INFO - 07/07/26 15:48:22 - 0:00:02 - ### Score distribution ###
+INFO - 07/07/26 15:48:22 - 0:00:02 - Valid examples: 24
+INFO - 07/07/26 15:48:22 - 0:00:02 - Mean score: 9953.45502884171
+INFO - 07/07/26 15:48:22 - 0:00:02 - Median score: 9953.1407140459
+INFO - 07/07/26 15:48:22 - 0:00:02 - Stdev score: 22.614512954554645
+INFO - 07/07/26 15:48:22 - 0:00:02 - Max score: 9996.378404632713
+INFO - 07/07/26 15:48:22 - 0:00:02 - Top 1 percentile score: 9996.378404632713
+INFO - 07/07/26 15:48:22 - 0:00:02 - Distribution of scores:
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9909.724401459416: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9916.387335807185: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9923.543622330713: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9929.74112843684: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9937.813831805675: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9939.056238699142: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9939.335266709142: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9939.743602414275: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9942.230146477643: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9947.322173123723: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9949.38459328789: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9952.437885553176: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9953.843542538623: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9954.809487339937: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9957.970008154649: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9963.54105568976: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9963.554629418468: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9965.358746583846: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9968.799154725475: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9978.820583093368: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9981.170094713487: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9982.372284375439: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9989.582474830473: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - Score 9996.378404632713: Count: 1
+INFO - 07/07/26 15:48:22 - 0:00:02 - --------------------------------
+INFO - 07/07/26 15:48:22 - 0:00:02 - New train and test generated. Size are train: 4, test 4
+INFO - 07/07/26 15:48:22 - 0:00:02 - Unique data computed for original train set: 0, generated train set: 4
+INFO - 07/07/26 15:48:22 - 0:00:02 - Final train and test generated. Size are train: 4, test 4
+INFO - 07/07/26 15:48:22 - 0:00:02 - Data generation only mode. Exiting...

@@ -1397,3 +1397,14 @@ accepted rows as useful negative/steering feedback unless scoring later shows
 a real discriminant advantage; the next generator should add a stronger
 label-discriminator or shift away from this exact perturbed quartic-lift
 family.
+
+The post-feedback planner update closes that loop: future
+`r8_quartic_lift_perturbed` / `quartic_in_x6` / `r=8` rows are now treated as
+a known collapsed family-pattern basin using the accepted SAIR feedback. A
+repeat gate on the old 51-row perturbed queue now selects 0 rows. A small
+generic sparse/structured r8 probe avoided the composed family entirely, but
+at coefficient bound 8 it produced no exact local `r=8` rows; its 257 ledger
+rows fell into `r=2`, `r=0`, and `r=4`. So the next useful search should not
+be "more generic sparse" either. It needs a target-r-aware but non-collapsed
+construction, likely by designing around real-root count first and label
+fingerprints second.

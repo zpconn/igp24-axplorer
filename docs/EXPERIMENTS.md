@@ -2363,6 +2363,65 @@ pure-template obstruction but still landed in tracked known high-label basins,
 so this exact lane should not be widened blindly before scores return or a
 stronger label-steering discriminator is added.
 
+Post-feedback basin update:
+
+Poll 3 for `sub_4622b4196ca64a9d91441cf5184acafe` still showed 10/10
+accepted, with labels `24T25000` x9 and `24T24979` x1. All 10 rows remained
+scoring/discriminant pending (`scoreable=false`, `scoringStatus=pending`,
+`discSource=None`, no `fieldDiscAbs`). The anti-basin planner now ingests
+`data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json`
+as default accepted-feedback observations and treats
+`r8_quartic_lift_perturbed` + `quartic_in_x6` + `r=8` as a known collapsed
+family-pattern basin.
+
+Rerunning the post-feedback gate on the old perturbed r8 queue produced the
+desired hold:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2811/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2812/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2813/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl \
+  --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json \
+  --output_dir data/igp24/r8_quartic_lift_perturbed_post_feedback_gate_20260707 \
+  --target_rs 8 \
+  --packet_limit 12 \
+  --min_packet_rows 8
+```
+
+Result: 51 candidates, 0 eligible rows, 0 selected rows, and
+`hold_no_submission`. The leading risk is
+`r8_quartic_in_x6_known_label_collapse=24T24979,24T25000`.
+
+A structurally different CPU-only r8 probe used generic `sparse` and
+`structured` strategies instead of any `quartic_in_x6`, `6x4`, `8x3`, or fixed
+`4x6` construction:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
+  --strategies sparse,structured \
+  --seeds 2911,2912,2913 \
+  --target_rs 8 \
+  --coeff_bound 8 \
+  --gensize 24 \
+  --pop_size 8 \
+  --ntest 4 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 2 \
+  --prime_limit 7 \
+  --exact_score_timeout 3 \
+  --output_dir data/igp24/r8_noncomposed_sparse_structured_probe_20260707
+```
+
+Result: no exact local `r=8` rows. Sparse produced 132 ledger rows and 72
+valid candidates, with 0 target matches. Structured produced 125 ledger rows
+and 72 valid candidates, also with 0 target matches. The rows landed mostly in
+`r=2`, `r=0`, and `r=4`. The full-sync gate under
+`data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/` scored
+257 candidates, found 0 eligible rows, selected 0 rows, and returned
+`hold_no_submission` because all rows missed the target real-root count.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

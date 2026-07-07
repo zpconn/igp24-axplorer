@@ -1,0 +1,731 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_anti_basin_planner",
+  "created_at": "2026-07-07T20:48:36.319750+00:00",
+  "tool": "scripts/igp24_anti_basin_planner.py",
+  "source_commit": "2612cb8f3003e1bd0d7ba145f6062bad9259a433",
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_anti_basin_planner.py",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2911/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2912/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2913/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2911/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2912/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl",
+    "--progress_snapshot_json",
+    "/tmp/igp24_full_sync_progress_snapshot_20260707.json",
+    "--output_dir",
+    "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707",
+    "--target_rs",
+    "8",
+    "--packet_limit",
+    "12",
+    "--min_packet_rows",
+    "8"
+  ],
+  "safety": {
+    "gpu_training": false,
+    "model_training": false,
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "magma": false,
+    "pari": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2911/candidates.jsonl",
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2912/candidates.jsonl",
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/sparse_r8_seed_2913/candidates.jsonl",
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2911/candidates.jsonl",
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2912/candidates.jsonl",
+      "data/igp24/r8_noncomposed_sparse_structured_probe_20260707/structured_r8_seed_2913/candidates.jsonl"
+    ],
+    "label_basin_summary_record_type": "igp24_label_basin_analysis",
+    "progress_source": {
+      "record_type": "igp24_sair_label_progress_snapshot",
+      "created_at": "2026-07-07T19:55:53.021382+00:00",
+      "query": {
+        "source": "data/igp24/sair_sync_20260707/sair_label_progress.jsonl",
+        "derived_for": "post_feedback_anti_basin_gate"
+      },
+      "page_count": 5,
+      "label_count": 25000,
+      "first_generated_at": null,
+      "last_generated_at": null,
+      "published": null
+    },
+    "target_rs": [
+      8
+    ]
+  },
+  "basin_profile": {
+    "avoid_labels": [
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T25000"
+    ],
+    "crowded_labels": [
+      "24T1310",
+      "24T22770",
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T24984",
+      "24T25000",
+      "24T657",
+      "24T661",
+      "24T9993"
+    ],
+    "crowded_observation_count": 144,
+    "accepted_hash_count": 144,
+    "exact_fingerprint_count": 109,
+    "loose_fingerprint_count": 33,
+    "mod_p_signature_count": 92,
+    "collapsed_family_pattern_count": 16
+  },
+  "candidate_count": 257,
+  "eligible_candidate_count": 0,
+  "selected_rows": 0,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 257
+  },
+  "top_scored_rows": [
+    {
+      "rank": 1,
+      "short_hash": "d5d93d5a8f16",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "d5d93d5a8f1630f890c18d5839644e2bd54a822f523f9fb9d64e824c1bdac1dc",
+        "short_hash": "d5d93d5a8f16",
+        "r": 4,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p2:1-23;p3:2-22;p5:1-3-20;p7:6-18",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 2,
+      "short_hash": "0152a2bd7282",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "0152a2bd7282e22dbcb404caa746a2147ba131b903d129555e390dff666f3b64",
+        "short_hash": "0152a2bd7282",
+        "r": 4,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          5,
+          13,
+          19
+        ],
+        "mod_p_pattern_signature": "p2:5-19;p3:10-14;p5:1-10-13;p7:1-23",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 3,
+      "short_hash": "ab80c4458f54",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "ab80c4458f549f01aa9402e1b483f3bb18bd38dd1b79b88d35f701cec304e0f4",
+        "short_hash": "ab80c4458f54",
+        "r": 4,
+        "coefficient_height": 5,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          11,
+          21
+        ],
+        "mod_p_pattern_signature": "p2:10-14;p5:1-1-2-2-6-6-6;p7:2-22",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 4,
+      "short_hash": "d74e8bb382ad",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "d74e8bb382ad20b836f0e920759c32a68c164a99955a79318423fa2f67fb5602",
+        "short_hash": "d74e8bb382ad",
+        "r": 4,
+        "coefficient_height": 6,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          9
+        ],
+        "mod_p_pattern_signature": "p5:3-7-14;p7:2-10-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 5,
+      "short_hash": "335e3b8dce68",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "335e3b8dce68f71bd05f509f742775b118e8bbe83aa5eae86dea5ffa36b81699",
+        "short_hash": "335e3b8dce68",
+        "r": 4,
+        "coefficient_height": 6,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          9,
+          11,
+          21
+        ],
+        "mod_p_pattern_signature": "p3:1-1-2-2-4-7-7;p5:1-5-6-12;p7:1-23",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 6,
+      "short_hash": "db3a4d951469",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "db3a4d951469e87a0fbba3fa13bad699245c0475f753ef1fbb7f7350441b4769",
+        "short_hash": "db3a4d951469",
+        "r": 4,
+        "coefficient_height": 8,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p7:4-7-13",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 7,
+      "short_hash": "b3d2b99c7f1e",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "b3d2b99c7f1eb17710a2e2880592f160c8b655cfdbb5d0a3cb13793380d626b8",
+        "short_hash": "b3d2b99c7f1e",
+        "r": 4,
+        "coefficient_height": 8,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p5:9-15;p7:3-9-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 8,
+      "short_hash": "afbc574e6b19",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "afbc574e6b191610af4b0c3e65f1ef9618decf9e6d69f23eeec937d1e58508d4",
+        "short_hash": "afbc574e6b19",
+        "r": 4,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p5:2-22;p7:1-1-6-6-10",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 9,
+      "short_hash": "244b4d8a9e30",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "244b4d8a9e30f05340af056f3d34cefe932dd994fca06b36859d6ccc205e3532",
+        "short_hash": "244b4d8a9e30",
+        "r": 4,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          5,
+          17
+        ],
+        "mod_p_pattern_signature": "p2:1-9-14;p3:1-8-15;p5:1-2-2-19;p7:1-11-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 10,
+      "short_hash": "ae68c8295534",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "ae68c82955341feba7f7263f9e273a978a7c24005173642b97c3f7ae48fe25ce",
+        "short_hash": "ae68c8295534",
+        "r": 4,
+        "coefficient_height": 8,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          11
+        ],
+        "mod_p_pattern_signature": "p7:8-16",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 11,
+      "short_hash": "64dc9c335d6e",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "64dc9c335d6e1caa34f3b4c2362affcaa988800613a4d66b55b0425c66a5d87d",
+        "short_hash": "64dc9c335d6e",
+        "r": 4,
+        "coefficient_height": 8,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          5,
+          11,
+          17
+        ],
+        "mod_p_pattern_signature": "p3:1-23;p5:2-4-18;p7:2-8-14",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 12,
+      "short_hash": "a7a4a5a2612e",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "a7a4a5a2612e13093a645cedfde44d75d4a8a4149c27ca31b4f10f22c3bedb1b",
+        "short_hash": "a7a4a5a2612e",
+        "r": 4,
+        "coefficient_height": 6,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          7,
+          19
+        ],
+        "mod_p_pattern_signature": "p2:4-20;p3:1-4-9-10;p5:2-3-19;p7:1-1-1-3-18",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 13,
+      "short_hash": "fcc331cdd659",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "fcc331cdd65948b96e234bc29bd5d7154d71eca5efa191c3552aa69031836672",
+        "short_hash": "fcc331cdd659",
+        "r": 4,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          5,
+          9
+        ],
+        "mod_p_pattern_signature": "p5:10-14;p7:1-23",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 14,
+      "short_hash": "932789295055",
+      "score": -97.665,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "93278929505594c03d235a7f1dd8ad1354c5e6df9f820fae75ce182e26d2cdf5",
+        "short_hash": "932789295055",
+        "r": 4,
+        "coefficient_height": 2,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          7,
+          17
+        ],
+        "mod_p_pattern_signature": "p3:10-14;p5:4-5-15;p7:1-5-7-11",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 15,
+      "short_hash": "006d29e49c15",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "006d29e49c15a94f89ac01b126f9b4598d003790580eee5dd47de151709a147f",
+        "short_hash": "006d29e49c15",
+        "r": 2,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          7,
+          9
+        ],
+        "mod_p_pattern_signature": "p2:1-6-7-10;p3:2-2-20;p5:1-2-2-19;p7:1-1-2-3-3-4-10",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 16,
+      "short_hash": "47ba6b983311",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "47ba6b983311e4ff5cce734f4b16bd984471e7e2975a6638b2abdc792e4cab4f",
+        "short_hash": "47ba6b983311",
+        "r": 2,
+        "coefficient_height": 3,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          5
+        ],
+        "mod_p_pattern_signature": "p2:1-5-6-12;p5:2-2-7-13;p7:3-21",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 17,
+      "short_hash": "b9af7302c64a",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "b9af7302c64a1bfbb5de06166e037ce6202b6ece0f2dcb8bf98594015bcd1e70",
+        "short_hash": "b9af7302c64a",
+        "r": 2,
+        "coefficient_height": 4,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          5
+        ],
+        "mod_p_pattern_signature": "p3:1-2-21;p5:2-5-17;p7:2-7-15",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 18,
+      "short_hash": "f2a2c81fc451",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "f2a2c81fc45137ae29280e0b3e4b34014551aa91ef0ddfec976954a585fc6b8e",
+        "short_hash": "f2a2c81fc451",
+        "r": 2,
+        "coefficient_height": 8,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          13,
+          15,
+          23
+        ],
+        "mod_p_pattern_signature": "p2:3-5-6-10;p3:1-2-21;p5:24",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 19,
+      "short_hash": "16f192660d30",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "16f192660d303960579d3246e1c42603a45d2e09d6374fdef40ea8c1ecac44e2",
+        "short_hash": "16f192660d30",
+        "r": 2,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          17
+        ],
+        "mod_p_pattern_signature": "p5:1-1-4-4-7-7",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 20,
+      "short_hash": "24ba419cb85a",
+      "score": -124.245,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "real_root_count_not_target"
+      ],
+      "features": {
+        "canonical_hash": "24ba419cb85ab2aad71a1f5cddea497957f77ebf1f919725c33a1496f8e94db9",
+        "short_hash": "24ba419cb85a",
+        "r": 2,
+        "coefficient_height": 7,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          17
+        ],
+        "mod_p_pattern_signature": "p5:1-23",
+        "irreducible": true,
+        "squarefree": true
+      }
+    }
+  ],
+  "selected_rows_summary": [],
+  "submission_recommendation": {
+    "recommended_for_sair_packet": false,
+    "status": "hold_no_submission",
+    "reason": "only_0_eligible_rows_below_min_8; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+    "selected_rows": 0,
+    "selected_mode_counts": {},
+    "selected_mod_p_signature_counts": {},
+    "risk_count": 0
+  },
+  "next_decision": "Do not submit this packet; refine generation toward more perturbation-mode and mod-p diversity.",
+  "output_files": {
+    "progress_cache_json": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_live_progress_cache.json",
+    "scores_jsonl": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_candidate_scores.jsonl",
+    "selected_jsonl": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_selected_queue.jsonl",
+    "coefficients_txt": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_candidate_hashes.txt",
+    "summary_json": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_planner_summary.json",
+    "report_md": "data/igp24/r8_noncomposed_sparse_structured_full_sync_gate_20260707/anti_basin_planner_report.md"
+  }
+}
