@@ -53,6 +53,24 @@ results change.
   direct real-root control and non-even support validated locally, but this
   low-perturbation linear-real lane still collapses to the known
   `24T25000|r=20` basin.
+- Active basin-discriminator goal: build a stricter feedback-aware
+  pre-submission gate before spending more SAIR submissions. Fresh read-only
+  API healthcheck:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_healthcheck.py --output_dir data/igp24/sair_health_20260707_basin_gate`.
+  Sandbox run saw 4 DNS/network failures; approved network retry succeeded
+  4/4 with no service-unavailable endpoints and recommended a full sync.
+  First full-sync attempt used `--submission_limit 120`, which SAIR rejected
+  with `RESOURCE_FIELD_INVALID` because the documented limit is 1-100. Corrected
+  sync:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --fetch_live --output_dir data/igp24/sair_sync_basin_gate_20260707 --progress_limit 5000 --submission_limit 100`.
+  Result: `partial_sync=false`, 25,000 labels, 51,378 remaining signatures,
+  20 submissions, 185 accepted rows, 135 scoreable rows, 50 pending rows,
+  0 failed rows, and 0 unmatched downloaded rows. Top local accepted labels in
+  the sync are `24T25000` x83, `24T24979` x32, `24T24932` x20,
+  `24T24651` x17, and `24T24984` x12. Top remaining `r` buckets are still
+  `r=24` (11,982), `r=16` (10,534), `r=8` (6,706), `r=12` (6,586), and
+  `r=20` (5,574). No submission was attempted; next step is to encode these
+  accepted rows and live progress into a calibrated basin-risk report.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
