@@ -125,6 +125,7 @@ def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
         "r12_tower_family_key",
         "r24_high_real_family_key",
         "r20_high_real_family_key",
+        "r20_linear_family_key",
         "r16_diversity_family_key",
         "r12_structured_family_key",
         "r8_quartic_lift_family_key",
@@ -153,6 +154,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         metadata.get("alt_perturbation_mode")
         or metadata.get("r8_quartic_lift_perturbation_mode")
         or metadata.get("r24_tower_mode")
+        or metadata.get("r20_linear_mode")
         or metadata.get("r16_diversity_mode")
         or row.get("source_mode")
         or ""
