@@ -7,7 +7,7 @@ from scripts.igp24_score_aware_target_planner import (
     load_score_snapshot,
     write_outputs,
 )
-from scripts.igp24_sair_sync import load_sync_progress_snapshot, load_sync_submission_rows, write_sync_artifacts
+from scripts.igp24_sair_sync import load_sync_progress_snapshot, load_sync_status, load_sync_submission_rows, write_sync_artifacts
 
 
 def _label(label, t, allowed, discovered, remaining, *, label_teams=0, signature_teams=None):
@@ -199,6 +199,13 @@ def test_score_aware_target_outputs_round_trip(tmp_path):
 
 
 def test_score_aware_target_plan_handles_empty_sync_rows(tmp_path):
+    partial_status = {
+        "partial_sync": True,
+        "submission_state_complete": False,
+        "failing_endpoint": "submissions/me",
+        "error_code": "IGP24_SERVICE_UNAVAILABLE",
+        "error_message": "submissions/me: temporarily unavailable",
+    }
     sync_paths = write_sync_artifacts(
         output_dir=tmp_path / "sync",
         competition={"competitionId": "igp24"},
@@ -214,6 +221,7 @@ def test_score_aware_target_plan_handles_empty_sync_rows(tmp_path):
         submission_rows=[],
         command=["pytest"],
         live_fetch=False,
+        sync_status=partial_status,
     )
     plan = build_plan(
         snapshot=load_sync_progress_snapshot(sync_paths["summary_json"].parent),
@@ -221,11 +229,17 @@ def test_score_aware_target_plan_handles_empty_sync_rows(tmp_path):
         score_snapshot=_score_snapshot(),
         basin_summary=_basin_summary(),
         sync_submission_rows=load_sync_submission_rows(sync_paths["summary_json"].parent),
+        sync_status=load_sync_status(sync_paths["summary_json"].parent),
         top_limit=10,
     )
     paths = write_outputs(plan, tmp_path / "plan")
 
     assert plan["inputs"]["sync_submission_rows"] == 0
+    assert plan["inputs"]["sync_partial"] is True
+    assert plan["inputs"]["sync_submission_state_complete"] is False
+    assert plan["inputs"]["sync_failing_endpoint"] == "submissions/me"
+    assert plan["decision"]["full_sync_required_before_submission"] is True
+    assert plan["decision"]["submission_recommended_now"] is False
     assert plan["top_api_scoreable_targets"] == []
     assert plan["top_api_pending_targets"] == []
     assert "API Scoreable Targets" in paths["report_md"].read_text(encoding="utf-8")

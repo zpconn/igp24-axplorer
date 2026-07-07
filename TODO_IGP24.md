@@ -133,6 +133,48 @@ results change.
   no full sync artifact exists; health artifact safety says
   `sair_submission=false` and `api_key_recorded=false`; Stage 4 remains
   present at line 7929 after this TODO update.
+- Partial SAIR sync resilience pass: added explicit `--allow_partial` support
+  to `scripts/igp24_sair_sync.py`. The helper still tries the read-only
+  sequence in order: competition schema, `/me`, full paginated
+  `labels/progress`, `submissions/me`, then per-submission detail/downloads.
+  If a submission endpoint fails in partial mode, it writes fresh progress
+  artifacts and marks `partial_sync=true`,
+  `submission_state_complete=false`, the failing endpoint, error code, and
+  error message in `sair_sync_summary.json` and `sair_submission_index.json`.
+  Planner update: `scripts/igp24_score_aware_target_planner.py --sair_sync_dir`
+  now reads sync status, carries partial markers into plan inputs, and sets
+  `full_sync_required_before_submission=true` with
+  `submission_recommended_now=false` when submission/scoring state is
+  incomplete.
+  Fresh run:
+  1. Health check remained 4/4 OK.
+  2. Full sync retry still failed at `submissions/me` with
+     `IGP24_SERVICE_UNAVAILABLE`.
+  3. Partial sync command:
+     `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --fetch_live --allow_partial --output_dir data/igp24/sair_sync_partial_20260707 --progress_limit 5000 --submission_limit 100`.
+     Result: 25,000 labels, 51,983 remaining signatures,
+     `partial_sync=true`, `submission_state_complete=false`,
+     `failing_endpoint=submissions/me`, zero submission rows, no submission.
+     Artifacts: `data/igp24/sair_sync_partial_20260707/`.
+  4. Planner command:
+     `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_target_planner.py --sair_sync_dir data/igp24/sair_sync_partial_20260707 --output_dir data/igp24/score_aware_target_plan_partial_sync_20260707 --top_limit 300`.
+     Result: top r buckets are `r=24` (11,998 remaining), `r=16` (10,676),
+     `r=8` (6,822), `r=12` (6,740), and `r=20` (5,629). Top uncovered pair is
+     `24T18897|r=24`. The planner identifies `r8_quartic_lift_score_followup`
+     as a bounded offline generation lane, but
+     `submission_recommended_now=false` because the sync is partial. Artifacts:
+     `data/igp24/score_aware_target_plan_partial_sync_20260707/`.
+  Decision: partial sync is useful for fresh global coverage and offline
+  generation planning only. No SAIR packet should be submitted from this state.
+  Validation for this partial-sync pass:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_sair_sync.py tests/test_igp24_score_aware_target_planner.py tests/test_igp24_sair_healthcheck.py tests/test_igp24_sair_api.py`
+  -> 21 passed; `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` ->
+  229 passed; `python3 -m py_compile scripts/igp24_sair_sync.py scripts/igp24_score_aware_target_planner.py scripts/igp24_sair_healthcheck.py`
+  passed; JSON summaries parsed with `python3 -m json.tool`; JSONL validation
+  parsed 25,300 rows total; partial markers were asserted from summary JSON;
+  `git diff --check` passed; SAIR key-shaped scan found no matches; no
+  `data/igp24/sair_sync_20260707` full-sync artifact exists; Stage 4 remains
+  present at line 7971 after this TODO update.
 - Live target-planning pass in progress: fetched the full SAIR
   `labels/progress` traversal to `/tmp/igp24_sair_label_progress_full_20260707.json`
   using `limit=5000`, `includeEmpty=true`. Result: 5 pages, 25,000 labels,

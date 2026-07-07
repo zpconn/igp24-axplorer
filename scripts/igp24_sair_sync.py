@@ -511,6 +511,7 @@ def build_submission_index(
     rows: list[dict[str, Any]],
     pages: list[dict[str, Any]],
     rate_limits: list[dict[str, Any]],
+    sync_status: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     by_submission: dict[str, Counter[str]] = defaultdict(Counter)
     for row in rows:
@@ -555,6 +556,7 @@ def build_submission_index(
         "submission_count": len(index_rows),
         "submissions": sorted(index_rows, key=lambda row: str(row.get("created_at") or ""), reverse=True),
         "rate_limit_observations": rate_limits,
+        "sync_status": sync_status or {"partial_sync": False, "submission_state_complete": True},
     }
 
 
@@ -569,12 +571,32 @@ def build_sync_summary(
     command: list[str],
     live_fetch: bool,
     source_commit: str,
+    sync_status: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     status_counts = Counter(str(row.get("status_class")) for row in submission_rows)
     pair_counts = Counter(str(row.get("pair_key")) for row in submission_rows if row.get("pair_key"))
     pending = [row for row in submission_rows if row.get("status_class") == "pending"]
     scoreable = [row for row in submission_rows if row.get("status_class") == "scoreable"]
     unmatched = [row for row in submission_rows if row.get("local_match_status") == "unmatched"]
+    status = sync_status or {"partial_sync": False, "submission_state_complete": True}
+    partial_sync = bool(status.get("partial_sync"))
+    submission_state_complete = bool(status.get("submission_state_complete", not partial_sync))
+    planned_endpoints = [
+        "GET /api/public/v1/competitions/{competitionId}",
+        "GET /api/public/v1/competitions/{competitionId}/me",
+        "GET /api/public/v1/competitions/igp24/labels/progress",
+        "GET /api/public/v1/competitions/{competitionId}/submissions/me",
+        "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}",
+        "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}/download",
+    ]
+    failing_endpoint = status.get("failing_endpoint")
+    used_endpoints = planned_endpoints[:3]
+    if not partial_sync or failing_endpoint in {"submissions/me", "submissions/{id}", "submissions/{id}/download"}:
+        used_endpoints.append(planned_endpoints[3])
+    if not partial_sync or failing_endpoint in {"submissions/{id}", "submissions/{id}/download"}:
+        used_endpoints.append(planned_endpoints[4])
+    if not partial_sync or failing_endpoint == "submissions/{id}/download":
+        used_endpoints.append(planned_endpoints[5])
     return {
         "schema_version": 1,
         "record_type": "igp24_sair_sync",
@@ -588,14 +610,16 @@ def build_sync_summary(
             "network_calls": bool(live_fetch),
             "live_fetch": bool(live_fetch),
         },
-        "api_endpoints_used": [
-            "GET /api/public/v1/competitions/{competitionId}",
-            "GET /api/public/v1/competitions/{competitionId}/me",
-            "GET /api/public/v1/competitions/igp24/labels/progress",
-            "GET /api/public/v1/competitions/{competitionId}/submissions/me",
-            "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}",
-            "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}/download",
-        ],
+        "sync_status": {
+            "partial_sync": partial_sync,
+            "submission_state_complete": submission_state_complete,
+            "failing_endpoint": status.get("failing_endpoint"),
+            "error_code": status.get("error_code"),
+            "error_message": status.get("error_message"),
+            "retry_after": status.get("retry_after"),
+        },
+        "api_endpoints_used": used_endpoints,
+        "api_endpoints_planned": planned_endpoints,
         "post_submission_supported_but_not_used": "POST /api/public/v1/competitions/{competitionId}/submissions remains dry-run/explicit only",
         "competition": safe_compact(competition, max_depth=5),
         "me": safe_compact(me, max_depth=5),
@@ -618,7 +642,11 @@ def build_sync_summary(
         },
         "decision": {
             "submission_recommended_now": False,
-            "submission_reason": "sync only; no generated queue passed score-aware and anti-basin submission gates",
+            "submission_reason": (
+                "partial sync only; submission/scoring state is incomplete"
+                if partial_sync or not submission_state_complete
+                else "sync only; no generated queue passed score-aware and anti-basin submission gates"
+            ),
             "wait_for_scoring_rows": len(pending),
             "review_scoreable_rows": len(scoreable),
         },
@@ -630,6 +658,7 @@ def build_report(summary: dict[str, Any]) -> str:
     progress = summary["progress"]
     submissions = summary["submissions"]
     decision = summary["decision"]
+    sync_status = summary.get("sync_status") or {}
     lines = [
         "# IGP24 SAIR Sync",
         "",
@@ -644,6 +673,9 @@ def build_report(summary: dict[str, Any]) -> str:
             "",
             "## Progress",
             "",
+            f"- Partial sync: `{sync_status.get('partial_sync')}`",
+            f"- Submission state complete: `{sync_status.get('submission_state_complete')}`",
+            f"- Failing endpoint: `{sync_status.get('failing_endpoint')}`",
             f"- Labels: {progress.get('label_count')}",
             f"- Remaining signatures: {progress.get('remaining_signature_count')}",
             "",
@@ -688,6 +720,7 @@ def write_sync_artifacts(
     submission_rows: list[dict[str, Any]],
     command: list[str],
     live_fetch: bool,
+    sync_status: dict[str, Any] | None = None,
 ) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     paths = {
@@ -718,6 +751,7 @@ def write_sync_artifacts(
         command=command,
         live_fetch=live_fetch,
         source_commit=get_source_commit(REPO_ROOT),
+        sync_status=sync_status,
     )
     write_json(paths["progress_summary_json"], progress_summary)
     write_jsonl(paths["label_progress_jsonl"], label_progress_compact_rows(progress_snapshot))
@@ -730,6 +764,19 @@ def write_sync_artifacts(
     write_json(paths["summary_json"], summary)
     paths["report_md"].write_text(build_report(summary), encoding="utf-8")
     return paths
+
+
+def sync_failure_status(exc: SAIRAPIError) -> dict[str, Any]:
+    message = str(exc)
+    failing_endpoint = message.split(":", 1)[0] if ":" in message else None
+    return {
+        "partial_sync": True,
+        "submission_state_complete": False,
+        "failing_endpoint": failing_endpoint,
+        "error_code": exc.code,
+        "error_message": message,
+        "retry_after": exc.retry_after,
+    }
 
 
 def load_sync_progress_snapshot(sync_dir: Path) -> dict[str, Any]:
@@ -758,17 +805,22 @@ def load_sync_submission_rows(sync_dir: Path) -> list[dict[str, Any]]:
     return read_jsonl(sync_dir / SUBMISSION_ROWS_JSONL)
 
 
-def build_sync_from_live(
+def load_sync_status(sync_dir: Path) -> dict[str, Any]:
+    summary = read_json(sync_dir / SYNC_SUMMARY_JSON)
+    return summary.get("sync_status") or {"partial_sync": False, "submission_state_complete": True}
+
+
+def build_sync_from_client(
     *,
+    client: SAIRAPIVerifier,
     output_dir: Path,
-    api_key_env: str,
-    base_url: str,
     progress_limit: int,
     submission_limit: int,
     local_data_root: Path,
     command: list[str],
+    allow_partial: bool,
+    live_fetch: bool,
 ) -> dict[str, Path]:
-    client = SAIRAPIVerifier(api_key_env=api_key_env, base_url=base_url, dry_run=False)
     rate_limits: list[dict[str, Any]] = []
     competition = response_data(
         request_api(
@@ -789,7 +841,31 @@ def build_sync_from_live(
         )
     )
     progress_snapshot = fetch_full_label_progress(client, limit=progress_limit, rate_limits=rate_limits)
-    submission_summaries, pages = fetch_all_submission_summaries(client, limit=submission_limit, rate_limits=rate_limits)
+    try:
+        submission_summaries, pages = fetch_all_submission_summaries(client, limit=submission_limit, rate_limits=rate_limits)
+    except SAIRAPIError as exc:
+        if not allow_partial:
+            raise
+        sync_status = sync_failure_status(exc)
+        submission_index = build_submission_index(
+            submission_summaries=[],
+            submission_details=[],
+            rows=[],
+            pages=[],
+            rate_limits=rate_limits,
+            sync_status=sync_status,
+        )
+        return write_sync_artifacts(
+            output_dir=output_dir,
+            competition=competition,
+            me=me,
+            progress_snapshot=progress_snapshot,
+            submission_index=submission_index,
+            submission_rows=[],
+            command=command,
+            live_fetch=live_fetch,
+            sync_status=sync_status,
+        )
     local_index = build_local_hash_index(local_data_root)
     details: list[dict[str, Any]] = []
     all_rows: list[dict[str, Any]] = []
@@ -797,16 +873,42 @@ def build_sync_from_live(
         submission_id = str(item.get("submissionId") or item.get("id") or "")
         if not submission_id:
             continue
-        detail = fetch_submission_detail(client, submission_id, rate_limits=rate_limits)
-        details.append(detail)
-        downloaded = download_submission_lines(client, submission_id, rate_limits=rate_limits)
+        try:
+            detail = fetch_submission_detail(client, submission_id, rate_limits=rate_limits)
+            details.append(detail)
+            downloaded = download_submission_lines(client, submission_id, rate_limits=rate_limits)
+        except SAIRAPIError as exc:
+            if not allow_partial:
+                raise
+            sync_status = sync_failure_status(exc)
+            submission_index = build_submission_index(
+                submission_summaries=submission_summaries,
+                submission_details=details,
+                rows=all_rows,
+                pages=pages,
+                rate_limits=rate_limits,
+                sync_status=sync_status,
+            )
+            return write_sync_artifacts(
+                output_dir=output_dir,
+                competition=competition,
+                me=me,
+                progress_snapshot=progress_snapshot,
+                submission_index=submission_index,
+                submission_rows=all_rows,
+                command=command,
+                live_fetch=live_fetch,
+                sync_status=sync_status,
+            )
         all_rows.extend(normalize_submission_rows(detail, downloaded, local_hash_index=local_index))
+    sync_status = {"partial_sync": False, "submission_state_complete": True}
     submission_index = build_submission_index(
         submission_summaries=submission_summaries,
         submission_details=details,
         rows=all_rows,
         pages=pages,
         rate_limits=rate_limits,
+        sync_status=sync_status,
     )
     return write_sync_artifacts(
         output_dir=output_dir,
@@ -816,6 +918,31 @@ def build_sync_from_live(
         submission_index=submission_index,
         submission_rows=all_rows,
         command=command,
+        live_fetch=live_fetch,
+        sync_status=sync_status,
+    )
+
+
+def build_sync_from_live(
+    *,
+    output_dir: Path,
+    api_key_env: str,
+    base_url: str,
+    progress_limit: int,
+    submission_limit: int,
+    local_data_root: Path,
+    command: list[str],
+    allow_partial: bool,
+) -> dict[str, Path]:
+    client = SAIRAPIVerifier(api_key_env=api_key_env, base_url=base_url, dry_run=False)
+    return build_sync_from_client(
+        client=client,
+        output_dir=output_dir,
+        progress_limit=progress_limit,
+        submission_limit=submission_limit,
+        local_data_root=local_data_root,
+        command=command,
+        allow_partial=allow_partial,
         live_fetch=True,
     )
 
@@ -834,6 +961,7 @@ def build_sync_from_existing(*, sync_dir: Path, output_dir: Path, command: list[
         submission_rows=submission_rows,
         command=command,
         live_fetch=False,
+        sync_status=summary.get("sync_status"),
     )
 
 
@@ -843,6 +971,7 @@ def build_parser() -> argparse.ArgumentParser:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--fetch_live", action="store_true")
     source.add_argument("--offline_sync_dir", type=Path)
+    parser.add_argument("--allow_partial", action="store_true", help="Write progress-only partial artifacts if submission reads fail")
     parser.add_argument("--api_key_env", default=DEFAULT_API_KEY_ENV)
     parser.add_argument("--base_url", default="https://api.sair.foundation")
     parser.add_argument("--progress_limit", type=int, default=5000)
@@ -864,6 +993,7 @@ def main(argv: list[str] | None = None) -> int:
                 submission_limit=int(args.submission_limit),
                 local_data_root=args.local_data_root,
                 command=command,
+                allow_partial=bool(args.allow_partial),
             )
         else:
             paths = build_sync_from_existing(sync_dir=args.offline_sync_dir, output_dir=args.output_dir, command=command)
@@ -882,6 +1012,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"pending_rows\t{summary['submissions']['pending_rows']}")
     print(f"scoreable_rows\t{summary['submissions']['scoreable_rows']}")
     print(f"unmatched_rows\t{summary['submissions']['unmatched_rows']}")
+    print(f"partial_sync\t{summary.get('sync_status', {}).get('partial_sync')}")
+    print(f"submission_state_complete\t{summary.get('sync_status', {}).get('submission_state_complete')}")
+    print(f"failing_endpoint\t{summary.get('sync_status', {}).get('failing_endpoint')}")
     for name, path in paths.items():
         print(f"{name}\t{path}")
     return 0

@@ -14,11 +14,11 @@ join them back to local canonical hashes. This is also the cleanest way to
 separate pending scoring rows, scoreable rows, failed rows, and accepted rows
 that are not yet scoreable.
 
-As of the 2026-07-07 implementation pass, the code path is in place. A later
-lightweight health check showed schema, `/me`, progress, and submission-list
-reads available, but the full sync still failed at per-submission detail with
-`IGP24_SERVICE_UNAVAILABLE`. Retry full sync before making any new submission
-decision.
+As of the 2026-07-07 implementation pass, the code path is in place. When
+submission endpoints are unstable, `--allow_partial` can still capture fresh
+global progress for offline planning, but partial artifacts must be treated as
+having incomplete submission/scoring state. Retry full sync before making any
+new submission decision.
 
 ## Axplorer Architecture
 

@@ -40,6 +40,23 @@ Follow-up health pass on 2026-07-07:
 - Current decision remains no submission packet until full sync succeeds and
   the score-aware planner consumes the resulting sync directory.
 
+Partial-sync planning pass on 2026-07-07:
+
+- Added `--allow_partial` to `scripts/igp24_sair_sync.py`.
+- Full sync still failed at `submissions/me`, but partial mode wrote fresh
+  progress artifacts under `data/igp24/sair_sync_partial_20260707`.
+- Partial sync result: 25,000 labels, 51,983 remaining signatures,
+  `partial_sync=true`, `submission_state_complete=false`, failing endpoint
+  `submissions/me`, and zero submission rows.
+- The score-aware planner consumed the partial sync under
+  `data/igp24/score_aware_target_plan_partial_sync_20260707`.
+- Planner result: top buckets remain `r=24`, `r=16`, `r=8`, `r=12`, and
+  `r=20`; top uncovered target is `24T18897|r=24`; the useful offline lane is
+  `r8_quartic_lift_score_followup`.
+- Submission remains forbidden from partial sync alone:
+  `submission_recommended_now=false` and
+  `full_sync_required_before_submission=true`.
+
 ## Verified Non-Generic Queue
 
 The most important current result is the 2026-07-05 non-generic verification

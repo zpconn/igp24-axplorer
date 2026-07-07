@@ -3,6 +3,7 @@ import json
 from scripts.igp24_sair_sync import (
     build_local_hash_index,
     build_progress_summary,
+    build_sync_from_client,
     build_sync_from_existing,
     build_submission_index,
     build_sync_summary,
@@ -10,6 +11,7 @@ from scripts.igp24_sair_sync import (
     fetch_all_submission_summaries,
     fetch_full_label_progress,
     load_sync_progress_snapshot,
+    load_sync_status,
     normalize_submission_rows,
     request_api,
     write_sync_artifacts,
@@ -92,6 +94,47 @@ class FakeClient:
 class FailingClient:
     def _request(self, method, path, *, query=None, body=None, accept="application/json"):
         raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+
+
+class LiveSyncFakeClient:
+    def __init__(self, *, fail_at=None):
+        self.fail_at = fail_at
+        self.calls = []
+
+    def _request(self, method, path, *, query=None, body=None, accept="application/json"):
+        self.calls.append((method, path, query, accept))
+        headers = {"X-RateLimit-Remaining": "999"}
+        if path == "/api/public/v1/competitions/igp24":
+            return ({"ok": True, "data": {"competitionId": "igp24", "submissionSpec": {"kind": "igp24-polynomial"}}}, headers)
+        if path == "/api/public/v1/competitions/igp24/me":
+            return ({"ok": True, "data": {"competitionId": "igp24", "team": {"role": "activeMember"}}}, headers)
+        if path == "/api/public/v1/competitions/igp24/labels/progress":
+            progress = _progress_snapshot()
+            return (
+                {
+                    "ok": True,
+                    "data": {
+                        "generatedAt": "2026-07-07T00:00:00Z",
+                        "labels": progress["labels"],
+                        "nextCursor": None,
+                        "meta": {"published": True},
+                    },
+                },
+                headers,
+            )
+        if path == "/api/public/v1/competitions/igp24/submissions/me":
+            if self.fail_at == "submissions/me":
+                raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+            return ({"ok": True, "data": {"items": [{"submissionId": "sub_a"}], "nextCursor": None}}, headers)
+        if path == "/api/public/v1/competitions/igp24/submissions/sub_a/download":
+            if self.fail_at == "submissions/{id}/download":
+                raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+            return (LINE_A, headers)
+        if path == "/api/public/v1/competitions/igp24/submissions/sub_a":
+            if self.fail_at == "submissions/{id}":
+                raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+            return ({"ok": True, "data": _detail()}, headers)
+        raise AssertionError(path)
 
 
 def _detail():
@@ -249,3 +292,81 @@ def test_offline_sync_replays_saved_artifact_without_live_fetch(tmp_path):
     assert summary["safety"]["live_fetch"] is False
     assert summary["progress"]["label_count"] == 1
     assert snapshot["labels"][0]["label"] == "24T1"
+
+
+def test_live_sync_from_client_writes_complete_artifacts_when_all_endpoints_succeed(tmp_path):
+    paths = build_sync_from_client(
+        client=LiveSyncFakeClient(),
+        output_dir=tmp_path / "sync",
+        progress_limit=5000,
+        submission_limit=100,
+        local_data_root=tmp_path / "data",
+        command=["pytest"],
+        allow_partial=False,
+        live_fetch=True,
+    )
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    status = load_sync_status(paths["summary_json"].parent)
+
+    assert summary["sync_status"]["partial_sync"] is False
+    assert status["submission_state_complete"] is True
+    assert summary["progress"]["label_count"] == 1
+    assert summary["submissions"]["submission_count"] == 1
+    assert summary["submissions"]["row_count"] == 3
+
+
+def test_partial_sync_writes_progress_when_submission_listing_fails(tmp_path):
+    paths = build_sync_from_client(
+        client=LiveSyncFakeClient(fail_at="submissions/me"),
+        output_dir=tmp_path / "sync",
+        progress_limit=5000,
+        submission_limit=100,
+        local_data_root=tmp_path / "data",
+        command=["pytest"],
+        allow_partial=True,
+        live_fetch=True,
+    )
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    index = json.loads(paths["submission_index_json"].read_text(encoding="utf-8"))
+    rows = paths["submission_rows_jsonl"].read_text(encoding="utf-8").splitlines()
+
+    assert summary["sync_status"]["partial_sync"] is True
+    assert summary["sync_status"]["submission_state_complete"] is False
+    assert summary["sync_status"]["failing_endpoint"] == "submissions/me"
+    assert summary["decision"]["submission_recommended_now"] is False
+    assert summary["progress"]["label_count"] == 1
+    assert summary["api_endpoints_used"] == [
+        "GET /api/public/v1/competitions/{competitionId}",
+        "GET /api/public/v1/competitions/{competitionId}/me",
+        "GET /api/public/v1/competitions/igp24/labels/progress",
+        "GET /api/public/v1/competitions/{competitionId}/submissions/me",
+    ]
+    assert index["sync_status"]["submission_state_complete"] is False
+    assert rows == []
+
+
+def test_partial_sync_writes_progress_when_submission_detail_or_download_fails(tmp_path):
+    for fail_at, failing_endpoint in [
+        ("submissions/{id}", "submissions/{id}"),
+        ("submissions/{id}/download", "submissions/{id}/download"),
+    ]:
+        paths = build_sync_from_client(
+            client=LiveSyncFakeClient(fail_at=fail_at),
+            output_dir=tmp_path / fail_at.replace("/", "_"),
+            progress_limit=5000,
+            submission_limit=100,
+            local_data_root=tmp_path / "data",
+            command=["pytest"],
+            allow_partial=True,
+            live_fetch=True,
+        )
+        summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+        index = json.loads(paths["submission_index_json"].read_text(encoding="utf-8"))
+        all_text = "\n".join(path.read_text(encoding="utf-8") for path in paths.values())
+
+        assert summary["sync_status"]["partial_sync"] is True
+        assert summary["sync_status"]["failing_endpoint"] == failing_endpoint
+        assert summary["submissions"]["submission_count"] == 1
+        assert summary["decision"]["submission_recommended_now"] is False
+        assert index["sync_status"]["partial_sync"] is True
+        assert "sair_0123456789ab_" not in all_text

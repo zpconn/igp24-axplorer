@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "record_type": "igp24_sair_healthcheck",
-  "created_at": "2026-07-07T17:41:14.080299+00:00",
+  "created_at": "2026-07-07T18:06:10.850967+00:00",
   "tool": "scripts/igp24_sair_healthcheck.py",
-  "source_commit": "a9c74f4f8e9e2e4c52874e38433ae708ec9a0494",
+  "source_commit": "c83f060a0696c4316dddfb98d819b06cfda28cb1",
   "command": [
     "/usr/bin/python3",
     "scripts/igp24_sair_healthcheck.py",
@@ -36,7 +36,7 @@
       "rate_limit_headers": {
         "X-Ratelimit-Limit": "600",
         "X-Ratelimit-Remaining": "599",
-        "X-Ratelimit-Reset": "1783446122"
+        "X-Ratelimit-Reset": "1783447629"
       },
       "payload_summary": {
         "id": "igp24",
@@ -63,7 +63,7 @@
       "rate_limit_headers": {
         "X-Ratelimit-Limit": "600",
         "X-Ratelimit-Remaining": "598",
-        "X-Ratelimit-Reset": "1783446122"
+        "X-Ratelimit-Reset": "1783447629"
       },
       "payload_summary": {
         "competitionId": "igp24"
@@ -82,10 +82,10 @@
       "rate_limit_headers": {
         "X-Ratelimit-Limit": "600",
         "X-Ratelimit-Remaining": "597",
-        "X-Ratelimit-Reset": "1783446122"
+        "X-Ratelimit-Reset": "1783447629"
       },
       "payload_summary": {
-        "generatedAt": "2026-07-07T17:41:07Z",
+        "generatedAt": "2026-07-07T18:06:10Z",
         "labels": 1,
         "nextCursorPresent": true,
         "meta": {
@@ -106,7 +106,7 @@
       "rate_limit_headers": {
         "X-Ratelimit-Limit": "600",
         "X-Ratelimit-Remaining": "596",
-        "X-Ratelimit-Reset": "1783446122"
+        "X-Ratelimit-Reset": "1783447629"
       },
       "payload_summary": {
         "items": 1,

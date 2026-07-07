@@ -310,6 +310,19 @@ each submission download. It writes compact artifacts such as
 `sair_submission_rows.jsonl`, `sair_scoreable_rows.jsonl`, and
 `sair_pending_rows.jsonl`, but never writes the API key.
 
+If submission endpoints are temporarily unavailable, use explicit partial mode
+to preserve fresh global progress while marking submission/scoring state as
+incomplete:
+
+```bash
+python3 scripts/igp24_sair_sync.py \
+  --fetch_live \
+  --allow_partial \
+  --output_dir data/igp24/sair_sync_partial_YYYYMMDD \
+  --progress_limit 5000 \
+  --submission_limit 100
+```
+
 Use a completed sync as the preferred score-aware planning input:
 
 ```bash
@@ -319,7 +332,8 @@ python3 scripts/igp24_score_aware_target_planner.py \
 ```
 
 Submission remains a separate manual decision. Do not spend a new submission
-packet until a full sync succeeds and the planner output recommends one.
+packet from a partial sync alone; require a full sync or a deliberate manual
+override plus the usual planner/anti-basin/dry-run gates.
 
 Score a candidate queue against known label basins before submission:
 
