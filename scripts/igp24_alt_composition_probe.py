@@ -66,6 +66,12 @@ def parse_target_rs(value: str) -> list[int]:
     return out or [24, 20, 16, 12, 8]
 
 
+def parse_csv_set(value: str | None) -> set[str]:
+    if not value:
+        return set()
+    return {raw.strip() for raw in str(value).split(",") if raw.strip()}
+
+
 def support_summary(coefficients: Iterable[int]) -> dict[str, Any]:
     support = [index for index, value in enumerate(coefficients) if int(value) != 0]
     positive_support = [index for index in support if index > 0]
@@ -506,7 +512,9 @@ def build_report(summary: dict[str, Any], selected: list[dict[str, Any]]) -> str
         f"- Selected rows: {summary.get('selected_rows')}",
         f"- Queue status: `{summary.get('queue_status')}`",
         f"- Selected pattern counts: `{json.dumps(summary.get('selected_pattern_counts'), sort_keys=True)}`",
+        f"- Selected mode counts: `{json.dumps(summary.get('selected_mode_counts'), sort_keys=True)}`",
         f"- Valid pattern counts: `{json.dumps(summary.get('valid_pattern_counts'), sort_keys=True)}`",
+        f"- Valid mode counts: `{json.dumps(summary.get('valid_mode_counts'), sort_keys=True)}`",
         f"- Trial pattern counts: `{json.dumps(summary.get('trial_pattern_counts'), sort_keys=True)}`",
         f"- Selected r counts: `{json.dumps(summary.get('selected_r_counts'), sort_keys=True)}`",
         f"- Rejected counts: `{json.dumps(summary.get('rejected_counts'), sort_keys=True)}`",
@@ -604,6 +612,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--exact_score_timeout", type=float, default=5.0)
     parser.add_argument("--target_rs", default="24,20,16,12,8")
     parser.add_argument("--lanes", default="8x3,3x8")
+    parser.add_argument(
+        "--exclude_perturbation_modes",
+        default="",
+        help="Comma-separated perturbation modes to skip, e.g. outer_constant_shift",
+    )
     parser.add_argument("--stop_after_candidates", type=int, default=80)
     parser.add_argument("--max_rejected_records", type=int, default=250)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
@@ -615,6 +628,7 @@ def main(argv: list[str] | None = None) -> int:
     rng = random.Random(int(args.seed))
     target_rs = parse_target_rs(str(args.target_rs))
     lanes = [lane.strip() for lane in str(args.lanes).split(",") if lane.strip()]
+    excluded_modes = parse_csv_set(str(args.exclude_perturbation_modes))
     known_hashes = known_hashes_from_pair_status(args.pair_status_json)
     candidates: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
@@ -633,6 +647,12 @@ def main(argv: list[str] | None = None) -> int:
         trials_attempted += 1
         trial_pattern = str(trial.get("decomposition_degree_pattern") or "unknown")
         trial_pattern_counts[trial_pattern] += 1
+        trial_mode = str(trial.get("mode") or "")
+        if trial_mode in excluded_modes:
+            bump_rejection(trial_pattern, f"excluded_perturbation_mode:{trial_mode}")
+            if len(rejected) < int(args.max_rejected_records):
+                rejected.append({"trial": trial, "rejection_reason": f"excluded_perturbation_mode:{trial_mode}"})
+            continue
         try:
             coeffs, metadata = coefficients_from_trial(trial)
         except Exception as exc:
@@ -723,6 +743,10 @@ def main(argv: list[str] | None = None) -> int:
     selected = select_diverse(candidates, limit=int(args.limit), per_family_cap=int(args.per_family_cap))
     selected_metadata = [row.get("generation_metadata") or {} for row in selected]
     selected_r_counts = Counter(str(row.get("real_root_count")) for row in selected)
+    selected_mode_counts = Counter(str(metadata.get("alt_perturbation_mode") or "unknown") for metadata in selected_metadata)
+    valid_mode_counts = Counter(
+        str((row.get("generation_metadata") or {}).get("alt_perturbation_mode") or "unknown") for row in candidates
+    )
     submission_readiness = build_submission_readiness(selected, target_rs)
     queue_status = (
         "manual_review_ready_not_submitted"
@@ -748,6 +772,7 @@ def main(argv: list[str] | None = None) -> int:
         },
         "lanes": lanes,
         "target_rs": target_rs,
+        "excluded_perturbation_modes": sorted(excluded_modes),
         "known_hashes_loaded": len(known_hashes),
         "trials_attempted": trials_attempted,
         "trial_pattern_counts": dict(trial_pattern_counts),
@@ -757,12 +782,14 @@ def main(argv: list[str] | None = None) -> int:
         "selected_pattern_counts": dict(
             Counter(str(metadata.get("decomposition_degree_pattern") or "unknown") for metadata in selected_metadata)
         ),
+        "selected_mode_counts": dict(selected_mode_counts),
         "valid_pattern_counts": dict(
             Counter(
                 str((row.get("generation_metadata") or {}).get("decomposition_degree_pattern") or "unknown")
                 for row in candidates
             )
         ),
+        "valid_mode_counts": dict(valid_mode_counts),
         "selected_r_counts": dict(selected_r_counts),
         "valid_r_counts": dict(Counter(str(row.get("real_root_count")) for row in candidates)),
         "observed_root_count_counts": dict(observed_root_count_counts),

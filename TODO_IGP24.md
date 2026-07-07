@@ -243,6 +243,59 @@ results change.
   iteration should add label-steering pressure rather than blindly widening
   the same `24T24932` basin.
 
+- Active anti-basin steering iteration: starting a live-progress-aware planner
+  that scores candidate rows for novelty before any further SAIR packet. Scope
+  guardrails: no GPU/model training, no large blind widening, no nearby `6x4`
+  r24 queue, and no live SAIR submission unless the selected rows pass explicit
+  diversity/anti-basin gates. Starting evidence: the reviewed `8x3` packet was
+  accepted 8/8 but all rows landed in globally fully covered `24T24932|r=24`,
+  so plain `8x3` outer constant shifts are now treated as a high-risk basin
+  feature. Planned implementation: add an explainable planner over local queue
+  metadata, accepted-feedback basin fingerprints, and live SAIR progress;
+  generate a bounded nonconstant alternate-composition queue; then either build
+  a small 8-12 row coefficient packet or document why no submission is justified.
+  Implemented `scripts/igp24_anti_basin_planner.py` and added
+  `--exclude_perturbation_modes` to `scripts/igp24_alt_composition_probe.py`.
+  Bounded CPU-only generation command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_alt_composition_probe.py --output_dir data/igp24/alt_composition_antibasin_probe_20260707 --seed 243917 --max_trials 1400 --limit 24 --per_family_cap 1 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0 --target_rs 24,20,16,12,8 --lanes 8x3,3x8 --exclude_perturbation_modes outer_constant_shift --stop_after_candidates 120 --max_rejected_records 300`.
+  Result: 1,400 trials, 38 valid local candidates, 24 selected rows, all
+  `8x3` with no outer constant shifts; selected modes were 10
+  `outer_high_coefficient_shift`, 7 `outer_mixed_high_shift`, and 7
+  `outer_two_coefficient_shift`, with selected local r counts 11 at `r=24`
+  and 13 at `r=12`.
+  Live-progress-aware planner command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/alt_composition_antibasin_probe_20260707/alt_composition_candidate_queue.jsonl --output_dir data/igp24/anti_basin_steering_20260707 --fetch_live_progress --target_rs 24,20,16,12,8 --packet_limit 12 --min_packet_rows 8 --per_mode_cap 4 --per_pattern_cap 12`.
+  The first sandboxed live-progress fetch failed with DNS resolution blocked;
+  rerunning with approved network access succeeded without printing or writing
+  the API key. Fresh progress was generated from `2026-07-07T16:16:12Z` to
+  `2026-07-07T16:16:18Z`; committed compact cache keeps all 25,000 label
+  summaries and the top 5,000 target-r pair entries. Planner result: 24
+  candidates scored, 24 eligible, 12 selected, risk count 0, and
+  `recommended_for_sair_packet=true`, with selected modes split evenly across
+  `outer_two_coefficient_shift`, `outer_high_coefficient_shift`, and
+  `outer_mixed_high_shift`.
+  SAIR dry-run succeeded for the 12-row coefficient file: 12 polynomials,
+  1,938-byte body. Live submission
+  `sub_442d9ff1c6974974ab38df65e70dddf0` queued 12 rows, rejected 0. First
+  status poll verified all rows immediately: 12 accepted, 0 failed, 0 queued,
+  all label `24T24932`, split as 8 rows at `24T24932|r=24` and 4 rows at
+  `24T24932|r=12`; scoring/discriminants remain pending
+  (`scoreable=false`, `scoringStatus=pending`). Feedback artifact:
+  `data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json`.
+  Pair-status update: new local pair `24T24932|r=12` plus 11 alternates, no
+  representative replacements. Refreshed basin analysis now has 122
+  observations, 11 labels, 17 pairs, and 7 anti-basin constraints, including
+  `stop_plain_8x3_24T24932_lanes`. Lesson: even nonconstant `8x3` outer
+  perturbations with mod-p diversity still collapse to globally fully covered
+  `24T24932`; do not submit more plain `8x3` rows without a different inner
+  family, different degree pattern, or stronger label discriminator.
+  Verification for this milestone: focused anti-basin/generator/basin tests
+  passed (`11 passed`); full suite passed (`210 passed`); 9 JSON artifacts and
+  5 JSONL artifacts parsed; both generated coefficient files validated for 25
+  integer coefficients, monic leading coefficient, nonzero constant, and gcd 1;
+  `git diff --check` passed; the secret-shaped scan found no key-like matches;
+  Stage 4 remains present at line 7762.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

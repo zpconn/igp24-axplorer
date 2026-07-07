@@ -1,0 +1,163 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T16:13:46Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "IGP24 anti-basin nonconstant 8x3 probe 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_442d9ff1c6974974ab38df65e70dddf0",
+    "updatedAt": "2026-07-07T16:13:46Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 0,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 1,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 2,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 3,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 4,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 5,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 6,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 7,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 8,
+        "r": 12,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 9,
+        "r": 12,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 10,
+        "r": 12,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 11,
+        "r": 12,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      }
+    ]
+  },
+  "ok": true
+}

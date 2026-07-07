@@ -1,0 +1,77 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "594",
+    "X-Ratelimit-Reset": "1783440839"
+  },
+  "data": {
+    "batchId": "igp24_batch_5f4801831bc64694",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T16:13:46Z",
+    "description": "IGP24 anti-basin nonconstant 8x3 probe 20260707",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "IGP24 anti-basin nonconstant 8x3 probe 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 8,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 9,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 10,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 11,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 12,
+    "rejectedCount": 0,
+    "submissionId": "sub_442d9ff1c6974974ab38df65e70dddf0",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-07T16:13:46Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}

@@ -59,6 +59,8 @@ and [TODO_IGP24.md](TODO_IGP24.md).
 - Shortlist, review, and offline verification handoff tools.
 - PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
   credential-safe SAIR API helpers that are explicit and opt-in.
+- Live-progress-aware anti-basin planning from saved candidate queues and
+  accepted-label feedback.
 - Manual submission-review packaging with coefficient-only export, copied
   provenance, structured manifest, and checklist.
 
@@ -277,6 +279,18 @@ python3 scripts/igp24_sair_api.py submit \
   --execute
 ```
 
+Score a candidate queue against known label basins before submission:
+
+```bash
+python3 scripts/igp24_anti_basin_planner.py \
+  --candidate_jsonl data/igp24/alt_composition_antibasin_probe_20260707/alt_composition_candidate_queue.jsonl \
+  --output_dir /tmp/igp24_anti_basin_plan \
+  --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json
+```
+
+Use `--fetch_live_progress` instead of `--progress_snapshot_json` only when
+`SAIR_API_KEY` is set and a fresh API read is intended.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -333,6 +347,10 @@ that branch.
   alternate-composition diagnostic queue generator.
 - `scripts/igp24_alt_8x3_sair_probe.py`: reviewed 8-row `8x3` SAIR packet
   builder and feedback-ingest helper.
+- `scripts/igp24_anti_basin_planner.py`: live-progress-aware anti-basin
+  candidate scorer and packet planner.
+- `scripts/igp24_anti_basin_feedback.py`: joins SAIR feedback for anti-basin
+  planner packets back to local metadata and pair status.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

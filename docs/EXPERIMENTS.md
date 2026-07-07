@@ -1994,6 +1994,59 @@ feedback as a new anti-basin: keep the alternate degree pattern, but vary the
 inner cubic/outer perturbation or add mod-p screening to avoid repeating
 `24T24932`.
 
+## Anti-Basin Nonconstant 8x3 Probe
+
+The next steering iteration deliberately excluded `outer_constant_shift` and
+used live SAIR progress plus local basin fingerprints before packetizing rows.
+
+Generation:
+
+- output directory: `data/igp24/alt_composition_antibasin_probe_20260707/`
+- trials attempted: 1,400
+- valid local candidates: 38
+- selected rows: 24
+- selected family: all `8x3`
+- selected local r counts: 11 at `r=24`, 13 at `r=12`
+- selected modes: `outer_high_coefficient_shift`, `outer_mixed_high_shift`,
+  and `outer_two_coefficient_shift`
+- excluded mode: `outer_constant_shift`
+
+Planner:
+
+- output directory: `data/igp24/anti_basin_steering_20260707/`
+- live progress source: SAIR `labels/progress`, generated
+  `2026-07-07T16:16:12Z` to `2026-07-07T16:16:18Z`
+- compact cache: 25,000 label summaries plus 5,000 ranked target-r pairs
+- candidates scored: 24
+- eligible candidates: 24
+- selected rows: 12
+- planner recommendation: `reviewed_packet_ready_for_dry_run`
+- selected mode mix: 4 `outer_two_coefficient_shift`, 4
+  `outer_high_coefficient_shift`, 4 `outer_mixed_high_shift`
+- risk count: 0
+
+SAIR result:
+
+- dry-run: ok, 12 polynomials, 1,938-byte body
+- submission id: `sub_442d9ff1c6974974ab38df65e70dddf0`
+- accepted: 12
+- failed: 0
+- queued after first poll: 0
+- labels: all `24T24932`
+- pairs: 8 rows at `24T24932|r=24`, 4 rows at `24T24932|r=12`
+- scoring status: pending; no discriminants yet
+- pair status: added local `24T24932|r=12`, appended 11 alternates, replaced
+  no representatives
+
+Interpretation: the planner correctly avoided the already-tested constant
+shift feature and selected mod-p/perturbation diversity, but SAIR still placed
+the packet in globally fully covered `24T24932`. This turns plain `8x3` into a
+known basin, not just the first constant-shift subset. The refreshed basin
+analysis now includes `stop_plain_8x3_24T24932_lanes`. Future submissions
+should not spend more rows on ordinary `8x3` outer coefficient perturbations
+unless the inner family, degree pattern, or label discriminator changes
+materially.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -2057,6 +2110,10 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
   alternate-composition diagnostic queue generator.
 - `scripts/igp24_alt_8x3_sair_probe.py`: reviewed `8x3` SAIR packet builder
   and feedback-ingest helper.
+- `scripts/igp24_anti_basin_planner.py`: live-progress-aware anti-basin
+  candidate scorer and packet planner.
+- `scripts/igp24_anti_basin_feedback.py`: feedback ingestion for anti-basin
+  planner packets.
 
 ## Reproducibility Notes
 

@@ -1284,3 +1284,18 @@ widen blindly. The next version should preserve the `8x3` structural break but
 add a stronger label-diversity mechanism, such as non-constant outer
 perturbations, different cubic inner forms, or pre-submit mod-p filtering
 against the new `24T24932` basin.
+
+The anti-basin planner tested exactly that next hypothesis and got a clean
+negative result. A bounded nonconstant `8x3` run excluded outer constant shifts,
+selected 24 local candidates across `outer_two_coefficient_shift`,
+`outer_high_coefficient_shift`, and `outer_mixed_high_shift`, and the planner
+used fresh live progress plus accepted-basin fingerprints to choose a diverse
+12-row packet. SAIR accepted all 12 rows, but every row still landed in
+`24T24932`, split as eight `r=24` rows and four `r=12` rows. This adds
+`24T24932|r=12` to local pair status, but globally the label remains fully
+covered. The lesson is stronger than "constant shifts are bad": plain `8x3`
+outer-coefficient perturbation is now a known `24T24932` basin. The next
+productive pivot should change the inner family or composition degree pattern,
+or add a stronger label discriminator before submission. More plain `8x3`
+rows, even with nonconstant outer perturbations and mod-p diversity, are not
+score-directed enough.

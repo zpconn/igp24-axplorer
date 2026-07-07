@@ -472,8 +472,11 @@ def build_summary(
             "recommended": (
                 "Do not submit more nearby r24 6x4 tower variants: exact even towers hit "
                 "24T23883/24T24651, while odd-escaped 6x4 towers hit generic 24T25000. "
-                "Next generated queue must use an alternate composition pattern or another "
-                "measurable label-steering change before any SAIR submission."
+                "The alternate-composition 8x3 lane now also has a tracked collapse into "
+                "globally covered 24T24932 across constant and nonconstant outer "
+                "perturbations. Next generated queue must use a different composition "
+                "pattern, a materially different inner family, or a stronger label-steering "
+                "signal before any SAIR submission."
             ),
             "gpu_training_recommended_now": False,
             "submission_without_new_structure_recommended": False,
@@ -544,6 +547,30 @@ def derive_anti_basin_constraints(
                     "Odd x-perturbed r24 6x4 tower rows broke exact even support but collapsed "
                     "to generic 24T25000; use a different composition pattern before submitting "
                     "more r24 tower-derived rows."
+                ),
+            }
+        )
+    alt_8x3_24932_rows = [
+        row
+        for row in observations
+        if row.get("construction_family") == "alt_composition_8x3"
+        and row.get("decomposition_pattern") == "8x3"
+        and row.get("label") == "24T24932"
+    ]
+    if alt_8x3_24932_rows:
+        constraints.append(
+            {
+                "name": "stop_plain_8x3_24T24932_lanes",
+                "severity": "high",
+                "labels": ["24T24932"],
+                "r_values": sorted(set(int(row["r"]) for row in alt_8x3_24932_rows)),
+                "observed_rows": len(alt_8x3_24932_rows),
+                "perturbation_mode_counts": _counter_values(alt_8x3_24932_rows, "perturbation_mode"),
+                "rule": (
+                    "Plain 8x3 alternate compositions, including outer constant shifts and "
+                    "the tested nonconstant outer coefficient shifts, collapsed to globally "
+                    "covered 24T24932; require a different degree pattern, inner family, or "
+                    "stronger mod-p/label-steering discriminator before submitting more 8x3 rows."
                 ),
             }
         )
