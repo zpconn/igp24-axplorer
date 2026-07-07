@@ -40,6 +40,19 @@ results change.
   feedback is in
   `data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json`; scores
   and scoring discriminants remain pending.
+- Current r20 follow-up: the review-only non-composed linear-real packet was
+  submitted after explicit user approval through the credential-safe SAIR API
+  helper. Submission `sub_3557a403ea664b2f97ac059f9083b206` queued 8 rows,
+  rejected 0, and the first status poll returned 8/8 accepted as
+  `24T25000|r=20`. Scoring/discriminants are still pending
+  (`scoreable=false`, `scoringStatus=pending`, `discSource=None`). Feedback is
+  recorded in
+  `data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json`, with the
+  live submit and status artifacts under
+  `data/igp24/r20_linear_real_full_sync_gate_20260707/`. The lesson is that
+  direct real-root control and non-even support validated locally, but this
+  low-perturbation linear-real lane still collapses to the known
+  `24T25000|r=20` basin.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -693,6 +706,20 @@ results change.
   no Magma/PARI, and no API key recorded; key-shaped secret scan found
   0 matching files; `git diff --check` passed; Stage 4 remains present at
   line 8160 after this TODO update.
+  User-approved SAIR submission follow-up:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py submit --coefficients_txt data/igp24/r20_linear_real_full_sync_gate_20260707/anti_basin_candidate_coefficients.txt --description "r20 linear-real full-sync gate 20260707" --execute --output_json data/igp24/r20_linear_real_full_sync_gate_20260707/r20_linear_real_sair_submit.json`.
+  Result: submission `sub_3557a403ea664b2f97ac059f9083b206`, 8 queued,
+  0 rejected. Status poll command:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py get-submission sub_3557a403ea664b2f97ac059f9083b206 --output_json data/igp24/r20_linear_real_full_sync_gate_20260707/r20_linear_real_sair_status_poll1.json`.
+  Poll result: 8 accepted, 0 failed, 0 queued, all accepted as
+  `24T25000|r=20`; first scoring state remains pending with no
+  `fieldDiscAbs` or `discSource` yet. Feedback ingest command:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_feedback.py --status_response_json data/igp24/r20_linear_real_full_sync_gate_20260707/r20_linear_real_sair_status_poll1.json --selected_jsonl data/igp24/r20_linear_real_full_sync_gate_20260707/anti_basin_selected_queue.jsonl --output_json data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json --pair_status_json data/igp24/pair_status_20260706.json --update_pair_status`.
+  Feedback result: `accepted_rows=8`, `label_counts={"24T25000": 8}`,
+  `escaped_known_basins=False`; pair-status update added 8 accepted alternates
+  to the existing `24T25000|r=20` pair and no new pair keys. Decision: do not
+  submit more from this linear-real low-perturbation lane without a stronger
+  anti-`24T25000` discriminator or a materially different construction.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

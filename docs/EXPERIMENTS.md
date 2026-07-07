@@ -2475,6 +2475,15 @@ review-only in
 `data/igp24/r20_linear_real_full_sync_gate_20260707/`; no SAIR dry-run or live
 submission was performed.
 
+After explicit user approval, this packet was submitted through the SAIR API.
+Submission `sub_3557a403ea664b2f97ac059f9083b206` queued all 8 rows with
+0 rejects; the first status poll verified 8/8 accepted as `24T25000|r=20`.
+Scoring and discriminants were still pending at that poll. The feedback import
+added 8 accepted alternates to the existing local `24T25000|r=20` pair and no
+new pair keys. The durable lesson is that the non-composed linear-real
+construction gives valid exact `r=20` rows, but this low-perturbation lane is
+still a known `24T25000` basin.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

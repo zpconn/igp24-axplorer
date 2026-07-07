@@ -1,0 +1,7 @@
+{
+  "body_bytes": 2218,
+  "dry_run": true,
+  "ok": true,
+  "polynomial_count": 8,
+  "would_post": "/api/public/v1/competitions/igp24/submissions"
+}

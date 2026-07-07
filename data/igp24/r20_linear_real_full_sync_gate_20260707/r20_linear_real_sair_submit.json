@@ -1,0 +1,61 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783467311"
+  },
+  "data": {
+    "batchId": "igp24_batch_5f8f6e44bcc24fe3",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T23:34:12Z",
+    "description": "r20 linear-real full-sync gate 20260707",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r20 linear-real full-sync gate 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 8,
+    "rejectedCount": 0,
+    "submissionId": "sub_3557a403ea664b2f97ac059f9083b206",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-07T23:34:12Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}

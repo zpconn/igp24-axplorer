@@ -1419,3 +1419,13 @@ reasons and 8 distinct mod-p signatures. This still says nothing about exact
 SAIR labels; it might yet collapse. But unlike the exhausted r8/r16/r20
 composed lanes, this packet is structurally non-composed and is the current
 best candidate for a later human-approved dry-run.
+
+The human-approved r20 linear-real submission answered that question: it did
+collapse. SAIR accepted all 8 rows, but every row landed in
+`24T25000|r=20`, with scoring and discriminants still pending on the first
+poll. The useful lesson is not that direct real-root control failed; it worked
+locally and produced clean admissible rows. The lesson is that low
+coefficient perturbations around this linear-real construction are still in a
+known high-label basin. The next r20 or high-real-root attempt needs either a
+stronger label discriminator before submission, a more disruptive
+perturbation, or a different construction family.
