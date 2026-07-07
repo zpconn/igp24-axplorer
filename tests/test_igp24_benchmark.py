@@ -82,6 +82,7 @@ def test_resolve_benchmark_strategy_accepts_preset_labels():
     assert resolve_benchmark_strategy("four_real_seed") == ("four_real_seed", "none", None)
     assert resolve_benchmark_strategy("quartic_lift") == ("quartic_lift", "none", None)
     assert resolve_benchmark_strategy("r8_quartic_lift") == ("r8_quartic_lift", "none", None)
+    assert resolve_benchmark_strategy("r8_quartic_lift_perturbed") == ("r8_quartic_lift_perturbed", "none", None)
     assert resolve_benchmark_strategy("r16_quadratic_lift") == ("r16_quadratic_lift", "none", None)
     assert resolve_benchmark_strategy("fixed_sparse_template") == ("fixed_sparse_template", "none", None)
     assert resolve_benchmark_strategy("preset_r4") == ("mixed", "r4", None)

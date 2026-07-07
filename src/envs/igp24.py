@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import math
 import random
 
 import numpy as np
@@ -31,6 +32,7 @@ IGP24_GENERATION_STRATEGIES = [
     "four_real_seed",
     "quartic_lift",
     "r8_quartic_lift",
+    "r8_quartic_lift_perturbed",
     "r16_quadratic_lift",
     "fixed_sparse_template",
 ]
@@ -43,6 +45,7 @@ DEFAULT_MIXED_STRATEGY_WEIGHTS = {
     "four_real_seed": 0.0,
     "quartic_lift": 0.0,
     "r8_quartic_lift": 0.0,
+    "r8_quartic_lift_perturbed": 0.0,
     "r16_quadratic_lift": 0.0,
     "fixed_sparse_template": 0.0,
 }
@@ -425,6 +428,101 @@ class IGP24DataPoint(DataPoint):
         return tuple(coeffs)
 
     @staticmethod
+    def _support_profile(coeffs):
+        support = [index for index, coefficient in enumerate(coeffs) if coefficient != 0]
+        support.append(DEGREE)
+        positive_support = [index for index in support if index > 0]
+        support_gcd = 0
+        for exponent in positive_support:
+            support_gcd = math.gcd(support_gcd, int(exponent))
+        return {
+            "support_gcd": support_gcd or None,
+            "even_support": all(exponent % 2 == 0 for exponent in support),
+            "support": support,
+        }
+
+    @classmethod
+    def _r8_quartic_lift_perturbed_coefficients(cls):
+        templates_by_name = {
+            template["name"]: template
+            for template in cls._r8_quartic_lift_templates()
+            if int(template["minimum_coeff_bound"]) <= int(cls.COEFF_BOUND)
+        }
+        if "four_positive_fibers_d" not in templates_by_name:
+            raise ValueError("r8_quartic_lift_perturbed requires coeff_bound >= 16")
+
+        template = templates_by_name["four_positive_fibers_d"]
+        y_coefficients = tuple(int(value) for value in template["coefficients_y"])
+        base = [0] * DEGREE
+        for exponent, coefficient in zip(cls._r8_quartic_lift_core_support(), y_coefficients[:4]):
+            base[exponent] = int(coefficient)
+
+        # These tiny odd anchors are exact r=8-preserving perturbations of
+        # four_positive_fibers_d. Optional paired extras add support diversity;
+        # exact validation below remains the source of truth.
+        paired_extras = {
+            (11, -1): [(7, 1), (9, 1), (13, 1), (15, 1)],
+            (11, 1): [(7, -1), (9, -1), (13, -1), (15, -1)],
+            (13, -1): [(9, 1), (11, 1), (15, 1), (17, 1)],
+            (13, 1): [(9, -1), (11, -1), (15, -1), (17, -1)],
+        }
+        anchors = list(paired_extras)
+        best_candidate = None
+        attempts = 96
+        for attempt in range(attempts):
+            anchor = anchors[int(np.random.randint(len(anchors)))]
+            perturbations = [anchor]
+            perturb_count = int(np.random.choice([1, 2, 3], p=[0.50, 0.40, 0.10]))
+            if perturb_count > 1:
+                extras = list(paired_extras[anchor])
+                np.random.shuffle(extras)
+                for extra in extras:
+                    if extra[0] not in {exponent for exponent, _coefficient in perturbations}:
+                        perturbations.append(extra)
+                    if len(perturbations) >= perturb_count:
+                        break
+
+            coeffs = list(base)
+            for exponent, coefficient in perturbations:
+                coeffs[int(exponent)] = int(coefficient)
+            profile = cls._support_profile(coeffs)
+            if profile["support_gcd"] != 1 or profile["even_support"]:
+                continue
+            score, analysis = cls._score_coefficients(tuple(coeffs))
+            if not best_candidate and analysis.valid:
+                best_candidate = (tuple(coeffs), perturbations, profile, analysis)
+            if analysis.valid and analysis.real_root_count == 8 and analysis.irreducible and analysis.squarefree:
+                cls.LAST_GENERATION_DETAILS = {
+                    "source_family": "r8_quartic_lift_perturbed",
+                    "r8_quartic_lift_template_name": template["name"],
+                    "r8_quartic_lift_core_support": list(cls._r8_quartic_lift_core_support()),
+                    "r8_quartic_lift_coefficients_y": list(y_coefficients),
+                    "r8_quartic_lift_positive_quartic_roots": int(template["positive_quartic_roots"]),
+                    "r8_quartic_lift_minimum_coeff_bound": int(template["minimum_coeff_bound"]),
+                    "r8_quartic_lift_perturbation": "odd_off_core_support_gcd_1",
+                    "r8_quartic_lift_perturbation_mode": "odd_anchor_plus_optional_off_core",
+                    "r8_quartic_lift_perturbation_exponents": [int(exponent) for exponent, _ in perturbations],
+                    "r8_quartic_lift_perturbation_coefficients": {
+                        str(exponent): int(coefficient) for exponent, coefficient in perturbations
+                    },
+                    "r8_quartic_lift_support_gcd": int(profile["support_gcd"] or 0),
+                    "r8_quartic_lift_even_support": bool(profile["even_support"]),
+                    "target_r_heuristic": 8,
+                    "validated_real_root_count": int(analysis.real_root_count),
+                    "generation_attempts": attempt + 1,
+                }
+                return tuple(coeffs)
+
+        if best_candidate:
+            coeffs, perturbations, profile, analysis = best_candidate
+            raise ValueError(
+                "r8_quartic_lift_perturbed could not find exact r=8 candidate; "
+                f"best valid row had r={analysis.real_root_count}, support_gcd={profile['support_gcd']}, "
+                f"perturbations={perturbations}"
+            )
+        raise ValueError("r8_quartic_lift_perturbed could not find a valid exact-scored candidate")
+
+    @staticmethod
     def _r16_quadratic_lift_core_support():
         return tuple(range(0, DEGREE, 2))
 
@@ -596,6 +694,8 @@ class IGP24DataPoint(DataPoint):
             return cls._quartic_lift_coefficients(), strategy
         if strategy == "r8_quartic_lift":
             return cls._r8_quartic_lift_coefficients(), strategy
+        if strategy == "r8_quartic_lift_perturbed":
+            return cls._r8_quartic_lift_perturbed_coefficients(), strategy
         if strategy == "r16_quadratic_lift":
             return cls._r16_quadratic_lift_coefficients(), strategy
         if strategy == "fixed_sparse_template":
@@ -728,6 +828,65 @@ class IGP24DataPoint(DataPoint):
                     "composed_support": True,
                 }
             )
+        if self.generation_strategy == "r8_quartic_lift_perturbed":
+            details = dict(self.generation_details)
+            core_support = self._r8_quartic_lift_core_support()
+            y_coefficients = [
+                int(self.coefficients[0]),
+                int(self.coefficients[6]),
+                int(self.coefficients[12]),
+                int(self.coefficients[18]),
+                1,
+            ]
+            profile = self._support_profile(self.coefficients)
+            perturbations = {
+                str(index): int(self.coefficients[index])
+                for index in range(DEGREE)
+                if index not in core_support and self.coefficients[index] != 0
+            }
+            generation_metadata.update(
+                {
+                    "target_r_heuristic": 8,
+                    "source_family": details.get("source_family", "r8_quartic_lift_perturbed"),
+                    "seed_template": "perturbed_g(y)_with_four_positive_roots_and_y=x^6",
+                    "r8_quartic_lift_template_name": details.get(
+                        "r8_quartic_lift_template_name", "manual_or_unknown"
+                    ),
+                    "r8_quartic_lift_core_support": list(core_support),
+                    "r8_quartic_lift_coefficients_y": y_coefficients,
+                    "r8_quartic_lift_positive_quartic_roots": int(
+                        details.get("r8_quartic_lift_positive_quartic_roots", 4)
+                    ),
+                    "r8_quartic_lift_minimum_coeff_bound": int(
+                        details.get("r8_quartic_lift_minimum_coeff_bound", max(abs(value) for value in y_coefficients))
+                    ),
+                    "r8_quartic_lift_perturbation": details.get(
+                        "r8_quartic_lift_perturbation", "odd_off_core_support_gcd_1"
+                    ),
+                    "r8_quartic_lift_perturbation_mode": details.get(
+                        "r8_quartic_lift_perturbation_mode", "manual_or_unknown"
+                    ),
+                    "r8_quartic_lift_perturbation_exponents": [
+                        int(value) for value in details.get("r8_quartic_lift_perturbation_exponents", [])
+                    ]
+                    or sorted(int(index) for index in perturbations),
+                    "r8_quartic_lift_perturbation_coefficients": details.get(
+                        "r8_quartic_lift_perturbation_coefficients", perturbations
+                    ),
+                    "r8_quartic_lift_support_gcd": int(
+                        details.get("r8_quartic_lift_support_gcd") or profile["support_gcd"] or 0
+                    ),
+                    "r8_quartic_lift_even_support": bool(
+                        details.get("r8_quartic_lift_even_support", profile["even_support"])
+                    ),
+                    "exact_composed_support_divisor": int(profile["support_gcd"] or 0),
+                    "composed_support": bool(profile["support_gcd"] and profile["support_gcd"] > 1),
+                }
+            )
+            if details.get("validated_real_root_count") is not None:
+                generation_metadata["validated_real_root_count"] = int(details["validated_real_root_count"])
+            if details.get("generation_attempts") is not None:
+                generation_metadata["generation_attempts"] = int(details["generation_attempts"])
         if self.generation_strategy == "r16_quadratic_lift":
             details = dict(self.generation_details)
             core_support = self._r16_quadratic_lift_core_support()
