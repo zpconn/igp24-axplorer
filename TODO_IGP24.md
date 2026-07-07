@@ -54,6 +54,13 @@ results change.
   `python3 -m json.tool`, SAIR CLI dry-run validated the 10 tower coefficient
   rows without an API key, a worktree scan found no provided key fragments, and
   Stage 4 remains present at line 7516.
+  Live API smoke: after the key was available in `SAIR_API_KEY`, the first
+  Python/urllib call was blocked by Cloudflare Error 1010 for the default
+  browser signature. The client now sends an explicit `User-Agent`, and the
+  read-only progress call for `24T23883,24T24651` succeeded with
+  `generatedAt=2026-07-07T00:57:21Z`, `published=true`, team counts 57 and 55,
+  and zero remaining signatures for both labels. No key was printed or written
+  to repo files.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

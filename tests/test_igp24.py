@@ -804,7 +804,7 @@ def test_fixed_sparse_template_ledger_metadata_identifies_support(tmp_path):
     assert metadata["seed_template"] == "fixed_support_sparse_integer_coefficients"
 
 
-def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path):
+def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path, monkeypatch):
     pari_result = PARIVerifier(executable="definitely_missing_gp").verify(VALID)
     magma_result = MagmaVerifier(executable="definitely_missing_magma").verify(VALID)
     assert pari_result.status == "unverified"
@@ -817,5 +817,6 @@ def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path):
     assert dry_run.status == "unverified"
     export_path = sair.export_batch_without_submission([{"canonical_hash": "abc"}], tmp_path / "batch.jsonl")
     assert export_path.exists()
+    monkeypatch.delenv("SAIR_API_KEY", raising=False)
     with pytest.raises(SAIRAPIError, match="missing SAIR_API_KEY"):
         SAIRAPIVerifier(dry_run=False).submit([{"exported_coefficients": list(VALID) + [1]}], submit=True)

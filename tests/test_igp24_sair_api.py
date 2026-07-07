@@ -96,6 +96,7 @@ def test_live_submission_posts_json_without_serializing_secret(monkeypatch):
     assert captured["url"] == "https://api.test/api/public/v1/competitions/igp24/submissions"
     assert captured["timeout"] == 7.5
     assert captured["headers"]["Authorization"] == "Bearer test_secret_token"
+    assert captured["headers"]["User-agent"] == "igp24-axplorer/0.1"
     assert captured["body"] == {
         "payload": {"polynomials": [VALID_LINE]},
         "meta": {"description": "pytest live path"},

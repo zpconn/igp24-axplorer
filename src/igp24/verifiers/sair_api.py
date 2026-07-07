@@ -23,6 +23,7 @@ DEFAULT_BASE_URL = "https://api.sair.foundation"
 DEFAULT_COMPETITION_ID = "igp24"
 DEFAULT_API_KEY_ENV = "SAIR_API_KEY"
 DEFAULT_TIMEOUT_SECONDS = 30.0
+DEFAULT_USER_AGENT = "igp24-axplorer/0.1"
 IGP24_DEGREE = 24
 IGP24_POLYNOMIAL_WIDTH = IGP24_DEGREE + 1
 IGP24_DEFAULT_MAX_BODY_BYTES = 1_000_000
@@ -143,6 +144,7 @@ class SAIRAPIVerifier(BaseVerifier):
         base_url: str = DEFAULT_BASE_URL,
         competition_id: str = DEFAULT_COMPETITION_ID,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
+        user_agent: str = DEFAULT_USER_AGENT,
         opener: Any | None = None,
     ) -> None:
         self.api_key_env = api_key_env
@@ -150,6 +152,7 @@ class SAIRAPIVerifier(BaseVerifier):
         self.base_url = base_url.rstrip("/")
         self.competition_id = competition_id
         self.timeout = timeout
+        self.user_agent = user_agent
         self._opener = opener or urllib.request.urlopen
 
     def _api_key_present(self) -> bool:
@@ -197,6 +200,7 @@ class SAIRAPIVerifier(BaseVerifier):
         headers = {
             "Accept": accept,
             "Authorization": f"Bearer {self._api_key()}",
+            "User-Agent": self.user_agent,
         }
         if body is not None:
             data = json.dumps(body, separators=(",", ":")).encode("utf-8")
