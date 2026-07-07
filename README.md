@@ -38,10 +38,10 @@ caveat: accepted high-real-root rows can still land in globally covered label
 basins. Low-odd perturbations often collapse to generic `24T25000`, while
 exact composed families such as `g(x^2)` and `h(x^4-s*x^2)` steer into
 non-generic but still common labels like `24T23883` and `24T24651`. The current
-planning loop uses live SAIR progress plus local label-basin analysis before
-spending more submissions. Recent alternate-composition probes show the same
-pattern: plain `8x3` rows collapse to `24T24932`, while the first `4x6` lane
-collapsed to `24T24984`.
+planning loop uses live SAIR progress, local label-basin analysis, and
+score-aware target planning before spending more submissions. Recent
+alternate-composition probes show the same pattern: plain `8x3` rows collapse
+to `24T24932`, while the first `4x6` lane collapsed to `24T24984`.
 
 The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets
 planning helpers compare verified `(24Tt, r)` pairs against the frozen LMFDB
@@ -63,6 +63,8 @@ and [TODO_IGP24.md](TODO_IGP24.md).
   credential-safe SAIR API helpers that are explicit and opt-in.
 - Live-progress-aware anti-basin planning from saved candidate queues and
   accepted-label feedback.
+- Score-aware target planning that joins SAIR progress, local pair status,
+  accepted-label basins, and manually recorded score snapshots.
 - Manual submission-review packaging with coefficient-only export, copied
   provenance, structured manifest, and checklist.
 
@@ -293,6 +295,18 @@ python3 scripts/igp24_anti_basin_planner.py \
 Use `--fetch_live_progress` instead of `--progress_snapshot_json` only when
 `SAIR_API_KEY` is set and a fresh API read is intended.
 
+Build a score-aware target plan:
+
+```bash
+python3 scripts/igp24_score_aware_target_planner.py \
+  --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json \
+  --output_dir /tmp/igp24_score_aware_target_plan
+```
+
+Use `--fetch_live_progress` when a fresh SAIR API read is intended. This helper
+does not generate candidates or submit anything; it ranks target pockets and
+recommends the next bounded search lane.
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -339,6 +353,9 @@ that branch.
   planner.
 - `scripts/igp24_label_basin_analysis.py`: accepted-label basin analyzer for
   feedback-guided anti-basin constraints.
+- `scripts/igp24_score_aware_target_planner.py`: joins SAIR progress, local
+  pair status, score snapshots, and basin constraints to rank next target
+  lanes.
 - `scripts/igp24_r24_tower_probe.py`: target-plan-aligned high-real-root
   tower probe.
 - `scripts/igp24_r24_tower_odd_escape_probe.py`: r24 tower-derived

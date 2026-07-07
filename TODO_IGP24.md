@@ -347,6 +347,50 @@ results change.
   label-steering negatives unless there is strong discriminant-improvement
   evidence.
 
+- Active score-aware target planning pass: added
+  `scripts/igp24_score_aware_target_planner.py` to join SAIR label progress,
+  the local pair-status ledger, the user-reported score snapshot, and current
+  basin constraints. Initial live SAIR refresh attempts from the sandbox failed
+  with DNS/network approval timeout, so the committed run used the previously
+  saved full SAIR progress snapshot
+  `/tmp/igp24_sair_label_progress_full_20260707.json`, generated
+  `2026-07-07T01:20:36Z` to `2026-07-07T01:20:43Z`.
+  Planner command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_target_planner.py --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json --output_dir data/igp24/score_aware_target_plan_20260707 --top_limit 300`.
+  Result artifacts are under
+  `data/igp24/score_aware_target_plan_20260707/`. Top priority buckets are
+  `r=24` with 12,044 remaining signatures, `r=16` with 10,740, `r=8` with
+  6,881, `r=12` with 6,792, and `r=20` with 5,672. The top uncovered
+  high-real-root target signal is `24T18897` across several zero-team
+  signatures, but current generators cannot condition directly on that exact
+  label. The top score-follow-up lane is
+  `r8_quartic_lift_score_followup`, driven by `24T9993|r=8` at `0.0019`
+  with 10 solved teams; second is the weaker `24T22770|r=12` lane at
+  `0.0002`.
+  Bounded CPU-only lane check:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift --seeds 2801,2802 --target_rs 8 --coeff_bound 16 --gensize 12 --pop_size 6 --ntest 2 --gen_batch_size 2 --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 3 --output_dir data/igp24/r8_quartic_score_followup_probe_20260707`.
+  Result: 2 runs, 12 ledger rows, 12/12 local `r=8`, 6 unique hashes, and all
+  6 unique hashes overlap the already submitted r8 pure-template packet.
+  Anti-basin gate:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2801/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2802/candidates.jsonl --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json --output_dir data/igp24/r8_quartic_score_followup_probe_20260707/anti_basin_gate --target_rs 8 --packet_limit 12 --min_packet_rows 8`.
+  Result: 12 candidates scored, 0 eligible, 0 selected,
+  `recommended_for_sair_packet=false`, status `hold_no_submission`; all rows
+  were held for known-basin risk (`support_gcd_not_one`,
+  `even_support_g_x_squared_like`, and `accepted_hash_duplicate`). Decision:
+  no SAIR submission is recommended now. Keep r8 as the score-positive lane,
+  but the next r8 follow-up must add a new perturbation/label-steering
+  mechanism instead of rerunning the six pure composed templates. No GPU/model
+  training was used or recommended.
+  Validation for this milestone: focused planner/progress/basin tests passed
+  (`14 passed`); full suite passed (`216 passed`); 7 new JSON artifacts and
+  6 JSONL artifacts parsed; the r8 diagnostic candidate ledgers validated 12
+  exported coefficient rows with 25 integer coefficients, monic leading
+  coefficient, nonzero constant, coefficient gcd 1, local `r=8`,
+  irreducible, and squarefree; the no-submission coefficient export is empty
+  as expected; `git diff --check` passed; the secret-shaped scan found no
+  key-like matches; Stage 4 remains present at line 7848 before this TODO
+  update.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

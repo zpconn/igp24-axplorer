@@ -1,0 +1,19 @@
+[
+  {
+    "all_returncode_zero": true,
+    "avg_best_matching_score": 10180.844542850695,
+    "avg_best_score": 10180.844542850695,
+    "avg_match_rate": 1.0,
+    "avg_mean_score": 10175.443748117308,
+    "avg_runtime_seconds": 3.29687777851359,
+    "best_score": 10180.844542850695,
+    "ledger_records_total": 12,
+    "local_search_acceptance": 0.0,
+    "metadata_complete": true,
+    "runs": 2,
+    "strategy": "r8_quartic_lift",
+    "target_r": 8,
+    "target_r_match_total": 12,
+    "valid_candidates_total": 12
+  }
+]

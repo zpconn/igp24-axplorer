@@ -2125,6 +2125,75 @@ candidate materially improves the scoring discriminant. The newest
 this score table, so their discriminant scoring remains pending in the local
 record.
 
+## Score-Aware Target Plan
+
+The score-aware planner joins the latest full SAIR label-progress snapshot, the
+local pair-status ledger, the user-reported score snapshot, and the current
+label-basin constraints. It writes artifacts under
+`data/igp24/score_aware_target_plan_20260707/`.
+
+Planner command:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_target_planner.py \
+  --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json \
+  --output_dir data/igp24/score_aware_target_plan_20260707 \
+  --top_limit 300
+```
+
+A fresh live-progress fetch was attempted first, but sandbox DNS/network
+approval did not complete in this run, so the planner used the previously
+saved full SAIR snapshot generated on 2026-07-07.
+
+Top priority real-root buckets:
+
+| rank | r | remaining signatures | reason |
+| ---: | ---: | ---: | --- |
+| 1 | 24 | 12,044 | largest high-real-root uncovered pocket |
+| 2 | 16 | 10,740 | large uncovered pocket |
+| 3 | 8 | 6,881 | large pocket plus visible `24T9993|r=8` score outlier |
+| 4 | 12 | 6,792 | large pocket plus visible `24T22770|r=12` score outlier |
+| 5 | 20 | 5,672 | high-real-root uncovered pocket |
+
+The top uncovered target family in the joined plan is the zero-team
+`24T18897` label across high-real-root signatures. Current local generators
+cannot directly condition on exact `24Tt`, so this remains a target-direction
+signal rather than an immediate queue.
+
+The top score-follow-up lane is still `r8_quartic_lift_score_followup`,
+because `24T9993|r=8` has the strongest visible score at `0.0019` with 10
+solved teams. A bounded CPU-only diagnostic reran the current pure
+`r8_quartic_lift` generator:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
+  --strategies r8_quartic_lift \
+  --seeds 2801,2802 \
+  --target_rs 8 \
+  --coeff_bound 16 \
+  --gensize 12 \
+  --pop_size 6 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 0 \
+  --prime_limit 7 \
+  --exact_score_timeout 3 \
+  --output_dir data/igp24/r8_quartic_score_followup_probe_20260707
+```
+
+Result: two CPU-only runs, 12 ledger rows, 12 local `r=8` matches, 6 unique
+hashes, and all 6 unique hashes overlap the already submitted
+`r8_quartic_lift` packet. The anti-basin gate under
+`data/igp24/r8_quartic_score_followup_probe_20260707/anti_basin_gate/` scored
+12 candidates, found 0 eligible rows, selected 0 rows, and returned
+`hold_no_submission`. Every row was rejected or held for known-basin risk:
+support gcd 6, exact even `g(x^6)`-style support, and accepted-hash duplicate.
+
+Decision: no SAIR submission is recommended now. The `r8_quartic_lift` lane is
+score-positive, but the finite pure-template family is exhausted. The next
+useful r8 follow-up must add a new perturbation or label-steering mechanism
+before another packet is considered.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -2190,6 +2259,9 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
   and feedback-ingest helper.
 - `scripts/igp24_anti_basin_planner.py`: live-progress-aware anti-basin
   candidate scorer and packet planner.
+- `scripts/igp24_score_aware_target_planner.py`: score-aware target/lane
+  planner joining live or saved SAIR progress, local pair status, score
+  snapshots, and basin constraints.
 - `scripts/igp24_anti_basin_feedback.py`: feedback ingestion for anti-basin
   planner packets.
 

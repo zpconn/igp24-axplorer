@@ -1323,3 +1323,16 @@ uncovered signatures, find lightly solved pockets where team count is still
 small, or produce material discriminant improvements on accepted pairs. High
 team-count basins remain useful as negative training signal, not as primary
 submission targets.
+
+The first score-aware planner pass makes that operational. It ranks the
+largest remaining buckets as `r=24`, `r=16`, `r=8`, `r=12`, and `r=20`, with
+zero-team uncovered labels such as `24T18897` as the clearest target-direction
+signal. But the only locally demonstrated positive score lane is still
+`r8_quartic_lift`, via `24T9993|r=8`. A small CPU-only rerun of the current
+pure `r8_quartic_lift` generator produced perfect local `r=8` yield but only
+the six already-submitted pure templates; the anti-basin gate rejected all
+rows as accepted-hash duplicates with exact even support and support gcd 6.
+So the next r8 work should not be more pure templates. It should be a
+score-aware perturbation or expansion of the r8 family that preserves the
+useful low-team signal while creating genuinely new support, mod-p, or
+family-key evidence before any SAIR packet is considered.
