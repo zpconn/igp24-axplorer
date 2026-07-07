@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_anti_basin_planner",
+  "created_at": "2026-07-07T20:08:40.338728+00:00",
+  "tool": "scripts/igp24_anti_basin_planner.py",
+  "source_commit": "7f277dc37391bd2ab8cda7ce74563be3e2e52ee7",
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_anti_basin_planner.py",
+    "--candidate_jsonl",
+    "data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2801/candidates.jsonl",
+    "--candidate_jsonl",
+    "data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2802/candidates.jsonl",
+    "--progress_snapshot_json",
+    "/tmp/igp24_full_sync_progress_snapshot_20260707.json",
+    "--output_dir",
+    "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707",
+    "--target_rs",
+    "8",
+    "--packet_limit",
+    "12",
+    "--min_packet_rows",
+    "8"
+  ],
+  "safety": {
+    "gpu_training": false,
+    "model_training": false,
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "magma": false,
+    "pari": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2801/candidates.jsonl",
+      "data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2802/candidates.jsonl"
+    ],
+    "label_basin_summary_record_type": "igp24_label_basin_analysis",
+    "progress_source": {
+      "record_type": "igp24_sair_label_progress_snapshot",
+      "created_at": "2026-07-07T19:55:53.021382+00:00",
+      "query": {
+        "source": "data/igp24/sair_sync_20260707/sair_label_progress.jsonl",
+        "derived_for": "r8_full_sync_anti_basin_gate"
+      },
+      "page_count": 5,
+      "label_count": 25000,
+      "first_generated_at": null,
+      "last_generated_at": null,
+      "published": null
+    },
+    "target_rs": [
+      8
+    ]
+  },
+  "basin_profile": {
+    "avoid_labels": [
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T25000"
+    ],
+    "crowded_labels": [
+      "24T1310",
+      "24T22770",
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T24984",
+      "24T25000",
+      "24T657",
+      "24T661",
+      "24T9993"
+    ],
+    "crowded_observation_count": 134,
+    "accepted_hash_count": 134,
+    "exact_fingerprint_count": 104,
+    "loose_fingerprint_count": 30,
+    "mod_p_signature_count": 87
+  },
+  "candidate_count": 12,
+  "eligible_candidate_count": 0,
+  "selected_rows": 0,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 12
+  },
+  "top_scored_rows": [
+    {
+      "rank": 1,
+      "short_hash": "778075741c82",
+      "score": -296.129,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+        "short_hash": "778075741c82",
+        "r": 8,
+        "coefficient_height": 14,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 2,
+      "short_hash": "85cefa437fa2",
+      "score": -296.129,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+        "short_hash": "85cefa437fa2",
+        "r": 8,
+        "coefficient_height": 14,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 3,
+      "short_hash": "85cefa437fa2",
+      "score": -296.129,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+        "short_hash": "85cefa437fa2",
+        "r": 8,
+        "coefficient_height": 14,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 4,
+      "short_hash": "778075741c82",
+      "score": -296.129,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+        "short_hash": "778075741c82",
+        "r": 8,
+        "coefficient_height": 14,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 5,
+      "short_hash": "86f62f433b3f",
+      "score": -296.174,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+        "short_hash": "86f62f433b3f",
+        "r": 8,
+        "coefficient_height": 15,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:4-4-4-4-4-4;p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 6,
+      "short_hash": "86f62f433b3f",
+      "score": -296.174,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+        "short_hash": "86f62f433b3f",
+        "r": 8,
+        "coefficient_height": 15,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:4-4-4-4-4-4;p7:4-4-4-4-4-4",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 7,
+      "short_hash": "de699993e8a9",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+        "short_hash": "de699993e8a9",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:4-4-4-4-4-4;p7:2-2-2-2-2-2-6-6",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 8,
+      "short_hash": "eb604c239982",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+        "short_hash": "eb604c239982",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:1-1-2-2-3-3-6-6;p7:2-2-2-3-3-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 9,
+      "short_hash": "2fe4b5059101",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+        "short_hash": "2fe4b5059101",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:1-1-2-2-3-3-6-6;p7:2-2-2-3-3-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 10,
+      "short_hash": "de699993e8a9",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+        "short_hash": "de699993e8a9",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:4-4-4-4-4-4;p7:2-2-2-2-2-2-6-6",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 11,
+      "short_hash": "eb604c239982",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+        "short_hash": "eb604c239982",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:1-1-2-2-3-3-6-6;p7:2-2-2-3-3-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 12,
+      "short_hash": "2fe4b5059101",
+      "score": -296.216,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "support_gcd_not_one",
+        "even_support_g_x_squared_like",
+        "accepted_hash_duplicate"
+      ],
+      "features": {
+        "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+        "short_hash": "2fe4b5059101",
+        "r": 8,
+        "coefficient_height": 16,
+        "construction_family": "",
+        "decomposition_pattern": "",
+        "perturbation_mode": "",
+        "perturbation_terms": 0,
+        "family_key": "",
+        "support_gcd": 6,
+        "even_support": true,
+        "odd_support_exponents": [],
+        "mod_p_pattern_signature": "p5:1-1-2-2-3-3-6-6;p7:2-2-2-3-3-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    }
+  ],
+  "selected_rows_summary": [],
+  "submission_recommendation": {
+    "recommended_for_sair_packet": false,
+    "status": "hold_no_submission",
+    "reason": "only_0_eligible_rows_below_min_8; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+    "selected_rows": 0,
+    "selected_mode_counts": {},
+    "selected_mod_p_signature_counts": {},
+    "risk_count": 0
+  },
+  "next_decision": "Do not submit this packet; refine generation toward more perturbation-mode and mod-p diversity.",
+  "output_files": {
+    "progress_cache_json": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_live_progress_cache.json",
+    "scores_jsonl": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_candidate_scores.jsonl",
+    "selected_jsonl": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_selected_queue.jsonl",
+    "coefficients_txt": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_candidate_hashes.txt",
+    "summary_json": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_planner_summary.json",
+    "report_md": "data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/anti_basin_planner_report.md"
+  }
+}

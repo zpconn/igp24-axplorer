@@ -1,16 +1,15 @@
 {
   "schema_version": 1,
   "record_type": "igp24_sair_sync",
-  "created_at": "2026-07-07T18:32:23.910850+00:00",
+  "created_at": "2026-07-07T19:56:33.984677+00:00",
   "tool": "scripts/igp24_sair_sync.py",
   "source_commit": "7f277dc37391bd2ab8cda7ce74563be3e2e52ee7",
   "command": [
     "/usr/bin/python3",
     "scripts/igp24_sair_sync.py",
     "--fetch_live",
-    "--allow_partial",
     "--output_dir",
-    "data/igp24/sair_sync_partial_20260707",
+    "data/igp24/sair_sync_20260707",
     "--progress_limit",
     "5000",
     "--submission_limit",
@@ -23,18 +22,20 @@
     "live_fetch": true
   },
   "sync_status": {
-    "partial_sync": true,
-    "submission_state_complete": false,
-    "failing_endpoint": "submissions/me",
-    "error_code": "IGP24_SERVICE_UNAVAILABLE",
-    "error_message": "submissions/me: The IGP24 competition service is temporarily unavailable. Please try again shortly.",
+    "partial_sync": false,
+    "submission_state_complete": true,
+    "failing_endpoint": null,
+    "error_code": null,
+    "error_message": null,
     "retry_after": null
   },
   "api_endpoints_used": [
     "GET /api/public/v1/competitions/{competitionId}",
     "GET /api/public/v1/competitions/{competitionId}/me",
     "GET /api/public/v1/competitions/igp24/labels/progress",
-    "GET /api/public/v1/competitions/{competitionId}/submissions/me"
+    "GET /api/public/v1/competitions/{competitionId}/submissions/me",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}/download"
   ],
   "api_endpoints_planned": [
     "GET /api/public/v1/competitions/{competitionId}",
@@ -390,32 +391,84 @@
     ]
   },
   "submissions": {
-    "submission_count": 0,
-    "row_count": 0,
-    "status_class_counts": {},
-    "pair_count": 0,
-    "top_pair_counts": [],
-    "pending_rows": 0,
-    "scoreable_rows": 0,
+    "submission_count": 18,
+    "row_count": 167,
+    "status_class_counts": {
+      "pending": 32,
+      "scoreable": 135
+    },
+    "pair_count": 25,
+    "top_pair_counts": [
+      [
+        "24T25000|r=4",
+        23
+      ],
+      [
+        "24T25000|r=16",
+        17
+      ],
+      [
+        "24T24932|r=24",
+        16
+      ],
+      [
+        "24T25000|r=24",
+        16
+      ],
+      [
+        "24T24979|r=12",
+        15
+      ],
+      [
+        "24T24979|r=16",
+        13
+      ],
+      [
+        "24T24984|r=12",
+        12
+      ],
+      [
+        "24T25000|r=20",
+        10
+      ],
+      [
+        "24T24651|r=24",
+        9
+      ],
+      [
+        "24T24651|r=12",
+        8
+      ],
+      [
+        "24T24932|r=12",
+        4
+      ],
+      [
+        "24T24970|r=12",
+        3
+      ]
+    ],
+    "pending_rows": 32,
+    "scoreable_rows": 135,
     "failed_rows": 0,
     "unmatched_rows": 0
   },
   "decision": {
     "submission_recommended_now": false,
-    "submission_reason": "partial sync only; submission/scoring state is incomplete",
-    "wait_for_scoring_rows": 0,
-    "review_scoreable_rows": 0
+    "submission_reason": "sync only; no generated queue passed score-aware and anti-basin submission gates",
+    "wait_for_scoring_rows": 32,
+    "review_scoreable_rows": 135
   },
   "output_files": {
-    "summary_json": "data/igp24/sair_sync_partial_20260707/sair_sync_summary.json",
-    "report_md": "data/igp24/sair_sync_partial_20260707/sair_sync_report.md",
-    "progress_summary_json": "data/igp24/sair_sync_partial_20260707/sair_progress_snapshot_summary.json",
-    "label_progress_jsonl": "data/igp24/sair_sync_partial_20260707/sair_label_progress.jsonl",
-    "submission_index_json": "data/igp24/sair_sync_partial_20260707/sair_submission_index.json",
-    "submission_rows_jsonl": "data/igp24/sair_sync_partial_20260707/sair_submission_rows.jsonl",
-    "pending_rows_jsonl": "data/igp24/sair_sync_partial_20260707/sair_pending_rows.jsonl",
-    "scoreable_rows_jsonl": "data/igp24/sair_sync_partial_20260707/sair_scoreable_rows.jsonl",
-    "failed_rows_jsonl": "data/igp24/sair_sync_partial_20260707/sair_failed_rows.jsonl",
-    "unmatched_rows_jsonl": "data/igp24/sair_sync_partial_20260707/sair_unmatched_rows.jsonl"
+    "summary_json": "data/igp24/sair_sync_20260707/sair_sync_summary.json",
+    "report_md": "data/igp24/sair_sync_20260707/sair_sync_report.md",
+    "progress_summary_json": "data/igp24/sair_sync_20260707/sair_progress_snapshot_summary.json",
+    "label_progress_jsonl": "data/igp24/sair_sync_20260707/sair_label_progress.jsonl",
+    "submission_index_json": "data/igp24/sair_sync_20260707/sair_submission_index.json",
+    "submission_rows_jsonl": "data/igp24/sair_sync_20260707/sair_submission_rows.jsonl",
+    "pending_rows_jsonl": "data/igp24/sair_sync_20260707/sair_pending_rows.jsonl",
+    "scoreable_rows_jsonl": "data/igp24/sair_sync_20260707/sair_scoreable_rows.jsonl",
+    "failed_rows_jsonl": "data/igp24/sair_sync_20260707/sair_failed_rows.jsonl",
+    "unmatched_rows_jsonl": "data/igp24/sair_sync_20260707/sair_unmatched_rows.jsonl"
   }
 }

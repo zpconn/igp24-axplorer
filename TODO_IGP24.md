@@ -175,6 +175,47 @@ results change.
   `git diff --check` passed; SAIR key-shaped scan found no matches; no
   `data/igp24/sair_sync_20260707` full-sync artifact exists; Stage 4 remains
   present at line 7971 after this TODO update.
+- Recovered full SAIR sync pass: a later read-only retry succeeded and restored
+  full submission/scoring state as the preferred current source of truth.
+  Command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --fetch_live --output_dir data/igp24/sair_sync_20260707 --progress_limit 5000 --submission_limit 100`.
+  Result artifacts are under `data/igp24/sair_sync_20260707/`. Confirmed
+  `partial_sync=false`, `submission_state_complete=true`, 18 submissions,
+  167 accepted rows, 135 scoreable rows, 32 pending rows, 0 failed rows, and
+  0 unmatched rows. Pending pairs are `24T24932|r=24`, `24T24984|r=12`, and
+  `24T24932|r=12`.
+  Full-sync planner command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_target_planner.py --sair_sync_dir data/igp24/sair_sync_20260707 --output_dir data/igp24/score_aware_target_plan_from_sync_20260707 --top_limit 300`.
+  Planner artifacts are under
+  `data/igp24/score_aware_target_plan_from_sync_20260707/`. Result:
+  `submission_recommended_now=false`,
+  `full_sync_required_before_submission=false`, and the recommended bounded
+  offline lane remains `r8_quartic_lift_score_followup`, sourced from
+  `24T9993|r=8` with visible points `0.0019` and 10 solved teams. Top global
+  remaining buckets from the recovered sync are `r=24` (11,998), `r=16`
+  (10,676), `r=8` (6,822), `r=12` (6,740), and `r=20` (5,629).
+  The previous partial sync remains useful only as downtime provenance; the
+  completed full sync should be used for current submission and score-aware
+  planning decisions.
+- Full-sync r8 score-follow-up gate: derived a temporary progress snapshot
+  from `data/igp24/sair_sync_20260707/sair_label_progress.jsonl` at
+  `/tmp/igp24_full_sync_progress_snapshot_20260707.json`, then reran the
+  anti-basin gate against the existing bounded CPU-only r8 probe. Command:
+  `python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2801/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2802/candidates.jsonl --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json --output_dir data/igp24/r8_quartic_score_followup_full_sync_gate_20260707 --target_rs 8 --packet_limit 12 --min_packet_rows 8`.
+  Result artifacts are under
+  `data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/`.
+  The gate scored 12 candidates, found 0 eligible rows, selected 0 rows, and
+  returned `recommended_for_sair_packet=false`,
+  `status=hold_no_submission`. All rows were held for the same known-basin
+  risks: `support_gcd_not_one`, `even_support_g_x_squared_like`, and
+  `accepted_hash_duplicate`. Added
+  `data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/r8_score_followup_next_plan.md`.
+  Decision: do not submit from the current pure `g(x^6)` r8 templates and do
+  not scale the same generator. The next r8 work should add an opt-in
+  perturbation/diversity mode that can break even support/support gcd 6 while
+  preserving exact local `r=8`, then rerun the same planner and anti-basin
+  gates. No GPU/model training, SAIR dry-run, or SAIR submission happened in
+  this pass.
 - Live target-planning pass in progress: fetched the full SAIR
   `labels/progress` traversal to `/tmp/igp24_sair_label_progress_full_20260707.json`
   using `limit=5000`, `includeEmpty=true`. Result: 5 pages, 25,000 labels,

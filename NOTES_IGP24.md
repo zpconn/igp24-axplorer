@@ -20,6 +20,16 @@ global progress for offline planning, but partial artifacts must be treated as
 having incomplete submission/scoring state. Retry full sync before making any
 new submission decision.
 
+Later on 2026-07-07, the full sync recovered and should again be treated as
+the preferred current source of truth. The recovered artifacts are in
+`data/igp24/sair_sync_20260707` and show 18 submissions, 167 accepted rows,
+135 scoreable rows, 32 pending rows, 0 failed rows, and 0 unmatched rows.
+Score-aware planning from
+`data/igp24/score_aware_target_plan_from_sync_20260707` still recommends no
+submission, but no longer requires another full sync before offline planning.
+The remaining pending pairs are `24T24932|r=24`, `24T24984|r=12`, and
+`24T24932|r=12`.
+
 ## Axplorer Architecture
 
 Axplorer exposes each math search task as an environment under `src/envs/`. The
@@ -1356,3 +1366,12 @@ So the next r8 work should not be more pure templates. It should be a
 score-aware perturbation or expansion of the r8 family that preserves the
 useful low-team signal while creating genuinely new support, mod-p, or
 family-key evidence before any SAIR packet is considered.
+
+The full-sync-gated anti-basin rerun confirmed the same conclusion against
+the recovered current SAIR state. The gate in
+`data/igp24/r8_quartic_score_followup_full_sync_gate_20260707` scored 12 rows,
+selected 0, and returned `hold_no_submission` because every pure template was
+an accepted-hash duplicate with support gcd 6 and even `g(x^6)`-style support.
+The next plan is not a larger seed sweep. It is an opt-in perturbed r8
+quartic-lift mode that can introduce off-core support while preserving exact
+local `r=8`, followed by the same score-aware and anti-basin gates.

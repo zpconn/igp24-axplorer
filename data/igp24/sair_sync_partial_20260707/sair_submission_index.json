@@ -1,6 +1,6 @@
 {
   "record_type": "igp24_sair_submission_index",
-  "created_at": "2026-07-07T18:09:11.018115+00:00",
+  "created_at": "2026-07-07T18:32:23.846283+00:00",
   "page_count": 0,
   "pages": [],
   "submission_count": 0,
@@ -10,56 +10,56 @@
       "endpoint": "competition",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "599",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "591",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "competition/me",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "598",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "590",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "labels/progress",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "597",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "589",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "labels/progress",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "596",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "588",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "labels/progress",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "595",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "587",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "labels/progress",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "594",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "586",
+        "X-Ratelimit-Reset": "1783449143"
       }
     },
     {
       "endpoint": "labels/progress",
       "headers": {
         "X-Ratelimit-Limit": "600",
-        "X-Ratelimit-Remaining": "593",
-        "X-Ratelimit-Reset": "1783447781"
+        "X-Ratelimit-Remaining": "585",
+        "X-Ratelimit-Reset": "1783449143"
       }
     }
   ],

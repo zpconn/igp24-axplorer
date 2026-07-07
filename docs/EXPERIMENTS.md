@@ -57,6 +57,25 @@ Partial-sync planning pass on 2026-07-07:
   `submission_recommended_now=false` and
   `full_sync_required_before_submission=true`.
 
+Recovered full-sync pass on 2026-07-07:
+
+- A later read-only retry succeeded and wrote the authoritative current sync
+  to `data/igp24/sair_sync_20260707`.
+- Full sync result: 25,000 labels, 51,983 remaining signatures,
+  `partial_sync=false`, `submission_state_complete=true`, 18 submissions,
+  167 accepted rows, 135 scoreable rows, 32 pending rows, 0 failed rows, and
+  0 unmatched rows.
+- Pending pairs are `24T24932|r=24`, `24T24984|r=12`, and
+  `24T24932|r=12`.
+- The score-aware planner consumed the full sync under
+  `data/igp24/score_aware_target_plan_from_sync_20260707`.
+- Planner result: top buckets are `r=24`, `r=16`, `r=8`, `r=12`, and `r=20`;
+  `submission_recommended_now=false`;
+  `full_sync_required_before_submission=false`; the bounded offline lane is
+  still `r8_quartic_lift_score_followup`, sourced from `24T9993|r=8`.
+- The recovered full sync supersedes the partial sync for current planning.
+  The partial artifacts remain useful downtime/provenance evidence only.
+
 ## Verified Non-Generic Queue
 
 The most important current result is the 2026-07-05 non-generic verification
@@ -2246,6 +2265,27 @@ Decision: no SAIR submission is recommended now. The `r8_quartic_lift` lane is
 score-positive, but the finite pure-template family is exhausted. The next
 useful r8 follow-up must add a new perturbation or label-steering mechanism
 before another packet is considered.
+
+A later full-sync-gated rerun used the recovered sync-derived progress
+snapshot instead of the older temp progress snapshot:
+
+```bash
+python3 scripts/igp24_anti_basin_planner.py \
+  --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2801/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_score_followup_probe_20260707/r8_quartic_lift_r8_seed_2802/candidates.jsonl \
+  --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json \
+  --output_dir data/igp24/r8_quartic_score_followup_full_sync_gate_20260707 \
+  --target_rs 8 \
+  --packet_limit 12 \
+  --min_packet_rows 8
+```
+
+Result: 12 candidates scored, 0 eligible rows, 0 selected rows,
+`recommended_for_sair_packet=false`, and `hold_no_submission`. The reasons did
+not change: the pure `g(x^6)` rows have support gcd 6, exact even-support
+structure, and accepted-hash duplicate risk. The concrete next plan is
+`data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/r8_score_followup_next_plan.md`:
+add an opt-in perturbed r8 quartic-lift mode before generating another packet.
 
 ## GPU And Split Export Findings
 
