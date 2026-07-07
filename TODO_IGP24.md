@@ -61,6 +61,26 @@ results change.
   `generatedAt=2026-07-07T00:57:21Z`, `published=true`, team counts 57 and 55,
   and zero remaining signatures for both labels. No key was printed or written
   to repo files.
+- Live target-planning pass in progress: fetched the full SAIR
+  `labels/progress` traversal to `/tmp/igp24_sair_label_progress_full_20260707.json`
+  using `limit=5000`, `includeEmpty=true`. Result: 5 pages, 25,000 labels,
+  `published=true`, generated from `2026-07-07T01:20:36Z` to
+  `2026-07-07T01:20:43Z`. Added `scripts/igp24_sair_progress_targets.py` to
+  derive compact committed planning artifacts under
+  `data/igp24/sair_live_target_plan_20260707` without committing the raw
+  snapshot. Fresh remaining signature count is 52,335; largest remaining
+  buckets are `r=24` (12,044), `r=16` (10,740), `r=8` (6,881), `r=12`
+  (6,792), and `r=20` (5,672). The top API-derived exact target is
+  `24T18897|r=24`, a label with zero credited teams and 12 remaining
+  signatures. Current decision: do not widen the recent tower lane blindly;
+  pursue target-conditioned high-real-root work, starting with `r=24/r=16/r=20`
+  labels that have no credited teams, while recognizing current local
+  generators cannot directly condition on exact `24Tt` labels. No automatic
+  submission or GPU training is recommended from this plan alone.
+  Verification for this milestone: `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_sair_progress_targets.py tests/test_igp24_sair_api.py`
+  -> 8 passed; plan and summary JSON parsed with `python3 -m json.tool`;
+  `git diff --check` passed; key-fragment scan found no matches; Stage 4
+  remains present at line 7544.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
