@@ -598,7 +598,26 @@ results change.
   anti-basin risk reasons; gate safety flags confirm no SAIR submission,
   no SAIR dry-run, no GPU/model training, no Magma/PARI, and no API key
   recorded; key-shaped secret scan found 0 matching files; `git diff --check`
-  passed; Stage 4 remains present at line 8066 after this TODO update.
+  passed; Stage 4 remains present at line 8085 after this TODO update.
+  User-approved SAIR submission follow-up: ran local dry-run validation, then
+  submitted the 10 selected rows through
+  `scripts/igp24_sair_api.py submit --execute` with response artifacts saved
+  under
+  `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/`.
+  Submission id: `sub_4622b4196ca64a9d91441cf5184acafe`; SAIR queued 10,
+  rejected 0, and poll 1 returned 10/10 accepted. Accepted labels:
+  9 rows as `24T25000|r=8` and 1 row as `24T24979|r=8`. First poll scoring
+  state: all 10 `scoreable=false`, `scoringStatus=pending`,
+  `discSource=None`; poll 2 showed the same accepted/pending state, so
+  discriminants/scores are still pending rather than final no-score results.
+  Feedback artifact:
+  `data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json`;
+  pair-status update added 2 new local pair keys (`24T25000|r=8` and
+  `24T24979|r=8`) and 8 accepted alternates to
+  `data/igp24/pair_status_20260706.json`. Lesson: the perturbed lane escaped
+  pure support locally, but did not escape the tracked known high-label basin;
+  do not widen this exact lane blindly before scores return or a stronger
+  label-steering discriminator is added.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

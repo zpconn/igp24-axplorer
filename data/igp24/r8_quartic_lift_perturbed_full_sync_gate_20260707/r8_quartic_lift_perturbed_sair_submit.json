@@ -1,0 +1,69 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783456765"
+  },
+  "data": {
+    "batchId": "igp24_batch_c36b159379d348f0",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T20:38:25Z",
+    "description": "r8 perturbed quartic-lift full-sync gate 20260707",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r8 perturbed quartic-lift full-sync gate 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 8,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 9,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 10,
+    "rejectedCount": 0,
+    "submissionId": "sub_4622b4196ca64a9d91441cf5184acafe",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-07T20:38:25Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}

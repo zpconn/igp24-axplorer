@@ -1,11 +1,27 @@
-# Review Only - Not Submitted
+# Review-Only Gate Packet, Later Submitted After Approval
+
+Update: this packet was later submitted only after explicit user approval on
+2026-07-07. Submission artifacts:
+
+- Dry-run response:
+  `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/r8_quartic_lift_perturbed_sair_dry_run.json`
+- Live submit response:
+  `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/r8_quartic_lift_perturbed_sair_submit.json`
+- Status poll:
+  `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/r8_quartic_lift_perturbed_sair_status_poll1.json`
+- Joined accepted-feedback artifact:
+  `data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json`
+
+SAIR accepted all 10 rows. Labels were 9 rows as `24T25000|r=8` and 1 row as
+`24T24979|r=8`; all 10 had discriminant/scoring status pending on the first
+two polls.
 
 This packet was produced by the full-sync anti-basin gate for the opt-in
 `r8_quartic_lift_perturbed` lane.
 
-No SAIR dry-run or live submission was performed in this goal. The gate marked
-the packet as ready for a future dry-run, but the objective explicitly forbade
-submitting or dry-running these rows.
+At gate-generation time, no SAIR dry-run or live submission was performed. The
+gate marked the packet as ready for a future dry-run, but that earlier
+objective explicitly forbade submitting or dry-running these rows.
 
 Artifacts:
 
@@ -39,6 +55,7 @@ coefficients, nonzero constant term, leading coefficient 1, coefficient gcd 1,
 exact local `r=8`, irreducible status, squarefree status, support gcd 1,
 non-even support, and no anti-basin risk reasons.
 
-Next action, only after explicit human approval: run a SAIR dry-run or live
-submission using the coefficients file above, then feed accepted labels and
-scoring status back into the local ledgers.
+Post-submission lesson: off-core perturbation successfully escaped the local
+pure `g(x^6)` support obstruction, but not the tracked high-label basin. Do not
+widen this exact perturbed r8 lane blindly until scores/discriminants return
+or a stronger label-steering discriminator is added.

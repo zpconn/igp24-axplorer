@@ -1387,3 +1387,13 @@ score-positive label; exact labels are still unknown until SAIR verification.
 But it does prove the productive next r8 move is a human-approved SAIR
 dry-run or submission of the 10 selected perturbed rows, not a wider pure
 `g(x^6)` sweep and not a large GPU/model training run yet.
+
+That human-approved submission has now been run. SAIR accepted all 10 rows,
+but the labels were 9 rows in `24T25000|r=8` and 1 row in `24T24979|r=8`,
+with discriminants/scores pending on the first poll. So the refined lesson is:
+off-core perturbation is enough to break the local support obstruction, but
+not enough by itself to escape the known high-label r8 basins. Treat these
+accepted rows as useful negative/steering feedback unless scoring later shows
+a real discriminant advantage; the next generator should add a stronger
+label-discriminator or shift away from this exact perturbed quartic-lift
+family.

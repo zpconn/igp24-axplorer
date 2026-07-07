@@ -1,0 +1,139 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T20:38:25Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r8 perturbed quartic-lift full-sync gate 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_4622b4196ca64a9d91441cf5184acafe",
+    "updatedAt": "2026-07-07T20:38:25Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 0,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 1,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 2,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 3,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 4,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 5,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 6,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 7,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 8,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 9,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      }
+    ]
+  },
+  "ok": true
+}

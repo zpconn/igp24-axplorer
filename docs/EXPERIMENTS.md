@@ -2344,6 +2344,25 @@ review-only in
 `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/`; no SAIR
 dry-run or live submission was performed.
 
+After explicit user approval, the 10 selected rows were submitted through the
+SAIR API. Submission id: `sub_4622b4196ca64a9d91441cf5184acafe`. SAIR queued
+10 rows, rejected 0, and poll 1 returned 10/10 accepted:
+
+| Label | r | Rows |
+| --- | ---: | ---: |
+| `24T25000` | 8 | 9 |
+| `24T24979` | 8 | 1 |
+
+All 10 rows had discriminant/scoring status pending on the first two polls
+(`scoreable=false`, `scoringStatus=pending`, `discSource=None`). Accepted
+feedback is recorded in
+`data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json`,
+and the pair-status ledger added `24T25000|r=8`, `24T24979|r=8`, and 8
+accepted alternates. Interpretation: off-core perturbations fixed the local
+pure-template obstruction but still landed in tracked known high-label basins,
+so this exact lane should not be widened blindly before scores return or a
+stronger label-steering discriminator is added.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
