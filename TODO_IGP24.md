@@ -189,6 +189,31 @@ results change.
   `3x8`, or a non-quadratic r20/r16 seed. Do not start GPU/model training and
   do not submit another nearby r24 6x4 queue.
 
+- Active alternate-composition pivot: starting a CPU-only diagnostic for
+  degree-pattern `8x3` and `3x8` compositions. This is deliberately not a
+  continuation of the r24 6x4 tower neighborhood: the inner degrees change,
+  exact even `g(x^2)` support is rejected, support gcd 1 is required, and the
+  output is a local diagnostic queue/report rather than a live SAIR
+  submission. The goal is to determine whether a structurally different
+  high-real-root family can produce exact local `r=24/20/16/12/8` candidates
+  worth submitting later.
+  Implemented `scripts/igp24_alt_composition_probe.py` and generated artifacts
+  under `data/igp24/alt_composition_probe_20260707/` with:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_alt_composition_probe.py --output_dir data/igp24/alt_composition_probe_20260707 --seed 243083 --max_trials 700 --limit 16 --per_family_cap 1 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0 --target_rs 24,20,16,12,8 --lanes 8x3,3x8 --stop_after_candidates 80 --max_rejected_records 250`.
+  Result: 410 local trials, 80 valid candidates, 16 selected rows, all exact
+  local `8x3|r=24`, coefficient-height range 21,465,432 to 142,220,546, and
+  `queue_status=manual_review_ready_not_submitted`. The run attempted 169
+  `3x8` trials, but none survived the current gates: 113 were rejected as
+  even-support/support-gcd-2 and 56 exceeded the coefficient bound. The
+  selected `8x3` rows avoid exact even `g(x^2)` support, the exact/odd-escaped
+  `6x4` tower basins, and product/quadratic low-odd perturbation lanes. No GPU
+  training, network call, SAIR submission, Magma, or PARI path was used.
+  Focused test command:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_alt_composition_probe.py`
+  -> 6 passed. Next decision: prepare a small reviewed SAIR submission from
+  the selected `8x3` rows in a separate goal, rather than continuing `3x8`
+  under the same coefficient bound.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

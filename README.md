@@ -329,6 +329,8 @@ that branch.
   anti-basin probe that breaks exact even support with odd perturbations.
 - `scripts/igp24_r24_odd_escape_feedback.py`: joins verified SAIR feedback for
   the odd-escape probe back to local queue metadata.
+- `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
+  alternate-composition diagnostic queue generator.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

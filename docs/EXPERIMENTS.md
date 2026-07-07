@@ -1929,6 +1929,37 @@ generic `24T25000`. That exhausts nearby r24 6x4 tower variants as a
 label-steering lane. The next construction should use a genuinely different
 composition pattern, such as `8x3` or `3x8`, or a non-quadratic r20/r16 seed.
 
+## Alternate Composition Diagnostic
+
+The first post-6x4 pivot is
+`scripts/igp24_alt_composition_probe.py`, a CPU-only diagnostic for degree
+patterns `8x3` and `3x8`. It does not use GPU training, SAIR, Magma, PARI, or
+network APIs.
+
+Command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_alt_composition_probe.py --output_dir data/igp24/alt_composition_probe_20260707 --seed 243083 --max_trials 700 --limit 16 --per_family_cap 1 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0 --target_rs 24,20,16,12,8 --lanes 8x3,3x8 --stop_after_candidates 80 --max_rejected_records 250
+```
+
+Results:
+
+- trials attempted: 410
+- trial pattern counts: 241 `8x3`, 169 `3x8`
+- valid candidates: 80
+- selected rows: 16
+- selected pattern/r: all `8x3|r=24`
+- coefficient-height range: 21,465,432 to 142,220,546
+- queue status: `manual_review_ready_not_submitted`
+- selected rows avoid exact even `g(x^2)` support, exact/odd-escaped `6x4`
+  tower lanes, and product/quadratic low-odd perturbation lanes
+
+The `3x8` branch was useful as a negative diagnostic. In this bounded run, 113
+`3x8` rows were rejected as even-support/support-gcd-2 and 56 exceeded the
+coefficient bound; no `3x8` rows survived to the selected queue. The viable
+near-term pivot is therefore the compact `8x3` queue. It is worth a small
+reviewed SAIR submission in a separate goal, not a blind widening run.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -1988,6 +2019,8 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_submission_plan.py`: one-per-pair manual submission planning.
 - `scripts/igp24_submission_package.py`: local/manual submission-review
   package builder.
+- `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
+  alternate-composition diagnostic queue generator.
 
 ## Reproducibility Notes
 

@@ -1,0 +1,306 @@
+{
+  "anti_basin_constraints_satisfied": [
+    "degree_pattern_not_6x4",
+    "not_g_x_squared_even_support",
+    "support_gcd_one",
+    "not_product_quadratic_low_odd_perturbation",
+    "not_r24_tower_odd_escape"
+  ],
+  "coefficient_height_max": 142220546,
+  "coefficient_height_min": 21465432,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_alt_composition_probe.py",
+    "--output_dir",
+    "data/igp24/alt_composition_probe_20260707",
+    "--seed",
+    "243083",
+    "--max_trials",
+    "700",
+    "--limit",
+    "16",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "2000000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0",
+    "--target_rs",
+    "24,20,16,12,8",
+    "--lanes",
+    "8x3,3x8",
+    "--stop_after_candidates",
+    "80",
+    "--max_rejected_records",
+    "250"
+  ],
+  "created_at": "2026-07-07T15:00:05.604449+00:00",
+  "known_hashes_loaded": 112,
+  "lanes": [
+    "8x3",
+    "3x8"
+  ],
+  "observed_root_count_counts": {
+    "0": 1,
+    "12": 6,
+    "18": 3,
+    "24": 74,
+    "4": 3,
+    "6": 10
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/alt_composition_probe_20260707/alt_composition_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/alt_composition_probe_20260707/alt_composition_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/alt_composition_probe_20260707/alt_composition_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/alt_composition_probe_20260707/alt_composition_rejected_trials.jsonl",
+    "report_md": "data/igp24/alt_composition_probe_20260707/alt_composition_report.md",
+    "summary_json": "data/igp24/alt_composition_probe_20260707/alt_composition_summary.json"
+  },
+  "queue_status": "manual_review_ready_not_submitted",
+  "recommendation": "prepare_for_small_manual_sair_submission_in_next_goal",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 161,
+    "even_support_g_x_squared_like,support_gcd_not_one": 124,
+    "real_root_count_not_target_bucket": 17,
+    "reducible_over_q": 28
+  },
+  "rejected_counts_by_pattern": {
+    "3x8": {
+      "coefficient_height_exceeds_bound": 56,
+      "even_support_g_x_squared_like,support_gcd_not_one": 113
+    },
+    "8x3": {
+      "coefficient_height_exceeds_bound": 105,
+      "even_support_g_x_squared_like,support_gcd_not_one": 11,
+      "real_root_count_not_target_bucket": 17,
+      "reducible_over_q": 28
+    }
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_family_keys": [
+    "8x3|s=8|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:1",
+    "8x3|s=8|mode=outer_constant_shift|levels=-3,-2,-1,1,2,3,4,5|outer_y=0:1",
+    "8x3|s=8|mode=outer_constant_shift|levels=-3,-2,-1,1,2,3,4,5|outer_y=0:10",
+    "8x3|s=8|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:-10",
+    "8x3|s=8|mode=outer_constant_shift|levels=-2,-1,1,2,3,4,5,6|outer_y=0:3",
+    "8x3|s=8|mode=outer_constant_shift|levels=-2,-1,1,2,3,4,5,6|outer_y=0:-2",
+    "8x3|s=9|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:-1",
+    "8x3|s=9|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:-10",
+    "8x3|s=9|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:10",
+    "8x3|s=9|mode=outer_constant_shift|levels=-6,-5,-4,-3,-2,-1,1,2|outer_y=0:-5",
+    "8x3|s=10|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:-3",
+    "8x3|s=10|mode=outer_constant_shift|levels=-5,-4,-3,-2,-1,1,2,3|outer_y=0:-20",
+    "8x3|s=10|mode=outer_high_coefficient_shift|levels=-4,-3,-2,-1,1,2,3,4|outer_y=0:10,5:-1",
+    "8x3|s=8|mode=outer_constant_shift|levels=1,2,3,4,5,6,7,8|outer_y=0:-10",
+    "8x3|s=8|mode=outer_constant_shift|levels=1,2,3,4,5,6,7,8|outer_y=0:3",
+    "8x3|s=9|mode=outer_constant_shift|levels=-7,-6,-5,-4,-3,-2,-1,1|outer_y=0:-3"
+  ],
+  "selected_hashes": [
+    "3207fcbad6f7b4e4440fc39947ef798cfaab087f80fd50224a73b0cdf4c866cf",
+    "f6d01d13d4d02d6099db82cd5c13c0905198d04afd37ac1062d2a9a033eedc1f",
+    "88f1e7761002db5a7632d0f1ee1788bbe48ad094953fbeb210e5c32dc2bc41cd",
+    "2c8838b3f843551218164f9e8581fc372987931042f36e5acb16d8585c6c0098",
+    "438b2f438a1e58ec1d02d5d94eb2e0449d90dfd6778e52b34c67680e85d88cac",
+    "68787370426831d4b5ffba3c328facf3e576108ee79342297d07e7ae4b456bba",
+    "ab9559414dc623049ebf82a873e16698611d0c954a1d0c344d09ac1db2576e86",
+    "dacbce3e07e40c668e1a4e62b70b3ba5e058098925ca34e99870515af7eb1142",
+    "e141365c0590a12b438a0618a60fbfad16216f427e63d2d2149dabea65d6797d",
+    "e38eb848a6078d23a0160fe5d79063128235aff36de78471b806a075a821463c",
+    "2257d3c8a5ba4c1139f55937981e0c7bc793472f66320d708be4181496ff602c",
+    "dfb540ba6d0bdb58bb40f3052503e39afaedea571987c91d45a0afdc8f61aa94",
+    "d2b8c728394a679d14c837d22d4764ae8f874ea8599830ca6ecab31df4e08731",
+    "a228d1246463eba6fdbb0a43df2ab8d05b63af8e84190eeaed7e0ee41e9636d2",
+    "ed3120c333fdd0ad65f05452390e4342c143bb9be95c4fc6ad006f7dcf932914",
+    "0f5a176f107c05c799a5337de09db0b5d1e9db2b60dc3c81657e79f53f3fe67b"
+  ],
+  "selected_pattern_counts": {
+    "8x3": 16
+  },
+  "selected_r_counts": {
+    "24": 16
+  },
+  "selected_rows": 16,
+  "selected_short_hashes": [
+    "3207fcbad6f7",
+    "f6d01d13d4d0",
+    "88f1e7761002",
+    "2c8838b3f843",
+    "438b2f438a1e",
+    "687873704268",
+    "ab9559414dc6",
+    "dacbce3e07e4",
+    "e141365c0590",
+    "e38eb848a607",
+    "2257d3c8a5ba",
+    "dfb540ba6d0b",
+    "d2b8c728394a",
+    "a228d1246463",
+    "ed3120c333fd",
+    "0f5a176f107c"
+  ],
+  "source_commit": "e029e11a49c63ef0aad67499f8f0313f06fbefc5",
+  "submission_readiness": {
+    "candidate_rows_to_consider": [
+      {
+        "height": 21465432,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 1,
+        "short_hash": "3207fcbad6f7"
+      },
+      {
+        "height": 21465432,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 2,
+        "short_hash": "f6d01d13d4d0"
+      },
+      {
+        "height": 21465432,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 3,
+        "short_hash": "88f1e7761002"
+      },
+      {
+        "height": 21465432,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 4,
+        "short_hash": "2c8838b3f843"
+      },
+      {
+        "height": 32548464,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 5,
+        "short_hash": "438b2f438a1e"
+      },
+      {
+        "height": 32548464,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 6,
+        "short_hash": "687873704268"
+      },
+      {
+        "height": 47192058,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 7,
+        "short_hash": "ab9559414dc6"
+      },
+      {
+        "height": 47192058,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 8,
+        "short_hash": "dacbce3e07e4"
+      },
+      {
+        "height": 47192058,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 9,
+        "short_hash": "e141365c0590"
+      },
+      {
+        "height": 77782356,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 10,
+        "short_hash": "e38eb848a607"
+      },
+      {
+        "height": 96313230,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 11,
+        "short_hash": "2257d3c8a5ba"
+      },
+      {
+        "height": 96313230,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 12,
+        "short_hash": "dfb540ba6d0b"
+      },
+      {
+        "height": 118163800,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 13,
+        "short_hash": "d2b8c728394a"
+      },
+      {
+        "height": 135717120,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 14,
+        "short_hash": "a228d1246463"
+      },
+      {
+        "height": 135717120,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 15,
+        "short_hash": "ed3120c333fd"
+      },
+      {
+        "height": 142220546,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 16,
+        "short_hash": "0f5a176f107c"
+      }
+    ],
+    "known_basins_avoided": [
+      "exact_even_6x4_tower_24T23883_24T24651",
+      "odd_escaped_6x4_tower_24T25000",
+      "product_quadratic_low_odd_perturbation_24T25000",
+      "exact_g_x_squared_even_support"
+    ],
+    "reason": "Selected rows are locally valid, structurally outside the exhausted 6x4 tower neighborhood, and hit high-real-root target buckets; hold for human/next-goal review before SAIR.",
+    "selected_patterns": [
+      "8x3"
+    ],
+    "selected_r_values": [
+      24
+    ],
+    "status": "manual_review_ready_not_submitted",
+    "submitted_by_this_tool": false,
+    "worth_submitting_later": true
+  },
+  "target_rs": [
+    24,
+    20,
+    16,
+    12,
+    8
+  ],
+  "tool": "scripts/igp24_alt_composition_probe.py",
+  "trial_pattern_counts": {
+    "3x8": 169,
+    "8x3": 241
+  },
+  "trials_attempted": 410,
+  "valid_candidate_count": 80,
+  "valid_pattern_counts": {
+    "8x3": 80
+  },
+  "valid_r_counts": {
+    "12": 6,
+    "24": 74
+  }
+}

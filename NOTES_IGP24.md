@@ -1260,3 +1260,15 @@ with explicit real-root accounting, or a non-quadratic r20/r16 seed. Keep this
 CPU-only and diagnostic first; do not submit another nearby r24 tower queue
 and do not start GPU training until there is an actual label-conditioning
 objective.
+
+The alternate-composition diagnostic now gives a concrete next lane. A
+CPU-only `8x3`/`3x8` generator under
+`data/igp24/alt_composition_probe_20260707` attempted 410 local trials and
+selected 16 exact local `8x3|r=24` rows. These are not `g(x^2)` rows, not
+6x4 towers, and not product/quadratic low-odd perturbations. The `3x8` lane
+was attempted too, but under the current coefficient bound it produced no
+selected rows: symmetric compact octic seeds look even-support-like, while
+non-even variants are too tall. The selected `8x3` queue is therefore
+submission-review ready, but it was intentionally not submitted in the
+diagnostic goal. The next reasonable goal is a small SAIR verification probe
+for these `8x3` rows, then feed labels back into the basin analyzer.
