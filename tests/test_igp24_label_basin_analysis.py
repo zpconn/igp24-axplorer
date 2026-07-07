@@ -97,6 +97,13 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
                 "r": 16,
                 "canonical_hash": "hash-generic",
             },
+            {
+                "row_number": 3,
+                "status": "accepted",
+                "label": "24T25000",
+                "r": 24,
+                "canonical_hash": "hash-odd-escape",
+            },
         ],
     }
     _write_json(feedback_path, feedback)
@@ -136,6 +143,20 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
                 "r16_diversity_family_key": "generic:r16",
             },
         },
+        {
+            "canonical_hash": "hash-odd-escape",
+            "exported_coefficients": mixed_generic_coefficients,
+            "coefficient_height": 443384,
+            "real_root_count": 24,
+            "irreducible": True,
+            "squarefree": True,
+            "generation_metadata": {
+                "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+                "decomposition_degree_pattern": "6x4_seed_plus_odd_x_perturbation",
+                "r24_tower_odd_escape_mode": "single_odd_tower_escape",
+                "r24_tower_odd_escape_family_key": "odd-escape:r24",
+            },
+        },
     ]
     queue_path.write_text(
         "\n".join(json.dumps(row, sort_keys=True) for row in queue_rows) + "\n",
@@ -143,7 +164,7 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
     )
 
     observations = load_observations([feedback_path], [queue_path])
-    assert len(observations) == 2
+    assert len(observations) == 3
     tower = next(row for row in observations if row["label"] == "24T24651")
     assert tower["queue_joined"] is True
     assert tower["support_gcd"] == 2
@@ -174,12 +195,13 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
         queue_paths=[queue_path],
     )
 
-    assert summary["observation_count"] == 2
+    assert summary["observation_count"] == 3
     assert summary["label_summary"]["24T24651"]["global_progress"]["fully_covered"] is True
     assert summary["pair_summary"]["24T24651|r=24"]["global_pair_discovered"] is True
     constraint_names = {item["name"] for item in summary["anti_basin_constraints"]}
     assert "stop_exact_even_6x4_constant_shift_towers" in constraint_names
     assert "avoid_generic_24T25000_perturbation_lanes" in constraint_names
+    assert "stop_odd_escaped_r24_6x4_towers" in constraint_names
     assert summary["next_lane_decision"]["gpu_training_recommended_now"] is False
 
     paths = write_outputs(observations=observations, summary=summary, output_dir=tmp_path / "out")

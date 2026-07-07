@@ -1,0 +1,121 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T03:41:59Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r24 tower odd-escape anti-basin probe 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_d7bc66004b0c4db2a89071c651c7583e",
+    "updatedAt": "2026-07-07T03:41:59Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "191482480066877577924569215731683844420476156118830590700551717902651500369689",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 0,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "24392472102872827797979930386611470220937943157303124124652367230971126553",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 1,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "2641030060314921722321863244828121076091163055847498043694789865894838272",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 2,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "8149557163107678564360235022320949135970819144308100732784543304737501853433",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 3,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 4,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "1846848111657376166822905111009107066226405478241442708027407946347572395473",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 5,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "2929746816239807636520841176412296416628315782193013478893408293793631968428032",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 6,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 7,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      }
+    ]
+  },
+  "ok": true
+}

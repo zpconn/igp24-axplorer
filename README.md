@@ -327,6 +327,8 @@ that branch.
   tower probe.
 - `scripts/igp24_r24_tower_odd_escape_probe.py`: r24 tower-derived
   anti-basin probe that breaks exact even support with odd perturbations.
+- `scripts/igp24_r24_odd_escape_feedback.py`: joins verified SAIR feedback for
+  the odd-escape probe back to local queue metadata.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

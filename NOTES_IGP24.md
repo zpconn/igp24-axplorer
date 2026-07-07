@@ -1243,11 +1243,20 @@ keeps the useful all-real 6x4 tower seed but adds odd `x` perturbations after
 composition, forcing support gcd 1 and breaking exact even support. This is not
 guaranteed to escape the `24T23883/24T24651` label basin, but it is the first
 small live probe whose structure directly satisfies the basin analyzer's
-negative constraints. The live SAIR submission is pending labels, so it should
-not affect the pair ledger until verified rows return.
+negative constraints.
 
-As of the fourth saved SAIR status poll, the odd-escape submission remains
-fully queued with no verified or failed rows. That means the correct
-label-steering decision is patience: do not treat the odd-support perturbation
-as either successful or failed yet, and do not submit another nearby r24 queue
-until the labels come back.
+The verified SAIR result is decisive: all eight odd-escape rows were accepted
+as scoreable `24T25000|r=24`. Six rows have exact nfdisc values and two rows
+have mixed-disc scoring evidence, but there is no prior comparable exact
+nfdisc for the local `24T25000|r=24` representative, so no discriminant
+improvement is claimed. As label-steering evidence, this is a clean negative
+result. Exact even 6x4 towers go to `24T23883/24T24651`; odd-escaped 6x4
+towers go to generic `24T25000`. The r24 6x4 tower neighborhood should now be
+retired for novelty search.
+
+The next construction pivot should change the composition shape, not just the
+perturbation. Good diagnostic lanes are degree `8x3` or `3x8` compositions
+with explicit real-root accounting, or a non-quadratic r20/r16 seed. Keep this
+CPU-only and diagnostic first; do not submit another nearby r24 tower queue
+and do not start GPU training until there is an actual label-conditioning
+objective.

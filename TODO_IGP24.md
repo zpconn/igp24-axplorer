@@ -124,13 +124,22 @@ results change.
   local accepted rows across `r=16/20/24`, `24T24979` has 28 rows across
   `r=12/16`, `24T24651` has 17 rows across `r=12/24`, and `24T23883` has 3
   rows across `r=12/24`.
-  Current decision: do not submit more exact even 6x4 towers with only outer
+  Original decision: do not submit more exact even 6x4 towers with only outer
   constant shifts, and do not widen the product/composed-seed plus low-odd
   perturbation lanes that already collapse to `24T25000`. A next queue must
   introduce non-even support, an alternate composition pattern, or measurable
-  mod-p/family-key novelty before any SAIR submission. Focused test command:
+  mod-p/family-key novelty before any SAIR submission.
+  Refreshed after the odd-escape feedback: 102 accepted observations, 10
+  labels, 15 pairs, 11 feedback files, 9 queue files, and 6 anti-basin
+  constraints. The new high-severity constraint is
+  `stop_odd_escaped_r24_6x4_towers`: odd x-perturbed r24 6x4 tower rows broke
+  exact even support but collapsed to generic `24T25000|r=24`. Current
+  decision: do not submit more nearby r24 6x4 tower variants. Next generated
+  queue must use an alternate composition pattern or another measurable
+  label-steering change before any SAIR submission.
+  Focused test command:
   `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_label_basin_analysis.py`
-  -> 2 passed.
+  -> passed as part of the odd-escape feedback test set.
 
 - Active anti-basin queue generation: added
   `scripts/igp24_r24_tower_odd_escape_probe.py`, a CPU-only r24 probe that
@@ -158,10 +167,27 @@ results change.
   Follow-up poll after pulling latest:
   `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py get-submission sub_d7bc66004b0c4db2a89071c651c7583e --output_json data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_sair_status_poll4.json`
   -> still 8 queued, 0 verified, 0 failed, `updatedAt=2026-07-07T03:41:59Z`.
-  Current decision: do not generate or submit another r24 queue until this
-  odd-escape batch returns labels. The queued state gives no evidence yet
-  about whether odd support escaped `24T23883/24T24651`, collapsed to
-  `24T25000`, or found a less crowded label.
+  Verified response later saved to
+  `data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_sair_verified_response.json`
+  and ingested with
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_odd_escape_feedback.py --update_pair_status`.
+  Result: 8 accepted, 0 failed, 0 queued; all rows are `24T25000|r=24`,
+  `scoreable=true`, `inBaseline=false`; disc sources are 6 `exact_nfdisc` and
+  2 `mixed_disc`. Clean feedback artifact:
+  `data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json`.
+  Pair-status decision: `24T25000|r=24` was already accepted locally, so no new
+  pair was added; 8 scoreable rows were appended as accepted alternates and the
+  primary representative was left unchanged. Discriminant comparison: no prior
+  comparable exact nfdisc for `24T25000|r=24` exists locally, so no
+  improvement is claimed; best new exact nfdisc is row 3
+  (`efb95ccde1e1`) with
+  `2641030060314921722321863244828121076091163055847498043694789865894838272`.
+  Lesson: odd support escaped the exact `24T23883/24T24651` tower basin, but
+  collapsed to generic `24T25000`; nearby r24 6x4 tower variants are exhausted
+  for label steering.
+  Next pivot: prepare an alternate-composition diagnostic such as `8x3` or
+  `3x8`, or a non-quadratic r20/r16 seed. Do not start GPU/model training and
+  do not submit another nearby r24 6x4 queue.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

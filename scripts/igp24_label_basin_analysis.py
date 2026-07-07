@@ -465,9 +465,10 @@ def build_summary(
         "anti_basin_constraints": anti_basin_constraints,
         "next_lane_decision": {
             "recommended": (
-                "Do not submit more exact even 6x4 towers with only outer constant shifts. "
-                "Next generated queue must introduce non-even support, an alternate composition pattern, "
-                "or another measurable mod-p/family-key novelty before any SAIR submission."
+                "Do not submit more nearby r24 6x4 tower variants: exact even towers hit "
+                "24T23883/24T24651, while odd-escaped 6x4 towers hit generic 24T25000. "
+                "Next generated queue must use an alternate composition pattern or another "
+                "measurable label-steering change before any SAIR submission."
             ),
             "gpu_training_recommended_now": False,
             "submission_without_new_structure_recommended": False,
@@ -518,6 +519,27 @@ def derive_anti_basin_constraints(
                 "r_values": sorted(set(int(row["r"]) for row in generic_rows)),
                 "construction_family_counts": _counter_values(generic_rows, "construction_family"),
                 "rule": "Do not widen product/composed seed plus low odd perturbation lanes that already collapsed to 24T25000.",
+            }
+        )
+    odd_escaped_tower_rows = [
+        row
+        for row in observations
+        if row.get("construction_family") == "odd_perturbed_r24_6x4_tower_escape"
+        or row.get("decomposition_pattern") == "6x4_seed_plus_odd_x_perturbation"
+    ]
+    if odd_escaped_tower_rows:
+        constraints.append(
+            {
+                "name": "stop_odd_escaped_r24_6x4_towers",
+                "severity": "high",
+                "labels": sorted(set(row["label"] for row in odd_escaped_tower_rows)),
+                "r_values": sorted(set(int(row["r"]) for row in odd_escaped_tower_rows)),
+                "observed_rows": len(odd_escaped_tower_rows),
+                "rule": (
+                    "Odd x-perturbed r24 6x4 tower rows broke exact even support but collapsed "
+                    "to generic 24T25000; use a different composition pattern before submitting "
+                    "more r24 tower-derived rows."
+                ),
             }
         )
     divisor2_rows = [row for row in observations if row.get("support_gcd") == 2 or row.get("exact_support_divisor") == 2]

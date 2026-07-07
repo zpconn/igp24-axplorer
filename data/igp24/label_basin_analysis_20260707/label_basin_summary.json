@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "record_type": "igp24_label_basin_analysis",
-  "created_at": "2026-07-07T03:32:01.950534+00:00",
+  "created_at": "2026-07-07T14:38:06.968287+00:00",
   "tool": "scripts/igp24_label_basin_analysis.py",
   "inputs": {
     "feedback_paths": [
@@ -13,6 +13,7 @@
       "/home/zpconn/code/igp24-axplorer/data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+      "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json"
     ],
@@ -24,6 +25,7 @@
       "/home/zpconn/code/igp24-axplorer/data/igp24/r16_diversity_probe_20260706/r16_diversified_candidate_queue.jsonl",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r20_high_real_probe_20260706/r20_high_real_candidate_queue.jsonl",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r24_high_real_probe_20260706/r24_high_real_candidate_queue.jsonl",
+      "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_candidate_queue.jsonl",
       "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_probe_20260707/r24_tower_candidate_queue.jsonl"
     ],
     "pair_status_pairs": 22,
@@ -67,7 +69,7 @@
       "24T9993"
     ]
   },
-  "observation_count": 94,
+  "observation_count": 102,
   "label_summary": {
     "24T1310": {
       "accepted_rows": 2,
@@ -181,7 +183,7 @@
         "max": 7745345
       },
       "global_progress": {
-        "team_count": 57,
+        "team_count": 59,
         "allowed_r": [
           0,
           2,
@@ -261,7 +263,7 @@
         "max": 8667684
       },
       "global_progress": {
-        "team_count": 55,
+        "team_count": 56,
         "allowed_r": [
           0,
           2,
@@ -426,15 +428,16 @@
       }
     },
     "24T25000": {
-      "accepted_rows": 35,
+      "accepted_rows": 43,
       "r_counts": {
         "16": 17,
         "20": 10,
-        "24": 8
+        "24": 16
       },
       "construction_family_counts": {
         "ten_positive_two_negative_quadratic_product_plus_low_odd_perturbation": 10,
         "positive_quadratic_product_plus_low_odd_perturbation": 8,
+        "odd_perturbed_r24_6x4_tower_escape": 8,
         "r16_diversity_probe": 5,
         "mixed_even_odd_perturbed": 4,
         "two_odd_perturbed_near_composed": 4,
@@ -450,10 +453,11 @@
         "three_odd_perturbed_near_composed": 4
       },
       "support_gcd_counts": {
-        "1": 35
+        "1": 43
       },
       "decomposition_pattern_counts": {
-        "support_divisor=2": 35
+        "support_divisor=2": 35,
+        "6x4_seed_plus_odd_x_perturbation": 8
       },
       "mod_p_pattern_counts": {
         "p7:6-18": 1,
@@ -475,7 +479,7 @@
         "p2:1-2-4-17;p3:1-2-3-4-5-9;p5:1-23;p7:1-23": 1,
         "p2:1-2-4-17;p3:1-2-6-7-8;p5:1-2-4-4-5-8;p7:1-23": 1,
         "p3:1-6-17;p5:1-2-2-19;p7:1-8-15": 1,
-        "p3:1-6-17;p5:1-2-2-19;p7:1-7-7-9": 1
+        "p2:1-5-6-12;p3:1-3-8-12;p5:1-3-7-13;p7:3-4-8-9": 1
       },
       "height_range": {
         "min": 165784,
@@ -945,11 +949,12 @@
       "global_label_fully_covered": true
     },
     "24T25000|r=24": {
-      "accepted_rows": 8,
+      "accepted_rows": 16,
       "label": "24T25000",
       "r": 24,
       "construction_family_counts": {
-        "positive_quadratic_product_plus_low_odd_perturbation": 8
+        "positive_quadratic_product_plus_low_odd_perturbation": 8,
+        "odd_perturbed_r24_6x4_tower_escape": 8
       },
       "perturbation_mode_counts": {
         "single_low_odd_break": 3,
@@ -967,10 +972,10 @@
         "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,12,13|odd=1,5": 1
       },
       "support_gcd_counts": {
-        "1": 8
+        "1": 16
       },
       "height_range": {
-        "min": 1931559552,
+        "min": 443384,
         "max": 2258902656
       },
       "global_pair_discovered": true,
@@ -1072,6 +1077,23 @@
       "height_range": {
         "min": 245952,
         "max": 5990400
+      }
+    },
+    "odd_perturbed_r24_6x4_tower_escape": {
+      "accepted_rows": 8,
+      "label_counts": {
+        "24T25000": 8
+      },
+      "r_counts": {
+        "24": 8
+      },
+      "perturbation_mode_counts": {},
+      "support_gcd_counts": {
+        "1": 8
+      },
+      "height_range": {
+        "min": 443384,
+        "max": 777584
       }
     },
     "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well": {
@@ -1288,12 +1310,25 @@
       "construction_family_counts": {
         "ten_positive_two_negative_quadratic_product_plus_low_odd_perturbation": 10,
         "positive_quadratic_product_plus_low_odd_perturbation": 8,
+        "odd_perturbed_r24_6x4_tower_escape": 8,
         "r16_diversity_probe": 5,
         "mixed_even_odd_perturbed": 4,
         "two_odd_perturbed_near_composed": 4,
         "three_odd_perturbed_near_composed": 4
       },
       "rule": "Do not widen product/composed seed plus low odd perturbation lanes that already collapsed to 24T25000."
+    },
+    {
+      "name": "stop_odd_escaped_r24_6x4_towers",
+      "severity": "high",
+      "labels": [
+        "24T25000"
+      ],
+      "r_values": [
+        24
+      ],
+      "observed_rows": 8,
+      "rule": "Odd x-perturbed r24 6x4 tower rows broke exact even support but collapsed to generic 24T25000; use a different composition pattern before submitting more r24 tower-derived rows."
     },
     {
       "name": "require_divisor2_escape_feature",
@@ -1316,7 +1351,7 @@
     }
   ],
   "next_lane_decision": {
-    "recommended": "Do not submit more exact even 6x4 towers with only outer constant shifts. Next generated queue must introduce non-even support, an alternate composition pattern, or another measurable mod-p/family-key novelty before any SAIR submission.",
+    "recommended": "Do not submit more nearby r24 6x4 tower variants: exact even towers hit 24T23883/24T24651, while odd-escaped 6x4 towers hit generic 24T25000. Next generated queue must use an alternate composition pattern or another measurable label-steering change before any SAIR submission.",
     "gpu_training_recommended_now": false,
     "submission_without_new_structure_recommended": false
   },

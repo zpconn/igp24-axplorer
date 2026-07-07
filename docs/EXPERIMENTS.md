@@ -1900,11 +1900,34 @@ This is a direct anti-basin probe: it starts from the all-real 6x4 tower seed
 but adds odd `x` perturbations, so it is not another exact even
 outer-constant-shift tower row. A small live SAIR API submission was made as
 `sub_d7bc66004b0c4db2a89071c651c7583e`; the submit response queued all eight
-rows, rejected zero rows, and showed rate limit remaining 599/600. Four status
-polls still showed 8 queued, 0 verified, and 0 failed, with unchanged
-`updatedAt=2026-07-07T03:41:59Z`, so labels are pending and no pair-status
-ledger update has been made. The evidence-based decision is to wait for this
-label result before generating or submitting another r24 queue.
+rows, rejected zero rows, and showed rate limit remaining 599/600.
+
+Verified SAIR result:
+
+- accepted: 8
+- failed: 0
+- queued: 0
+- label/r: all `24T25000|r=24`
+- scoreable: all true
+- in baseline: all false
+- discriminant sources: 6 `exact_nfdisc`, 2 `mixed_disc`
+- best new exact nfdisc row: row 3, `efb95ccde1e1`
+- best new exact nfdisc:
+  `2641030060314921722321863244828121076091163055847498043694789865894838272`
+- prior comparable exact nfdisc for local `24T25000|r=24`: none available
+
+Clean feedback artifact:
+`data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json`.
+
+Pair-status decision: `24T25000|r=24` was already accepted locally, so the
+eight rows were added only as scoreable accepted alternates; the primary
+representative was not replaced and no discriminant improvement is claimed.
+
+Interpretation: odd support did change the collapse behavior. Exact even 6x4
+towers went to `24T23883/24T24651`, while odd-escaped 6x4 towers went to
+generic `24T25000`. That exhausts nearby r24 6x4 tower variants as a
+label-steering lane. The next construction should use a genuinely different
+composition pattern, such as `8x3` or `3x8`, or a non-quadratic r20/r16 seed.
 
 ## GPU And Split Export Findings
 
