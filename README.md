@@ -29,40 +29,22 @@ Exported candidates append the fixed leading coefficient:
 
 ## Current State
 
-The current verified result set includes a 25-row non-generic queue:
+The project has moved from pure proxy search into feedback-guided generation:
+submitted batches have produced accepted `(24Tt, r)` pairs across `r=4`,
+`r=8`, `r=12`, `r=16`, `r=20`, and `r=24`.
 
-- 25/25 selected non-generic candidates were verified with Magma.
-- All 25 are degree 24 and irreducible.
-- Exact labels:
-  - `24T24970`: 18 candidates
-  - `24T24979`: 6 candidates
-  - `24T24759`: 1 candidate
-- None of these 25 were generic `24T25000`.
+The strongest recent signal is structure preservation. Low-odd perturbations
+hit high-real-root buckets but often collapse to generic `24T25000`; exact
+composed families such as `g(x^2)` and the newer `h(x^4-s*x^2)` tower have
+produced non-generic `r=12` labels. The latest tracked tower batch was accepted
+10/10 by SAIR and added `24T23883|r=12` and `24T24651|r=12`; scores and scoring
+discriminants are still pending.
 
-The raw Magma calculator XML outputs are preserved under
-`data/igp24/online_magma_manual_output_*_20260705.xml`. See
-[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) for the experiment summary and
-artifact paths.
-
-The verified-label feedback helper maps those exact labels back to local
-structure-audit rows so future shortlist work can distinguish the
-`24T24970`, `24T24979`, and `24T24759` families.
-
-A fresh 2026-07-06 diversity queue has also been partially verified: 12/16
-rows parsed as degree 24 and irreducible, adding exact labels `24T9683` and
-`24T24648` alongside the previously seen families. Four rows are still pending
-because the online calculator returned a temporarily-disabled response. See
-[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) for details and caveats.
-
-The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets the
-manual planner compare verified `(24Tt, r)` pairs against the frozen LMFDB
-baseline. The current five one-per-pair representatives are absent from that
-baseline and now have local SymPy exact real-root-count and
-number-field-discriminant fallback evidence. They are still manual-review
-candidates; Magma/PARI cross-checks and any SAIR submission remain explicit.
-A local/manual packaging helper can assemble those representatives, copied
-evidence, a manifest, and a human checklist for review without submitting
-anything.
+The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets
+planning helpers compare verified `(24Tt, r)` pairs against the frozen LMFDB
+baseline. Detailed benchmark tables, exact-label feedback, accepted-batch
+notes, and artifact paths live in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
+and [TODO_IGP24.md](TODO_IGP24.md).
 
 ## Capabilities
 
@@ -74,8 +56,8 @@ anything.
 - CPU benchmark helpers for generation strategy comparisons.
 - GPU training/sample-export probes with CPU scoring handoff.
 - Shortlist, review, and offline verification handoff tools.
-- PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and SAIR
-  verifier/planning stubs that are explicit and opt-in.
+- PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
+  credential-safe SAIR API helpers that are explicit and opt-in.
 - Manual submission-review packaging with coefficient-only export, copied
   provenance, structured manifest, and checklist.
 
@@ -88,7 +70,10 @@ The search pipeline keeps proxy evidence separate from exact labels.
 - Local Magma execution requires explicit `--run_magma`.
 - Online Magma calculator outputs in this repo are saved provenance from
   one-candidate verification requests, not an automated submission path.
-- SAIR submission remains manual and out of scope for normal runs.
+- SAIR API credentials are read only from `SAIR_API_KEY` or another explicit
+  environment variable. Do not commit keys.
+- The SAIR API helper validates submissions in dry-run mode by default; live
+  submission requires `--execute`.
 
 ## Setup
 
@@ -267,6 +252,30 @@ Repeat `--candidate_hash` once for each selected row. The package helper is
 local/file-only: it copies saved evidence, writes coefficient exports, and
 does not call SAIR, Magma, PARI, online calculators, training, or search loops.
 
+Query SAIR label progress or validate an API submission:
+
+```bash
+python3 scripts/igp24_sair_api.py progress \
+  --labels 24T23883,24T24651 \
+  --no-include_empty \
+  --output_json /tmp/igp24_sair_progress.json
+
+python3 scripts/igp24_sair_api.py submit \
+  --coefficients_txt data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt \
+  --description "dry-run validation for r12 tower batch" \
+  --output_json /tmp/igp24_sair_submit_dry_run.json
+```
+
+Live SAIR API calls require:
+
+```bash
+export SAIR_API_KEY=...
+python3 scripts/igp24_sair_api.py submit \
+  --coefficients_txt data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt \
+  --description "r12 tower batch" \
+  --execute
+```
+
 ## IGP24 Generation Strategies
 
 `--igp24_generation_strategy` can be:
@@ -308,6 +317,7 @@ that branch.
 - `scripts/igp24_submission_plan.py`: one-per-pair manual submission planner.
 - `scripts/igp24_submission_package.py`: local/manual submission-review
   package builder.
+- `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

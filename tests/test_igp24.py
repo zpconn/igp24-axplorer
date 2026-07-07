@@ -35,7 +35,7 @@ from src.igp24.polynomial import (
 )
 from src.igp24.verifiers.magma import MagmaVerifier
 from src.igp24.verifiers.pari import PARIVerifier
-from src.igp24.verifiers.sair_api import SAIRAPIVerifier
+from src.igp24.verifiers.sair_api import SAIRAPIError, SAIRAPIVerifier
 from scripts.igp24_r16_diversity_probe import (
     base_polynomial_from_layout,
     coefficient_line,
@@ -817,5 +817,5 @@ def test_verifier_stubs_fail_gracefully_and_sair_is_dry_run(tmp_path):
     assert dry_run.status == "unverified"
     export_path = sair.export_batch_without_submission([{"canonical_hash": "abc"}], tmp_path / "batch.jsonl")
     assert export_path.exists()
-    with pytest.raises(NotImplementedError):
-        SAIRAPIVerifier(dry_run=False).submit([], submit=True)
+    with pytest.raises(SAIRAPIError, match="missing SAIR_API_KEY"):
+        SAIRAPIVerifier(dry_run=False).submit([{"exported_coefficients": list(VALID) + [1]}], submit=True)

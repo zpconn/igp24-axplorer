@@ -930,6 +930,140 @@
           "note": "Accepted duplicate r=12 pair from the 10-row feedback-aware exact-composed follow-up; keep as pending alternate until SAIR scores are available."
         }
       ]
+    },
+    {
+      "pair_key": "24T23883|r=12",
+      "label": "24T23883",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "4386edc001eba8c329ba6212e551129970bc2284a551f84447922837d11d95d2",
+      "short_hash": "4386edc001eb",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+      "source_row_number": 2,
+      "source_mode": "outer_constant_shift",
+      "source_family_key": "s=5|mode=outer_constant_shift|real=-1,-2,-3|none=-7,-8,-9|outer_y=0",
+      "source_inner_parameter_s": 5,
+      "note": "Exact h(x^4-s*x^2) r12 tower probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "73ad1314f2a159b730aa694a9c003c4b03cd2ad76609af83073a816aa530ed48",
+          "short_hash": "73ad1314f2a1",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 5,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-19|outer_y=0",
+          "source_inner_parameter_s": 8,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        }
+      ]
+    },
+    {
+      "pair_key": "24T24651|r=12",
+      "label": "24T24651",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "fceab6f1bb24887542978cc8ad4057f7538c27b92cfc553d24054103a094de7c",
+      "short_hash": "fceab6f1bb24",
+      "score_status": "pending",
+      "accepted_reported_by_user": true,
+      "baseline_rows_for_pair": 0,
+      "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+      "source_row_number": 1,
+      "source_mode": "outer_constant_shift",
+      "source_family_key": "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-8|outer_y=0",
+      "source_inner_parameter_s": 4,
+      "note": "Exact h(x^4-s*x^2) r12 tower probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
+      "accepted_alternates": [
+        {
+          "canonical_hash": "55312e7f3ef8fad786e4f93f3dc4d61477ffe1f41b256f087366a0a6ce20fffe",
+          "short_hash": "55312e7f3ef8",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 3,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-13|outer_y=0",
+          "source_inner_parameter_s": 6,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "ec129a4a33091cab1778a9b12d4ce73997f39f1ee5aa27dd922df98d86788ac9",
+          "short_hash": "ec129a4a3309",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 4,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-4|none=-13,-14,-15|outer_y=0",
+          "source_inner_parameter_s": 7,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "f390d55c6ec135a51821f921805bea0e5b787e420e30418a578f1ac9d2de632b",
+          "short_hash": "f390d55c6ec1",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 6,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-9|outer_y=0",
+          "source_inner_parameter_s": 4,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "3a74dd44b9aba82849419d9631d7302fdaebd1cc77bc83c505eae4546195d656",
+          "short_hash": "3a74dd44b9ab",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 7,
+          "source_mode": "outer_two_coefficient_shift",
+          "source_family_key": "s=5|mode=outer_two_coefficient_shift|real=-1,-2,-3|none=-7,-8,-10|outer_y=0,4",
+          "source_inner_parameter_s": 5,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "a80b6e64f3c04c7b094ac768f9a118af490e28ae09341eed3645df6c98ccda50",
+          "short_hash": "a80b6e64f3c0",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 8,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-14|outer_y=0",
+          "source_inner_parameter_s": 6,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "099239e978675ed103d58e555ebd069ad2149f69c8a5ebb57ec347a8c3d7d724",
+          "short_hash": "099239e97867",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 9,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-3|none=-13,-14,-17|outer_y=0",
+          "source_inner_parameter_s": 7,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        },
+        {
+          "canonical_hash": "7b778019941cdc938dcc5ccb3c64844f6ccf24b6a3923d56645110becb905bd6",
+          "short_hash": "7b778019941c",
+          "status": "accepted",
+          "score_status": "pending",
+          "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+          "source_row_number": 10,
+          "source_mode": "outer_constant_shift",
+          "source_family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-22|outer_y=0",
+          "source_inner_parameter_s": 8,
+          "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
+        }
+      ]
     }
   ],
   "notes": [
@@ -946,6 +1080,7 @@
     "The 8-row r24 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=24 alternates. The local r24 construction and SAIR formatting worked, but the low-odd perturbation family is generic-label collapsed, so future high-real-root work should pivot to r20 or a genuinely more structure-preserving anti-generic r24 family.",
     "The 10-row r20 high-real-root probe submission was accepted by the SAIR verifier; all rows landed as duplicate 24T25000|r=20 alternates. The local r20 construction and SAIR formatting worked, but the low-odd mixed quadratic perturbation family is generic-label collapsed, so future high-real-root work should preserve more algebraic structure rather than widening this perturbation style.",
     "The 10-row r12 exact-composed structured probe submission was accepted by the SAIR verifier; it added 24T22770|r=12, 24T24970|r=12, and 24T24979|r=12. Exact g(x^2) support avoided 24T25000, while 24T24979 was the dominant accepted basin. Scores were pending when recorded.",
-    "The 10-row r12 feedback-aware exact-composed follow-up submission was accepted by the SAIR verifier; rows 1-2 landed as 24T24970|r=12 and rows 3-10 landed as 24T24979|r=12. It added no new pair keys, but preserved useful score-pending alternates and confirmed exact g(x^2) still avoids 24T25000. Further nearby g(x^2) widening is lower priority; pivot to a different exact-composed/tower construction."
+    "The 10-row r12 feedback-aware exact-composed follow-up submission was accepted by the SAIR verifier; rows 1-2 landed as 24T24970|r=12 and rows 3-10 landed as 24T24979|r=12. It added no new pair keys, but preserved useful score-pending alternates and confirmed exact g(x^2) still avoids 24T25000. Further nearby g(x^2) widening is lower priority; pivot to a different exact-composed/tower construction.",
+    "The 10-row r12 degree-6-by-degree-4 tower submission was accepted by the SAIR verifier; rows 1,3,4,6-10 landed as 24T24651|r=12 and rows 2,5 landed as 24T23883|r=12. It added two new r=12 pair keys, avoided 24T25000, and supports continuing with structure-preserving tower families. Scores and scoring discriminants were pending when recorded."
   ]
 }

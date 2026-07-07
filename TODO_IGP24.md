@@ -10,15 +10,16 @@ results change.
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
-- Active focus: six local pairs are now accepted/credited:
-  `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
-  `24T24648|r=4`, and `24T25000|r=4`. The first five accepted rows have
-  user-reported leaderboard scoring details recorded in
-  `data/igp24/pair_status_20260706.json`; the one-row `24T25000|r=4`
-  submission was also reported accepted. MAGMA/PARI/SAIR remain out of
-  `train.py`, GPU sampling, CPU proxy scoring, hot loops, and automatic
-  network/submission paths. Dry-run remains the default; local MAGMA execution
-  still requires explicit `--run_magma`.
+- Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,
+  `r=16`, `r=20`, and `r=24`, with detailed accepted-pair state in
+  `data/igp24/pair_status_20260706.json`. The newest accepted batch is the
+  r12 degree-6-by-degree-4 tower probe: SAIR accepted all 10 rows, added
+  `24T23883|r=12` and `24T24651|r=12`, and avoided `24T25000`. MAGMA/PARI/SAIR
+  remain out of `train.py`, GPU sampling, CPU proxy scoring, and search hot
+  loops. Dry-run remains the default for submission tooling; local MAGMA
+  execution still requires explicit `--run_magma`, and live SAIR API
+  submission requires explicit `--execute` plus an environment-provided API
+  key.
 - Current result: the 24-row next non-generic queue was manually submitted by
   the user and all 24 rows were accepted by the SAIR verifier, with scores
   still pending. Local feedback artifact
@@ -32,15 +33,27 @@ results change.
   it remains score-pending rather than promoted.
 - Current r12 follow-up: the feedback-aware `g(x^2)` r12 queue was accepted by
   SAIR as duplicate `24T24970|r=12` and `24T24979|r=12` rows, so those records
-  are now tracked as score-pending alternates rather than new pair discoveries.
-  The next queue is a structurally different exact-composed tower probe under
-  `data/igp24/r12_tower_probe_20260706`, using degree pattern `6x4` with
-  `h(q(x))`, `q(x)=x^4-s*x^2`. It has 10 locally validated manual-review rows
-  and does not use GPU/model training, SAIR API, Magma/PARI, network calls, or
-  automatic submission.
+  are tracked as score-pending alternates. The structurally different
+  degree-6-by-degree-4 exact tower probe under
+  `data/igp24/r12_tower_probe_20260706` was then accepted 10/10 by SAIR, with
+  rows 1,3,4,6-10 as `24T24651|r=12` and rows 2,5 as `24T23883|r=12`. Tracked
+  feedback is in
+  `data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json`; scores
+  and scoring discriminants remain pending.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
+- SAIR API helper: added a credential-safe Public API client and CLI wrapper.
+  API keys are read only from `SAIR_API_KEY` or another explicit environment
+  variable, never from committed files. `scripts/igp24_sair_api.py submit`
+  validates in dry-run mode by default; live submission requires `--execute`.
+  Progress queries use the official `labels/progress` endpoint and should be
+  used before future target queues.
+  Verification: focused API/tower tests passed (`13 passed`), full suite
+  passed (`182 passed`), `git diff --check` passed, JSON artifacts parsed with
+  `python3 -m json.tool`, SAIR CLI dry-run validated the 10 tower coefficient
+  rows without an API key, a worktree scan found no provided key fragments, and
+  Stage 4 remains present at line 7516.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
@@ -7477,7 +7490,8 @@ down further as they become active.
     adding odd `x` powers,
   - [done] first `r=12` degree-6-by-degree-4 exact-composed tower prototype:
     outer degree-6 polynomial composed with `q(x)=x^4-s*x^2`, tracked under
-    `data/igp24/r12_tower_probe_20260706`,
+    `data/igp24/r12_tower_probe_20260706`; SAIR accepted the 10-row queue and
+    added `24T23883|r=12` plus `24T24651|r=12`,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,
@@ -7494,11 +7508,15 @@ down further as they become active.
 - [pending] Consider an optional Rust/PyO3 or multiprocessing verifier bridge.
 - [pending] Add batched exact verification workflows for candidates exported
   from the ledger.
-- [pending] Add leaderboard-aware target selection after exact verification is
-  available.
+- [done] Add credential-safe SAIR Public API helper for label progress,
+  submission validation, submission listing, submission reads, and downloads.
+  It reads keys from the environment only and defaults submission to dry-run.
+- [pending] Add leaderboard-aware target selection using the live SAIR
+  `labels/progress` endpoint before each new queue.
 - [pending] Run longer generation/training jobs only after short benchmark
   comparisons justify them.
-- [pending] Keep SAIR submission explicit and manual; never auto-submit.
+- [pending] Keep SAIR submission explicit and API-gated; never auto-submit
+  from training, sampling, proxy scoring, or search hot loops.
 
 ### Stage 4: Competition Packaging And Reproducibility
 
@@ -7520,7 +7538,7 @@ down further as they become active.
 - [pending] Build safe manual submission packaging for SAIR:
   - [pending] export-only by default,
   - [pending] explicit human review checklist,
-  - [pending] no automatic submission path,
+  - [pending] live API submission only through an explicit `--execute` path,
   - [pending] no API keys in logs or artifacts.
 - [pending] Archive benchmark, training, and verification artifacts needed for
   post-competition reproducibility.

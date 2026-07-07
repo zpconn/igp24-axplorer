@@ -1179,3 +1179,20 @@ and no overlap with known accepted hashes. This does not claim exact labels,
 but it is a genuinely different exact-composed test of the same strategic
 lesson: preserve algebraic structure, then let SAIR/Magma determine whether
 the labels move beyond the exhausted nearby `g(x^2)` basin.
+
+The SAIR result for that tower probe accepted all ten rows and added two new
+local `r=12` pair keys: rows 2 and 5 were `24T23883|r=12`, while rows
+1, 3, 4, and 6-10 were `24T24651|r=12`. This is the strongest evidence so far
+that changing the composition shape matters: the nearby `g(x^2)` follow-up
+stayed in already-known `24T24970/24T24979` basins, but the 6-by-4 tower moved
+to fresh labels without falling into `24T25000`. Scores and discriminants are
+still pending, so these should be treated as accepted pair discoveries with
+score-pending representatives and alternates.
+
+The SAIR Public API can now be used as an explicit planning/submission helper
+rather than a manual-only afterthought. The helper reads credentials only from
+an environment variable, validates coefficient-only JSON submission payloads,
+defaults live submission to dry-run, and can query the official
+`labels/progress` endpoint before building future queues. This should replace
+screen-scrape planning, while keeping training, GPU sampling, CPU proxy
+scoring, and search loops free of API calls.

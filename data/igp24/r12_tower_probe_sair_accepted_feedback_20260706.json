@@ -1,0 +1,1012 @@
+{
+  "accepted_rows": [
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "fceab6f1bb24887542978cc8ad4057f7538c27b92cfc553d24054103a094de7c",
+      "coefficient_height": 120884,
+      "exported_coefficients": [
+        1437,
+        0,
+        -13392,
+        0,
+        48980,
+        0,
+        -97248,
+        0,
+        120884,
+        0,
+        -101764,
+        0,
+        60587,
+        0,
+        -26032,
+        0,
+        8083,
+        0,
+        -1780,
+        0,
+        265,
+        0,
+        -24,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 1,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "fceab6f1bb24",
+      "status": "accepted",
+      "submission_line": "1437,0,-13392,0,48980,0,-97248,0,120884,0,-101764,0,60587,0,-26032,0,8083,0,-1780,0,265,0,-24,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-8|outer_y=0",
+        "inner_parameter_s": 4,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -4,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          1437,
+          3348,
+          2852,
+          1163,
+          243,
+          25,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          1440,
+          3348,
+          2852,
+          1163,
+          243,
+          25,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -5,
+          -6,
+          -8
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -3,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "4386edc001eba8c329ba6212e551129970bc2284a551f84447922837d11d95d2",
+      "coefficient_height": 365519,
+      "exported_coefficients": [
+        3022,
+        0,
+        -33450,
+        0,
+        138415,
+        0,
+        -292690,
+        0,
+        365519,
+        0,
+        -295550,
+        0,
+        163195,
+        0,
+        -63170,
+        0,
+        17221,
+        0,
+        -3250,
+        0,
+        405,
+        0,
+        -30,
+        0,
+        1
+      ],
+      "label": "24T23883",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T23883|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 2,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "4386edc001eb",
+      "status": "accepted",
+      "submission_line": "3022,0,-33450,0,138415,0,-292690,0,365519,0,-295550,0,163195,0,-63170,0,17221,0,-3250,0,405,0,-30,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=5|mode=outer_constant_shift|real=-1,-2,-3|none=-7,-8,-9|outer_y=0",
+        "inner_parameter_s": 5,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -5,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          3022,
+          6690,
+          5269,
+          1920,
+          346,
+          30,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          3024,
+          6690,
+          5269,
+          1920,
+          346,
+          30,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -7,
+          -8,
+          -9
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -2,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "55312e7f3ef8fad786e4f93f3dc4d61477ffe1f41b256f087366a0a6ce20fffe",
+      "coefficient_height": 1231669,
+      "exported_coefficients": [
+        8575,
+        0,
+        -108168,
+        0,
+        485920,
+        0,
+        -1043292,
+        0,
+        1231669,
+        0,
+        -901656,
+        0,
+        439132,
+        0,
+        -147408,
+        0,
+        34438,
+        0,
+        -5520,
+        0,
+        580,
+        0,
+        -36,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 3,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "55312e7f3ef8",
+      "status": "accepted",
+      "submission_line": "8575,0,-108168,0,485920,0,-1043292,0,1231669,0,-901656,0,439132,0,-147408,0,34438,0,-5520,0,580,0,-36,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-13|outer_y=0",
+        "inner_parameter_s": 6,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -6,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          8575,
+          18028,
+          12997,
+          4108,
+          598,
+          40,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          8580,
+          18028,
+          12997,
+          4108,
+          598,
+          40,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -10,
+          -11,
+          -13
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -5,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "ec129a4a33091cab1778a9b12d4ce73997f39f1ee5aa27dd922df98d86788ac9",
+      "coefficient_height": 3269504,
+      "exported_coefficients": [
+        21839,
+        0,
+        -300412,
+        0,
+        1398452,
+        0,
+        -2937501,
+        0,
+        3269504,
+        0,
+        -2207618,
+        0,
+        976459,
+        0,
+        -293972,
+        0,
+        60920,
+        0,
+        -8575,
+        0,
+        784,
+        0,
+        -42,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 4,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "ec129a4a3309",
+      "status": "accepted",
+      "submission_line": "21839,0,-300412,0,1398452,0,-2937501,0,3269504,0,-2207618,0,976459,0,-293972,0,60920,0,-8575,0,784,0,-42,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-4|none=-13,-14,-15|outer_y=0",
+        "inner_parameter_s": 7,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -7,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          21839,
+          42916,
+          27664,
+          7435,
+          895,
+          49,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          21840,
+          42916,
+          27664,
+          7435,
+          895,
+          49,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -4
+        ],
+        "outer_no_real_preimage_levels": [
+          -13,
+          -14,
+          -15
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -1,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "73ad1314f2a159b730aa694a9c003c4b03cd2ad76609af83073a816aa530ed48",
+      "coefficient_height": 7745345,
+      "exported_coefficients": [
+        34883,
+        0,
+        -558240,
+        0,
+        3006676,
+        0,
+        -7001104,
+        0,
+        7745345,
+        0,
+        -4934528,
+        0,
+        2004688,
+        0,
+        -545600,
+        0,
+        101146,
+        0,
+        -12640,
+        0,
+        1020,
+        0,
+        -48,
+        0,
+        1
+      ],
+      "label": "24T23883",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T23883|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 5,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "73ad1314f2a1",
+      "status": "accepted",
+      "submission_line": "34883,0,-558240,0,3006676,0,-7001104,0,7745345,0,-4934528,0,2004688,0,-545600,0,101146,0,-12640,0,1020,0,-48,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-19|outer_y=0",
+        "inner_parameter_s": 8,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -8,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          34883,
+          69780,
+          45889,
+          12240,
+          1306,
+          60,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          34884,
+          69780,
+          45889,
+          12240,
+          1306,
+          60,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -17,
+          -18,
+          -19
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -1,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "f390d55c6ec135a51821f921805bea0e5b787e420e30418a578f1ac9d2de632b",
+      "coefficient_height": 130679,
+      "exported_coefficients": [
+        1623,
+        0,
+        -14976,
+        0,
+        54288,
+        0,
+        -106552,
+        0,
+        130679,
+        0,
+        -108424,
+        0,
+        63606,
+        0,
+        -26944,
+        0,
+        8260,
+        0,
+        -1800,
+        0,
+        266,
+        0,
+        -24,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 6,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "f390d55c6ec1",
+      "status": "accepted",
+      "submission_line": "1623,0,-14976,0,54288,0,-106552,0,130679,0,-108424,0,63606,0,-26944,0,8260,0,-1800,0,266,0,-24,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-9|outer_y=0",
+        "inner_parameter_s": 4,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -4,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          1623,
+          3744,
+          3159,
+          1270,
+          260,
+          26,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          1620,
+          3744,
+          3159,
+          1270,
+          260,
+          26,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -5,
+          -6,
+          -9
+        ],
+        "outer_perturbations": [
+          {
+            "delta": 3,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "3a74dd44b9aba82849419d9631d7302fdaebd1cc77bc83c505eae4546195d656",
+      "coefficient_height": 390301,
+      "exported_coefficients": [
+        3362,
+        0,
+        -36980,
+        0,
+        151796,
+        0,
+        -317385,
+        0,
+        390301,
+        0,
+        -311030,
+        0,
+        169477,
+        0,
+        -64820,
+        0,
+        17491,
+        0,
+        -3275,
+        0,
+        406,
+        0,
+        -30,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 7,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "3a74dd44b9ab",
+      "status": "accepted",
+      "submission_line": "3362,0,-36980,0,151796,0,-317385,0,390301,0,-311030,0,169477,0,-64820,0,17491,0,-3275,0,406,0,-30,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=5|mode=outer_two_coefficient_shift|real=-1,-2,-3|none=-7,-8,-10|outer_y=0,4",
+        "inner_parameter_s": 5,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -5,
+          0,
+          1
+        ],
+        "mode": "outer_two_coefficient_shift",
+        "outer_coefficients": [
+          3362,
+          7396,
+          5776,
+          2077,
+          366,
+          31,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          3360,
+          7396,
+          5776,
+          2077,
+          367,
+          31,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -7,
+          -8,
+          -10
+        ],
+        "outer_perturbations": [
+          {
+            "delta": 2,
+            "outer_y_exponent": 0
+          },
+          {
+            "delta": -1,
+            "outer_y_exponent": 4
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "a80b6e64f3c04c7b094ac768f9a118af490e28ae09341eed3645df6c98ccda50",
+      "coefficient_height": 1294234,
+      "exported_coefficients": [
+        9238,
+        0,
+        -116184,
+        0,
+        519548,
+        0,
+        -1107408,
+        0,
+        1294234,
+        0,
+        -937206,
+        0,
+        451691,
+        0,
+        -150216,
+        0,
+        34825,
+        0,
+        -5550,
+        0,
+        581,
+        0,
+        -36,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 8,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "a80b6e64f3c0",
+      "status": "accepted",
+      "submission_line": "9238,0,-116184,0,519548,0,-1107408,0,1294234,0,-937206,0,451691,0,-150216,0,34825,0,-5550,0,581,0,-36,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-14|outer_y=0",
+        "inner_parameter_s": 6,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -6,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          9238,
+          19364,
+          13894,
+          4355,
+          625,
+          41,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          9240,
+          19364,
+          13894,
+          4355,
+          625,
+          41,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -10,
+          -11,
+          -14
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -2,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "099239e978675ed103d58e555ebd069ad2149f69c8a5ebb57ec347a8c3d7d724",
+      "coefficient_height": 3317405,
+      "exported_coefficients": [
+        18562,
+        0,
+        -265160,
+        0,
+        1305951,
+        0,
+        -2910796,
+        0,
+        3317405,
+        0,
+        -2253132,
+        0,
+        994633,
+        0,
+        -297990,
+        0,
+        61431,
+        0,
+        -8610,
+        0,
+        785,
+        0,
+        -42,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 9,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "099239e97867",
+      "status": "accepted",
+      "submission_line": "18562,0,-265160,0,1305951,0,-2910796,0,3317405,0,-2253132,0,994633,0,-297990,0,61431,0,-8610,0,785,0,-42,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-3|none=-13,-14,-17|outer_y=0",
+        "inner_parameter_s": 7,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -7,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          18562,
+          37880,
+          25879,
+          7430,
+          916,
+          50,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          18564,
+          37880,
+          25879,
+          7430,
+          916,
+          50,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -13,
+          -14,
+          -17
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -2,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_rows_for_pair": 0,
+      "canonical_hash": "7b778019941cdc938dcc5ccb3c64844f6ccf24b6a3923d56645110becb905bd6",
+      "coefficient_height": 8559386,
+      "exported_coefficients": [
+        40387,
+        0,
+        -644064,
+        0,
+        3444988,
+        0,
+        -7917472,
+        0,
+        8559386,
+        0,
+        -5322680,
+        0,
+        2114941,
+        0,
+        -564896,
+        0,
+        103189,
+        0,
+        -12760,
+        0,
+        1023,
+        0,
+        -48,
+        0,
+        1
+      ],
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 12,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=12",
+      "r": 12,
+      "reason": null,
+      "row_number": 10,
+      "score_status": "pending",
+      "scoreable": null,
+      "short_hash": "7b778019941c",
+      "status": "accepted",
+      "submission_line": "40387,0,-644064,0,3444988,0,-7917472,0,8559386,0,-5322680,0,2114941,0,-564896,0,103189,0,-12760,0,1023,0,-48,0,1",
+      "tower_metadata": {
+        "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-22|outer_y=0",
+        "inner_parameter_s": 8,
+        "inner_polynomial_coefficients": [
+          0,
+          0,
+          -8,
+          0,
+          1
+        ],
+        "mode": "outer_constant_shift",
+        "outer_coefficients": [
+          40387,
+          80508,
+          52570,
+          13821,
+          1429,
+          63,
+          1
+        ],
+        "outer_coefficients_before_perturbation": [
+          40392,
+          80508,
+          52570,
+          13821,
+          1429,
+          63,
+          1
+        ],
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3
+        ],
+        "outer_no_real_preimage_levels": [
+          -17,
+          -18,
+          -22
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -5,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    }
+  ],
+  "created_at": "2026-07-07T00:38:00Z",
+  "interpretation": "The 6x4 exact tower queue was accepted 10/10 and produced two new local r=12 pair keys, 24T23883|r=12 and 24T24651|r=12. This validates the tower pivot away from nearby g(x^2) families and again avoids generic 24T25000 collapse; scores and discriminants remain pending.",
+  "record_type": "igp24_sair_accepted_label_feedback",
+  "safety": {
+    "api_key_recorded": false,
+    "local_file_only": true,
+    "network_calls": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "sair_ui_timestamp": "2026-07-06 19:38 America/Chicago",
+  "schema_version": 1,
+  "source_coefficients_txt": "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt",
+  "source_queue_jsonl": "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_queue.jsonl",
+  "submission_context": "user-reported SAIR verifier table for r12_tower_probe_20260706",
+  "summary": {
+    "accepted_pair_keys": [
+      "24T23883|r=12",
+      "24T24651|r=12"
+    ],
+    "accepted_rows": 10,
+    "generic_24T25000_rows": 0,
+    "labels_found_counts": {
+      "24T23883": 2,
+      "24T24651": 8
+    },
+    "new_pair_keys_vs_local_ledger_before_submission": [
+      "24T23883|r=12",
+      "24T24651|r=12"
+    ],
+    "rejected_rows": 0,
+    "submitted_rows": 10,
+    "target_r": 12
+  }
+}

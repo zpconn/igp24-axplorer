@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FOLLOWUP_FEEDBACK_PATH = ROOT / "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json"
 TOWER_SUMMARY_PATH = ROOT / "data/igp24/r12_tower_probe_20260706/r12_tower_summary.json"
 TOWER_QUEUE_PATH = ROOT / "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_queue.jsonl"
+TOWER_FEEDBACK_PATH = ROOT / "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json"
 
 
 def test_r12_tower_feedback_parser_maps_latest_sair_labels():
@@ -132,3 +133,21 @@ def test_r12_tower_tracked_artifact_shape():
     assert summary["selected_inner_s_counts"] == {"4": 2, "5": 2, "6": 2, "7": 2, "8": 2}
     assert len({row["canonical_hash"] for row in rows}) == 10
     assert all(row["generation_metadata"]["r12_tower_exact_composition"] for row in rows)
+
+
+def test_r12_tower_sair_feedback_records_new_labels():
+    feedback = json.loads(TOWER_FEEDBACK_PATH.read_text(encoding="utf-8"))
+    rows = feedback["accepted_rows"]
+
+    assert feedback["summary"]["submitted_rows"] == 10
+    assert feedback["summary"]["accepted_rows"] == 10
+    assert feedback["summary"]["rejected_rows"] == 0
+    assert feedback["summary"]["labels_found_counts"] == {"24T23883": 2, "24T24651": 8}
+    assert feedback["summary"]["accepted_pair_keys"] == ["24T23883|r=12", "24T24651|r=12"]
+    assert feedback["summary"]["generic_24T25000_rows"] == 0
+    assert {row["r"] for row in rows} == {12}
+    assert {row["status"] for row in rows} == {"accepted"}
+    assert {row["baseline_rows_for_pair"] for row in rows} == {0}
+    assert all(row["tower_metadata"]["exact_composition"] is True for row in rows)
+    assert feedback["safety"]["api_key_recorded"] is False
+    assert feedback["safety"]["sair_api_calls"] is False

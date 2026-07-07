@@ -1763,6 +1763,23 @@ irreducible and squarefree exact checks, exact tower/even support, unique
 hashes, zero latest-follow-up feedback hash overlap, and zero known
 accepted-hash overlap.
 
+User-reported SAIR feedback for the tracked 10-row tower queue:
+
+- accepted rows: 10/10
+- rejected rows: 0
+- labels:
+  - `24T24651|r=12`: rows 1, 3, 4, and 6-10
+  - `24T23883|r=12`: rows 2 and 5
+- generic `24T25000` rows: 0
+- feedback artifact:
+  `data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json`
+- pair-status ledger:
+  `data/igp24/pair_status_20260706.json`
+
+Interpretation: the 6-by-4 exact-composed tower pivot produced two fresh local
+`r=12` pair keys, unlike the nearby `g(x^2)` follow-up which stayed in known
+`24T24970/24T24979` basins. Scores and scoring discriminants remain pending.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
