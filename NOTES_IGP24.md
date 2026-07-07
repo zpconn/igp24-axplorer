@@ -1375,3 +1375,15 @@ an accepted-hash duplicate with support gcd 6 and even `g(x^6)`-style support.
 The next plan is not a larger seed sweep. It is an opt-in perturbed r8
 quartic-lift mode that can introduce off-core support while preserving exact
 local `r=8`, followed by the same score-aware and anti-basin gates.
+
+The first perturbed r8 quartic-lift pass validated that idea locally. Small
+odd off-core perturbations around the four-positive-fiber template preserve
+exact local `r=8`, keep coefficient height 16, and break the pure support-gcd
+6 / even-support obstruction: 51/51 generated rows were exact local `r=8`,
+support gcd 1, non-even support, irreducible, and squarefree. The recovered
+full-sync anti-basin gate selected a 10-row review-only packet with no risk
+reasons and five mod-p signatures. This does not prove the rows will land in a
+score-positive label; exact labels are still unknown until SAIR verification.
+But it does prove the productive next r8 move is a human-approved SAIR
+dry-run or submission of the 10 selected perturbed rows, not a wider pure
+`g(x^6)` sweep and not a large GPU/model training run yet.

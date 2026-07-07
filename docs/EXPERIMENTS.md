@@ -2287,6 +2287,63 @@ structure, and accepted-hash duplicate risk. The concrete next plan is
 `data/igp24/r8_quartic_score_followup_full_sync_gate_20260707/r8_score_followup_next_plan.md`:
 add an opt-in perturbed r8 quartic-lift mode before generating another packet.
 
+Perturbed r8 quartic-lift follow-up:
+
+The new opt-in `r8_quartic_lift_perturbed` strategy keeps the successful
+four-positive-fiber quartic template but adds small off-core perturbation terms
+outside exponents `0,6,12,18,24`. It records the base template, perturbation
+mode, off-core exponents/coefficients, support gcd, even-support status,
+source family, family key, and target-r heuristic, while leaving the pure
+`r8_quartic_lift` path unchanged.
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py \
+  --strategies r8_quartic_lift_perturbed \
+  --seeds 2811,2812,2813,2814 \
+  --target_rs 8 \
+  --coeff_bound 16 \
+  --gensize 24 \
+  --pop_size 8 \
+  --ntest 4 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 0 \
+  --prime_limit 7 \
+  --exact_score_timeout 3 \
+  --output_dir data/igp24/r8_quartic_lift_perturbed_probe_20260707
+```
+
+Result: four CPU-only runs, 51 valid candidates, 51 ledger rows, 51/51 exact
+local `r=8` matches, 20 unique hashes, support gcd 1 for every row, and
+non-even support for every row. Perturbation mode counts were
+`odd_pair_off_core=35`, `odd_single_off_core=14`, and
+`odd_triple_off_core=2`. The aggregate average runtime was 2.68s, average best
+proxy score was `10185.807`, and average mean score was `10180.645`.
+
+The full-sync gate used a temporary progress snapshot derived from
+`data/igp24/sair_sync_20260707/sair_label_progress.jsonl`:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2811/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2812/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2813/candidates.jsonl \
+  --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl \
+  --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json \
+  --output_dir data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707 \
+  --target_rs 8 \
+  --packet_limit 12 \
+  --min_packet_rows 8
+```
+
+Result: 51 candidates, 51 eligible rows, 10 selected rows,
+`recommended_for_sair_packet=true`, and status
+`reviewed_packet_ready_for_dry_run`. Selected mode counts were
+`odd_pair_off_core=4`, `odd_single_off_core=4`, and
+`odd_triple_off_core=2`, spanning 5 mod-p signatures. The selected packet is
+review-only in
+`data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/`; no SAIR
+dry-run or live submission was performed.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

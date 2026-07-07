@@ -546,6 +546,60 @@ results change.
   key-like matches; Stage 4 remains present at line 7848 before this TODO
   update.
 
+- Active perturbed r8 quartic-lift follow-up: implemented the opt-in
+  `r8_quartic_lift_perturbed` lane while preserving the pure
+  `r8_quartic_lift` behavior. The new lane starts from the four-positive-fiber
+  r8 quartic template, adds 1-3 small off-core perturbation terms, prefers odd
+  exponents, forces support gcd 1 when accepted, and records template,
+  perturbation mode, perturbation exponents/coefficients, support gcd,
+  even-support status, source family, family key, and `target_r_heuristic=8`
+  in generation metadata. The anti-basin planner now reads these r8-specific
+  metadata fields. Code/test checkpoints:
+  `bac22c2 Add perturbed r8 quartic lift strategy` and
+  `4377414 Refine perturbed r8 anti-basin metadata`.
+  Focused validation:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24.py::test_r8_quartic_lift_perturbed_generation_emits_exact_r8_off_core_row tests/test_igp24.py::test_r8_quartic_lift_perturbed_ledger_metadata_identifies_escape_support tests/test_igp24_anti_basin_planner.py::test_candidate_features_reads_r8_quartic_lift_perturbed_metadata tests/test_igp24_benchmark.py`
+  -> `9 passed`; full suite:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q`
+  -> `232 passed`.
+  Bounded CPU-only probe command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_benchmark.py --strategies r8_quartic_lift_perturbed --seeds 2811,2812,2813,2814 --target_rs 8 --coeff_bound 16 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 3 --output_dir data/igp24/r8_quartic_lift_perturbed_probe_20260707`.
+  Probe result: 4 runs, average runtime 2.68s, 51 valid candidates, 51 ledger
+  records, 51/51 exact local `r=8`, average match rate 1.000, average best
+  proxy score `10185.807`, average mean score `10180.645`, 20 unique hashes,
+  perturbation mode counts `odd_pair_off_core=35`,
+  `odd_single_off_core=14`, `odd_triple_off_core=2`, support gcd 1 for all
+  51 rows, and non-even support for all 51 rows.
+  Full-sync anti-basin gate: derived
+  `/tmp/igp24_full_sync_progress_snapshot_20260707.json` from
+  `data/igp24/sair_sync_20260707/sair_label_progress.jsonl` with 25,000
+  label-progress records, then ran
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2811/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2812/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2813/candidates.jsonl --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json --output_dir data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707 --target_rs 8 --packet_limit 12 --min_packet_rows 8`.
+  Gate result: 51 candidates, 51 eligible, 10 selected,
+  `recommended_for_sair_packet=true`, status
+  `reviewed_packet_ready_for_dry_run`, source commit
+  `43774140844106d89871aa813888e4e23b100d7d`, and safety flags
+  `sair_submission=false`, `sair_dry_run=false`, `gpu_training=false`,
+  `model_training=false`, `magma=false`, `pari=false`,
+  `api_key_recorded=false`. Selected mode counts are
+  `odd_pair_off_core=4`, `odd_single_off_core=4`,
+  `odd_triple_off_core=2`; selected rows span 5 mod-p signatures. Artifacts:
+  `data/igp24/r8_quartic_lift_perturbed_probe_20260707/` and
+  `data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/`, including
+  `REVIEW_ONLY_NOT_SUBMITTED.md`. Decision: keep the 10-row packet as review
+  only; do not SAIR dry-run or submit in this goal. The next step, after
+  explicit human approval, is a SAIR dry-run/live submission of the selected
+  coefficients followed by feeding labels and scores back into the ledgers.
+  Final validation: JSON/JSONL parsing passed for 4 JSON files, 7 JSONL files,
+  and 116 JSONL rows; the selected packet validated 10 unique hashes with
+  SAIR-format 25-integer coefficient rows, monic leading coefficient,
+  nonzero constant coefficient, coefficient gcd 1, exact local `r=8`,
+  irreducible/squarefree status, support gcd 1, non-even support, and no
+  anti-basin risk reasons; gate safety flags confirm no SAIR submission,
+  no SAIR dry-run, no GPU/model training, no Magma/PARI, and no API key
+  recorded; key-shaped secret scan found 0 matching files; `git diff --check`
+  passed; Stage 4 remains present at line 8066 after this TODO update.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

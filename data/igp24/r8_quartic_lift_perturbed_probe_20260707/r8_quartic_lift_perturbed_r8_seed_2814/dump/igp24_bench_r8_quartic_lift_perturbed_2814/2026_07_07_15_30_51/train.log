@@ -1,0 +1,88 @@
+INFO - 07/07/26 15:30:51 - 0:00:00 - ============ Initialized logger ============
+INFO - 07/07/26 15:30:51 - 0:00:00 - N: 24
+                                     always_search: True
+                                     batch_size: 32
+                                     coeff_bound: 16
+                                     command: python train.py --env_name igp24 --exp_name igp24_bench_r8_quartic_lift_perturbed_2814 --dump_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/dump' --seed 2814 --coeff_bound 16 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --data_generation_only true --always_search true --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout '3.0' --process_pool false --num_workers 1 --cpu true --igp24_generation_strategy r8_quartic_lift_perturbed --igp24_generation_preset none --igp24_sparse_terms 4 --igp24_low_height_bound 2 --igp24_mixed_strategy_weights 'uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25' --igp24_ledger_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl' --target_r 8 --exp_id "2026_07_07_15_30_51"
+                                     cpu: True
+                                     cycle_diversity_weight: 5.0
+                                     data_generation_only: True
+                                     device: cpu
+                                     discriminant_weight: 1.0
+                                     dump_path: /home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/dump/igp24_bench_r8_quartic_lift_perturbed_2814/2026_07_07_15_30_51
+                                     encoding_tokens: coefficients
+                                     env_name: igp24
+                                     exact_score_timeout: 3.0
+                                     exp_id: 2026_07_07_15_30_51
+                                     exp_name: igp24_bench_r8_quartic_lift_perturbed_2814
+                                     gen_batch_size: 2
+                                     gensize: 24
+                                     height_weight: 1.0
+                                     igp24_generation_preset: none
+                                     igp24_generation_strategy: r8_quartic_lift_perturbed
+                                     igp24_ledger_path: /home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl
+                                     igp24_low_height_bound: 2
+                                     igp24_mixed_strategy_weights: uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25
+                                     igp24_sparse_terms: 4
+                                     igp24_translation_radius: 2
+                                     igp24_write_ledger: True
+                                     inc_temp: 0.0
+                                     keep_only_unique: True
+                                     learning_rate: 0.0005
+                                     max_epochs: 2000
+                                     max_len: 500
+                                     max_local_search_steps: 0
+                                     max_steps: 50000
+                                     n_embd: 256
+                                     n_head: 8
+                                     n_layer: 4
+                                     new_proportion: 0.0
+                                     no_positional: False
+                                     ntest: 4
+                                     num_eval_steps: 500
+                                     num_samples_from_model: 500000
+                                     num_workers: 1
+                                     pop_size: 8
+                                     prime_limit: 7
+                                     process_pool: False
+                                     redeem_only: False
+                                     sample_export_dedup: False
+                                     sample_export_max_attempts: 0
+                                     sample_export_only: False
+                                     sample_export_path: 
+                                     sample_export_progress_interval: 256
+                                     sample_export_unique_target: 0
+                                     save_best: False
+                                     seed: 2814
+                                     target_r: 8
+                                     target_t: None
+                                     temp_span: 0
+                                     temperature: 1.0
+                                     top_k: -1
+                                     train_only: False
+                                     weight_decay: 0.01
+INFO - 07/07/26 15:30:51 - 0:00:00 - The experiment will be stored in /home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/dump/igp24_bench_r8_quartic_lift_perturbed_2814/2026_07_07_15_30_51
+                                     
+INFO - 07/07/26 15:30:51 - 0:00:00 - Running command: python train.py --env_name igp24 --exp_name igp24_bench_r8_quartic_lift_perturbed_2814 --dump_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/dump' --seed 2814 --coeff_bound 16 --gensize 24 --pop_size 8 --ntest 4 --gen_batch_size 2 --data_generation_only true --always_search true --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout '3.0' --process_pool false --num_workers 1 --cpu true --igp24_generation_strategy r8_quartic_lift_perturbed --igp24_generation_preset none --igp24_sparse_terms 4 --igp24_low_height_bound 2 --igp24_mixed_strategy_weights 'uniform:0.10,low_height:0.20,sparse:0.25,lower_degree:0.20,structured:0.25' --igp24_ledger_path '/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_probe_20260707/r8_quartic_lift_perturbed_r8_seed_2814/candidates.jsonl' --target_r 8
+
+INFO - 07/07/26 15:30:51 - 0:00:00 - seed: 2814
+INFO - 07/07/26 15:30:51 - 0:00:00 - Number of parameters: 3.29M
+INFO - 07/07/26 15:30:52 - 0:00:01 - Unique processing: 11 examples left, 13 duplicates
+INFO - 07/07/26 15:30:52 - 0:00:01 - ### Score distribution ###
+INFO - 07/07/26 15:30:52 - 0:00:01 - Valid examples: 11
+INFO - 07/07/26 15:30:52 - 0:00:01 - Mean score: 10154.967554589684
+INFO - 07/07/26 15:30:52 - 0:00:01 - Median score: 10155.432179231473
+INFO - 07/07/26 15:30:52 - 0:00:01 - Stdev score: 4.8361038356032156
+INFO - 07/07/26 15:30:52 - 0:00:01 - Max score: 10160.806663898411
+INFO - 07/07/26 15:30:52 - 0:00:01 - Top 1 percentile score: 10160.806663898411
+INFO - 07/07/26 15:30:52 - 0:00:01 - Distribution of scores:
+INFO - 07/07/26 15:30:52 - 0:00:01 - Score 10147.37017214658: Count: 2
+INFO - 07/07/26 15:30:52 - 0:00:01 - Score 10152.380819515609: Count: 2
+INFO - 07/07/26 15:30:52 - 0:00:01 - Score 10155.432179231473: Count: 3
+INFO - 07/07/26 15:30:52 - 0:00:01 - Score 10156.424587772506: Count: 1
+INFO - 07/07/26 15:30:52 - 0:00:01 - Score 10160.806663898411: Count: 3
+INFO - 07/07/26 15:30:52 - 0:00:01 - --------------------------------
+INFO - 07/07/26 15:30:52 - 0:00:01 - New train and test generated. Size are train: 4, test 4
+INFO - 07/07/26 15:30:52 - 0:00:01 - Unique data computed for original train set: 0, generated train set: 4
+INFO - 07/07/26 15:30:52 - 0:00:01 - Final train and test generated. Size are train: 4, test 4
+INFO - 07/07/26 15:30:52 - 0:00:01 - Data generation only mode. Exiting...
