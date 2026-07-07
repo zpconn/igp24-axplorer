@@ -1900,9 +1900,11 @@ This is a direct anti-basin probe: it starts from the all-real 6x4 tower seed
 but adds odd `x` perturbations, so it is not another exact even
 outer-constant-shift tower row. A small live SAIR API submission was made as
 `sub_d7bc66004b0c4db2a89071c651c7583e`; the submit response queued all eight
-rows, rejected zero rows, and showed rate limit remaining 599/600. The first
-three status polls still showed 8 queued, 0 verified, and 0 failed, so labels
-are pending and no pair-status ledger update has been made.
+rows, rejected zero rows, and showed rate limit remaining 599/600. Four status
+polls still showed 8 queued, 0 verified, and 0 failed, with unchanged
+`updatedAt=2026-07-07T03:41:59Z`, so labels are pending and no pair-status
+ledger update has been made. The evidence-based decision is to wait for this
+label result before generating or submitting another r24 queue.
 
 ## GPU And Split Export Findings
 

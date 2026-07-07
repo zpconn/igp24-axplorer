@@ -155,6 +155,13 @@ results change.
   `r24_tower_odd_escape_sair_status_poll3.json`; all still show 8 queued, 0
   verified, and 0 failed, so no accepted labels are known yet and
   `pair_status_20260706.json` was not updated.
+  Follow-up poll after pulling latest:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py get-submission sub_d7bc66004b0c4db2a89071c651c7583e --output_json data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_sair_status_poll4.json`
+  -> still 8 queued, 0 verified, 0 failed, `updatedAt=2026-07-07T03:41:59Z`.
+  Current decision: do not generate or submit another r24 queue until this
+  odd-escape batch returns labels. The queued state gives no evidence yet
+  about whether odd support escaped `24T23883/24T24651`, collapsed to
+  `24T25000`, or found a less crowded label.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

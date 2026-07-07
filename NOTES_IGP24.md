@@ -1245,3 +1245,9 @@ guaranteed to escape the `24T23883/24T24651` label basin, but it is the first
 small live probe whose structure directly satisfies the basin analyzer's
 negative constraints. The live SAIR submission is pending labels, so it should
 not affect the pair ledger until verified rows return.
+
+As of the fourth saved SAIR status poll, the odd-escape submission remains
+fully queued with no verified or failed rows. That means the correct
+label-steering decision is patience: do not treat the odd-support perturbation
+as either successful or failed yet, and do not submit another nearby r24 queue
+until the labels come back.
