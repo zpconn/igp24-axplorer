@@ -1,0 +1,123 @@
+{
+  "coefficient_height_max": 8559386,
+  "coefficient_height_min": 120884,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r12_tower_probe.py",
+    "--output_dir",
+    "data/igp24/r12_tower_probe_20260706",
+    "--seed",
+    "1246",
+    "--max_trials",
+    "240",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "20000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "construction_family": "outer_degree6_composed_with_even_quartic_double_well",
+  "created_at": "2026-07-07T00:04:16.042324+00:00",
+  "decomposition_degree_pattern": "6x4",
+  "followup_feedback_json": "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+  "followup_feedback_label_counts": {
+    "24T24970": 2,
+    "24T24979": 8
+  },
+  "followup_feedback_rows_loaded": 10,
+  "known_hashes_loaded": 84,
+  "observed_root_count_counts": {
+    "12": 118,
+    "16": 24,
+    "4": 19,
+    "8": 19
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r12_tower_probe_20260706/r12_tower_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r12_tower_probe_20260706/r12_tower_rejected_trials.jsonl",
+    "report_md": "data/igp24/r12_tower_probe_20260706/r12_tower_report.md",
+    "summary_json": "data/igp24/r12_tower_probe_20260706/r12_tower_summary.json"
+  },
+  "queue_status": "manual_queue_ready",
+  "recommendation": "manual_review_then_submit_small_r12_tower_probe",
+  "rejected_counts": {
+    "real_root_count_mismatch": 62,
+    "reducible_over_q": 60
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_family_keys": [
+    "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-8|outer_y=0",
+    "s=5|mode=outer_constant_shift|real=-1,-2,-3|none=-7,-8,-9|outer_y=0",
+    "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-13|outer_y=0",
+    "s=7|mode=outer_constant_shift|real=-1,-2,-4|none=-13,-14,-15|outer_y=0",
+    "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-19|outer_y=0",
+    "s=4|mode=outer_constant_shift|real=-1,-2,-3|none=-5,-6,-9|outer_y=0",
+    "s=5|mode=outer_two_coefficient_shift|real=-1,-2,-3|none=-7,-8,-10|outer_y=0,4",
+    "s=6|mode=outer_constant_shift|real=-1,-2,-3|none=-10,-11,-14|outer_y=0",
+    "s=7|mode=outer_constant_shift|real=-1,-2,-3|none=-13,-14,-17|outer_y=0",
+    "s=8|mode=outer_constant_shift|real=-1,-2,-3|none=-17,-18,-22|outer_y=0"
+  ],
+  "selected_hashes": [
+    "fceab6f1bb24887542978cc8ad4057f7538c27b92cfc553d24054103a094de7c",
+    "4386edc001eba8c329ba6212e551129970bc2284a551f84447922837d11d95d2",
+    "55312e7f3ef8fad786e4f93f3dc4d61477ffe1f41b256f087366a0a6ce20fffe",
+    "ec129a4a33091cab1778a9b12d4ce73997f39f1ee5aa27dd922df98d86788ac9",
+    "73ad1314f2a159b730aa694a9c003c4b03cd2ad76609af83073a816aa530ed48",
+    "f390d55c6ec135a51821f921805bea0e5b787e420e30418a578f1ac9d2de632b",
+    "3a74dd44b9aba82849419d9631d7302fdaebd1cc77bc83c505eae4546195d656",
+    "a80b6e64f3c04c7b094ac768f9a118af490e28ae09341eed3645df6c98ccda50",
+    "099239e978675ed103d58e555ebd069ad2149f69c8a5ebb57ec347a8c3d7d724",
+    "7b778019941cdc938dcc5ccb3c64844f6ccf24b6a3923d56645110becb905bd6"
+  ],
+  "selected_inner_s_counts": {
+    "4": 2,
+    "5": 2,
+    "6": 2,
+    "7": 2,
+    "8": 2
+  },
+  "selected_mode_counts": {
+    "outer_constant_shift": 9,
+    "outer_two_coefficient_shift": 1
+  },
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "fceab6f1bb24",
+    "4386edc001eb",
+    "55312e7f3ef8",
+    "ec129a4a3309",
+    "73ad1314f2a1",
+    "f390d55c6ec1",
+    "3a74dd44b9ab",
+    "a80b6e64f3c0",
+    "099239e97867",
+    "7b778019941c"
+  ],
+  "source_commit": "0c4eb4b36c9ebdcc53036af33999621898311f2e",
+  "structure_preservation": "exact h(q(x)) degree-6-by-degree-4 composition; q(x)=x^4-s*x^2",
+  "target_r": 12,
+  "tool": "scripts/igp24_r12_tower_probe.py",
+  "trials_attempted": 240,
+  "valid_mode_counts": {
+    "outer_constant_shift": 93,
+    "outer_three_coefficient_shift": 13,
+    "outer_two_coefficient_shift": 12
+  },
+  "valid_r12_candidates": 118
+}

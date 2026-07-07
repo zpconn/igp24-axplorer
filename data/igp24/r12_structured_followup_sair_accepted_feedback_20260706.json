@@ -1,0 +1,957 @@
+{
+  "created_at": "2026-07-07T00:01:13.920890+00:00",
+  "description": "User-reported SAIR verifier acceptance feedback for the 10-row feedback-aware r12 exact-composed follow-up submission. All rows were accepted as already-known r12 pair keys; scores and scoring discriminants were not available when recorded.",
+  "record_type": "igp24_r12_structured_followup_sair_accepted_label_feedback",
+  "source_queue": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_queue.jsonl",
+  "source_submission_file": "data/igp24/r12_structured_followup_20260706/r12_structured_followup_candidate_coefficients.txt",
+  "rows": [
+    {
+      "row_number": 1,
+      "rank": 1,
+      "status": "accepted",
+      "verified_group_label": "24T24970",
+      "pair_key": "24T24970|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+      "short_hash": "4d7fcabc2a86",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_base_wide_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,6",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": 5,
+          "y_exponent": 1
+        },
+        {
+          "delta": -4,
+          "y_exponent": 6
+        }
+      ],
+      "source_base_coefficients_y": [
+        6350400,
+        5,
+        -8796916,
+        0,
+        2700041,
+        0,
+        -263912,
+        0,
+        10558,
+        0,
+        -176,
+        0,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 11934000,
+      "min_l1_to_accepted_exported": 11934000,
+      "coefficient_height": 8796916,
+      "exported_coefficients": [
+        6350400,
+        0,
+        5,
+        0,
+        -8796916,
+        0,
+        0,
+        0,
+        2700041,
+        0,
+        0,
+        0,
+        -263912,
+        0,
+        0,
+        0,
+        10558,
+        0,
+        0,
+        0,
+        -176,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 2,
+      "rank": 2,
+      "status": "accepted",
+      "verified_group_label": "24T24970",
+      "pair_key": "24T24970|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+      "short_hash": "5eee184fe28f",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": 4,
+          "y_exponent": 1
+        },
+        {
+          "delta": -5,
+          "y_exponent": 5
+        },
+        {
+          "delta": 3,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        6350400,
+        4,
+        -8796916,
+        0,
+        2700041,
+        -5,
+        -263908,
+        0,
+        10558,
+        3,
+        -176,
+        0,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 11933999,
+      "min_l1_to_accepted_exported": 11933999,
+      "coefficient_height": 8796916,
+      "exported_coefficients": [
+        6350400,
+        0,
+        4,
+        0,
+        -8796916,
+        0,
+        0,
+        0,
+        2700041,
+        0,
+        -5,
+        0,
+        -263908,
+        0,
+        0,
+        0,
+        10558,
+        0,
+        3,
+        0,
+        -176,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 3,
+      "rank": 3,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "87fdb1807f059c982734392f8303ada475d40dc0cc22ec4aad089050e84406bc",
+      "short_hash": "87fdb1807f05",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "four_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,8|neg=1,2,4,5,7,9|y=0,3,6,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        8
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -3,
+          "y_exponent": 0
+        },
+        {
+          "delta": 4,
+          "y_exponent": 3
+        },
+        {
+          "delta": -5,
+          "y_exponent": 6
+        },
+        {
+          "delta": 2,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        5644797,
+        -78400,
+        -7828192,
+        107640,
+        2411996,
+        -32005,
+        -238146,
+        2863,
+        9703,
+        -93,
+        -167,
+        1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 10166005,
+      "min_l1_to_accepted_exported": 10166005,
+      "coefficient_height": 7828192,
+      "exported_coefficients": [
+        5644797,
+        0,
+        -78400,
+        0,
+        -7828192,
+        0,
+        107640,
+        0,
+        2411996,
+        0,
+        -32005,
+        0,
+        -238146,
+        0,
+        2863,
+        0,
+        9703,
+        0,
+        -93,
+        0,
+        -167,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 4,
+      "rank": 4,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "cac0a5d4e36ed5f08191926987066fb99c2b958336e7fee3dea593927c3287be",
+      "short_hash": "cac0a5d4e36e",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_base_wide_perturbation",
+      "source_family_key": "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=5,10",
+      "source_positive_base_roots": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -6,
+          "y_exponent": 5
+        },
+        {
+          "delta": 2,
+          "y_exponent": 10
+        }
+      ],
+      "source_base_coefficients_y": [
+        4762800,
+        -396900,
+        -6696912,
+        525001,
+        2156281,
+        -135946,
+        -231916,
+        7998,
+        9918,
+        -160,
+        -170,
+        1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 8736005,
+      "min_l1_to_accepted_exported": 8736005,
+      "coefficient_height": 6696912,
+      "exported_coefficients": [
+        4762800,
+        0,
+        -396900,
+        0,
+        -6696912,
+        0,
+        525001,
+        0,
+        2156281,
+        0,
+        -135946,
+        0,
+        -231916,
+        0,
+        7998,
+        0,
+        9918,
+        0,
+        -160,
+        0,
+        -170,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 5,
+      "rank": 5,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "c06c11583c9422ccf18962b22e749bca8250c9cca0480382fb452862579ab1fa",
+      "short_hash": "c06c11583c94",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=1,5,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        8
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -4,
+          "y_exponent": 1
+        },
+        {
+          "delta": 5,
+          "y_exponent": 5
+        },
+        {
+          "delta": -3,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        5644800,
+        78396,
+        -7828192,
+        -107636,
+        2411996,
+        32010,
+        -238141,
+        -2863,
+        9703,
+        92,
+        -167,
+        -1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 9724003,
+      "min_l1_to_accepted_exported": 9724003,
+      "coefficient_height": 7828192,
+      "exported_coefficients": [
+        5644800,
+        0,
+        78396,
+        0,
+        -7828192,
+        0,
+        -107636,
+        0,
+        2411996,
+        0,
+        32010,
+        0,
+        -238141,
+        0,
+        -2863,
+        0,
+        9703,
+        0,
+        92,
+        0,
+        -167,
+        0,
+        -1,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 6,
+      "rank": 6,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "90b3dec7d4e7d7afe501ed40e34aaae6d33c001e95e71c8fa107e2a8a0ebc9f8",
+      "short_hash": "90b3dec7d4e7",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "four_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -3,
+          "y_exponent": 0
+        },
+        {
+          "delta": 4,
+          "y_exponent": 3
+        },
+        {
+          "delta": -5,
+          "y_exponent": 6
+        },
+        {
+          "delta": 2,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        4762797,
+        -396900,
+        -6696912,
+        525005,
+        2156281,
+        -135940,
+        -231921,
+        7998,
+        9918,
+        -158,
+        -172,
+        1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 8736005,
+      "min_l1_to_accepted_exported": 8736005,
+      "coefficient_height": 6696912,
+      "exported_coefficients": [
+        4762797,
+        0,
+        -396900,
+        0,
+        -6696912,
+        0,
+        525005,
+        0,
+        2156281,
+        0,
+        -135940,
+        0,
+        -231921,
+        0,
+        7998,
+        0,
+        9918,
+        0,
+        -158,
+        0,
+        -172,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 7,
+      "rank": 7,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "981ec514837a93d24a36667290483a791e1349b804722515cf238a11ddd2e55d",
+      "short_hash": "981ec514837a",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_base_wide_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,6,8|y=5,10",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        8
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": 6,
+          "y_exponent": 5
+        },
+        {
+          "delta": -2,
+          "y_exponent": 10
+        }
+      ],
+      "source_base_coefficients_y": [
+        4838400,
+        182400,
+        -6724736,
+        -249896,
+        2087748,
+        73760,
+        -210085,
+        -6462,
+        8831,
+        206,
+        -161,
+        -2,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 7169237,
+      "min_l1_to_accepted_exported": 7169237,
+      "coefficient_height": 6724736,
+      "exported_coefficients": [
+        4838400,
+        0,
+        182400,
+        0,
+        -6724736,
+        0,
+        -249896,
+        0,
+        2087748,
+        0,
+        73760,
+        0,
+        -210085,
+        0,
+        -6462,
+        0,
+        8831,
+        0,
+        206,
+        0,
+        -161,
+        0,
+        -2,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 8,
+      "rank": 8,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "02fd97dc677451684b5e7c6dba02a1c1f918d5814741ac82c32e379cca306b38",
+      "short_hash": "02fd97dc6774",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "three_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,3,5,7,9|y=1,5,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -4,
+          "y_exponent": 1
+        },
+        {
+          "delta": 5,
+          "y_exponent": 5
+        },
+        {
+          "delta": -3,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        4762800,
+        396896,
+        -6696912,
+        -525001,
+        2156281,
+        135945,
+        -231916,
+        -7998,
+        9918,
+        157,
+        -172,
+        -1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 6604003,
+      "min_l1_to_accepted_exported": 6604003,
+      "coefficient_height": 6696912,
+      "exported_coefficients": [
+        4762800,
+        0,
+        396896,
+        0,
+        -6696912,
+        0,
+        -525001,
+        0,
+        2156281,
+        0,
+        135945,
+        0,
+        -231916,
+        0,
+        -7998,
+        0,
+        9918,
+        0,
+        157,
+        0,
+        -172,
+        0,
+        -1,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 9,
+      "rank": 9,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "4a7c7e377901b902bce1a6b372276440a4e04f4e0f346eabff562ea928c05100",
+      "short_hash": "4a7c7e377901",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "four_base_balanced_perturbation",
+      "source_family_key": "pos=1,2,4,5,6,8|neg=1,2,4,5,7,9|y=0,3,6,9",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        8
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": 3,
+          "y_exponent": 0
+        },
+        {
+          "delta": -4,
+          "y_exponent": 3
+        },
+        {
+          "delta": 5,
+          "y_exponent": 6
+        },
+        {
+          "delta": -2,
+          "y_exponent": 9
+        }
+      ],
+      "source_base_coefficients_y": [
+        4838403,
+        -182400,
+        -6724736,
+        249892,
+        2087748,
+        -73754,
+        -210080,
+        6462,
+        8831,
+        -208,
+        -159,
+        2,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 8194677,
+      "min_l1_to_accepted_exported": 8194677,
+      "coefficient_height": 6724736,
+      "exported_coefficients": [
+        4838403,
+        0,
+        -182400,
+        0,
+        -6724736,
+        0,
+        249892,
+        0,
+        2087748,
+        0,
+        -73754,
+        0,
+        -210080,
+        0,
+        6462,
+        0,
+        8831,
+        0,
+        -208,
+        0,
+        -159,
+        0,
+        2,
+        0,
+        1
+      ]
+    },
+    {
+      "row_number": 10,
+      "rank": 10,
+      "status": "accepted",
+      "verified_group_label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "r": 12,
+      "reason": null,
+      "score_status": "pending",
+      "canonical_hash": "7066d7a3cfee685b4178e513ce34ef2cddddabc336d18eddc6dddad3298e21a9",
+      "short_hash": "7066d7a3cfee",
+      "source": "user_reported_sair_submission_status",
+      "source_mode": "two_base_wide_perturbation",
+      "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,3,5,7,9|y=3,8",
+      "source_positive_base_roots": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "source_negative_base_roots": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        9
+      ],
+      "source_base_perturbations": [
+        {
+          "delta": -5,
+          "y_exponent": 3
+        },
+        {
+          "delta": 4,
+          "y_exponent": 8
+        }
+      ],
+      "source_base_coefficients_y": [
+        4762800,
+        396900,
+        -6696912,
+        -525006,
+        2156281,
+        135940,
+        -231916,
+        -7998,
+        9922,
+        160,
+        -172,
+        -1,
+        1
+      ],
+      "source_exact_composed_support_divisor": 2,
+      "nearest_accepted_base_label": "24T24979",
+      "min_l1_to_accepted_base_y": 6604000,
+      "min_l1_to_accepted_exported": 6604000,
+      "coefficient_height": 6696912,
+      "exported_coefficients": [
+        4762800,
+        0,
+        396900,
+        0,
+        -6696912,
+        0,
+        -525006,
+        0,
+        2156281,
+        0,
+        135940,
+        0,
+        -231916,
+        0,
+        -7998,
+        0,
+        9922,
+        0,
+        160,
+        0,
+        -172,
+        0,
+        -1,
+        0,
+        1
+      ]
+    }
+  ],
+  "summary": {
+    "submitted_rows": 10,
+    "accepted_rows": 10,
+    "rejected_rows": 0,
+    "labels_found_counts": {
+      "24T24970": 2,
+      "24T24979": 8
+    },
+    "accepted_pair_keys": [
+      "24T24970|r=12",
+      "24T24979|r=12"
+    ],
+    "new_pair_keys_vs_local_ledger_before_submission": [],
+    "score_status": "pending",
+    "submitted_at_reported": "Jul 6, 2026, 06:54 PM",
+    "source_probe_selected_mode_counts": {
+      "four_base_balanced_perturbation": 3,
+      "three_base_balanced_perturbation": 3,
+      "two_base_wide_perturbation": 4
+    },
+    "source_probe_nearest_accepted_label_counts": {
+      "24T24979": 10
+    },
+    "interpretation": "The feedback-aware r12 g(x^2) widening remained robust and again avoided 24T25000, but it produced only already-known r12 pair keys: two 24T24970 rows and eight 24T24979 rows. Treat these as score-pending alternates and pivot to a different exact-composed/tower construction."
+  },
+  "safety": {
+    "local_file_only": true,
+    "sair_api_calls": false,
+    "sair_submission": false,
+    "network_calls": false,
+    "score_status": "pending"
+  }
+}

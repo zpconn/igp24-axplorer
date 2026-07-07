@@ -9,7 +9,7 @@ results change.
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
-  the r12 accepted-label feedback and follow-up work.
+  the r12 follow-up feedback import and tower-probe work.
 - Active focus: six local pairs are now accepted/credited:
   `24T9683|r=4`, `24T24979|r=4`, `24T24759|r=4`, `24T24970|r=4`,
   `24T24648|r=4`, and `24T25000|r=4`. The first five accepted rows have
@@ -30,9 +30,14 @@ results change.
   and `accepted_pair_status_counts={"accepted_pair_duplicate_not_improved": 23, "accepted_pair_minor_discriminant_improvement": 1}`.
   Row 6 (`0ec921751862`) is a lower exact-nfdisc `24T25000|r=4` alternate, but
   it remains score-pending rather than promoted.
-- Next follow-up: use the accepted-label feedback to make the next planner more
-  anti-generic and less trusting of unmatched structural hints, then decide
-  whether to mine saved artifacts again or run a targeted short search.
+- Current r12 follow-up: the feedback-aware `g(x^2)` r12 queue was accepted by
+  SAIR as duplicate `24T24970|r=12` and `24T24979|r=12` rows, so those records
+  are now tracked as score-pending alternates rather than new pair discoveries.
+  The next queue is a structurally different exact-composed tower probe under
+  `data/igp24/r12_tower_probe_20260706`, using degree pattern `6x4` with
+  `h(q(x))`, `q(x)=x^4-s*x^2`. It has 10 locally validated manual-review rows
+  and does not use GPU/model training, SAIR API, Magma/PARI, network calls, or
+  automatic submission.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
@@ -231,6 +236,41 @@ results change.
       squarefree exact checks, exact even `x` support, unique hashes, no
       accepted r12 feedback-hash overlap, and no accepted r12 structural-family
       overlap.
+    - SAIR feedback result: user reported that all 10 follow-up rows were
+      accepted. Rows 1-2 landed as already-known `24T24970|r=12`; rows 3-10
+      landed as already-known `24T24979|r=12`. Tracked feedback is recorded in
+      `data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json`,
+      and `data/igp24/pair_status_20260706.json` now keeps those 10 rows as
+      accepted score-pending alternates under the existing r12 pair entries.
+      Lesson: exact `g(x^2)` remains robust and again avoided `24T25000`, but
+      the nearby feedback-aware widening produced no new pair keys. Further
+      nearby `g(x^2)` widening is lower priority.
+  - Tower pivot result: added `scripts/igp24_r12_tower_probe.py`, a bounded
+    CPU-only exact-composed prototype using degree pattern `6x4`:
+    `h(q(x))` with `q(x)=x^4-s*x^2` and `deg(h)=6`. This preserves exact
+    composition while moving away from direct degree-12 base products lifted as
+    `g(x^2)`.
+    - Smoke result:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_tower_probe.py --output_dir /tmp/igp24_r12_tower_smoke_20260706 --seed 1246 --max_trials 48 --limit 4 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 5.0`
+      completed in about 2.7s, attempted 48 trials, found 22 valid local
+      `r=12` candidates, selected 4 smoke rows, and rejected 14 real-root
+      mismatches plus 12 reducible rows.
+    - Bounded tracked result:
+      `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_tower_probe.py --output_dir data/igp24/r12_tower_probe_20260706 --seed 1246 --max_trials 240 --limit 10 --per_family_cap 1 --coeff_bound 20000000 --prime_limit 7 --exact_score_timeout 5.0`
+      completed in about 12.6s, attempted 240 trials, found 118 valid local
+      `r=12` candidates, selected 10 manual-queue rows, and rejected 62
+      real-root mismatches plus 60 reducible rows. The selected queue has 9
+      `outer_constant_shift` rows and 1 `outer_two_coefficient_shift` row, with
+      two selected rows each for inner parameters `s=4,5,6,7,8`. Coefficient
+      heights range from `120884` to `8559386`. Tracked artifacts are under
+      `data/igp24/r12_tower_probe_20260706/`.
+    - Independent validation result: parsed the new JSON/JSONL/TXT artifacts,
+      reran local exact checks on all 10 selected rows, and confirmed 25
+      integer coefficients per row, monic leading coefficient, nonzero
+      constant, coefficient gcd 1, local `real_root_count=12`, irreducible and
+      squarefree exact checks, exact `h(q(x))` tower/even support, unique
+      hashes, zero latest-follow-up feedback hash overlap, and zero known
+      accepted-hash overlap.
 
 ## Stage 0: Scaffold
 
@@ -7435,6 +7475,9 @@ down further as they become active.
     record SAIR labels for the first r12 structured queue, then search nearby
     but structurally distinct `g(x^2)` base perturbation families without
     adding odd `x` powers,
+  - [done] first `r=12` degree-6-by-degree-4 exact-composed tower prototype:
+    outer degree-6 polynomial composed with `q(x)=x^4-s*x^2`, tracked under
+    `data/igp24/r12_tower_probe_20260706`,
   - [pending] compositional and tower constructions with degrees multiplying to
     24,
   - [pending] resolvent-inspired families,

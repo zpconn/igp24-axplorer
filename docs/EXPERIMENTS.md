@@ -1665,6 +1665,104 @@ irreducible and squarefree exact checks, exact even `x` support, unique hashes,
 zero accepted-feedback hash overlap, and zero accepted structural-family-key
 overlap.
 
+SAIR feedback:
+
+- user-reported UI result: 10/10 accepted,
+- row labels:
+  - rows 1-2: `24T24970|r=12`,
+  - rows 3-10: `24T24979|r=12`,
+- tracked feedback:
+  `data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json`,
+- pair-status ledger updated with those rows as accepted alternates under the
+  existing `24T24970|r=12` and `24T24979|r=12` entries.
+
+Updated interpretation: exact `g(x^2)` r12 remains robust and again avoided
+`24T25000`, but this feedback-aware widening produced only already-known r12
+pair keys. The rows remain useful as score-pending alternates, but further
+nearby `g(x^2)` widening is lower priority than trying a different
+structure-preserving exact composition.
+
+## R12 Degree-6-By-4 Tower Probe
+
+The tower helper is `scripts/igp24_r12_tower_probe.py`. It uses exact
+composition with degree pattern `6x4`:
+
+```text
+f(x) = h(q(x)), q(x)=x^4-s*x^2, deg(h)=6.
+```
+
+The seed outer polynomial has three levels in the four-real-preimage band of
+`q` and three levels below the minimum of `q`; small outer-coefficient
+perturbations preserve exact composition while recovering irreducibility in
+local checks. This is intentionally different from a direct degree-12
+root-product base lifted as `g(x^2)`.
+
+Smoke command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_tower_probe.py \
+  --output_dir /tmp/igp24_r12_tower_smoke_20260706 \
+  --seed 1246 \
+  --max_trials 48 \
+  --limit 4 \
+  --per_family_cap 1 \
+  --coeff_bound 20000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Smoke result:
+
+- `trials_attempted=48`
+- `valid_r12_candidates=22`
+- `selected_rows=4`
+- rejected counts:
+  `{"real_root_count_mismatch": 14, "reducible_over_q": 12}`
+
+Tracked bounded command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r12_tower_probe.py \
+  --output_dir data/igp24/r12_tower_probe_20260706 \
+  --seed 1246 \
+  --max_trials 240 \
+  --limit 10 \
+  --per_family_cap 1 \
+  --coeff_bound 20000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Tracked bounded result:
+
+- `trials_attempted=240`
+- `valid_r12_candidates=118`
+- `selected_rows=10`
+- queue status: `manual_queue_ready`
+- selected modes:
+  `{"outer_constant_shift": 9, "outer_two_coefficient_shift": 1}`
+- selected inner parameter counts:
+  `{"4": 2, "5": 2, "6": 2, "7": 2, "8": 2}`
+- rejected counts:
+  `{"real_root_count_mismatch": 62, "reducible_over_q": 60}`
+- selected coefficient-height range: `120884` to `8559386`
+
+Tracked artifacts:
+
+- `data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt`
+- `data/igp24/r12_tower_probe_20260706/r12_tower_candidate_queue.jsonl`
+- `data/igp24/r12_tower_probe_20260706/r12_tower_candidate_hashes.txt`
+- `data/igp24/r12_tower_probe_20260706/r12_tower_rejected_trials.jsonl`
+- `data/igp24/r12_tower_probe_20260706/r12_tower_summary.json`
+- `data/igp24/r12_tower_probe_20260706/r12_tower_report.md`
+
+Independent validation parsed all saved artifacts, reran local exact checks on
+the 10 selected rows, and confirmed SAIR line format, monic leading
+coefficient, nonzero constant, coefficient gcd 1, local `real_root_count=12`,
+irreducible and squarefree exact checks, exact tower/even support, unique
+hashes, zero latest-follow-up feedback hash overlap, and zero known
+accepted-hash overlap.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

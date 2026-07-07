@@ -1158,3 +1158,24 @@ distance, this is not evidence that the basin is escaped yet; it is a clean,
 low-cost probe of whether wider exact-composed root layouts and multi-base
 perturbations can produce fresh labels without reintroducing generic
 `24T25000` collapse.
+
+The SAIR result for that feedback-aware follow-up accepted all ten rows, but
+only as already-known r12 pair keys: two `24T24970|r=12` alternates and eight
+`24T24979|r=12` alternates. That is still useful evidence because exact
+`g(x^2)` avoided `24T25000` for a second batch, but it also says the nearby
+root-layout/base-perturbation neighborhood is now less promising for new pair
+discovery. Keep those rows as score-pending alternates; do not keep widening
+the same `g(x^2)` family unless discriminant scores later make that worthwhile.
+
+The next structure-preserving pivot is the r12 degree-6-by-4 tower probe at
+`data/igp24/r12_tower_probe_20260706`. It uses exact composition
+`h(q(x))` with `q(x)=x^4-s*x^2` and `deg(h)=6`. The seed outer polynomial
+places three levels in the four-real-preimage band of `q` and three levels
+below the minimum of `q`, so the intended local real-root count is 12 before
+outer-coefficient perturbation. The tracked CPU-only run attempted 240 trials,
+found 118 valid local `r=12` rows, and selected a 10-row manual queue with
+exact tower/even support, local irreducible/squarefree checks, unique hashes,
+and no overlap with known accepted hashes. This does not claim exact labels,
+but it is a genuinely different exact-composed test of the same strategic
+lesson: preserve algebraic structure, then let SAIR/Magma determine whether
+the labels move beyond the exhausted nearby `g(x^2)` basin.
