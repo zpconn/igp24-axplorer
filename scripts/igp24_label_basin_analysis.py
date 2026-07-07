@@ -32,7 +32,7 @@ REPORT_MD = "label_basin_report.md"
 
 
 def default_feedback_paths(root: Path = REPO_ROOT) -> list[Path]:
-    return sorted(root.glob("data/igp24/*accepted_feedback*2026070*.json"))
+    return sorted(root.glob("data/igp24/**/*accepted_feedback*2026070*.json"))
 
 
 def default_queue_paths(root: Path = REPO_ROOT) -> list[Path]:
@@ -176,6 +176,7 @@ def perturbation_mode(metadata: dict[str, Any], row: dict[str, Any]) -> str | No
         [
             "r24_tower_mode",
             "r12_tower_mode",
+            "alt_perturbation_mode",
             "r24_high_real_mode",
             "r20_high_real_mode",
             "r16_diversity_mode",
@@ -189,6 +190,7 @@ def perturbation_terms(metadata: dict[str, Any], row: dict[str, Any]) -> list[di
     candidates = [
         metadata.get("r24_tower_outer_perturbations"),
         metadata.get("r12_tower_outer_perturbations"),
+        metadata.get("alt_outer_perturbations"),
         metadata.get("r24_high_real_odd_perturbations"),
         metadata.get("r20_high_real_perturbations"),
         metadata.get("r12_structured_base_perturbations"),
@@ -249,6 +251,7 @@ def normalize_observation(
     family_key = _first_value(
         metadata,
         [
+            "alt_composition_family_key",
             "r24_tower_family_key",
             "r12_tower_family_key",
             "r24_high_real_family_key",
@@ -260,6 +263,8 @@ def normalize_observation(
     outer_levels = _first_value(
         metadata,
         [
+            "alt_outer_three_real_levels",
+            "alt_outer_eight_real_levels",
             "r24_tower_outer_four_real_preimage_levels",
             "r12_tower_outer_four_real_preimage_levels",
             "r24_high_real_positive_quadratic_roots",

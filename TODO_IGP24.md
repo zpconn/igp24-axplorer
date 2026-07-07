@@ -214,6 +214,35 @@ results change.
   the selected `8x3` rows in a separate goal, rather than continuing `3x8`
   under the same coefficient bound.
 
+- Active `8x3` SAIR verification probe: starting a reviewed packet from the
+  first eight selected rows in
+  `data/igp24/alt_composition_probe_20260707/alt_composition_candidate_queue.jsonl`.
+  Scope guardrails: submit only this small `8x3|r=24` subset, do not widen
+  `3x8`, do not submit any nearby `6x4` r24 tower queue, do not start
+  GPU/model training, and keep the SAIR API key in the environment only.
+  Packet built under
+  `data/igp24/alt_composition_8x3_sair_probe_20260707/` with 8 coefficient
+  rows, source ranks 1-8, exact local `8x3|r=24`, support gcd 1, non-even
+  support, and height range 21,465,432 to 47,192,058. SAIR dry-run succeeded:
+  8 polynomials, 1,361-byte body. Live SAIR submission succeeded as
+  `sub_25c17affdf3c4505a8f10cfda2d94217`: queued 8 rows, rejected 0 rows,
+  `createdAt=2026-07-07T15:22:06Z`.
+  First status poll returned verifier feedback immediately: 8 accepted, 0
+  failed, 0 queued, all `24T24932|r=24`. Discriminants/scoring are still
+  pending (`scoreable=false`, `scoringStatus=pending`, no `discSource` yet).
+  Feedback artifact:
+  `data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json`.
+  Pair-status update: added new local pair `24T24932|r=24` with row 1 as the
+  representative and rows 2-8 as pending-score alternates; no existing
+  representative was replaced. Refreshed basin analysis now has 110
+  observations, 11 labels, and 16 pairs. Live label progress says `24T24932`
+  is globally fully covered with team count 48 and minimum disc
+  `207210969348836888014980715753`, so this lane escaped our tracked local
+  basins but did not hit a no-team/global-gap target. Lesson: `8x3` constant
+  shifts are a useful anti-`24T25000`/anti-`6x4` structural move, but the next
+  iteration should add label-steering pressure rather than blindly widening
+  the same `24T24932` basin.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

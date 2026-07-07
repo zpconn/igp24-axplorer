@@ -1272,3 +1272,15 @@ non-even variants are too tall. The selected `8x3` queue is therefore
 submission-review ready, but it was intentionally not submitted in the
 diagnostic goal. The next reasonable goal is a small SAIR verification probe
 for these `8x3` rows, then feed labels back into the basin analyzer.
+
+That small `8x3` probe has now been run. All eight submitted rows were
+accepted as `24T24932|r=24`, with scoring/discriminants pending on the first
+status poll. This is a meaningful local steering result: the family avoided
+`24T25000`, `24T23883`, and `24T24651`. It is not yet a leaderboard-quality
+targeting result, though, because live label progress says `24T24932` is
+already globally fully covered and has team count 48. Treat `8x3` constant
+shifts as evidence that degree-pattern changes steer labels, not as a lane to
+widen blindly. The next version should preserve the `8x3` structural break but
+add a stronger label-diversity mechanism, such as non-constant outer
+perturbations, different cubic inner forms, or pre-submit mod-p filtering
+against the new `24T24932` basin.

@@ -331,6 +331,8 @@ that branch.
   the odd-escape probe back to local queue metadata.
 - `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
   alternate-composition diagnostic queue generator.
+- `scripts/igp24_alt_8x3_sair_probe.py`: reviewed 8-row `8x3` SAIR packet
+  builder and feedback-ingest helper.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

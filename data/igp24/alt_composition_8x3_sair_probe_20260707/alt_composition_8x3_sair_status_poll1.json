@@ -1,0 +1,115 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T15:22:06Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "IGP24 reviewed 8x3 r24 probe, 8 rows"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_25c17affdf3c4505a8f10cfda2d94217",
+    "updatedAt": "2026-07-07T15:22:06Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 0,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 1,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 2,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 3,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 4,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 5,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 6,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T24932",
+        "polynomialIndex": 7,
+        "r": 24,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 24932
+      }
+    ]
+  },
+  "ok": true
+}

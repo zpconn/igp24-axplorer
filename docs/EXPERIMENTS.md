@@ -1960,6 +1960,40 @@ coefficient bound; no `3x8` rows survived to the selected queue. The viable
 near-term pivot is therefore the compact `8x3` queue. It is worth a small
 reviewed SAIR submission in a separate goal, not a blind widening run.
 
+## Reviewed 8x3 SAIR Probe
+
+The first eight reviewed `8x3|r=24` rows were packetized under
+`data/igp24/alt_composition_8x3_sair_probe_20260707/` and submitted through
+the SAIR API as `sub_25c17affdf3c4505a8f10cfda2d94217`.
+
+Submission packet:
+
+- rows submitted: 8
+- source ranks: 1-8 from the alternate-composition diagnostic queue
+- coefficient file: coefficient-only, 25 integers per row
+- SAIR dry-run: ok, 8 polynomials, 1,361-byte body
+- live submit: queued 8, rejected 0
+
+Verifier result from the first saved status poll:
+
+- accepted: 8
+- failed: 0
+- queued: 0
+- label/r: all `24T24932|r=24`
+- score status: pending; no disc source or field discriminants yet
+- local pair-status update: new pair `24T24932|r=24` plus 7 pending-score
+  alternates
+
+Interpretation: the `8x3` degree-pattern pivot escaped our tracked local
+basins (`24T25000`, `24T23883`, `24T24651`, `24T24979`, `24T24970`), so it is
+a real structural steering improvement over more `6x4` tower variants. But
+the refreshed live progress API says `24T24932` is globally fully covered and
+has team count 48, so the score-maximizing next step is not a blind widening
+of the same constant-shift `8x3` lane. The next iteration should use this
+feedback as a new anti-basin: keep the alternate degree pattern, but vary the
+inner cubic/outer perturbation or add mod-p screening to avoid repeating
+`24T24932`.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -2021,6 +2055,8 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
   package builder.
 - `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
   alternate-composition diagnostic queue generator.
+- `scripts/igp24_alt_8x3_sair_probe.py`: reviewed `8x3` SAIR packet builder
+  and feedback-ingest helper.
 
 ## Reproducibility Notes
 

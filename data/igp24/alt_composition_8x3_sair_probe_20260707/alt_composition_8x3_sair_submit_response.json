@@ -1,0 +1,61 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783437782"
+  },
+  "data": {
+    "batchId": "igp24_batch_686a8261b4884f37",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T15:22:06Z",
+    "description": "IGP24 reviewed 8x3 r24 probe, 8 rows",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "IGP24 reviewed 8x3 r24 probe, 8 rows"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 8,
+    "rejectedCount": 0,
+    "submissionId": "sub_25c17affdf3c4505a8f10cfda2d94217",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-07T15:22:06Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}
