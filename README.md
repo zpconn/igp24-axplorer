@@ -61,10 +61,14 @@ and [TODO_IGP24.md](TODO_IGP24.md).
 - Shortlist, review, and offline verification handoff tools.
 - PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
   credential-safe SAIR API helpers that are explicit and opt-in.
+- Full SAIR API state sync for competition schema, participation state, label
+  progress, submission status, downloaded coefficient rows, and local hash
+  joins.
 - Live-progress-aware anti-basin planning from saved candidate queues and
   accepted-label feedback.
 - Score-aware target planning that joins SAIR progress, local pair status,
-  accepted-label basins, and manually recorded score snapshots.
+  accepted-label basins, synced SAIR submission state, and manually recorded
+  score snapshots.
 - Manual submission-review packaging with coefficient-only export, copied
   provenance, structured manifest, and checklist.
 
@@ -81,6 +85,8 @@ The search pipeline keeps proxy evidence separate from exact labels.
   environment variable. Do not commit keys.
 - The SAIR API helper validates submissions in dry-run mode by default; live
   submission requires `--execute`.
+- The full SAIR sync helper is read-only. Live network access requires
+  `--fetch_live`; replaying a saved sync uses `--offline_sync_dir`.
 
 ## Setup
 
@@ -283,6 +289,30 @@ python3 scripts/igp24_sair_api.py submit \
   --execute
 ```
 
+Synchronize the full read-only SAIR planning state:
+
+```bash
+python3 scripts/igp24_sair_sync.py \
+  --fetch_live \
+  --output_dir data/igp24/sair_sync_YYYYMMDD \
+  --progress_limit 5000 \
+  --submission_limit 100
+```
+
+This fetches the competition schema, `/me`, full paginated label progress, all
+of our submissions, each submission detail, and each submission download. It
+writes compact artifacts such as `sair_sync_summary.json`,
+`sair_submission_rows.jsonl`, `sair_scoreable_rows.jsonl`, and
+`sair_pending_rows.jsonl`, but never writes the API key.
+
+Use a completed sync as the preferred score-aware planning input:
+
+```bash
+python3 scripts/igp24_score_aware_target_planner.py \
+  --sair_sync_dir data/igp24/sair_sync_YYYYMMDD \
+  --output_dir /tmp/igp24_score_aware_target_plan
+```
+
 Score a candidate queue against known label basins before submission:
 
 ```bash
@@ -349,6 +379,8 @@ that branch.
 - `scripts/igp24_submission_package.py`: local/manual submission-review
   package builder.
 - `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
+- `scripts/igp24_sair_sync.py`: read-only full SAIR state synchronizer for
+  authoritative planning artifacts.
 - `scripts/igp24_sair_progress_targets.py`: compact live progress target
   planner.
 - `scripts/igp24_label_basin_analysis.py`: accepted-label basin analyzer for

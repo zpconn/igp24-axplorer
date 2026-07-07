@@ -132,6 +132,41 @@ def test_score_aware_target_plan_joins_scores_progress_and_basins():
     assert plan["decision"]["submission_recommended_now"] is False
 
 
+def test_score_aware_target_plan_prefers_api_sync_state_over_manual_scores():
+    plan = build_plan(
+        snapshot=_snapshot(),
+        pair_status=_pair_status(),
+        score_snapshot=_score_snapshot(),
+        basin_summary=_basin_summary(),
+        sync_submission_rows=[
+            {
+                "submission_id": "sub_sync",
+                "submitted_line_number": 1,
+                "pair_key": "24T9993|r=8",
+                "label": "24T9993",
+                "r": 8,
+                "status": "accepted",
+                "status_class": "scoreable",
+                "scoreable": True,
+                "scoring_status": "scoreable",
+                "field_disc_abs": "900",
+                "disc_source": "exact_nfdisc",
+                "local_match_status": "matched",
+            }
+        ],
+        top_limit=10,
+    )
+
+    assert plan["inputs"]["sync_submission_rows"] == 1
+    assert plan["inputs"]["sync_pairs"] == 1
+    assert plan["top_api_scoreable_targets"][0]["pair_key"] == "24T9993|r=8"
+    assert plan["top_api_scoreable_targets"][0]["score_snapshot_points"] == "0.0019"
+    assert plan["top_api_scoreable_targets"][0]["api_field_disc_abs"] == "900"
+    assert plan["top_api_scoreable_targets"][0]["api_field_vs_global_min_log10_delta"] is not None
+    assert not plan["top_score_followup_targets"]
+    assert any(lane["lane"] == "api_scoreable_discriminant_review" for lane in plan["lane_recommendations"])
+
+
 def test_score_aware_target_outputs_round_trip(tmp_path):
     snapshot_path = tmp_path / "snapshot.json"
     pair_status_path = tmp_path / "pairs.json"

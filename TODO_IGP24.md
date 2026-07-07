@@ -61,6 +61,39 @@ results change.
   `generatedAt=2026-07-07T00:57:21Z`, `published=true`, team counts 57 and 55,
   and zero remaining signatures for both labels. No key was printed or written
   to repo files.
+- Full SAIR API sync work: added `scripts/igp24_sair_sync.py` as the
+  read-only authoritative sync path for the official endpoint set:
+  competition schema, `/me`, full paginated `labels/progress`, paginated
+  `submissions/me`, per-submission status, and per-submission coefficient
+  downloads. The helper joins downloaded coefficient rows to local canonical
+  hashes when possible and preserves unmatched downloaded rows in
+  `sair_unmatched_rows.jsonl`. It writes compact artifacts
+  `sair_sync_summary.json`, `sair_sync_report.md`,
+  `sair_progress_snapshot_summary.json`, `sair_label_progress.jsonl`,
+  `sair_submission_index.json`, `sair_submission_rows.jsonl`,
+  `sair_pending_rows.jsonl`, `sair_scoreable_rows.jsonl`,
+  `sair_failed_rows.jsonl`, and `sair_unmatched_rows.jsonl`; it never writes
+  the API key and never submits.
+  Planner update: `scripts/igp24_score_aware_target_planner.py` now accepts
+  `--sair_sync_dir`, reconstructs the progress snapshot from sync artifacts,
+  loads synced submission rows, surfaces API-scoreable/API-pending follow-up
+  target lists, and uses API submission/scoring status ahead of stale manual
+  score categories while preserving manual score points as fallback/provenance.
+  Validation:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_sair_sync.py tests/test_igp24_score_aware_target_planner.py tests/test_igp24_sair_api.py`
+  -> 13 passed; `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` ->
+  221 passed; `python3 -m py_compile scripts/igp24_sair_sync.py scripts/igp24_score_aware_target_planner.py`
+  passed; `git diff --check` passed; SAIR key-shaped regex scan found no
+  matches; no partial `data/igp24/sair_sync_20260707` directory was left after
+  the service-unavailable live sync attempt; Stage 4 remains present at line
+  7890 after this TODO update.
+  Live sync attempt:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --fetch_live --output_dir data/igp24/sair_sync_20260707 --progress_limit 5000 --submission_limit 100`
+  first failed in the sandbox with temporary DNS resolution failure; the
+  approved network retry reached SAIR but returned
+  `IGP24_SERVICE_UNAVAILABLE`. No full sync artifact was generated, no
+  submission was attempted, and the next decision is to retry the sync when the
+  IGP24 service is available before spending another submission packet.
 - Live target-planning pass in progress: fetched the full SAIR
   `labels/progress` traversal to `/tmp/igp24_sair_label_progress_full_20260707.json`
   using `limit=5000`, `includeEmpty=true`. Result: 5 pages, 25,000 labels,

@@ -4,6 +4,29 @@ This file keeps benchmark and verification detail out of the public README
 while preserving the current experimental state. The complete working log is in
 `TODO_IGP24.md`; design rationale lives in `NOTES_IGP24.md`.
 
+## Full SAIR API Sync Infrastructure
+
+Added `scripts/igp24_sair_sync.py` to make the SAIR API the authoritative
+planning source when the service is available. The helper actively uses the
+documented read endpoints for competition schema, `/me`, full paginated
+`labels/progress`, paginated `submissions/me`, per-submission status, and
+per-submission coefficient downloads. Downloaded coefficient rows are
+canonical-hashed and joined back to local artifacts when possible; unmatched
+downloaded rows are retained explicitly.
+
+The score-aware planner now accepts `--sair_sync_dir` and uses synced API
+submission state to rank API-scoreable and API-pending follow-up targets while
+keeping manual score snapshots as fallback/provenance.
+
+Live sync attempt on 2026-07-07:
+
+- Sandboxed run failed with temporary DNS resolution failure.
+- Approved network retry reached SAIR but returned
+  `IGP24_SERVICE_UNAVAILABLE`.
+- No full sync artifact was generated and no submission was attempted.
+- Focused tests for pagination, submission download joins, unmatched-row
+  retention, planner sync integration, and credential redaction passed.
+
 ## Verified Non-Generic Queue
 
 The most important current result is the 2026-07-05 non-generic verification

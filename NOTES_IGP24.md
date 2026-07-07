@@ -1,5 +1,23 @@
 # IGP24 Stage-0 Notes
 
+## SAIR API As Planning Source
+
+The SAIR API should be treated as the current source of truth for competition
+state whenever it is available. Manual score snapshots are still useful
+provenance, but they are stale by construction; the preferred workflow is now
+to run `scripts/igp24_sair_sync.py --fetch_live`, then feed the resulting
+sync directory to `scripts/igp24_score_aware_target_planner.py --sair_sync_dir`.
+
+The sync path matters because submission detail records do not echo
+coefficients; the download endpoint must be used to recover submitted rows and
+join them back to local canonical hashes. This is also the cleanest way to
+separate pending scoring rows, scoreable rows, failed rows, and accepted rows
+that are not yet scoreable.
+
+As of the 2026-07-07 implementation pass, the code path is in place but the
+live full sync was blocked by SAIR returning `IGP24_SERVICE_UNAVAILABLE`.
+Retry the sync before making any new submission decision.
+
 ## Axplorer Architecture
 
 Axplorer exposes each math search task as an environment under `src/envs/`. The

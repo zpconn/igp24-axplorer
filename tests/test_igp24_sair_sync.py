@@ -1,0 +1,228 @@
+import json
+
+from scripts.igp24_sair_sync import (
+    build_local_hash_index,
+    build_progress_summary,
+    build_sync_from_existing,
+    build_submission_index,
+    build_sync_summary,
+    canonical_hash_from_polynomial_line,
+    fetch_all_submission_summaries,
+    fetch_full_label_progress,
+    load_sync_progress_snapshot,
+    normalize_submission_rows,
+    write_sync_artifacts,
+)
+
+
+LINE_A = "2,0,-3,0,1,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,2,0,-3,0,1"
+LINE_B = "3,0,0,0,0,0,2,0,0,0,0,0,-4,0,0,0,0,0,-2,0,0,0,0,-1,1"
+
+
+class FakeClient:
+    def __init__(self):
+        self.calls = []
+
+    def _request(self, method, path, *, query=None, body=None, accept="application/json"):
+        self.calls.append((method, path, query, accept))
+        headers = {"X-RateLimit-Remaining": "999"}
+        if path.endswith("/labels/progress"):
+            cursor = (query or {}).get("cursor")
+            if not cursor:
+                return (
+                    {
+                        "ok": True,
+                        "data": {
+                            "generatedAt": "2026-07-07T00:00:00Z",
+                            "labels": [
+                                {
+                                    "label": "24T1",
+                                    "t": 1,
+                                    "allowedR": [8, 24],
+                                    "teamCount": 0,
+                                    "minimumDiscAbs": None,
+                                    "discoveredSignatures": [],
+                                    "remainingSignatures": [8, 24],
+                                    "signatures": [
+                                        {"r": 8, "teamCount": 0, "minimumDiscAbs": None, "discovered": False},
+                                        {"r": 24, "teamCount": 0, "minimumDiscAbs": None, "discovered": False},
+                                    ],
+                                }
+                            ],
+                            "nextCursor": "next",
+                            "meta": {"published": True},
+                        },
+                    },
+                    headers,
+                )
+            return (
+                {
+                    "ok": True,
+                    "data": {
+                        "generatedAt": "2026-07-07T00:00:01Z",
+                        "labels": [
+                            {
+                                "label": "24T9993",
+                                "t": 9993,
+                                "allowedR": [8],
+                                "teamCount": 10,
+                                "minimumDiscAbs": "1000",
+                                "discoveredSignatures": [8],
+                                "remainingSignatures": [],
+                                "signatures": [
+                                    {"r": 8, "teamCount": 10, "minimumDiscAbs": "1000", "discovered": True}
+                                ],
+                            }
+                        ],
+                        "nextCursor": None,
+                        "meta": {"published": True},
+                    },
+                },
+                headers,
+            )
+        if path.endswith("/submissions/me"):
+            cursor = (query or {}).get("cursor")
+            items = [{"submissionId": "sub_a"}] if not cursor else [{"submissionId": "sub_b"}]
+            return ({"ok": True, "data": {"items": items, "nextCursor": None if cursor else "next"}}, headers)
+        raise AssertionError(path)
+
+
+def _detail():
+    return {
+        "submissionId": "sub_a",
+        "competitionId": "igp24",
+        "createdAt": "2026-07-07T00:00:02Z",
+        "updatedAt": "2026-07-07T00:00:03Z",
+        "kind": "igp24-polynomial",
+        "meta": {"description": "pytest"},
+        "verifiedPolynomials": [
+            {
+                "polynomialIndex": 0,
+                "status": "accepted",
+                "label": "24T9993",
+                "t": 9993,
+                "r": 8,
+                "scoreable": True,
+                "scoringStatus": "scoreable",
+                "fieldDiscAbs": "900",
+                "discSource": "exact_nfdisc",
+                "inBaseline": False,
+                "baselineUnlocked": False,
+            }
+        ],
+        "failedPolynomials": [{"polynomialIndex": 1, "status": "failed", "reason": "bad"}],
+        "payload": {"queuedPolynomials": [{"polynomialIndex": 2, "status": "queued"}]},
+    }
+
+
+def _progress_snapshot():
+    return {
+        "record_type": "igp24_sair_label_progress_snapshot",
+        "created_at": "2026-07-07T00:00:00Z",
+        "page_count": 1,
+        "label_count": 1,
+        "pages": [{"generatedAt": "2026-07-07T00:00:00Z", "labels": 1, "meta": {"published": True}}],
+        "labels": [
+            {
+                "label": "24T1",
+                "t": 1,
+                "allowedR": [24],
+                "teamCount": 0,
+                "minimumDiscAbs": None,
+                "discoveredSignatures": [],
+                "remainingSignatures": [24],
+                "signatures": [{"r": 24, "teamCount": 0, "minimumDiscAbs": None, "discovered": False}],
+            }
+        ],
+    }
+
+
+def test_fetch_full_progress_and_submission_pages_are_paginated():
+    client = FakeClient()
+    rate_limits = []
+
+    progress = fetch_full_label_progress(client, limit=1, rate_limits=rate_limits)
+    submissions, pages = fetch_all_submission_summaries(client, limit=1, rate_limits=rate_limits)
+
+    assert progress["label_count"] == 2
+    assert progress["page_count"] == 2
+    assert [row["submissionId"] for row in submissions] == ["sub_a", "sub_b"]
+    assert len(pages) == 2
+    assert len(rate_limits) == 4
+
+
+def test_submission_detail_download_join_matches_known_hash_and_retains_unmatched(tmp_path):
+    known_hash, _line, _coeffs = canonical_hash_from_polynomial_line(LINE_A)
+    local_jsonl = tmp_path / "candidate.jsonl"
+    local_jsonl.write_text(json.dumps({"canonical_hash": known_hash, "exported_coefficients": [int(x) for x in LINE_A.split(",")]}) + "\n")
+    local_index = build_local_hash_index(tmp_path)
+
+    rows = normalize_submission_rows(_detail(), [LINE_A, LINE_B, LINE_A], local_hash_index=local_index)
+
+    assert rows[0]["local_match_status"] == "matched"
+    assert rows[0]["status_class"] == "scoreable"
+    assert rows[0]["pair_key"] == "24T9993|r=8"
+    assert rows[1]["local_match_status"] == "unmatched"
+    assert rows[1]["status_class"] == "failed"
+    assert rows[2]["status_class"] == "pending"
+
+
+def test_write_sync_artifacts_keeps_unmatched_rows_and_no_secret(tmp_path):
+    rows = normalize_submission_rows(_detail(), [LINE_A, LINE_B], local_hash_index={})
+    index = build_submission_index(
+        submission_summaries=[{"submissionId": "sub_a"}],
+        submission_details=[_detail()],
+        rows=rows,
+        pages=[{"items": 1}],
+        rate_limits=[{"endpoint": "pytest", "headers": {"X-RateLimit-Remaining": "999"}}],
+    )
+
+    paths = write_sync_artifacts(
+        output_dir=tmp_path / "sync",
+        competition={"submissionSpec": {"limits": {"maxPolynomials": 1000}}, "api_key": "should redact"},
+        me={"team": {"role": "activeMember"}},
+        progress_snapshot=_progress_snapshot(),
+        submission_index=index,
+        submission_rows=rows,
+        command=["pytest"],
+        live_fetch=True,
+    )
+
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    unmatched = [json.loads(line) for line in paths["unmatched_rows_jsonl"].read_text(encoding="utf-8").splitlines()]
+    all_text = "\n".join(path.read_text(encoding="utf-8") for path in paths.values())
+
+    assert summary["safety"]["api_key_recorded"] is False
+    assert summary["competition"]["api_key"] == "[redacted]"
+    assert len(unmatched) == 2
+    assert "should redact" not in all_text
+    assert build_progress_summary(_progress_snapshot())["remaining_signature_count"] == 1
+
+
+def test_offline_sync_replays_saved_artifact_without_live_fetch(tmp_path):
+    rows = normalize_submission_rows(_detail(), [LINE_A], local_hash_index={})
+    index = build_submission_index(
+        submission_summaries=[{"submissionId": "sub_a"}],
+        submission_details=[_detail()],
+        rows=rows,
+        pages=[{"items": 1}],
+        rate_limits=[],
+    )
+    paths = write_sync_artifacts(
+        output_dir=tmp_path / "sync",
+        competition={"submissionSpec": {"limits": {"maxPolynomials": 1000}}},
+        me={"team": {"role": "activeMember"}},
+        progress_snapshot=_progress_snapshot(),
+        submission_index=index,
+        submission_rows=rows,
+        command=["pytest"],
+        live_fetch=True,
+    )
+
+    replayed = build_sync_from_existing(sync_dir=paths["summary_json"].parent, output_dir=tmp_path / "replay", command=["pytest", "replay"])
+    summary = json.loads(replayed["summary_json"].read_text(encoding="utf-8"))
+    snapshot = load_sync_progress_snapshot(replayed["summary_json"].parent)
+
+    assert summary["safety"]["live_fetch"] is False
+    assert summary["progress"]["label_count"] == 1
+    assert snapshot["labels"][0]["label"] == "24T1"

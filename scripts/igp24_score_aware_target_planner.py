@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -25,6 +26,10 @@ from scripts.igp24_sair_progress_targets import (  # noqa: E402
     coverage_by_r,
     fetch_progress_snapshot,
     load_progress_snapshot,
+)
+from scripts.igp24_sair_sync import (  # noqa: E402
+    load_sync_progress_snapshot,
+    load_sync_submission_rows,
 )
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 
@@ -98,6 +103,23 @@ def score_snapshot_by_pair(score_snapshot: dict[str, Any]) -> dict[str, dict[str
     }
 
 
+def sync_rows_by_pair(sync_rows: Iterable[dict[str, Any]] | None) -> dict[str, dict[str, Any]]:
+    priority = {"scoreable": 4, "pending": 3, "accepted_not_scoreable_or_unknown": 2, "failed": 1, "unknown": 0}
+    by_pair: dict[str, dict[str, Any]] = {}
+    for row in sync_rows or []:
+        if not isinstance(row, dict) or not row.get("pair_key"):
+            continue
+        key = str(row["pair_key"])
+        current = by_pair.get(key)
+        current_score = priority.get(str((current or {}).get("status_class")), 0)
+        row_score = priority.get(str(row.get("status_class")), 0)
+        if row.get("field_disc_abs"):
+            row_score += 1
+        if not current or row_score > current_score:
+            by_pair[key] = row
+    return by_pair
+
+
 def constraints_by_name(basin_summary: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         str(row["name"]): row
@@ -140,11 +162,33 @@ def _score_points(row: dict[str, Any] | None) -> float | None:
     return float(value)
 
 
+def _log10_int(value: Any) -> float | None:
+    if value in {None, ""}:
+        return None
+    text = str(value).strip()
+    if not text or not text.lstrip("-").isdigit():
+        return None
+    text = text.lstrip("-").lstrip("0") or "0"
+    if text == "0":
+        return 0.0
+    head = text[:16]
+    return (len(text) - len(head)) + math.log10(int(head))
+
+
+def _log10_delta(numerator: Any, denominator: Any) -> float | None:
+    left = _log10_int(numerator)
+    right = _log10_int(denominator)
+    if left is None or right is None:
+        return None
+    return round(left - right, 6)
+
+
 def iter_progress_pairs(
     labels: Iterable[dict[str, Any]],
     *,
     pair_status_by_key: dict[str, dict[str, Any]],
     score_by_pair: dict[str, dict[str, Any]],
+    sync_by_pair: dict[str, dict[str, Any]],
     avoid_labels: set[str],
     remaining_by_r: dict[int, int],
 ) -> Iterable[dict[str, Any]]:
@@ -162,12 +206,16 @@ def iter_progress_pairs(
             signature = signatures.get(r_value) or {}
             key = pair_key(label, r_value)
             score_row = score_by_pair.get(key)
+            sync_row = sync_by_pair.get(key)
             status_row = pair_status_by_key.get(key)
             signature_team_count = int(
                 signature.get("teamCount")
                 if signature.get("teamCount") is not None
                 else (score_row or {}).get("solved_teams") or 0
             )
+            global_minimum_disc_abs = signature.get("minimumDiscAbs") or label_row.get("minimumDiscAbs")
+            api_field_disc_abs = (sync_row or {}).get("field_disc_abs")
+            api_disc_log10_delta = _log10_delta(api_field_disc_abs, global_minimum_disc_abs)
             progress_state = (
                 "remaining"
                 if r_value in remaining
@@ -178,6 +226,10 @@ def iter_progress_pairs(
             category = "covered_or_crowded"
             if progress_state == "remaining":
                 category = "uncovered_signature"
+            elif sync_row and sync_row.get("scoreable") is True:
+                category = "api_scoreable_pair_followup"
+            elif sync_row and sync_row.get("scoring_status") == "pending":
+                category = "api_pending_scoring_pair"
             elif _score_points(score_row):
                 category = "scored_pair_followup"
             elif signature_team_count <= 12:
@@ -197,6 +249,12 @@ def iter_progress_pairs(
                 score += min(points * 100000.0, 260.0)
                 if (score_row or {}).get("solved_teams", 99) <= 12:
                     score += 90.0
+            if sync_row and sync_row.get("scoreable") is True:
+                score += 125.0
+                if api_disc_log10_delta is not None:
+                    score += max(-90.0, min(90.0, -15.0 * api_disc_log10_delta))
+            elif sync_row and sync_row.get("scoring_status") == "pending":
+                score += 35.0
             if signature_team_count <= 5:
                 score += 160.0
             elif signature_team_count <= 12:
@@ -232,8 +290,20 @@ def iter_progress_pairs(
                 "score_snapshot_points_numeric": points,
                 "score_snapshot_solved_teams": (score_row or {}).get("solved_teams"),
                 "scoring_discriminant_abs": (score_row or {}).get("scoring_discriminant_abs"),
+                "api_submission_status_class": (sync_row or {}).get("status_class"),
+                "api_submission_id": (sync_row or {}).get("submission_id"),
+                "api_submission_row_number": (sync_row or {}).get("submitted_line_number"),
+                "api_scoreable": (sync_row or {}).get("scoreable"),
+                "api_scoring_status": (sync_row or {}).get("scoring_status"),
+                "api_scoring_reason": (sync_row or {}).get("scoring_reason"),
+                "api_field_disc_abs": api_field_disc_abs,
+                "api_disc_source": (sync_row or {}).get("disc_source"),
+                "api_in_baseline": (sync_row or {}).get("in_baseline"),
+                "api_local_match_status": (sync_row or {}).get("local_match_status"),
+                "api_global_minimum_disc_abs": global_minimum_disc_abs,
+                "api_field_vs_global_min_log10_delta": api_disc_log10_delta,
                 "label_in_avoid_basin": label in avoid_labels,
-                "minimum_disc_abs": signature.get("minimumDiscAbs") or label_row.get("minimumDiscAbs"),
+                "minimum_disc_abs": global_minimum_disc_abs,
             }
 
 
@@ -323,6 +393,30 @@ def build_lane_recommendations(
                 "submission_gate": "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first",
             }
         )
+    api_rows = [
+        row
+        for row in ranked_targets
+        if row.get("category") == "api_scoreable_pair_followup" and row.get("api_field_disc_abs")
+    ]
+    if api_rows:
+        top = api_rows[0]
+        delta = top.get("api_field_vs_global_min_log10_delta")
+        lanes.append(
+            {
+                "lane": "api_scoreable_discriminant_review",
+                "rank_reason": (
+                    f"API scoreable row for {top['pair_key']} has fieldDiscAbs available"
+                    + (f" and log10(field/global-min)={delta}" if delta is not None else "")
+                ),
+                "source_pair": top["pair_key"],
+                "source_submission_id": top.get("api_submission_id"),
+                "source_field_disc_abs": top.get("api_field_disc_abs"),
+                "source_global_minimum_disc_abs": top.get("api_global_minimum_disc_abs"),
+                "recommended_for_generation_now": False,
+                "recommended_for_submission_now": False,
+                "submission_gate": "review API scoreable rows for discriminant-improvement evidence before generating nearby variants",
+            }
+        )
     top_remaining = [row for row in ranked_targets if row["category"] == "uncovered_signature"][:5]
     if top_remaining:
         top_rs = ",".join(str(row["r"]) for row in bucket_priorities[:4])
@@ -362,6 +456,7 @@ def build_plan(
     pair_status: dict[str, Any],
     score_snapshot: dict[str, Any],
     basin_summary: dict[str, Any],
+    sync_submission_rows: list[dict[str, Any]] | None = None,
     top_limit: int = 250,
 ) -> dict[str, Any]:
     labels = list(snapshot.get("labels") or [])
@@ -369,12 +464,14 @@ def build_plan(
     remaining_by_r = {int(row["r"]): int(row.get("remaining") or 0) for row in coverage_rows}
     pair_status_by_key = index_pairs(pair_status)
     score_by_pair = score_snapshot_by_pair(score_snapshot)
+    sync_by_pair = sync_rows_by_pair(sync_submission_rows)
     avoid = avoided_labels(basin_summary)
     target_rows = list(
         iter_progress_pairs(
             labels,
             pair_status_by_key=pair_status_by_key,
             score_by_pair=score_by_pair,
+            sync_by_pair=sync_by_pair,
             avoid_labels=avoid,
             remaining_by_r=remaining_by_r,
         )
@@ -409,6 +506,8 @@ def build_plan(
             "pair_status_record_type": pair_status.get("record_type"),
             "score_snapshot_record_type": score_snapshot.get("record_type"),
             "score_snapshot_rows": len(score_snapshot.get("rows") or []),
+            "sync_submission_rows": len(sync_submission_rows or []),
+            "sync_pairs": len(sync_by_pair),
             "basin_summary_record_type": basin_summary.get("record_type"),
             "basin_observations": basin_summary.get("observation_count"),
             "anti_basin_constraint_count": len(basin_summary.get("anti_basin_constraints") or []),
@@ -425,6 +524,8 @@ def build_plan(
         "ranked_targets": ranked_targets[:top_limit],
         "top_uncovered_targets": [row for row in ranked_targets if row["category"] == "uncovered_signature"][:50],
         "top_score_followup_targets": [row for row in ranked_targets if row["category"] == "scored_pair_followup"][:25],
+        "top_api_scoreable_targets": [row for row in ranked_targets if row["category"] == "api_scoreable_pair_followup"][:25],
+        "top_api_pending_targets": [row for row in ranked_targets if row["category"] == "api_pending_scoring_pair"][:25],
         "top_lightly_solved_targets": [row for row in ranked_targets if row["category"] == "lightly_solved_signature"][:25],
         "lane_recommendations": lanes,
         "avoidance_constraints": {
@@ -455,6 +556,7 @@ def build_markdown(plan: dict[str, Any]) -> str:
         f"- Published: {plan['input_snapshot'].get('published')}",
         f"- Generated: `{plan['input_snapshot'].get('first_generated_at')}` to `{plan['input_snapshot'].get('last_generated_at')}`",
         f"- Score snapshot rows: {plan['inputs'].get('score_snapshot_rows')}",
+        f"- Sync submission rows: {plan['inputs'].get('sync_submission_rows')}",
         f"- Basin constraints: {plan['inputs'].get('anti_basin_constraint_count')}",
         "",
         "## Priority r Buckets",
@@ -528,6 +630,54 @@ def build_markdown(plan: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## API Scoreable Targets",
+            "",
+            "| rank | pair | status | field disc | global min | log10 delta | submission |",
+            "| ---: | --- | --- | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for rank, row in enumerate(plan["top_api_scoreable_targets"][:10], start=1):
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(rank),
+                    row["pair_key"],
+                    str(row.get("api_scoring_status")),
+                    str(row.get("api_field_disc_abs")),
+                    str(row.get("api_global_minimum_disc_abs")),
+                    str(row.get("api_field_vs_global_min_log10_delta")),
+                    str(row.get("api_submission_id")),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## API Pending Targets",
+            "",
+            "| rank | pair | status | reason | submission |",
+            "| ---: | --- | --- | --- | --- |",
+        ]
+    )
+    for rank, row in enumerate(plan["top_api_pending_targets"][:10], start=1):
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(rank),
+                    row["pair_key"],
+                    str(row.get("api_scoring_status")),
+                    str(row.get("api_scoring_reason")),
+                    str(row.get("api_submission_id")),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
             "## Lane Recommendations",
             "",
             "| rank | lane | generation now | submission now | reason |",
@@ -585,6 +735,8 @@ def write_outputs(plan: dict[str, Any], output_dir: Path) -> dict[str, Path]:
         "top_r_buckets": plan["r_bucket_priorities"][:8],
         "top_uncovered_targets": plan["top_uncovered_targets"][:12],
         "top_score_followup_targets": plan["top_score_followup_targets"][:8],
+        "top_api_scoreable_targets": plan["top_api_scoreable_targets"][:8],
+        "top_api_pending_targets": plan["top_api_pending_targets"][:8],
         "lane_recommendations": plan["lane_recommendations"],
         "decision": plan["decision"],
         "safety": plan["safety"],
@@ -604,6 +756,7 @@ def build_parser() -> argparse.ArgumentParser:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--progress_snapshot_json", type=Path)
     source.add_argument("--fetch_live_progress", action="store_true")
+    source.add_argument("--sair_sync_dir", type=Path)
     parser.add_argument("--pair_status_json", type=Path, default=DEFAULT_PAIR_STATUS)
     parser.add_argument("--score_snapshot_json", type=Path, default=DEFAULT_SCORE_SNAPSHOT)
     parser.add_argument("--label_basin_summary_json", type=Path, default=DEFAULT_LABEL_BASIN_SUMMARY)
@@ -615,16 +768,22 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    snapshot = (
-        fetch_progress_snapshot(limit=args.fetch_limit)
-        if args.fetch_live_progress
-        else load_progress_snapshot(args.progress_snapshot_json)
-    )
+    sync_submission_rows: list[dict[str, Any]] | None = None
+    if args.sair_sync_dir:
+        snapshot = load_sync_progress_snapshot(args.sair_sync_dir)
+        sync_submission_rows = load_sync_submission_rows(args.sair_sync_dir)
+    else:
+        snapshot = (
+            fetch_progress_snapshot(limit=args.fetch_limit)
+            if args.fetch_live_progress
+            else load_progress_snapshot(args.progress_snapshot_json)
+        )
     plan = build_plan(
         snapshot=snapshot,
         pair_status=load_pair_status(args.pair_status_json),
         score_snapshot=load_score_snapshot(args.score_snapshot_json),
         basin_summary=load_basin_summary(args.label_basin_summary_json),
+        sync_submission_rows=sync_submission_rows,
         top_limit=args.top_limit,
     )
     paths = write_outputs(plan, args.output_dir)
