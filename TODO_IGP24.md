@@ -132,6 +132,30 @@ results change.
   `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_label_basin_analysis.py`
   -> 2 passed.
 
+- Active anti-basin queue generation: added
+  `scripts/igp24_r24_tower_odd_escape_probe.py`, a CPU-only r24 probe that
+  starts from the accepted all-real 6x4 tower seed but adds odd `x`
+  perturbations to break exact even support. Command:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_tower_odd_escape_probe.py --output_dir data/igp24/r24_tower_odd_escape_probe_20260707 --seed 242405 --max_trials 900 --limit 8 --per_family_cap 1 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0`.
+  Result: 900 trials, 91 valid local irreducible squarefree `r=24`
+  candidates, 8 selected rows, coefficient-height range 443,384 to 777,584,
+  all selected rows with odd support, support gcd 1, and no exact even 6x4
+  support after perturbation. SAIR dry-run:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py submit --coefficients_txt data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_candidate_coefficients.txt --description "dry-run validation for r24 tower odd-escape probe 20260707" --output_json data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_sair_dry_run.json`
+  -> ok, 8 polynomials, 831-byte body. Decision before live API submit: this
+  queue is small, passes local exact checks and SAIR dry-run, and is
+  meaningfully different from the known `24T23883/24T24651` exact-even tower
+  basin because every row has odd support and is not an outer constant shift.
+  Live API submit:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_api.py submit --coefficients_txt data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_candidate_coefficients.txt --description "r24 tower odd-escape anti-basin probe 20260707" --execute --output_json data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_sair_submit.json`.
+  Result: `submissionId=sub_d7bc66004b0c4db2a89071c651c7583e`, 8 queued, 0
+  rejected, rate limit remaining 599/600. Polls saved to
+  `r24_tower_odd_escape_sair_status_poll1.json`,
+  `r24_tower_odd_escape_sair_status_poll2.json`, and
+  `r24_tower_odd_escape_sair_status_poll3.json`; all still show 8 queued, 0
+  verified, and 0 failed, so no accepted labels are known yet and
+  `pair_status_20260706.json` was not updated.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

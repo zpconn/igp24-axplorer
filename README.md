@@ -325,6 +325,8 @@ that branch.
   feedback-guided anti-basin constraints.
 - `scripts/igp24_r24_tower_probe.py`: target-plan-aligned high-real-root
   tower probe.
+- `scripts/igp24_r24_tower_odd_escape_probe.py`: r24 tower-derived
+  anti-basin probe that breaks exact even support with odd perturbations.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

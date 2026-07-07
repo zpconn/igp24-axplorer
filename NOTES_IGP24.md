@@ -1237,3 +1237,11 @@ instead of exact divisor-2 support, a different composition degree pattern, a
 different perturbation mode, or local mod-p signatures absent from the accepted
 common-label corpus. GPU training remains secondary until there is a concrete
 label-conditioning objective for the sampler.
+
+The first anti-basin implementation is the r24 tower odd-escape probe. It
+keeps the useful all-real 6x4 tower seed but adds odd `x` perturbations after
+composition, forcing support gcd 1 and breaking exact even support. This is not
+guaranteed to escape the `24T23883/24T24651` label basin, but it is the first
+small live probe whose structure directly satisfies the basin analyzer's
+negative constraints. The live SAIR submission is pending labels, so it should
+not affect the pair ledger until verified rows return.

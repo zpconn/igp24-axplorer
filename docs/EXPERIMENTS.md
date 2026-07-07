@@ -1868,6 +1868,42 @@ Next queue requirement: do not submit another batch unless it introduces
 non-even support, an alternate composition pattern, or measurable mod-p/family
 key novelty relative to these accepted basins.
 
+## R24 Tower Odd-Escape Probe
+
+The first queue generated from the label-basin analysis is tracked under
+`data/igp24/r24_tower_odd_escape_probe_20260707`.
+
+Command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_tower_odd_escape_probe.py \
+  --output_dir data/igp24/r24_tower_odd_escape_probe_20260707 \
+  --seed 242405 \
+  --max_trials 900 \
+  --limit 8 \
+  --per_family_cap 1 \
+  --coeff_bound 2000000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5.0
+```
+
+Results:
+
+- trials attempted: 900
+- valid local irreducible squarefree `r=24` candidates: 91
+- selected rows: 8
+- coefficient-height range: 443,384 to 777,584
+- all selected rows: odd support, support gcd 1, not exact even support
+- SAIR dry-run: passed, 8 polynomials, 831-byte body
+
+This is a direct anti-basin probe: it starts from the all-real 6x4 tower seed
+but adds odd `x` perturbations, so it is not another exact even
+outer-constant-shift tower row. A small live SAIR API submission was made as
+`sub_d7bc66004b0c4db2a89071c651c7583e`; the submit response queued all eight
+rows, rejected zero rows, and showed rate limit remaining 599/600. The first
+three status polls still showed 8 queued, 0 verified, and 0 failed, so labels
+are pending and no pair-status ledger update has been made.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

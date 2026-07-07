@@ -1,0 +1,61 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783395774"
+  },
+  "data": {
+    "batchId": "igp24_batch_f5d9b6f15410402e",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-07T03:41:59Z",
+    "description": "r24 tower odd-escape anti-basin probe 20260707",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r24 tower odd-escape anti-basin probe 20260707"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 8,
+    "rejectedCount": 0,
+    "submissionId": "sub_d7bc66004b0c4db2a89071c651c7583e",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-07T03:41:59Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}
