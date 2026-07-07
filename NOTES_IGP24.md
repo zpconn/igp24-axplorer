@@ -1299,3 +1299,27 @@ productive pivot should change the inner family or composition degree pattern,
 or add a stronger label discriminator before submission. More plain `8x3`
 rows, even with nonconstant outer perturbations and mod-p diversity, are not
 score-directed enough.
+
+The `4x6` pivot is a more nuanced result. It changed the composition degree
+pattern again, used a degree-6 inner polynomial with six-real-preimage levels,
+excluded outer constant shifts, and forced support gcd 1. The anti-basin
+planner selected a balanced 12-row packet across three nonconstant
+perturbation modes. SAIR accepted all 12 rows as `24T24984|r=12`, adding a new
+local pair but not a fresh global target because live progress marks the label
+fully covered. This means 4x6 was a real escape from `24T24932` and the older
+6x4/generic basins, but the specific inner-root family
+`-3,-2,-1,1,2,4` is now itself a known basin. The next useful composition
+experiment should change the degree-6 inner polynomial or level geometry, push
+to a different real-root bucket, or add a stronger label discriminator before
+submitting more rows.
+
+The latest user-reported score snapshot makes the optimization target less
+romantic and more concrete. Most accepted pairs in our current ledger score
+`<0.0001`; the visible positive outliers are `24T9993|r=8` at `0.0019` with
+10 solved teams and `24T22770|r=12` at `0.0002` with 12 solved teams. This
+means label novelty is not enough by itself, and neither is "globally
+covered but locally new." The next productive search should either find truly
+uncovered signatures, find lightly solved pockets where team count is still
+small, or produce material discriminant improvements on accepted pairs. High
+team-count basins remain useful as negative training signal, not as primary
+submission targets.

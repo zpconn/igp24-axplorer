@@ -1,0 +1,221 @@
+{
+  "created_at": "2026-07-07T16:40:14.580489+00:00",
+  "record_type": "igp24_user_reported_sair_score_snapshot",
+  "reported_source": "SAIR website table pasted by user on 2026-07-07",
+  "rows": [
+    {
+      "label": "24T9993",
+      "pair_key": "24T9993|r=8",
+      "points": "0.0019",
+      "points_numeric": 0.0019,
+      "r": 8,
+      "scoring_discriminant_abs": 1307820986002621416454731276833908982808576,
+      "solvable": true,
+      "solved_teams": 10
+    },
+    {
+      "label": "24T22770",
+      "pair_key": "24T22770|r=12",
+      "points": "0.0002",
+      "points_numeric": 0.0002,
+      "r": 12,
+      "scoring_discriminant_abs": 116197216336379926894811462300476626028304220400799806227976586491845754790765784528402294738815989422489600000000000000,
+      "solvable": false,
+      "solved_teams": 12
+    },
+    {
+      "label": "24T661",
+      "pair_key": "24T661|r=8",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 8,
+      "scoring_discriminant_abs": 32193139341492335723494291037388269420544,
+      "solvable": true,
+      "solved_teams": 14
+    },
+    {
+      "label": "24T657",
+      "pair_key": "24T657|r=8",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 8,
+      "scoring_discriminant_abs": 54561788911246566226071522394619032633344,
+      "solvable": true,
+      "solved_teams": 19
+    },
+    {
+      "label": "24T1310",
+      "pair_key": "24T1310|r=8",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 8,
+      "scoring_discriminant_abs": 9606056659007943744000000000000000000,
+      "solvable": true,
+      "solved_teams": 33
+    },
+    {
+      "label": "24T9683",
+      "pair_key": "24T9683|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 955418808601874103055463744199932705243136,
+      "solvable": true,
+      "solved_teams": 32
+    },
+    {
+      "label": "24T21844",
+      "pair_key": "24T21844|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 21631235806139817078463277024935936,
+      "solvable": false,
+      "solved_teams": 39
+    },
+    {
+      "label": "24T23883",
+      "pair_key": "24T23883|r=12",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 12,
+      "scoring_discriminant_abs": 15364937579229132358320793677949477164006328803979882613112009881736145679227040038912,
+      "solvable": true,
+      "solved_teams": 39
+    },
+    {
+      "label": "24T23883",
+      "pair_key": "24T23883|r=24",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 24,
+      "scoring_discriminant_abs": 5353693582693779953858004300466244399908214880029542824542208,
+      "solvable": true,
+      "solved_teams": 38
+    },
+    {
+      "label": "24T24648",
+      "pair_key": "24T24648|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 66729031783492569072130229117096669442371830499819295396528130410433747980288,
+      "solvable": false,
+      "solved_teams": 28
+    },
+    {
+      "label": "24T24651",
+      "pair_key": "24T24651|r=12",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 12,
+      "scoring_discriminant_abs": 5645187787936841928542182081514471547322938158883104074106683475239627712333457187061167154503316045138628900449943552,
+      "solvable": false,
+      "solved_teams": 36
+    },
+    {
+      "label": "24T24651",
+      "pair_key": "24T24651|r=24",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 24,
+      "scoring_discriminant_abs": 37957569004618965816835260958274333286184533487363814020485169909249772042876222604987135691121284530735778596767374413009050188452303208448,
+      "solvable": false,
+      "solved_teams": 34
+    },
+    {
+      "label": "24T24759",
+      "pair_key": "24T24759|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 767458693251145954924041967612518686365057724321977014092994900933771147,
+      "solvable": false,
+      "solved_teams": 30
+    },
+    {
+      "label": "24T24970",
+      "pair_key": "24T24970|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 366239629242005852435630471622048280116882951016669633314816,
+      "solvable": false,
+      "solved_teams": 51
+    },
+    {
+      "label": "24T24970",
+      "pair_key": "24T24970|r=12",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 12,
+      "scoring_discriminant_abs": 6227231236671407030471085510568015074850012643184655469699011757550560667771226011698956994877854681722545433102195584111584325397876870222251148440759115051228870795060211251685732510739810708557279695769162649600000000000000,
+      "solvable": false,
+      "solved_teams": 22
+    },
+    {
+      "label": "24T24979",
+      "pair_key": "24T24979|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 752880562130512465229258492699316353904979173801601362034688,
+      "solvable": false,
+      "solved_teams": 54
+    },
+    {
+      "label": "24T24979",
+      "pair_key": "24T24979|r=12",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 12,
+      "scoring_discriminant_abs": 6642729100312007671207024805965131158135309757808327800622408582287574298588407209660254081062733862253015766308521805547380152003087453311856020267969148620638898159413963103019507664453180376555557603397215433634880305758508599853693503848401644120259391062828899139815161814280836501626518276773471271027349911502848,
+      "solvable": false,
+      "solved_teams": 36
+    },
+    {
+      "label": "24T24979",
+      "pair_key": "24T24979|r=16",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 16,
+      "scoring_discriminant_abs": 12935321377944875981879084706528351214080122016880893268918136785217531925467257867208992105793350624559407005425098293248,
+      "solvable": false,
+      "solved_teams": 37
+    },
+    {
+      "label": "24T25000",
+      "pair_key": "24T25000|r=4",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 4,
+      "scoring_discriminant_abs": 4305788227762368038432146949480625912583295063964640506113361990123520,
+      "solvable": false,
+      "solved_teams": 49
+    },
+    {
+      "label": "24T25000",
+      "pair_key": "24T25000|r=16",
+      "points": "<0.0001",
+      "points_numeric": null,
+      "r": 16,
+      "scoring_discriminant_abs": 44024147445133441596804492334929675908214552930218285166779010980703079976111712664310905173402107103411699867552880734318527172949319844340413059193891390456300042482699403132173156618322185664501112964953717740302567095951843861448069193282218841418291341920959819349040,
+      "solvable": false,
+      "solved_teams": 27
+    }
+  ],
+  "safety": {
+    "api_key_recorded": false,
+    "local_file_only": true,
+    "network_calls": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "summary": {
+    "max_points": 0.0019,
+    "max_points_pair": "24T9993|r=8",
+    "row_count": 20,
+    "visible_points_rows": 2
+  }
+}

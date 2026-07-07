@@ -296,6 +296,57 @@ results change.
   `git diff --check` passed; the secret-shaped scan found no key-like matches;
   Stage 4 remains present at line 7762.
 
+- Completed `4x6` composition pivot: added
+  `scripts/igp24_alt_composition_4x6_probe.py`, a CPU-only diagnostic
+  generator for degree pattern `4x6`, deliberately avoiding the exhausted
+  `6x4` tower and plain `8x3` lanes. Scope guardrails held: no GPU/model
+  training, no Magma/PARI, no network from generation, no `6x4` or plain
+  `8x3` submissions, and live SAIR submission only after the anti-basin
+  planner marked a small packet ready.
+  Generation command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_alt_composition_4x6_probe.py --output_dir data/igp24/alt_composition_4x6_probe_20260707 --seed 244601 --max_trials 1600 --limit 24 --per_family_cap 1 --per_mode_cap 8 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0 --target_rs 24,20,16,12,8 --level_bound 200 --max_levels_per_inner 80 --max_layouts_per_inner 24 --exclude_perturbation_modes outer_constant_shift --stop_after_candidates 120 --max_rejected_records 300`.
+  Result: 1,600 local trials, 110 valid candidates, 24 selected rows, all
+  selected rows at local `r=12`, coefficient-height range 25,991,674 to
+  51,434,644, and selected modes split across `outer_balanced_shift`,
+  `outer_cubic_mixed_shift`, and `outer_linear_quadratic_shift`.
+  Live-progress-aware planner command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/alt_composition_4x6_probe_20260707/alt_composition_4x6_candidate_queue.jsonl --output_dir data/igp24/anti_basin_4x6_steering_20260707 --fetch_live_progress --target_rs 24,20,16,12,8 --packet_limit 12 --min_packet_rows 8 --per_mode_cap 4 --per_pattern_cap 12`.
+  The first sandboxed live-progress fetch failed with DNS resolution blocked;
+  rerunning with approved network access succeeded without printing or writing
+  the API key. Planner result: 24 candidates scored, 24 eligible, 12 selected,
+  `recommended_for_sair_packet=true`, and selected modes split 4/4/4 across
+  the three nonconstant 4x6 perturbation modes.
+  SAIR dry-run succeeded: 12 polynomials, 2,159-byte body. Live submission
+  `sub_ef0fdc26a49c42ae9b77422b6c521d96` queued 12 rows, rejected 0. The
+  second status poll verified all rows immediately: 12 accepted, 0 failed,
+  0 queued, all `24T24984|r=12`; scoring/discriminants remain pending
+  (`scoreable=false`, `scoringStatus=pending`). Feedback artifact:
+  `data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json`.
+  Pair-status update: new local pair `24T24984|r=12` plus 11 alternates, no
+  representative replacements. Refreshed basin analysis now has 134
+  observations, 12 labels, 18 pairs, and 8 anti-basin constraints, including
+  `stop_current_4x6_24T24984_lane`. Lesson: `4x6` escaped `24T24932` and the
+  old `6x4`/`24T25000` basins, but this tested inner-root family
+  `-3,-2,-1,1,2,4` collapsed to globally fully covered `24T24984|r=12` across
+  three perturbation modes. Do not submit more rows from this exact 4x6 inner
+  family unless the inner polynomial, level geometry, real-root bucket, or
+  label-steering signal changes materially.
+
+- Latest user-reported SAIR website score snapshot: recorded the pasted
+  20-row score table in
+  `data/igp24/sair_score_snapshot_20260707_user_reported.json` and wired it
+  into `data/igp24/pair_status_20260706.json`. This is manual website
+  provenance, not an API response. Current visible points are concentrated in
+  low-team pairs: `24T9993|r=8` scores `0.0019` with 10 solved teams and
+  `24T22770|r=12` scores `0.0002` with 12 solved teams; all other rows in the
+  snapshot are `<0.0001`. The practical lesson is that accepted/global-covered
+  pairs can be useful only when the team count is low or the discriminant is
+  materially better. Future queue planners should prefer low-team uncovered or
+  lightly solved pockets, and should treat high-team labels such as
+  `24T24979`, `24T24970`, `24T25000`, `24T24651`, and `24T23883` as
+  label-steering negatives unless there is strong discriminant-improvement
+  evidence.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

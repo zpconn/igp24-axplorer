@@ -39,10 +39,11 @@ SAFETY_NOTE = (
     "on GPU, run CPU search loops, or run local search."
 )
 SCORE_LESSON_NOTE = (
-    "The first accepted five rows were valid but each scored <0.0001; "
-    "acceptance alone is not enough. Prioritize genuinely new non-baseline "
-    "non-generic pairs, or accepted-pair duplicates only when the exact "
-    "discriminant improvement is material."
+    "Most accepted rows have scored <0.0001 so far, while the visible positive "
+    "outliers are low-team pairs such as 24T9993|r=8 and 24T22770|r=12. "
+    "Acceptance alone is not enough. Prioritize genuinely new non-baseline "
+    "non-generic pairs, low-team scored pockets, or accepted-pair duplicates "
+    "only when the exact discriminant improvement is material."
 )
 
 
@@ -415,7 +416,7 @@ def classify_row(
         "accepted_pair_status"
     ] != "not_previously_accepted":
         classification = "accepted_pair_duplicate"
-        note = "Pair is already accepted locally; prior accepted pairs scored <0.0001 unless discriminants improve materially."
+        note = "Pair is already accepted locally; most accepted pairs have tiny scores unless the pair is low-team or the discriminant improves materially."
     else:
         classification = "new_non_baseline_pair"
         note = "Exact non-generic pair is absent from the frozen baseline and local accepted ledger."
@@ -548,7 +549,7 @@ def build_summary(
         "submission_grade_hashes": [row.get("canonical_hash") for row in submission_rows],
         "submission_grade_pairs": [row.get("pair_key") for row in submission_rows],
         "score_lesson": {
-            "prior_accepted_pair_score_text": "<0.0001",
+            "prior_accepted_pair_score_text": "mostly <0.0001; visible outliers include 24T9993|r=8 at 0.0019 and 24T22770|r=12 at 0.0002",
             "acceptance_alone_is_not_enough": True,
             "note": SCORE_LESSON_NOTE,
         },

@@ -474,9 +474,11 @@ def build_summary(
                 "24T23883/24T24651, while odd-escaped 6x4 towers hit generic 24T25000. "
                 "The alternate-composition 8x3 lane now also has a tracked collapse into "
                 "globally covered 24T24932 across constant and nonconstant outer "
-                "perturbations. Next generated queue must use a different composition "
-                "pattern, a materially different inner family, or a stronger label-steering "
-                "signal before any SAIR submission."
+                "perturbations. The first 4x6 anti-basin lane escaped those labels but "
+                "collapsed to globally covered 24T24984|r=12 across three perturbation "
+                "modes. Next generated queue must use a materially different inner "
+                "family, composition pattern, real-root bucket, or stronger "
+                "label-steering signal before any SAIR submission."
             ),
             "gpu_training_recommended_now": False,
             "submission_without_new_structure_recommended": False,
@@ -571,6 +573,40 @@ def derive_anti_basin_constraints(
                     "the tested nonconstant outer coefficient shifts, collapsed to globally "
                     "covered 24T24932; require a different degree pattern, inner family, or "
                     "stronger mod-p/label-steering discriminator before submitting more 8x3 rows."
+                ),
+            }
+        )
+    alt_4x6_24984_rows = [
+        row
+        for row in observations
+        if row.get("construction_family") == "alt_composition_4x6"
+        and row.get("decomposition_pattern") == "4x6"
+        and row.get("label") == "24T24984"
+    ]
+    if alt_4x6_24984_rows:
+        inner_family_counts: Counter[str] = Counter()
+        for row in alt_4x6_24984_rows:
+            family_key = str(row.get("family_key") or "")
+            if not family_key:
+                continue
+            inner_key = family_key.split("|mode=", 1)[0]
+            inner_family_counts[inner_key] += 1
+        constraints.append(
+            {
+                "name": "stop_current_4x6_24T24984_lane",
+                "severity": "high",
+                "labels": ["24T24984"],
+                "r_values": sorted(set(int(row["r"]) for row in alt_4x6_24984_rows)),
+                "observed_rows": len(alt_4x6_24984_rows),
+                "inner_family_counts": dict(inner_family_counts.most_common()),
+                "perturbation_mode_counts": _counter_values(alt_4x6_24984_rows, "perturbation_mode"),
+                "rule": (
+                    "The tested 4x6 lane with the degree-6 inner-root family "
+                    "`-3,-2,-1,1,2,4` and adjacent four-level outer roots collapsed "
+                    "to globally covered 24T24984|r=12 across three nonconstant "
+                    "outer perturbation modes; do not submit more rows from this "
+                    "inner family unless the inner polynomial, level geometry, "
+                    "real-root bucket, or label-steering signal changes materially."
                 ),
             }
         )

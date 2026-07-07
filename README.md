@@ -39,7 +39,9 @@ basins. Low-odd perturbations often collapse to generic `24T25000`, while
 exact composed families such as `g(x^2)` and `h(x^4-s*x^2)` steer into
 non-generic but still common labels like `24T23883` and `24T24651`. The current
 planning loop uses live SAIR progress plus local label-basin analysis before
-spending more submissions.
+spending more submissions. Recent alternate-composition probes show the same
+pattern: plain `8x3` rows collapse to `24T24932`, while the first `4x6` lane
+collapsed to `24T24984`.
 
 The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets
 planning helpers compare verified `(24Tt, r)` pairs against the frozen LMFDB
@@ -344,6 +346,8 @@ that branch.
 - `scripts/igp24_r24_odd_escape_feedback.py`: joins verified SAIR feedback for
   the odd-escape probe back to local queue metadata.
 - `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
+  alternate-composition diagnostic queue generator.
+- `scripts/igp24_alt_composition_4x6_probe.py`: CPU-only `4x6`
   alternate-composition diagnostic queue generator.
 - `scripts/igp24_alt_8x3_sair_probe.py`: reviewed 8-row `8x3` SAIR packet
   builder and feedback-ingest helper.

@@ -2047,6 +2047,84 @@ should not spend more rows on ordinary `8x3` outer coefficient perturbations
 unless the inner family, degree pattern, or label discriminator changes
 materially.
 
+## Anti-Basin 4x6 Probe
+
+The next alternate-composition pivot changed the degree pattern again, from
+plain `8x3` to `4x6`. The new generator is
+`scripts/igp24_alt_composition_4x6_probe.py`, a CPU-only local diagnostic that
+uses auditable degree-6 inner seeds, finds integer levels with six real
+preimages, composes with degree-4 outer polynomials, and rejects exact even
+support or support gcd greater than 1. It does not use GPU training, Magma,
+PARI, SAIR, or network APIs during generation.
+
+Generation:
+
+- output directory: `data/igp24/alt_composition_4x6_probe_20260707/`
+- trials attempted: 1,600
+- valid local candidates: 110
+- selected rows: 24
+- selected local r: all `r=12`
+- selected modes: 8 `outer_balanced_shift`, 8 `outer_cubic_mixed_shift`, and
+  8 `outer_linear_quadratic_shift`
+- coefficient-height range: 25,991,674 to 51,434,644
+- excluded mode: `outer_constant_shift`
+
+Planner:
+
+- output directory: `data/igp24/anti_basin_4x6_steering_20260707/`
+- live progress source: SAIR `labels/progress`, generated
+  `2026-07-07T16:33:13Z` to `2026-07-07T16:33:19Z`
+- candidates scored: 24
+- eligible candidates: 24
+- selected rows: 12
+- planner recommendation: `reviewed_packet_ready_for_dry_run`
+- selected mode mix: 4 rows from each nonconstant 4x6 perturbation mode
+
+SAIR result:
+
+- dry-run: ok, 12 polynomials, 2,159-byte body
+- submission id: `sub_ef0fdc26a49c42ae9b77422b6c521d96`
+- accepted: 12
+- failed: 0
+- queued after second poll: 0
+- labels: all `24T24984|r=12`
+- scoring status: pending; no discriminants yet
+- pair status: added local `24T24984|r=12`, appended 11 alternates, replaced
+  no representatives
+
+Interpretation: `4x6` did escape the known `24T24932` plain-`8x3` basin and
+the earlier `6x4`/generic basins, so changing composition degree pattern still
+matters. But this first tested 4x6 lane also collapsed cleanly to one globally
+fully covered label, `24T24984|r=12`, across three perturbation modes. The
+basin analyzer now emits `stop_current_4x6_24T24984_lane`: do not submit more
+rows from the same degree-6 inner-root family `-3,-2,-1,1,2,4` unless the
+inner polynomial, level geometry, target real-root bucket, or label-steering
+signal changes materially.
+
+## SAIR Website Score Snapshot
+
+The user supplied a 2026-07-07 SAIR website score table for 20 of our accepted
+pairs. It is recorded as manual website provenance in
+`data/igp24/sair_score_snapshot_20260707_user_reported.json` and joined into
+the local pair-status ledger.
+
+Visible point outliers:
+
+| pair | solved teams | points |
+| --- | ---: | ---: |
+| `24T9993|r=8` | 10 | 0.0019 |
+| `24T22770|r=12` | 12 | 0.0002 |
+
+All other rows in the pasted table are currently `<0.0001` points. This
+confirms the score lesson more sharply than the earlier accepted/rejected
+feedback alone: the best visible contributions come from low-team pockets, not
+from high-team covered basins. Accepted labels with 20-60 solved teams may be
+useful as local learning signal, but they are not good score targets unless a
+candidate materially improves the scoring discriminant. The newest
+`24T24932` and `24T24984` alternate-composition packets are not present in
+this score table, so their discriminant scoring remains pending in the local
+record.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

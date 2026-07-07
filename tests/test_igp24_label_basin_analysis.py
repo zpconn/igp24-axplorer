@@ -104,6 +104,13 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
                 "r": 24,
                 "canonical_hash": "hash-odd-escape",
             },
+            {
+                "row_number": 4,
+                "status": "accepted",
+                "label": "24T24984",
+                "r": 12,
+                "canonical_hash": "hash-4x6",
+            },
         ],
     }
     _write_json(feedback_path, feedback)
@@ -157,6 +164,28 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
                 "r24_tower_odd_escape_family_key": "odd-escape:r24",
             },
         },
+        {
+            "canonical_hash": "hash-4x6",
+            "exported_coefficients": mixed_generic_coefficients,
+            "coefficient_height": 25991674,
+            "real_root_count": 12,
+            "irreducible": True,
+            "squarefree": True,
+            "generation_metadata": {
+                "construction_family": "alt_composition_4x6",
+                "decomposition_degree_pattern": "4x6",
+                "alt_perturbation_mode": "outer_balanced_shift",
+                "alt_composition_family_key": (
+                    "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_balanced_shift|"
+                    "levels=-37,-36,-35,-34|outer_y=0:-1,1:2,2:-1"
+                ),
+                "alt_outer_perturbations": [
+                    {"outer_y_exponent": 0, "delta": -1},
+                    {"outer_y_exponent": 1, "delta": 2},
+                    {"outer_y_exponent": 2, "delta": -1},
+                ],
+            },
+        },
     ]
     queue_path.write_text(
         "\n".join(json.dumps(row, sort_keys=True) for row in queue_rows) + "\n",
@@ -164,7 +193,7 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
     )
 
     observations = load_observations([feedback_path], [queue_path])
-    assert len(observations) == 3
+    assert len(observations) == 4
     tower = next(row for row in observations if row["label"] == "24T24651")
     assert tower["queue_joined"] is True
     assert tower["support_gcd"] == 2
@@ -190,18 +219,26 @@ def test_label_basin_analysis_joins_queues_and_derives_constraints(tmp_path):
                 "discoveredSignatures": [16],
                 "remainingSignatures": [24],
             },
+            "24T24984": {
+                "label": "24T24984",
+                "teamCount": 42,
+                "allowedR": [12],
+                "discoveredSignatures": [12],
+                "remainingSignatures": [],
+            },
         },
         feedback_paths=[feedback_path],
         queue_paths=[queue_path],
     )
 
-    assert summary["observation_count"] == 3
+    assert summary["observation_count"] == 4
     assert summary["label_summary"]["24T24651"]["global_progress"]["fully_covered"] is True
     assert summary["pair_summary"]["24T24651|r=24"]["global_pair_discovered"] is True
     constraint_names = {item["name"] for item in summary["anti_basin_constraints"]}
     assert "stop_exact_even_6x4_constant_shift_towers" in constraint_names
     assert "avoid_generic_24T25000_perturbation_lanes" in constraint_names
     assert "stop_odd_escaped_r24_6x4_towers" in constraint_names
+    assert "stop_current_4x6_24T24984_lane" in constraint_names
     assert summary["next_lane_decision"]["gpu_training_recommended_now"] is False
 
     paths = write_outputs(observations=observations, summary=summary, output_dir=tmp_path / "out")

@@ -24,9 +24,15 @@
         "best_pair_discriminant_abs": 1085452710404880000732025061376,
         "discriminant_type": "exact_nfdisc",
         "teams_k": 32,
-        "pair_score": "<0.0001"
+        "pair_score": "<0.0001",
+        "solved_teams": 32,
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
       },
-      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T21844|r=4",
@@ -35,10 +41,21 @@
       "status": "accepted",
       "canonical_hash": "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
       "short_hash": "33772dd90765",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "source": "data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json",
-      "note": "New pair from the 3-row strong anti-S24 manual queue; SAIR verifier accepted it, scores pending."
+      "note": "New pair from the 3-row strong anti-S24 manual queue; SAIR verifier accepted it, scores pending.",
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 21631235806139817078463277024935936,
+        "teams_k": 39,
+        "solved_teams": 39,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24648|r=4",
@@ -54,9 +71,15 @@
         "best_pair_discriminant_abs": 1240040809067081589350688687340077,
         "discriminant_type": "mixed_disc",
         "teams_k": 28,
-        "pair_score": "<0.0001"
+        "pair_score": "<0.0001",
+        "solved_teams": 28,
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
       },
-      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T24759|r=4",
@@ -72,9 +95,15 @@
         "best_pair_discriminant_abs": 358371793820386579322349030641282253,
         "discriminant_type": "mixed_disc",
         "teams_k": 30,
-        "pair_score": "<0.0001"
+        "pair_score": "<0.0001",
+        "solved_teams": 30,
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
       },
-      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T24970|r=4",
@@ -86,11 +115,16 @@
       "exact_nfdisc_abs": 6681964085859090457451944972407263119355674624,
       "leaderboard_scoring": {
         "solvable": false,
-        "scoring_discriminant_abs": 483860401956763489669011989577899250603371798115505401757696,
+        "scoring_discriminant_abs": 366239629242005852435630471622048280116882951016669633314816,
         "best_pair_discriminant_abs": 3509318011999541951139623123560000,
         "discriminant_type": "mixed_disc",
         "teams_k": 51,
-        "pair_score": "<0.0001"
+        "pair_score": "<0.0001",
+        "solved_teams": 51,
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
       },
       "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
       "accepted_alternates": [
@@ -110,7 +144,8 @@
           "source": "data/igp24/sair_accepted_label_feedback_20260706_strong_anti_s24_queue.json",
           "note": "Accepted duplicate pair from the 3-row strong anti-S24 manual queue; keep as pending alternate until SAIR scores confirm whether it improves the scored discriminant."
         }
-      ]
+      ],
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T24979|r=4",
@@ -125,10 +160,16 @@
         "scoring_discriminant_abs": 752880562130512465229258492699316353904979173801601362034688,
         "best_pair_discriminant_abs": 87306114061160641264533591554033,
         "discriminant_type": "mixed_disc",
-        "teams_k": 52,
-        "pair_score": "<0.0001"
+        "teams_k": 54,
+        "pair_score": "<0.0001",
+        "solved_teams": 54,
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
       },
-      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json"
+      "source": "/tmp/igp24_final_submission_package_20260706_crosschecked/package_manifest.json",
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T24979|r=16",
@@ -137,7 +178,7 @@
       "status": "accepted",
       "canonical_hash": "5717fba7df408cb006c3f49201219a58d3bf3d203f197870fb1853d8f3c23d28",
       "short_hash": "5717fba7df40",
-      "score_status": "discriminant_pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "sair_submission_id": "sub_02ecc2457d124584b8325b83608a2e9c",
       "sair_scoring": {
         "scoreable": false,
@@ -149,7 +190,8 @@
         "baseline_disc_abs": null,
         "field_disc_abs": null,
         "disc_source": null,
-        "note": "SAIR export currently reports scoreable=false only because scoring_status is pending with scoring_reason=discriminant_pending; this is not a final no-score decision."
+        "note": "A later user-reported SAIR website score snapshot gives scored discriminant/points for this pair.",
+        "superseded_by_score_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json"
       },
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
@@ -253,7 +295,18 @@
           "source": "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
           "note": "Accepted duplicate/new alternate r=16 pair from the 10-row diversified r16 probe submission; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 12935321377944875981879084706528351214080122016880893268918136785217531925467257867208992105793350624559407005425098293248,
+        "teams_k": 37,
+        "solved_teams": 37,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T25000|r=4",
@@ -276,7 +329,19 @@
           "source": "data/igp24/sair_accepted_label_feedback_20260706_next_queue.json",
           "note": "Lower exact nfdisc than the current ledger representative; keep as pending alternate until SAIR scores confirm whether it improves the scored discriminant."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 4305788227762368038432146949480625912583295063964640506113361990123520,
+        "teams_k": 49,
+        "solved_teams": 49,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      },
+      "score_status": "scored_from_user_reported_snapshot"
     },
     {
       "pair_key": "24T25000|r=16",
@@ -285,7 +350,7 @@
       "status": "accepted",
       "canonical_hash": "13094bd39221df048cb6a46f78ad15a39a9ffc1234104601d18bf1911e641170",
       "short_hash": "13094bd39221",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
@@ -446,7 +511,18 @@
       ],
       "additional_feedback_sources": [
         "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json"
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 44024147445133441596804492334929675908214552930218285166779010980703079976111712664310905173402107103411699867552880734318527172949319844340413059193891390456300042482699403132173156618322185664501112964953717740302567095951843861448069193282218841418291341920959819349040,
+        "teams_k": 27,
+        "solved_teams": 27,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T657|r=8",
@@ -455,10 +531,21 @@
       "status": "accepted",
       "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
       "short_hash": "86f62f433b3f",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
-      "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending."
+      "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending.",
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 54561788911246566226071522394619032633344,
+        "teams_k": 19,
+        "solved_teams": 19,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T661|r=8",
@@ -467,10 +554,21 @@
       "status": "accepted",
       "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
       "short_hash": "de699993e8a9",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
-      "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending."
+      "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending.",
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 32193139341492335723494291037388269420544,
+        "teams_k": 14,
+        "solved_teams": 14,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T1310|r=8",
@@ -479,7 +577,7 @@
       "status": "accepted",
       "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
       "short_hash": "85cefa437fa2",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
       "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending.",
@@ -492,7 +590,18 @@
           "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
           "note": "Accepted duplicate r=8 pair from the six-row r8_quartic_lift submission; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 9606056659007943744000000000000000000,
+        "teams_k": 33,
+        "solved_teams": 33,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T9993|r=8",
@@ -501,7 +610,7 @@
       "status": "accepted",
       "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
       "short_hash": "eb604c239982",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
       "note": "New r=8 pair from the six-row r8_quartic_lift submission; SAIR verifier accepted it, scores and scoring discriminants pending.",
@@ -514,7 +623,18 @@
           "source": "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
           "note": "Accepted duplicate r=8 pair from the six-row r8_quartic_lift submission; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 1307820986002621416454731276833908982808576,
+        "teams_k": 10,
+        "solved_teams": 10,
+        "pair_score": "0.0019",
+        "points": "0.0019",
+        "points_numeric": 0.0019,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T25000|r=24",
@@ -818,7 +938,7 @@
       "status": "accepted",
       "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
       "short_hash": "23ab54762bd5",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
@@ -838,7 +958,18 @@
           "source_family_key": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
           "note": "Accepted duplicate r=12 pair from the 10-row exact-composed structured probe; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 116197216336379926894811462300476626028304220400799806227976586491845754790765784528402294738815989422489600000000000000,
+        "teams_k": 12,
+        "solved_teams": 12,
+        "pair_score": "0.0002",
+        "points": "0.0002",
+        "points_numeric": 0.0002,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24970|r=12",
@@ -847,7 +978,7 @@
       "status": "accepted",
       "canonical_hash": "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
       "short_hash": "694d5370d953",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
@@ -878,7 +1009,18 @@
           "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
           "note": "Accepted duplicate r=12 pair from the 10-row feedback-aware exact-composed follow-up; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 6227231236671407030471085510568015074850012643184655469699011757550560667771226011698956994877854681722545433102195584111584325397876870222251148440759115051228870795060211251685732510739810708557279695769162649600000000000000,
+        "teams_k": 22,
+        "solved_teams": 22,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24979|r=12",
@@ -887,7 +1029,7 @@
       "status": "accepted",
       "canonical_hash": "ce09a0129584a7374c088352087fc96b169d1604881ee80cb6c0a5a63d5acc36",
       "short_hash": "ce09a0129584",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
@@ -1050,7 +1192,18 @@
           "source_family_key": "pos=1,2,4,5,7,9|neg=1,2,3,5,7,9|y=3,8",
           "note": "Accepted duplicate r=12 pair from the 10-row feedback-aware exact-composed follow-up; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 6642729100312007671207024805965131158135309757808327800622408582287574298588407209660254081062733862253015766308521805547380152003087453311856020267969148620638898159413963103019507664453180376555557603397215433634880305758508599853693503848401644120259391062828899139815161814280836501626518276773471271027349911502848,
+        "teams_k": 36,
+        "solved_teams": 36,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T23883|r=12",
@@ -1059,7 +1212,7 @@
       "status": "accepted",
       "canonical_hash": "4386edc001eba8c329ba6212e551129970bc2284a551f84447922837d11d95d2",
       "short_hash": "4386edc001eb",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
@@ -1081,7 +1234,18 @@
           "source_inner_parameter_s": 8,
           "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 15364937579229132358320793677949477164006328803979882613112009881736145679227040038912,
+        "teams_k": 39,
+        "solved_teams": 39,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24651|r=12",
@@ -1090,7 +1254,7 @@
       "status": "accepted",
       "canonical_hash": "fceab6f1bb24887542978cc8ad4057f7538c27b92cfc553d24054103a094de7c",
       "short_hash": "fceab6f1bb24",
-      "score_status": "pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_user": true,
       "baseline_rows_for_pair": 0,
       "source": "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
@@ -1184,7 +1348,18 @@
           "source_inner_parameter_s": 8,
           "note": "Accepted duplicate r=12 pair from the 10-row degree-6-by-degree-4 tower probe; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 5645187787936841928542182081514471547322938158883104074106683475239627712333457187061167154503316045138628900449943552,
+        "teams_k": 36,
+        "solved_teams": 36,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T23883|r=24",
@@ -1193,7 +1368,7 @@
       "status": "accepted",
       "canonical_hash": "3d68a81f60f3829e089fec0856b7fba4776ee62a34c62a904f41613a9d5555cb",
       "short_hash": "3d68a81f60f3",
-      "score_status": "discriminant_pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_api": true,
       "sair_submission_id": "sub_54bf941fa9a64d7984a51cfe52ce049e",
       "baseline_rows_for_pair": 0,
@@ -1208,10 +1383,22 @@
         "scoring_reason": "discriminant_pending",
         "in_baseline": false,
         "baseline_unlocked": false,
-        "note": "scoreable=false is paired with discriminant_pending, so this is pending scoring, not final no-score."
+        "note": "A later user-reported SAIR website score snapshot gives scored discriminant/points for this pair.",
+        "superseded_by_score_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json"
       },
       "note": "Exact h(x^4-s*x^2) r24 tower probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
-      "accepted_alternates": []
+      "accepted_alternates": [],
+      "leaderboard_scoring": {
+        "solvable": true,
+        "scoring_discriminant_abs": 5353693582693779953858004300466244399908214880029542824542208,
+        "teams_k": 38,
+        "solved_teams": 38,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24651|r=24",
@@ -1220,7 +1407,7 @@
       "status": "accepted",
       "canonical_hash": "279813797174b2c5447251530667881402fe305821793e871a0e6831ba62940c",
       "short_hash": "279813797174",
-      "score_status": "discriminant_pending",
+      "score_status": "scored_from_user_reported_snapshot",
       "accepted_reported_by_api": true,
       "sair_submission_id": "sub_54bf941fa9a64d7984a51cfe52ce049e",
       "baseline_rows_for_pair": 0,
@@ -1235,7 +1422,8 @@
         "scoring_reason": "discriminant_pending",
         "in_baseline": false,
         "baseline_unlocked": false,
-        "note": "scoreable=false is paired with discriminant_pending, so this is pending scoring, not final no-score."
+        "note": "A later user-reported SAIR website score snapshot gives scored discriminant/points for this pair.",
+        "superseded_by_score_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json"
       },
       "note": "Exact h(x^4-s*x^2) r24 tower probe row accepted by SAIR. Scores and scoring discriminants are pending; keep duplicate accepted rows as alternates until scores are available.",
       "accepted_alternates": [
@@ -1335,7 +1523,18 @@
           "source_inner_parameter_s": 8,
           "note": "Accepted duplicate r=24 pair from the 10-row r24 exact tower probe; keep as pending alternate until SAIR scores are available."
         }
-      ]
+      ],
+      "leaderboard_scoring": {
+        "solvable": false,
+        "scoring_discriminant_abs": 37957569004618965816835260958274333286184533487363814020485169909249772042876222604987135691121284530735778596767374413009050188452303208448,
+        "teams_k": 34,
+        "solved_teams": 34,
+        "pair_score": "<0.0001",
+        "points": "<0.0001",
+        "points_numeric": null,
+        "source_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+        "reported_source": "SAIR website table pasted by user on 2026-07-07"
+      }
     },
     {
       "pair_key": "24T24932|r=24",
@@ -1675,6 +1874,221 @@
           "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
         }
       ]
+    },
+    {
+      "pair_key": "24T24984|r=12",
+      "label": "24T24984",
+      "r": 12,
+      "status": "accepted",
+      "canonical_hash": "252045fc9d7e7756d0cade1e9553dee3cc611d3a4a0c3e80f2c0f9dc87c8aa99",
+      "short_hash": "252045fc9d7e",
+      "score_status": "pending",
+      "accepted_reported_by_sair": true,
+      "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+      "source_row_number": 1,
+      "construction_family": "alt_composition_4x6",
+      "decomposition_pattern": "4x6",
+      "family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_balanced_shift|levels=-37,-36,-35,-34|outer_y=0:-1,1:2,2:-1",
+      "anti_basin_score": 158.483,
+      "anti_basin_classification": "strong_packet_candidate",
+      "sair_scoring": {
+        "scoreable": false,
+        "scoring_status": "pending",
+        "disc_source": null,
+        "field_disc_abs": null,
+        "in_baseline": false,
+        "baseline_unlocked": false
+      },
+      "note": "New pair from the anti-basin planner packet; scoring/discriminant fields are SAIR-reported when present.",
+      "accepted_alternates": [
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "219ae1452d11c3842a11ea47ccc9e57c7a69999449d9f6c09b0b557ad69a59b6",
+          "short_hash": "219ae1452d11",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 2,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_balanced_shift|levels=-36,-35,-34,-33|outer_y=0:-1,1:2,2:-1",
+          "perturbation_mode": "outer_balanced_shift",
+          "anti_basin_score": 158.461,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "9cde07708f31dde2449d1d3b153156218881754f6e2ca9fc9084088d4d4775bf",
+          "short_hash": "9cde07708f31",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 3,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_balanced_shift|levels=-34,-33,-32,-31|outer_y=0:-1,1:2,2:-1",
+          "perturbation_mode": "outer_balanced_shift",
+          "anti_basin_score": 158.42,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "6b604d1a643dfa66e83a18681bb70829b130fb950c7584e2a2cf9ced2b3523f8",
+          "short_hash": "6b604d1a643d",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 4,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_linear_quadratic_shift|levels=-34,-33,-32,-31|outer_y=1:1,2:-1",
+          "perturbation_mode": "outer_linear_quadratic_shift",
+          "anti_basin_score": 158.42,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "afe78a8e5b6d05a7a61d90ae15483985e39c9f3bc3fc4bdb6ad5e20be30780e9",
+          "short_hash": "afe78a8e5b6d",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 5,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_balanced_shift|levels=-32,-31,-30,-29|outer_y=0:-1,1:2,2:-1",
+          "perturbation_mode": "outer_balanced_shift",
+          "anti_basin_score": 158.381,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "27206c06aece7f6093ec5b5f8447e7b6411fefee372b728c670a427014056e04",
+          "short_hash": "27206c06aece",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 6,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_linear_quadratic_shift|levels=-32,-31,-30,-29|outer_y=1:1,2:-1",
+          "perturbation_mode": "outer_linear_quadratic_shift",
+          "anti_basin_score": 158.381,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "72f1c312c340094f360b12f6e60df89e07061798730d59dbc11e97fd2d966a1d",
+          "short_hash": "72f1c312c340",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 7,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_cubic_mixed_shift|levels=-26,-25,-24,-23|outer_y=0:2,1:-1,3:1",
+          "perturbation_mode": "outer_cubic_mixed_shift",
+          "anti_basin_score": 158.279,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "d0faeac3b9ab61e946e6c5f11283b0ea1a01daaebe56f16188524bf34a88911f",
+          "short_hash": "d0faeac3b9ab",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 8,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_linear_quadratic_shift|levels=-26,-25,-24,-23|outer_y=1:1,2:-1",
+          "perturbation_mode": "outer_linear_quadratic_shift",
+          "anti_basin_score": 158.275,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "e29ea76b91d9253718d511dfe1f321abd9a546931dfb9bfa37c01e00eaf1135c",
+          "short_hash": "e29ea76b91d9",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 9,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_cubic_mixed_shift|levels=-24,-23,-22,-21|outer_y=0:2,1:-1,3:1",
+          "perturbation_mode": "outer_cubic_mixed_shift",
+          "anti_basin_score": 158.246,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "8dfd4a8cabd16dd4a56c1000e70d27572249b5cd906ce44d46f8d228c4bb5247",
+          "short_hash": "8dfd4a8cabd1",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 10,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_cubic_mixed_shift|levels=-22,-21,-20,-19|outer_y=0:2,1:-1,3:1",
+          "perturbation_mode": "outer_cubic_mixed_shift",
+          "anti_basin_score": 158.215,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "943852886c6f73a4c86cc98c90657600bbe33742ed33127b4d3432bdcc4dba83",
+          "short_hash": "943852886c6f",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 11,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_cubic_mixed_shift|levels=-20,-19,-18,-17|outer_y=0:2,1:-1,3:1",
+          "perturbation_mode": "outer_cubic_mixed_shift",
+          "anti_basin_score": 158.184,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        },
+        {
+          "status": "accepted",
+          "score_status": "pending",
+          "canonical_hash": "a5a6f3bd9305359f5948fb5906d3583d3cd58a1786d372ef1da66982c2f3b59a",
+          "short_hash": "a5a6f3bd9305",
+          "source": "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+          "source_row_number": 12,
+          "source_family_key": "4x6|inner_roots=-3,-2,-1,1,2,4|mode=outer_linear_quadratic_shift|levels=-37,-36,-35,-34|outer_y=1:1,2:-1",
+          "perturbation_mode": "outer_linear_quadratic_shift",
+          "anti_basin_score": 143.483,
+          "anti_basin_classification": "strong_packet_candidate",
+          "disc_source": null,
+          "field_disc_abs": null,
+          "scoreable": false,
+          "scoring_status": "pending",
+          "note": "Accepted alternate from the anti-basin planner packet; primary representative unchanged."
+        }
+      ]
     }
   ],
   "notes": [
@@ -1695,6 +2109,9 @@
     "The 10-row r12 degree-6-by-degree-4 tower submission was accepted by the SAIR verifier; rows 1,3,4,6-10 landed as 24T24651|r=12 and rows 2,5 landed as 24T23883|r=12. It added two new r=12 pair keys, avoided 24T25000, and supports continuing with structure-preserving tower families. Scores and scoring discriminants were pending when recorded.",
     "The 10-row r24 exact tower probe was submitted through the SAIR API and accepted 10/10; row 1 landed as 24T23883|r=24 and rows 2-10 landed as 24T24651|r=24. Both pairs are absent from the frozen baseline and are score-pending with discriminant_pending. These labels were globally fully covered in the earlier progress probe, so the result is useful local accepted coverage but not a hit on the top no-team r24 target labels.",
     "The reviewed alternate-composition 8x3 SAIR probe was ingested conservatively: new pair keys were added, repeated pair keys were appended only as alternates, and no representative was replaced.",
+    "The anti-basin planner packet was ingested conservatively: new pair keys were added, repeated pair keys were appended only as alternates, and no representative was replaced.",
     "The anti-basin planner packet was ingested conservatively: new pair keys were added, repeated pair keys were appended only as alternates, and no representative was replaced."
-  ]
+  ],
+  "latest_score_snapshot": "data/igp24/sair_score_snapshot_20260707_user_reported.json",
+  "updated_at": "2026-07-07T16:40:58.401465+00:00"
 }
