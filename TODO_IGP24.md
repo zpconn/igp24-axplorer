@@ -71,6 +71,22 @@ results change.
   `r=24` (11,982), `r=16` (10,534), `r=8` (6,706), `r=12` (6,586), and
   `r=20` (5,574). No submission was attempted; next step is to encode these
   accepted rows and live progress into a calibrated basin-risk report.
+- Active AXG pivot: strategy is shifting from hand-built lane submissions to a
+  GPU-assisted active-learning loop. The GPU model is now treated as a proposal
+  generator only: large sample pools must pass CPU exact filters, feedback-aware
+  basin gates, and small reviewed-packet selection before any SAIR dry-run or
+  live submission is considered. Added `scripts/igp24_model_registry.py` with
+  `init-registry`, `create-version`, `record-run`, `summarize`, and `validate`.
+  Focused registry tests:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_model_registry.py`
+  -> 10 passed. Created `data/igp24/model_registry/` and initialized `AXG-1`
+  as the baseline Axplorer Generator version. Registry validation:
+  `python3 scripts/igp24_model_registry.py --registry data/igp24/model_registry validate --output_json data/igp24/model_registry/registry_validation.json`
+  -> valid with 1 model, 0 runs, 0 issues. Summary:
+  `python3 scripts/igp24_model_registry.py --registry data/igp24/model_registry summarize --output_json data/igp24/model_registry/registry_summary.json`
+  records `AXG-1`, parent `none`, training status `not_started`, and
+  `submitted_to_sair=false`. No GPU training, sample export, SAIR submission,
+  Magma/PARI, or API key serialization happened in this registry layer.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
