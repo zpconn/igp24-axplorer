@@ -492,15 +492,22 @@ class IGP24DataPoint(DataPoint):
             if not best_candidate and analysis.valid:
                 best_candidate = (tuple(coeffs), perturbations, profile, analysis)
             if analysis.valid and analysis.real_root_count == 8 and analysis.irreducible and analysis.squarefree:
+                perturbation_mode = {
+                    1: "odd_single_off_core",
+                    2: "odd_pair_off_core",
+                    3: "odd_triple_off_core",
+                }.get(len(perturbations), "odd_multi_off_core")
+                perturbation_key = ",".join(f"{exponent}:{coefficient}" for exponent, coefficient in perturbations)
                 cls.LAST_GENERATION_DETAILS = {
                     "source_family": "r8_quartic_lift_perturbed",
+                    "r8_quartic_lift_family_key": f"{template['name']}:{perturbation_mode}:{perturbation_key}",
                     "r8_quartic_lift_template_name": template["name"],
                     "r8_quartic_lift_core_support": list(cls._r8_quartic_lift_core_support()),
                     "r8_quartic_lift_coefficients_y": list(y_coefficients),
                     "r8_quartic_lift_positive_quartic_roots": int(template["positive_quartic_roots"]),
                     "r8_quartic_lift_minimum_coeff_bound": int(template["minimum_coeff_bound"]),
                     "r8_quartic_lift_perturbation": "odd_off_core_support_gcd_1",
-                    "r8_quartic_lift_perturbation_mode": "odd_anchor_plus_optional_off_core",
+                    "r8_quartic_lift_perturbation_mode": perturbation_mode,
                     "r8_quartic_lift_perturbation_exponents": [int(exponent) for exponent, _ in perturbations],
                     "r8_quartic_lift_perturbation_coefficients": {
                         str(exponent): int(coefficient) for exponent, coefficient in perturbations
@@ -849,6 +856,7 @@ class IGP24DataPoint(DataPoint):
                     "target_r_heuristic": 8,
                     "source_family": details.get("source_family", "r8_quartic_lift_perturbed"),
                     "seed_template": "perturbed_g(y)_with_four_positive_roots_and_y=x^6",
+                    "r8_quartic_lift_family_key": details.get("r8_quartic_lift_family_key", ""),
                     "r8_quartic_lift_template_name": details.get(
                         "r8_quartic_lift_template_name", "manual_or_unknown"
                     ),

@@ -3,6 +3,7 @@ import json
 from scripts.igp24_anti_basin_planner import (
     build_basin_profile,
     build_submission_recommendation,
+    candidate_features,
     normalize_progress_cache,
     score_candidate_row,
     select_diverse_scores,
@@ -83,6 +84,37 @@ def _candidate(candidate_hash, mode, *, mod_sig, family_key=None):
             "alt_composition_family_key": family_key or f"8x3:{candidate_hash}",
         },
     }
+
+
+def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
+    row = {
+        "canonical_hash": "r8-hash",
+        "real_root_count": 8,
+        "coefficient_height": 16,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [1, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, -1, 16, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, 0, 1],
+        "mod_p_factorization_degree_patterns": [{"prime": 3, "degrees": [1, 6, 7, 10]}],
+        "generation_metadata": {
+            "source_family": "r8_quartic_lift_perturbed",
+            "r8_quartic_lift_family_key": "four_positive_fibers_d:odd_single_off_core:11:-1",
+            "r8_quartic_lift_perturbation_mode": "odd_single_off_core",
+            "r8_quartic_lift_perturbation_exponents": [11],
+            "r8_quartic_lift_support_gcd": 1,
+            "r8_quartic_lift_even_support": False,
+        },
+    }
+
+    features = candidate_features(row)
+
+    assert features["construction_family"] == "r8_quartic_lift_perturbed"
+    assert features["decomposition_pattern"] == "quartic_in_x6"
+    assert features["perturbation_mode"] == "odd_single_off_core"
+    assert features["perturbation_terms"] == 1
+    assert features["family_key"] == "four_positive_fibers_d:odd_single_off_core:11:-1"
+    assert features["support_gcd"] == 1
+    assert features["even_support"] is False
+    assert features["odd_support_exponents"] == [11]
 
 
 def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant():

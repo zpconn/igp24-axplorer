@@ -351,7 +351,12 @@ def test_r8_quartic_lift_perturbed_generation_emits_exact_r8_off_core_row():
     assert details["r8_quartic_lift_template_name"] == "four_positive_fibers_d"
     assert details["r8_quartic_lift_core_support"] == [0, 6, 12, 18]
     assert details["r8_quartic_lift_perturbation"] == "odd_off_core_support_gcd_1"
-    assert details["r8_quartic_lift_perturbation_mode"] == "odd_anchor_plus_optional_off_core"
+    assert details["r8_quartic_lift_family_key"]
+    assert details["r8_quartic_lift_perturbation_mode"] in {
+        "odd_single_off_core",
+        "odd_pair_off_core",
+        "odd_triple_off_core",
+    }
     assert details["r8_quartic_lift_support_gcd"] == 1
     assert details["r8_quartic_lift_even_support"] is False
     assert details["target_r_heuristic"] == 8
@@ -788,13 +793,14 @@ def test_r8_quartic_lift_perturbed_ledger_metadata_identifies_escape_support(tmp
             "GENERATION_PRESET_TARGET_R": None,
             "LAST_GENERATION_DETAILS": {
                 "source_family": "r8_quartic_lift_perturbed",
+                "r8_quartic_lift_family_key": "four_positive_fibers_d:odd_single_off_core:11:-1",
                 "r8_quartic_lift_template_name": "four_positive_fibers_d",
                 "r8_quartic_lift_core_support": [0, 6, 12, 18],
                 "r8_quartic_lift_coefficients_y": [1, -8, 16, -8, 1],
                 "r8_quartic_lift_positive_quartic_roots": 4,
                 "r8_quartic_lift_minimum_coeff_bound": 16,
                 "r8_quartic_lift_perturbation": "odd_off_core_support_gcd_1",
-                "r8_quartic_lift_perturbation_mode": "odd_anchor_plus_optional_off_core",
+                "r8_quartic_lift_perturbation_mode": "odd_single_off_core",
                 "r8_quartic_lift_perturbation_exponents": [11],
                 "r8_quartic_lift_perturbation_coefficients": {"11": -1},
                 "r8_quartic_lift_support_gcd": 1,
@@ -825,11 +831,12 @@ def test_r8_quartic_lift_perturbed_ledger_metadata_identifies_escape_support(tmp
     assert metadata["target_r_heuristic"] == 8
     assert metadata["source_family"] == "r8_quartic_lift_perturbed"
     assert metadata["seed_template"] == "perturbed_g(y)_with_four_positive_roots_and_y=x^6"
+    assert metadata["r8_quartic_lift_family_key"] == "four_positive_fibers_d:odd_single_off_core:11:-1"
     assert metadata["r8_quartic_lift_template_name"] == "four_positive_fibers_d"
     assert metadata["r8_quartic_lift_core_support"] == [0, 6, 12, 18]
     assert metadata["r8_quartic_lift_coefficients_y"] == [1, -8, 16, -8, 1]
     assert metadata["r8_quartic_lift_perturbation"] == "odd_off_core_support_gcd_1"
-    assert metadata["r8_quartic_lift_perturbation_mode"] == "odd_anchor_plus_optional_off_core"
+    assert metadata["r8_quartic_lift_perturbation_mode"] == "odd_single_off_core"
     assert metadata["r8_quartic_lift_perturbation_exponents"] == [11]
     assert metadata["r8_quartic_lift_perturbation_coefficients"] == {"11": -1}
     assert metadata["r8_quartic_lift_support_gcd"] == 1

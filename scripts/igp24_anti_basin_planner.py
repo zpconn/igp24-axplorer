@@ -112,6 +112,7 @@ def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
         "r20_high_real_family_key",
         "r16_diversity_family_key",
         "r12_structured_family_key",
+        "r8_quartic_lift_family_key",
     ):
         if metadata.get(key):
             return str(metadata[key])
@@ -122,20 +123,31 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     metadata = row.get("generation_metadata") if isinstance(row.get("generation_metadata"), dict) else {}
     exported = row.get("exported_coefficients")
     support = support_summary(exported if isinstance(exported, list) else None)
-    support_gcd = metadata.get("alt_support_gcd") or support.get("support_gcd")
+    support_gcd = (
+        metadata.get("alt_support_gcd")
+        or metadata.get("r8_quartic_lift_support_gcd")
+        or support.get("support_gcd")
+    )
     even_support = metadata.get("alt_even_support")
     if even_support is None:
+        even_support = metadata.get("r8_quartic_lift_even_support")
+    if even_support is None:
         even_support = support.get("even_support")
-    perturbations = metadata.get("alt_outer_perturbations") or []
+    perturbations = metadata.get("alt_outer_perturbations") or metadata.get("r8_quartic_lift_perturbation_exponents") or []
     mode = str(
         metadata.get("alt_perturbation_mode")
+        or metadata.get("r8_quartic_lift_perturbation_mode")
         or metadata.get("r24_tower_mode")
         or metadata.get("r16_diversity_mode")
         or row.get("source_mode")
         or ""
     )
-    pattern = str(metadata.get("decomposition_degree_pattern") or metadata.get("decomposition_pattern") or "")
-    construction = str(metadata.get("construction_family") or row.get("construction_family") or "")
+    pattern = str(
+        metadata.get("decomposition_degree_pattern")
+        or metadata.get("decomposition_pattern")
+        or ("quartic_in_x6" if metadata.get("source_family") == "r8_quartic_lift_perturbed" else "")
+    )
+    construction = str(metadata.get("construction_family") or metadata.get("source_family") or row.get("construction_family") or "")
     return {
         "canonical_hash": str(row.get("canonical_hash") or ""),
         "short_hash": str(row.get("canonical_hash") or "")[:12],
