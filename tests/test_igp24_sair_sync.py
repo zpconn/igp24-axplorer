@@ -11,8 +11,10 @@ from scripts.igp24_sair_sync import (
     fetch_full_label_progress,
     load_sync_progress_snapshot,
     normalize_submission_rows,
+    request_api,
     write_sync_artifacts,
 )
+from src.igp24.verifiers.sair_api import SAIRAPIError
 
 
 LINE_A = "2,0,-3,0,1,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,2,0,-3,0,1"
@@ -87,6 +89,11 @@ class FakeClient:
         raise AssertionError(path)
 
 
+class FailingClient:
+    def _request(self, method, path, *, query=None, body=None, accept="application/json"):
+        raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+
+
 def _detail():
     return {
         "submissionId": "sub_a",
@@ -149,6 +156,22 @@ def test_fetch_full_progress_and_submission_pages_are_paginated():
     assert [row["submissionId"] for row in submissions] == ["sub_a", "sub_b"]
     assert len(pages) == 2
     assert len(rate_limits) == 4
+
+
+def test_request_api_includes_endpoint_context_on_failure():
+    try:
+        request_api(
+            FailingClient(),
+            "GET",
+            "/api/public/v1/competitions/igp24/submissions/sub_test",
+            endpoint="submissions/{id}",
+            rate_limits=[],
+        )
+    except SAIRAPIError as exc:
+        assert exc.code == "IGP24_SERVICE_UNAVAILABLE"
+        assert str(exc) == "submissions/{id}: temporarily unavailable"
+    else:
+        raise AssertionError("expected SAIRAPIError")
 
 
 def test_submission_detail_download_join_matches_known_hash_and_retains_unmatched(tmp_path):

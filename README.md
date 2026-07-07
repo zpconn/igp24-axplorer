@@ -292,6 +292,9 @@ python3 scripts/igp24_sair_api.py submit \
 Synchronize the full read-only SAIR planning state:
 
 ```bash
+python3 scripts/igp24_sair_healthcheck.py \
+  --output_dir data/igp24/sair_health_YYYYMMDD
+
 python3 scripts/igp24_sair_sync.py \
   --fetch_live \
   --output_dir data/igp24/sair_sync_YYYYMMDD \
@@ -299,9 +302,11 @@ python3 scripts/igp24_sair_sync.py \
   --submission_limit 100
 ```
 
-This fetches the competition schema, `/me`, full paginated label progress, all
-of our submissions, each submission detail, and each submission download. It
-writes compact artifacts such as `sair_sync_summary.json`,
+The health check probes only lightweight GET endpoints and writes a compact
+status artifact. The full sync fetches the competition schema, `/me`, full
+paginated label progress, all of our submissions, each submission detail, and
+each submission download. It writes compact artifacts such as
+`sair_sync_summary.json`,
 `sair_submission_rows.jsonl`, `sair_scoreable_rows.jsonl`, and
 `sair_pending_rows.jsonl`, but never writes the API key.
 
@@ -312,6 +317,9 @@ python3 scripts/igp24_score_aware_target_planner.py \
   --sair_sync_dir data/igp24/sair_sync_YYYYMMDD \
   --output_dir /tmp/igp24_score_aware_target_plan
 ```
+
+Submission remains a separate manual decision. Do not spend a new submission
+packet until a full sync succeeds and the planner output recommends one.
 
 Score a candidate queue against known label basins before submission:
 
@@ -379,6 +387,8 @@ that branch.
 - `scripts/igp24_submission_package.py`: local/manual submission-review
   package builder.
 - `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
+- `scripts/igp24_sair_healthcheck.py`: lightweight read-only SAIR availability
+  probe.
 - `scripts/igp24_sair_sync.py`: read-only full SAIR state synchronizer for
   authoritative planning artifacts.
 - `scripts/igp24_sair_progress_targets.py`: compact live progress target

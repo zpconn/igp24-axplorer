@@ -27,6 +27,19 @@ Live sync attempt on 2026-07-07:
 - Focused tests for pagination, submission download joins, unmatched-row
   retention, planner sync integration, and credential redaction passed.
 
+Follow-up health pass on 2026-07-07:
+
+- Added `scripts/igp24_sair_healthcheck.py` and wrote compact health artifacts
+  under `data/igp24/sair_health_20260707`.
+- With approved network access, the four lightweight read probes all returned
+  OK: competition schema, `/me`, `labels/progress?limit=1`, and
+  `submissions/me?limit=1`.
+- A full read-only sync was retried afterward and still returned
+  `IGP24_SERVICE_UNAVAILABLE` at the per-submission detail phase
+  (`submissions/{id}`), so no full sync artifact exists yet.
+- Current decision remains no submission packet until full sync succeeds and
+  the score-aware planner consumes the resulting sync directory.
+
 ## Verified Non-Generic Queue
 
 The most important current result is the 2026-07-05 non-generic verification

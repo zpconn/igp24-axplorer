@@ -7,6 +7,7 @@ from scripts.igp24_score_aware_target_planner import (
     load_score_snapshot,
     write_outputs,
 )
+from scripts.igp24_sair_sync import load_sync_progress_snapshot, load_sync_submission_rows, write_sync_artifacts
 
 
 def _label(label, t, allowed, discovered, remaining, *, label_teams=0, signature_teams=None):
@@ -195,3 +196,36 @@ def test_score_aware_target_outputs_round_trip(tmp_path):
     assert ranked_rows[0]["category"] in {"uncovered_signature", "scored_pair_followup"}
     assert lanes[0]["source_pair"] == "24T9993|r=8"
     assert "IGP24 Score-Aware Target Plan" in paths["report_md"].read_text(encoding="utf-8")
+
+
+def test_score_aware_target_plan_handles_empty_sync_rows(tmp_path):
+    sync_paths = write_sync_artifacts(
+        output_dir=tmp_path / "sync",
+        competition={"competitionId": "igp24"},
+        me={"team": {"role": "activeMember"}},
+        progress_snapshot=_snapshot(),
+        submission_index={
+            "record_type": "igp24_sair_submission_index",
+            "submission_count": 0,
+            "submissions": [],
+            "pages": [],
+            "rate_limit_observations": [],
+        },
+        submission_rows=[],
+        command=["pytest"],
+        live_fetch=False,
+    )
+    plan = build_plan(
+        snapshot=load_sync_progress_snapshot(sync_paths["summary_json"].parent),
+        pair_status=_pair_status(),
+        score_snapshot=_score_snapshot(),
+        basin_summary=_basin_summary(),
+        sync_submission_rows=load_sync_submission_rows(sync_paths["summary_json"].parent),
+        top_limit=10,
+    )
+    paths = write_outputs(plan, tmp_path / "plan")
+
+    assert plan["inputs"]["sync_submission_rows"] == 0
+    assert plan["top_api_scoreable_targets"] == []
+    assert plan["top_api_pending_targets"] == []
+    assert "API Scoreable Targets" in paths["report_md"].read_text(encoding="utf-8")

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_sair_healthcheck",
+  "created_at": "2026-07-07T17:41:14.080299+00:00",
+  "tool": "scripts/igp24_sair_healthcheck.py",
+  "source_commit": "a9c74f4f8e9e2e4c52874e38433ae708ec9a0494",
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_sair_healthcheck.py",
+    "--output_dir",
+    "data/igp24/sair_health_20260707"
+  ],
+  "safety": {
+    "read_only": true,
+    "sair_submission": false,
+    "api_key_recorded": false
+  },
+  "summary": {
+    "endpoint_count": 4,
+    "all_ok": true,
+    "classification_counts": {
+      "ok": 4
+    },
+    "service_unavailable_endpoints": [],
+    "full_sync_recommended": true,
+    "submission_recommended_now": false
+  },
+  "checks": [
+    {
+      "name": "competition_schema",
+      "method": "GET",
+      "path": "/api/public/v1/competitions/igp24",
+      "query": {},
+      "status": "ok",
+      "classification": "ok",
+      "rate_limit_headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "599",
+        "X-Ratelimit-Reset": "1783446122"
+      },
+      "payload_summary": {
+        "id": "igp24",
+        "submissionSpec": {
+          "kind": "igp24-polynomial",
+          "limits": {
+            "maxBytes": 1000000,
+            "maxPolynomials": 1000,
+            "maxRequestBytes": 1310720
+          },
+          "permission": {
+            "teamRole": "activeMember"
+          }
+        }
+      }
+    },
+    {
+      "name": "competition_me",
+      "method": "GET",
+      "path": "/api/public/v1/competitions/igp24/me",
+      "query": {},
+      "status": "ok",
+      "classification": "ok",
+      "rate_limit_headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "598",
+        "X-Ratelimit-Reset": "1783446122"
+      },
+      "payload_summary": {
+        "competitionId": "igp24"
+      }
+    },
+    {
+      "name": "labels_progress_limit_1",
+      "method": "GET",
+      "path": "/api/public/v1/competitions/igp24/labels/progress",
+      "query": {
+        "limit": 1,
+        "includeEmpty": true
+      },
+      "status": "ok",
+      "classification": "ok",
+      "rate_limit_headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "597",
+        "X-Ratelimit-Reset": "1783446122"
+      },
+      "payload_summary": {
+        "generatedAt": "2026-07-07T17:41:07Z",
+        "labels": 1,
+        "nextCursorPresent": true,
+        "meta": {
+          "published": true,
+          "publishedAt": "2026-06-18T02:50:30Z"
+        }
+      }
+    },
+    {
+      "name": "submissions_me_limit_1",
+      "method": "GET",
+      "path": "/api/public/v1/competitions/igp24/submissions/me",
+      "query": {
+        "limit": 1
+      },
+      "status": "ok",
+      "classification": "ok",
+      "rate_limit_headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "596",
+        "X-Ratelimit-Reset": "1783446122"
+      },
+      "payload_summary": {
+        "items": 1,
+        "nextCursorPresent": true
+      }
+    }
+  ]
+}

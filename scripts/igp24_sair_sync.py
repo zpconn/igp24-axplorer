@@ -130,7 +130,15 @@ def request_api(
     endpoint: str,
     rate_limits: list[dict[str, Any]],
 ) -> Any:
-    payload, headers = client._request(method, path, query=query, accept=accept)  # noqa: SLF001 - sync needs headers.
+    try:
+        payload, headers = client._request(method, path, query=query, accept=accept)  # noqa: SLF001 - sync needs headers.
+    except SAIRAPIError as exc:
+        raise SAIRAPIError(
+            f"{endpoint}: {exc}",
+            status=exc.status,
+            code=exc.code,
+            retry_after=exc.retry_after,
+        ) from exc
     captured = rate_limit_headers(headers)
     if captured:
         rate_limits.append({"endpoint": endpoint, "headers": captured})

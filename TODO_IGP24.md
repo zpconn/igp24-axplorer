@@ -94,6 +94,45 @@ results change.
   `IGP24_SERVICE_UNAVAILABLE`. No full sync artifact was generated, no
   submission was attempted, and the next decision is to retry the sync when the
   IGP24 service is available before spending another submission packet.
+- SAIR downtime productivity pass: added `scripts/igp24_sair_healthcheck.py`
+  to distinguish local network/DNS failures, auth failures, rate limits, and
+  `IGP24_SERVICE_UNAVAILABLE` without submitting anything or writing the API
+  key. It probes only four lightweight read endpoints first:
+  competition schema, `/me`, `labels/progress?limit=1`, and
+  `submissions/me?limit=1`.
+  Health command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_healthcheck.py --output_dir data/igp24/sair_health_20260707`.
+  Sandbox result: 4/4 `network_failure` from DNS restriction. Approved network
+  retry result: 4/4 OK, rate limit `600`, remaining `596` after the fourth
+  probe, progress `published=true`, `generatedAt=2026-07-07T17:41:07Z`, and
+  one submission-list item with another cursor page available. Compact
+  artifacts:
+  `data/igp24/sair_health_20260707/sair_healthcheck.json` and
+  `data/igp24/sair_health_20260707/sair_healthcheck_report.md`.
+  Full sync was retried because the health check recommended it, but the
+  approved network run failed at the per-submission detail phase:
+  `submissions/{id}: IGP24_SERVICE_UNAVAILABLE`; no
+  `data/igp24/sair_sync_20260707` artifact was created and no submission
+  happened.
+  Retry sequence when SAIR submission-detail reads recover:
+  1. `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_healthcheck.py --output_dir data/igp24/sair_health_20260707`
+  2. `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --fetch_live --output_dir data/igp24/sair_sync_20260707 --progress_limit 5000 --submission_limit 100`
+  3. `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_score_aware_target_planner.py --sair_sync_dir data/igp24/sair_sync_20260707 --output_dir data/igp24/score_aware_target_plan_from_sync_20260707 --top_limit 300`
+  4. Run focused SAIR/sync/planner tests and inspect
+     `score_aware_target_report.md`.
+  Submission decision checklist: require full sync success, no pending rows
+  that materially change scoring, planner/anti-basin gates green, candidate
+  packet dry-run validation green, and an explicit decision that a packet is
+  worth spending. Default remains no submission.
+  Validation for this pass:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_sair_healthcheck.py tests/test_igp24_sair_sync.py tests/test_igp24_score_aware_target_planner.py tests/test_igp24_sair_api.py`
+  -> 18 passed; `PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` ->
+  226 passed; `python3 -m py_compile scripts/igp24_sair_healthcheck.py scripts/igp24_sair_sync.py scripts/igp24_score_aware_target_planner.py`
+  passed; `python3 -m json.tool data/igp24/sair_health_20260707/sair_healthcheck.json`
+  passed; `git diff --check` passed; SAIR key-shaped scan found no matches;
+  no full sync artifact exists; health artifact safety says
+  `sair_submission=false` and `api_key_recorded=false`; Stage 4 remains
+  present at line 7929 after this TODO update.
 - Live target-planning pass in progress: fetched the full SAIR
   `labels/progress` traversal to `/tmp/igp24_sair_label_progress_full_20260707.json`
   using `limit=5000`, `includeEmpty=true`. Result: 5 pages, 25,000 labels,
