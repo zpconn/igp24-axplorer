@@ -33,6 +33,9 @@ from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 
 DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_summary.json"
 DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_observations.jsonl"
+DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
+    REPO_ROOT / "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
 HIGH_VALUE_R_WEIGHTS = {24: 40.0, 16: 32.0, 20: 30.0, 12: 24.0, 8: 22.0}
@@ -65,6 +68,18 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
         if line.strip():
             rows.append(json.loads(line))
     return rows
+
+
+def load_accepted_feedback_observations(paths: Iterable[Path]) -> list[dict[str, Any]]:
+    observations: list[dict[str, Any]] = []
+    for path in paths:
+        if not path.exists():
+            continue
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        for row in payload.get("accepted_rows") or []:
+            if isinstance(row, dict):
+                observations.append(row)
+    return observations
 
 
 def write_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> None:
@@ -302,6 +317,7 @@ def build_basin_profile(
     loose_fingerprints = Counter()
     mod_signatures = Counter()
     mode_by_family_pattern = Counter()
+    collapsed_family_pattern_labels: dict[tuple[str, str, int], set[str]] = defaultdict(set)
     accepted_hashes = set()
     for row in crowded_observations:
         exact_key = (
@@ -322,6 +338,7 @@ def build_basin_profile(
         if row.get("mod_p_pattern_signature"):
             mod_signatures[str(row["mod_p_pattern_signature"])] += 1
         mode_by_family_pattern[(row["construction_family"], row["decomposition_pattern"], row["perturbation_mode"])] += 1
+        collapsed_family_pattern_labels[(row["construction_family"], row["decomposition_pattern"], row["r"])].add(row["label"])
         if row.get("canonical_hash"):
             accepted_hashes.add(str(row["canonical_hash"]))
 
@@ -333,6 +350,9 @@ def build_basin_profile(
         "loose_fingerprints": loose_fingerprints,
         "mod_signatures": mod_signatures,
         "mode_by_family_pattern": mode_by_family_pattern,
+        "collapsed_family_pattern_labels": {
+            key: sorted(labels) for key, labels in collapsed_family_pattern_labels.items()
+        },
         "accepted_hashes": accepted_hashes,
     }
 
@@ -409,6 +429,17 @@ def score_candidate_row(
     exact_hits = int(basin_profile["exact_fingerprints"].get(exact_key, 0))
     loose_hits = int(basin_profile["loose_fingerprints"].get(loose_key, 0))
     mode_hits = int(basin_profile["mode_by_family_pattern"].get(mode_key, 0))
+    family_pattern_key = (features["construction_family"], features["decomposition_pattern"], r_value)
+    collapsed_labels = basin_profile.get("collapsed_family_pattern_labels", {}).get(family_pattern_key, [])
+    if (
+        features["construction_family"] == "r8_quartic_lift_perturbed"
+        and features["decomposition_pattern"] == "quartic_in_x6"
+        and r_value == 8
+        and collapsed_labels
+    ):
+        labels = ",".join(str(label) for label in collapsed_labels)
+        risk_reasons.append(f"r8_quartic_in_x6_known_label_collapse={labels}")
+        score -= 140.0
     if exact_hits:
         risk_reasons.append(f"exact_crowded_basin_fingerprint_hits={exact_hits}")
         score -= 85.0
@@ -447,6 +478,7 @@ def score_candidate_row(
             "even_support",
             "accepted_hash_duplicate",
             "outer_constant_shift",
+            "r8_quartic_in_x6_known_label_collapse",
             "exact_crowded_basin_fingerprint",
         )
     )
@@ -592,6 +624,7 @@ def build_summary(
             "exact_fingerprint_count": len(basin_profile["exact_fingerprints"]),
             "loose_fingerprint_count": len(basin_profile["loose_fingerprints"]),
             "mod_p_signature_count": len(basin_profile["mod_signatures"]),
+            "collapsed_family_pattern_count": len(basin_profile.get("collapsed_family_pattern_labels") or {}),
         },
         "candidate_count": len(scored_rows),
         "eligible_candidate_count": len(eligible),
@@ -763,6 +796,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate_jsonl", type=Path, action="append", required=True)
     parser.add_argument("--label_basin_summary_json", type=Path, default=DEFAULT_LABEL_BASIN_SUMMARY)
     parser.add_argument("--label_basin_observations_jsonl", type=Path, default=DEFAULT_LABEL_BASIN_OBSERVATIONS)
+    parser.add_argument(
+        "--accepted_feedback_json",
+        type=Path,
+        action="append",
+        help="Additional accepted-feedback artifact whose accepted_rows should be treated as basin observations",
+    )
     progress = parser.add_mutually_exclusive_group()
     progress.add_argument("--progress_snapshot_json", type=Path)
     progress.add_argument("--fetch_live_progress", action="store_true")
@@ -786,7 +825,9 @@ def main(argv: list[str] | None = None) -> int:
     for path in args.candidate_jsonl:
         candidate_rows.extend(read_jsonl(path))
     label_basin_summary = json.loads(args.label_basin_summary_json.read_text(encoding="utf-8"))
+    feedback_paths = args.accepted_feedback_json if args.accepted_feedback_json is not None else DEFAULT_ACCEPTED_FEEDBACK_JSONS
     observations = read_jsonl(args.label_basin_observations_jsonl)
+    observations.extend(load_accepted_feedback_observations(feedback_paths))
     snapshot = load_progress(fetch_live=bool(args.fetch_live_progress), progress_snapshot_json=args.progress_snapshot_json)
     progress_cache = normalize_progress_cache(snapshot, target_rs=target_rs)
     basin_profile = build_basin_profile(

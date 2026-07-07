@@ -4,6 +4,7 @@ from scripts.igp24_anti_basin_planner import (
     build_basin_profile,
     build_submission_recommendation,
     candidate_features,
+    load_accepted_feedback_observations,
     normalize_progress_cache,
     score_candidate_row,
     select_diverse_scores,
@@ -86,6 +87,56 @@ def _candidate(candidate_hash, mode, *, mod_sig, family_key=None):
     }
 
 
+def _r8_perturbed_observation(label="24T25000", mode="odd_pair_off_core", mod_sig="p3:3-21;p5:5-19;p7:7-8-9"):
+    return {
+        "label": label,
+        "pair_key": f"{label}|r=8",
+        "r": 8,
+        "canonical_hash": f"accepted-{label}-{mode}",
+        "construction_family": "r8_quartic_lift_perturbed",
+        "decomposition_pattern": "quartic_in_x6",
+        "perturbation_mode": mode,
+        "support_gcd": 1,
+        "even_support": False,
+        "family_key": f"four_positive_fibers_d:{mode}:accepted",
+        "mod_p_pattern_signature": mod_sig,
+    }
+
+
+def _r8_perturbed_candidate(candidate_hash, mode="odd_single_off_core", *, mod_sig="p5:2-22"):
+    prime_text, degree_text = mod_sig.split(":", 1)
+    return {
+        "canonical_hash": candidate_hash,
+        "real_root_count": 8,
+        "coefficient_height": 16,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [1, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, -1, 16, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, 0, 1],
+        "mod_p_factorization_degree_patterns": [
+            {"prime": int(prime_text.removeprefix("p")), "degrees": [int(value) for value in degree_text.split("-")]}
+        ],
+        "generation_metadata": {
+            "source_family": "r8_quartic_lift_perturbed",
+            "r8_quartic_lift_family_key": f"four_positive_fibers_d:{mode}:{candidate_hash}",
+            "r8_quartic_lift_perturbation_mode": mode,
+            "r8_quartic_lift_perturbation_exponents": [11],
+            "r8_quartic_lift_support_gcd": 1,
+            "r8_quartic_lift_even_support": False,
+        },
+    }
+
+
+def test_load_accepted_feedback_observations_reads_rows(tmp_path):
+    path = tmp_path / "feedback.json"
+    path.write_text(json.dumps({"accepted_rows": [_r8_perturbed_observation()]}), encoding="utf-8")
+
+    rows = load_accepted_feedback_observations([path])
+
+    assert len(rows) == 1
+    assert rows[0]["label"] == "24T25000"
+    assert rows[0]["construction_family"] == "r8_quartic_lift_perturbed"
+
+
 def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
     row = {
         "canonical_hash": "r8-hash",
@@ -115,6 +166,42 @@ def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
     assert features["support_gcd"] == 1
     assert features["even_support"] is False
     assert features["odd_support_exponents"] == [11]
+
+
+def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signature():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
+    basin_profile = build_basin_profile(
+        [
+            _r8_perturbed_observation("24T25000", "odd_pair_off_core"),
+            _r8_perturbed_observation("24T24979", "odd_single_off_core", "p7:8-16"),
+        ],
+        {
+            "24T25000": {"global_progress": {"fully_covered": True, "team_count": 49}},
+            "24T24979": {"global_progress": {"fully_covered": True, "team_count": 54}},
+        },
+        avoid_labels={"24T25000", "24T24979"},
+        crowded_team_threshold=20,
+    )
+
+    scored = [
+        score_candidate_row(
+            _r8_perturbed_candidate(f"r8-repeat-{index}", mode="odd_triple_off_core", mod_sig=f"p{index + 3}:1-23"),
+            target_rs={8},
+            progress_cache=progress,
+            basin_profile=basin_profile,
+        )
+        for index in range(8)
+    ]
+    selected = select_diverse_scores(scored, packet_limit=8, per_mode_cap=8, per_pattern_cap=8)
+    recommendation = build_submission_recommendation(selected, min_packet_rows=8)
+
+    assert selected == []
+    assert recommendation["recommended_for_sair_packet"] is False
+    assert all(row["eligible_for_packet"] is False for row in scored)
+    assert all(
+        any(reason.startswith("r8_quartic_in_x6_known_label_collapse=24T24979,24T25000") for reason in row["risk_reasons"])
+        for row in scored
+    )
 
 
 def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant():
