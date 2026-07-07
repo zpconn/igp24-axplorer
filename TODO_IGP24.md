@@ -650,6 +650,49 @@ results change.
   coefficient exports were empty as expected; key-shaped secret scan found
   0 matching files; `git diff --check` passed; Stage 4 remains present at
   line 8117 after this TODO update.
+  New target-r-aware r20 pivot: poll 4 for
+  `sub_4622b4196ca64a9d91441cf5184acafe` still showed 10/10 accepted,
+  labels `24T25000` x9 and `24T24979` x1, `scoreable=false`,
+  `scoringStatus=pending`, `discSource=None`, and no `fieldDiscAbs` values.
+  Collapsed-family audit: the default basin observations already cover pure
+  `r8_quartic_lift`, `8x3`, fixed `4x6`, `6x4`, prior r20
+  quadratic-product, and r16 support-divisor lanes; the default accepted
+  feedback input adds the perturbed `r8_quartic_lift_perturbed` /
+  `quartic_in_x6` collapse. Added
+  `scripts/igp24_r20_linear_real_probe.py`, a CPU-only non-composed r20 lane
+  built from 20 distinct integer linear real-root factors plus two no-real
+  quadratic factors, then small coefficient perturbations to recover
+  irreducibility while preserving exact local `r=20`. Focused tests:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_r20_linear_real_probe.py tests/test_igp24_anti_basin_planner.py`
+  -> `7 passed`; full suite -> `236 passed`.
+  Probe command:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_r20_linear_real_probe.py --output_dir data/igp24/r20_linear_real_probe_20260707 --seed 2920 --max_trials 160 --limit 10 --per_mode_cap 4 --per_family_cap 1 --coeff_bound 10000000000000000 --prime_limit 7 --exact_score_timeout 5`.
+  Probe result: 160 trials, 102 valid exact local `r=20` candidates,
+  58 reducible rejects, 8 selected review-only rows, coefficient height range
+  `33744739940928` to `434550251520000`, selected mode counts
+  `single_low_coefficient_break=4` and `three_low_coefficient_break=4`.
+  Gate command:
+  `PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py --candidate_jsonl data/igp24/r20_linear_real_probe_20260707/r20_linear_real_candidate_queue.jsonl --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json --output_dir data/igp24/r20_linear_real_full_sync_gate_20260707 --target_rs 20 --packet_limit 10 --min_packet_rows 8`.
+  Gate result: 8 candidates, 8 eligible, 8 selected,
+  `recommended_for_sair_packet=true`, status
+  `reviewed_packet_ready_for_dry_run`, 0 risk reasons, 8 distinct mod-p
+  signatures, source commit `1230415e45c302abd2948e8fdf54d7a701ac7868`, and
+  safety flags confirming no SAIR dry-run/submission, no GPU/model training,
+  no Magma/PARI, and no API key recorded. Artifacts:
+  `data/igp24/r20_linear_real_probe_20260707/` and
+  `data/igp24/r20_linear_real_full_sync_gate_20260707/`, including
+  `REVIEW_ONLY_NOT_SUBMITTED.md`. Decision: do not submit in this goal; this
+  is now the current review-only packet for later human-approved SAIR dry-run
+  or live submission. Final validation: JSON parsing passed for 4 JSON files,
+  4 JSONL files, and 82 JSONL rows across the new poll/probe/gate artifacts;
+  the 8 selected rows validated as SAIR-format 25-integer coefficient rows
+  with nonzero constant coefficient, monic leading coefficient, coefficient
+  gcd 1, exact local `r=20`, irreducible/squarefree status, support gcd 1,
+  non-even support, unique hashes, and no anti-basin risk reasons; gate safety
+  flags confirm no SAIR submission, no SAIR dry-run, no GPU/model training,
+  no Magma/PARI, and no API key recorded; key-shaped secret scan found
+  0 matching files; `git diff --check` passed; Stage 4 remains present at
+  line 8160 after this TODO update.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

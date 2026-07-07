@@ -2422,6 +2422,59 @@ and 72 valid candidates, also with 0 target matches. The rows landed mostly in
 257 candidates, found 0 eligible rows, selected 0 rows, and returned
 `hold_no_submission` because all rows missed the target real-root count.
 
+Non-composed r20 linear-real-root pivot:
+
+The next probe moved away from the known collapsed exact-composed and
+near-composed lanes. It starts from 20 distinct integer linear real-root
+factors plus two no-real quadratic factors, then adds small low-coefficient
+perturbations to recover irreducibility while preserving exact local `r=20`.
+This is not the earlier r20 quadratic-product family that collapsed to
+`24T25000|r=20`.
+
+Poll 4 for the previous r8 perturbed submission still showed 10/10 accepted
+and scoring pending: labels `24T25000` x9 and `24T24979` x1,
+`scoreable=false`, `scoringStatus=pending`, `discSource=None`.
+
+```bash
+PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_r20_linear_real_probe.py \
+  --output_dir data/igp24/r20_linear_real_probe_20260707 \
+  --seed 2920 \
+  --max_trials 160 \
+  --limit 10 \
+  --per_mode_cap 4 \
+  --per_family_cap 1 \
+  --coeff_bound 10000000000000000 \
+  --prime_limit 7 \
+  --exact_score_timeout 5
+```
+
+Result: 160 trials, 102 valid exact local `r=20` candidates, 58 reducible
+rejects, and 8 selected review-only rows. Selected mode counts were
+`single_low_coefficient_break=4` and `three_low_coefficient_break=4`;
+coefficient heights ranged from `33744739940928` to `434550251520000`.
+
+The full-sync anti-basin gate used the recovered
+`data/igp24/sair_sync_20260707/` progress snapshot:
+
+```bash
+PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_anti_basin_planner.py \
+  --candidate_jsonl data/igp24/r20_linear_real_probe_20260707/r20_linear_real_candidate_queue.jsonl \
+  --progress_snapshot_json /tmp/igp24_full_sync_progress_snapshot_20260707.json \
+  --output_dir data/igp24/r20_linear_real_full_sync_gate_20260707 \
+  --target_rs 20 \
+  --packet_limit 10 \
+  --min_packet_rows 8
+```
+
+Result: 8 candidates, 8 eligible rows, 8 selected rows,
+`recommended_for_sair_packet=true`, and status
+`reviewed_packet_ready_for_dry_run`. The selected packet has 0 risk reasons,
+8 distinct mod-p signatures, support gcd 1, non-even support, exact local
+`r=20`, irreducible status, and squarefree status for every row. It is
+review-only in
+`data/igp24/r20_linear_real_full_sync_gate_20260707/`; no SAIR dry-run or live
+submission was performed.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

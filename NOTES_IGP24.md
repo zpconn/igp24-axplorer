@@ -1408,3 +1408,14 @@ rows fell into `r=2`, `r=0`, and `r=4`. So the next useful search should not
 be "more generic sparse" either. It needs a target-r-aware but non-collapsed
 construction, likely by designing around real-root count first and label
 fingerprints second.
+
+The non-composed r20 linear-real-root pivot is the first clean example of that
+post-collapse pattern. It controls real-root count directly with 20 integer
+linear real-root factors plus two no-real quadratic factors, then uses tiny
+coefficient perturbations to make locally irreducible, squarefree degree-24
+rows. The bounded run found 102 exact local `r=20` candidates and the
+full-sync anti-basin gate selected an 8-row review-only packet with no risk
+reasons and 8 distinct mod-p signatures. This still says nothing about exact
+SAIR labels; it might yet collapse. But unlike the exhausted r8/r16/r20
+composed lanes, this packet is structurally non-composed and is the current
+best candidate for a later human-approved dry-run.
