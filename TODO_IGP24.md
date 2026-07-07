@@ -112,6 +112,26 @@ results change.
   feedback, and pair-status ledger; `git diff --check` passed; key-fragment
   scan found no matches; Stage 4 remains present at line 7572.
 
+- Active label-steering pass: added `scripts/igp24_label_basin_analysis.py`
+  and generated compact artifacts under
+  `data/igp24/label_basin_analysis_20260707`. Command:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_label_basin_analysis.py --output_dir data/igp24/label_basin_analysis_20260707 --fetch_label_progress`.
+  The first sandboxed network attempt failed with temporary DNS resolution
+  failure; rerunning with approved network access succeeded without printing or
+  writing the API key. Result: 94 accepted observations, 10 labels, 15 pairs,
+  8 joined queue files, and 5 anti-basin constraints. Live progress for all
+  observed labels says they are globally fully covered: `24T25000` has 35
+  local accepted rows across `r=16/20/24`, `24T24979` has 28 rows across
+  `r=12/16`, `24T24651` has 17 rows across `r=12/24`, and `24T23883` has 3
+  rows across `r=12/24`.
+  Current decision: do not submit more exact even 6x4 towers with only outer
+  constant shifts, and do not widen the product/composed-seed plus low-odd
+  perturbation lanes that already collapse to `24T25000`. A next queue must
+  introduce non-even support, an alternate composition pattern, or measurable
+  mod-p/family-key novelty before any SAIR submission. Focused test command:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_label_basin_analysis.py`
+  -> 2 passed.
+
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are
   accepted and `inBaseline=false`; `scoreable=false` is paired with

@@ -1824,6 +1824,50 @@ is useful local accepted coverage and score-pending alternate material, but it
 does not solve the harder target-conditioning problem for no-team `r=24`
 labels.
 
+## Label Basin Analysis
+
+The first accepted-label basin analysis pass is tracked under
+`data/igp24/label_basin_analysis_20260707`.
+
+Command:
+
+```bash
+env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_label_basin_analysis.py \
+  --output_dir data/igp24/label_basin_analysis_20260707 \
+  --fetch_label_progress
+```
+
+Results:
+
+- accepted observations analyzed: 94
+- labels observed: 10
+- `(24Tt, r)` pairs observed: 15
+- candidate queues joined: 8
+- anti-basin constraints emitted: 5
+- live progress labels loaded: 10
+
+The important result is negative but useful: every recently hit label in this
+accepted-feedback corpus is globally fully covered according to the live SAIR
+label-progress API. Local successes are therefore mostly score-pending
+alternates unless they beat existing discriminants.
+
+Dominant basins:
+
+- `24T25000`: 35 accepted rows across `r=16`, `r=20`, and `r=24`.
+- `24T24979`: 28 accepted rows across `r=12` and `r=16`.
+- `24T24651`: 17 accepted rows across `r=12` and `r=24`.
+- `24T23883`: 3 accepted rows across `r=12` and `r=24`.
+
+The strongest anti-basin rule is to stop exact even 6x4 towers with only outer
+constant shifts: 19 accepted rows in that family landed only on
+`24T23883/24T24651` at `r=12/24`. The second high-severity rule is to avoid
+widening the product/composed-seed plus low-odd perturbation lanes that already
+collapse into generic `24T25000`.
+
+Next queue requirement: do not submit another batch unless it introduces
+non-even support, an alternate composition pattern, or measurable mod-p/family
+key novelty relative to these accepted basins.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

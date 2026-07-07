@@ -1221,3 +1221,19 @@ as globally fully covered. The next step is therefore not simply “more r24
 towers”; it is to use this as evidence that exact tower structure steers into
 a label basin, then either vary the tower more radically or add actual
 group/label-conditioning before spending many more submissions.
+
+The label-basin analyzer makes that lesson explicit. The first run under
+`data/igp24/label_basin_analysis_20260707` joined 94 accepted observations
+back to local candidate metadata and fetched live progress for the ten labels
+we keep hitting. All ten are globally fully covered. The largest local basins
+are `24T25000`, `24T24979`, `24T24651`, and `24T23883`; in particular, exact
+even 6x4 tower rows with only outer constant shifts now have enough accepted
+feedback to treat `24T23883/24T24651` as a known basin, not as an open-ended
+source of novelty.
+
+Going forward, "target r" is not enough. A next queue should be submitted only
+if it changes at least one label-relevant structural axis: odd or mixed support
+instead of exact divisor-2 support, a different composition degree pattern, a
+different perturbation mode, or local mod-p signatures absent from the accepted
+common-label corpus. GPU training remains secondary until there is a concrete
+label-conditioning objective for the sampler.

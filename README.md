@@ -33,12 +33,13 @@ The project has moved from pure proxy search into feedback-guided generation:
 submitted batches have produced accepted `(24Tt, r)` pairs across `r=4`,
 `r=8`, `r=12`, `r=16`, `r=20`, and `r=24`.
 
-The strongest recent signal is structure preservation. Low-odd perturbations
-hit high-real-root buckets but often collapse to generic `24T25000`; exact
-composed families such as `g(x^2)` and the newer `h(x^4-s*x^2)` tower have
-produced non-generic `r=12` labels. The latest tracked tower batch was accepted
-10/10 by SAIR and added `24T23883|r=12` and `24T24651|r=12`; scores and scoring
-discriminants are still pending.
+The strongest recent signal is structure preservation, with an important
+caveat: accepted high-real-root rows can still land in globally covered label
+basins. Low-odd perturbations often collapse to generic `24T25000`, while
+exact composed families such as `g(x^2)` and `h(x^4-s*x^2)` steer into
+non-generic but still common labels like `24T23883` and `24T24651`. The current
+planning loop uses live SAIR progress plus local label-basin analysis before
+spending more submissions.
 
 The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets
 planning helpers compare verified `(24Tt, r)` pairs against the frozen LMFDB
@@ -320,6 +321,8 @@ that branch.
 - `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
 - `scripts/igp24_sair_progress_targets.py`: compact live progress target
   planner.
+- `scripts/igp24_label_basin_analysis.py`: accepted-label basin analyzer for
+  feedback-guided anti-basin constraints.
 - `scripts/igp24_r24_tower_probe.py`: target-plan-aligned high-real-root
   tower probe.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
