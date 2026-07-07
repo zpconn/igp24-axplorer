@@ -1780,6 +1780,50 @@ Interpretation: the 6-by-4 exact-composed tower pivot produced two fresh local
 `r=12` pair keys, unlike the nearby `g(x^2)` follow-up which stayed in known
 `24T24970/24T24979` basins. Scores and scoring discriminants remain pending.
 
+## Live SAIR Target Plan And R24 Tower Probe
+
+A full live SAIR `labels/progress` traversal was fetched on 2026-07-07 and
+kept under `/tmp`; compact derived artifacts are committed under
+`data/igp24/sair_live_target_plan_20260707`.
+
+Live snapshot summary:
+
+- pages: 5
+- labels: 25,000
+- generatedAt range: `2026-07-07T01:20:36Z` to `2026-07-07T01:20:43Z`
+- remaining signatures: 52,335
+- largest remaining buckets: `r=24`, `r=16`, `r=8`, `r=12`, `r=20`
+- top exact API target in the compact plan: `24T18897|r=24`
+
+Because the earlier r24 product-plus-low-odd lane collapsed to
+`24T25000|r=24`, the next queue used a more structure-preserving all-real
+tower family: `h(q(x))`, `q(x)=x^4-s*x^2`, with all six outer levels in the
+four-real-preimage band of `q`.
+
+Tracked r24 tower result:
+
+- output directory: `data/igp24/r24_tower_probe_20260707`
+- trials attempted: 600
+- valid local `r=24` rows: 329
+- selected rows: 10
+- selected coefficient-height range: 327,726 to 8,667,684
+- queue status: `api_dry_run_ready`
+- SAIR API dry-run: passed, 10 rows, 1060 bytes
+- live submission id: `sub_54bf941fa9a64d7984a51cfe52ce049e`
+- SAIR verifier result: 10/10 accepted
+- accepted labels:
+  - `24T23883|r=24`: row 1
+  - `24T24651|r=24`: rows 2-10
+- scoring status: discriminants pending for all rows
+- accepted feedback artifact:
+  `data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json`
+
+Interpretation: the exact tower family again avoided `24T25000`, but it still
+landed on globally fully covered labels from the earlier progress probe. This
+is useful local accepted coverage and score-pending alternate material, but it
+does not solve the harder target-conditioning problem for no-team `r=24`
+labels.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

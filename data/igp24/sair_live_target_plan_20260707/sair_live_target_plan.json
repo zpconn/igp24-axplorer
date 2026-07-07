@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "record_type": "igp24_sair_live_target_plan",
-  "created_at": "2026-07-07T01:23:30.776935+00:00",
+  "created_at": "2026-07-07T01:37:11.569765+00:00",
   "tool": "scripts/igp24_sair_progress_targets.py",
   "input_snapshot": {
     "record_type": "igp24_sair_label_progress_snapshot",
@@ -17,7 +17,7 @@
     "published": true
   },
   "local_pair_status": {
-    "accepted_pair_count": 20,
+    "accepted_pair_count": 22,
     "accepted_label_count": 14
   },
   "coverage_by_r": [

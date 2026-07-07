@@ -1196,3 +1196,28 @@ defaults live submission to dry-run, and can query the official
 `labels/progress` endpoint before building future queues. This should replace
 screen-scrape planning, while keeping training, GPU sampling, CPU proxy
 scoring, and search loops free of API calls.
+
+The first full live API planning pass makes the target picture sharper. A full
+`labels/progress` traversal at `2026-07-07T01:20Z` found 52,335 remaining
+signatures; the largest buckets are still `r=24`, `r=16`, `r=8`, `r=12`, and
+`r=20`, but the exact top targets are no-team labels such as
+`24T18897|r=24`, not the globally common labels our recent queues found. This
+means accepted rows are not enough; future generation needs label-aware or at
+least anti-generic structure, and each small queue should be judged by whether
+it moves away from crowded labels.
+
+The first target-plan-aligned generation pass is an r24 exact tower probe under
+`data/igp24/r24_tower_probe_20260707`. It keeps all six outer roots in the
+four-real-preimage band of `q(x)=x^4-s*x^2`, producing a structurally different
+all-real `h(q(x))` family from the earlier product-plus-low-odd perturbation
+lane that collapsed to `24T25000|r=24`. The bounded CPU-only run found 329
+local irreducible squarefree `r=24` candidates from 600 trials and selected
+ten compact rows. The SAIR API dry-run passed, and one small live submission
+was made as `sub_54bf941fa9a64d7984a51cfe52ce049e`; the verifier accepted all
+ten rows, with row 1 as `24T23883|r=24` and rows 2-10 as `24T24651|r=24`.
+This is better than the previous r24 generic collapse because it avoided
+`24T25000`, but it still landed on labels that the live progress API had shown
+as globally fully covered. The next step is therefore not simply “more r24
+towers”; it is to use this as evidence that exact tower structure steers into
+a label basin, then either vary the tower more radically or add actual
+group/label-conditioning before spending many more submissions.

@@ -1,0 +1,526 @@
+{
+  "accepted_rows": [
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "3d68a81f60f3829e089fec0856b7fba4776ee62a34c62a904f41613a9d5555cb",
+      "coefficient_height": 327726,
+      "in_baseline": false,
+      "label": "24T23883",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T23883|r=24",
+      "polynomial_index": 0,
+      "r": 24,
+      "reason": null,
+      "row_number": 1,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "3d68a81f60f3",
+      "status": "accepted",
+      "submission_line": "717,0,-10584,0,60228,0,-178248,0,307804,0,-327726,0,221271,0,-96216,0,27175,0,-4950,0,561,0,-36,0,1",
+      "t": 23883,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-6|outer_y=0",
+        "inner_parameter_s": 6,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -5,
+          -6
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -3,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "279813797174b2c5447251530667881402fe305821793e871a0e6831ba62940c",
+      "coefficient_height": 771498,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 1,
+      "r": 24,
+      "reason": null,
+      "row_number": 2,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "279813797174",
+      "status": "accepted",
+      "submission_line": "1298,0,-21420,0,133596,0,-419741,0,740408,0,-771498,0,489155,0,-193284,0,48504,0,-7735,0,760,0,-42,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-9|outer_y=0",
+        "inner_parameter_s": 7,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -6,
+          -9
+        ],
+        "outer_perturbations": [
+          {
+            "delta": 2,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "505417204dd564b738263e162a0eb468a3849943e59b9bc13d75b6fac2484c88",
+      "coefficient_height": 1199800,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 2,
+      "r": 24,
+      "reason": null,
+      "row_number": 3,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "505417204dd5",
+      "status": "accepted",
+      "submission_line": "1003,0,-19296,0,139628,0,-507904,0,1027616,0,-1199800,0,813597,0,-320992,0,76367,0,-11160,0,983,0,-48,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-7|outer_y=0",
+        "inner_parameter_s": 8,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -6,
+          -7
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -5,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "c5c54fd906c5959625fe88094cd53f68c6c77b3670bfd16e7fddd76e16b70376",
+      "coefficient_height": 2190510,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 3,
+      "r": 24,
+      "reason": null,
+      "row_number": 4,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "c5c54fd906c5",
+      "status": "accepted",
+      "submission_line": "1199,0,-25740,0,207304,0,-829107,0,1805584,0,-2190510,0,1466851,0,-545004,0,118900,0,-15705,0,1240,0,-54,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=9|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-10|outer_y=0",
+        "inner_parameter_s": 9,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -5,
+          -10
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -1,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "9bd8d4ef409a67f8f72b12fe5e8fb32fb6c42372d5bf0f96954ca79f248308d4",
+      "coefficient_height": 3309700,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 4,
+      "r": 24,
+      "reason": null,
+      "row_number": 5,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "9bd8d4ef409a",
+      "status": "accepted",
+      "submission_line": "1077,0,-25860,0,232486,0,-1035980,0,2499299,0,-3309700,0,2332990,0,-848800,0,174220,0,-21200,0,1524,0,-60,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=10|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-9|outer_y=0",
+        "inner_parameter_s": 10,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -5,
+          -9
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -3,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "f7e44459f1cfdacecc63c573f293cb6cfa4c8853b7cc05c159fc4a720ce9ae8e",
+      "coefficient_height": 5086136,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 5,
+      "r": 24,
+      "reason": null,
+      "row_number": 6,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "f7e44459f1cf",
+      "status": "accepted",
+      "submission_line": "1147,0,-30096,0,293620,0,-1410508,0,3637607,0,-5086136,0,3691399,0,-1295558,0,248878,0,-27940,0,1839,0,-66,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=11|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-8|outer_y=0",
+        "inner_parameter_s": 11,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -6,
+          -8
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -5,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "eb3d7bcc205a662a440c5b9fe2288104ac7f3668803dcbbf001962ac243be148",
+      "coefficient_height": 8667684,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 6,
+      "r": 24,
+      "reason": null,
+      "row_number": 7,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "eb3d7bcc205a",
+      "status": "accepted",
+      "submission_line": "1675,0,-46896,0,482564,0,-2403936,0,6286764,0,-8667684,0,6024289,0,-1972752,0,350195,0,-36180,0,2187,0,-72,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=12|mode=outer_constant_shift|real=-1,-2,-3,-4,-7,-10|outer_y=0",
+        "inner_parameter_s": 12,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -7,
+          -10
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -5,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "afa03adae24bbd058c5cc9f7e5720c2355ad201a110dcb157ecb7f44c6ba4175",
+      "coefficient_height": 374346,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 7,
+      "r": 24,
+      "reason": null,
+      "row_number": 8,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "afa03adae24b",
+      "status": "accepted",
+      "submission_line": "1001,0,-14472,0,79596,0,-225528,0,370316,0,-374346,0,241333,0,-101304,0,27927,0,-5010,0,563,0,-36,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=6|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-7|outer_y=0",
+        "inner_parameter_s": 6,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -6,
+          -7
+        ],
+        "outer_perturbations": [
+          {
+            "delta": -7,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "8bc15d06f43808a857328717ca2d653c994cf2a843c92cf90188e8faf754b095",
+      "coefficient_height": 853006,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 8,
+      "r": 24,
+      "reason": null,
+      "row_number": 9,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "8bc15d06f438",
+      "status": "accepted",
+      "submission_line": "1591,0,-25956,0,159724,0,-492191,0,845690,0,-853006,0,522763,0,-201040,0,49516,0,-7805,0,762,0,-42,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=7|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-11|outer_y=0",
+        "inner_parameter_s": 7,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -6,
+          -11
+        ],
+        "outer_perturbations": [
+          {
+            "delta": 7,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    },
+    {
+      "baseline_unlocked": false,
+      "canonical_hash": "3ef87f855f0829104da9b8729787c096b56cd6c1a25bcaeaffd8d500600095bc",
+      "coefficient_height": 1340008,
+      "in_baseline": false,
+      "label": "24T24651",
+      "local_validation": {
+        "irreducible": true,
+        "real_root_count": 24,
+        "squarefree": true,
+        "valid": true
+      },
+      "pair_key": "24T24651|r=24",
+      "polynomial_index": 9,
+      "r": 24,
+      "reason": null,
+      "row_number": 10,
+      "scoreable": false,
+      "scoring_reason": "discriminant_pending",
+      "scoring_status": "pending",
+      "short_hash": "3ef87f855f08",
+      "status": "accepted",
+      "submission_line": "1346,0,-25280,0,178136,0,-624864,0,1207790,0,-1340008,0,867823,0,-332320,0,77681,0,-11240,0,985,0,-48,0,1",
+      "t": 24651,
+      "tower_metadata": {
+        "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+        "decomposition_degree_pattern": "6x4",
+        "exact_composition": true,
+        "family_key": "s=8|mode=outer_constant_shift|real=-1,-2,-3,-4,-7,-8|outer_y=0",
+        "inner_parameter_s": 8,
+        "mode": "outer_constant_shift",
+        "outer_four_real_preimage_levels": [
+          -1,
+          -2,
+          -3,
+          -4,
+          -7,
+          -8
+        ],
+        "outer_perturbations": [
+          {
+            "delta": 2,
+            "outer_y_exponent": 0
+          }
+        ]
+      }
+    }
+  ],
+  "competition_id": "igp24",
+  "created_at": "2026-07-07T01:36:01.145229+00:00",
+  "description": "r24 exact tower probe from live target plan 20260707",
+  "interpretation": "The structure-preserving r24 tower probe was accepted 10/10 and produced two local r=24 pair keys, 24T23883|r=24 and 24T24651|r=24. These labels were globally fully covered in the earlier progress probe, so this is accepted local coverage but not evidence that the exact top no-team r24 targets were hit. Scores and discriminants are pending.",
+  "record_type": "igp24_sair_accepted_label_feedback",
+  "safety": {
+    "api_key_recorded": false,
+    "automatic_submission": true,
+    "sair_api_submission": true,
+    "submission_reason": "small validated target-aware r24 tower probe after live target planning and dry-run"
+  },
+  "schema_version": 1,
+  "source_coefficients_txt": "data/igp24/r24_tower_probe_20260707/r24_tower_candidate_coefficients.txt",
+  "source_queue_jsonl": "data/igp24/r24_tower_probe_20260707/r24_tower_candidate_queue.jsonl",
+  "source_summary_json": "data/igp24/r24_tower_probe_20260707/r24_tower_summary.json",
+  "submission_id": "sub_54bf941fa9a64d7984a51cfe52ce049e",
+  "submitted_at": "2026-07-07T01:30:49Z",
+  "summary": {
+    "accepted_pair_keys": [
+      "24T23883|r=24",
+      "24T24651|r=24"
+    ],
+    "accepted_rows": 10,
+    "failed_rows": 0,
+    "generic_24T25000_rows": 0,
+    "labels_found_counts": {
+      "24T23883": 1,
+      "24T24651": 9
+    },
+    "queued_rows": 0,
+    "scoreable_false_pending_discriminant_rows": 10,
+    "submitted_rows": 10,
+    "target_r": 24
+  },
+  "target_plan_json": "/home/zpconn/code/igp24-axplorer/data/igp24/sair_live_target_plan_20260707/sair_live_target_plan_summary.json",
+  "target_plan_primary_target": {
+    "label": "24T18897",
+    "label_allowed_signature_count": 12,
+    "label_discovered_signature_count": 0,
+    "label_remaining_signature_count": 12,
+    "label_team_count": 0,
+    "local_label_already_seen": false,
+    "local_pair_already_accepted": false,
+    "minimum_disc_abs": null,
+    "pair_key": "24T18897|r=24",
+    "r": 24,
+    "signature_minimum_disc_abs": null,
+    "signature_team_count": 0,
+    "t": 18897,
+    "target_score": 1056.0
+  },
+  "updated_at": "2026-07-07T01:30:49Z"
+}

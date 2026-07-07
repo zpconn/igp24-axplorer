@@ -81,6 +81,36 @@ results change.
   -> 8 passed; plan and summary JSON parsed with `python3 -m json.tool`;
   `git diff --check` passed; key-fragment scan found no matches; Stage 4
   remains present at line 7544.
+- Target-aware queue generation: added `scripts/igp24_r24_tower_probe.py`, a
+  CPU-only exact-composed `r=24` tower probe aligned to the live target plan.
+  It uses `h(q(x))` with `q(x)=x^4-s*x^2`, `deg(h)=6`, and all six outer
+  levels in the four-real-preimage band of `q`; this is deliberately different
+  from the earlier r24 product-plus-low-odd perturbation lane that collapsed
+  to `24T25000|r=24`. Tracked run:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 scripts/igp24_r24_tower_probe.py --output_dir data/igp24/r24_tower_probe_20260707 --seed 2407 --max_trials 600 --limit 10 --per_family_cap 1 --coeff_bound 2000000000 --prime_limit 7 --exact_score_timeout 5.0`.
+  Result: 600 trials, 329 valid local irreducible squarefree `r=24` rows, 10
+  selected rows, coefficient-height range 327,726 to 8,667,684, selected
+  inner parameters `s=6..12`, all exact 6x4 tower/even support. The SAIR API
+  dry-run validated the coefficient file (`10` rows, `1060` bytes, 25
+  coefficients per row). Because the queue is small, target-plan-aligned, and
+  rate limit looked safe, it was submitted through the SAIR API with
+  description `r24 exact tower probe from live target plan 20260707`.
+  Submission id: `sub_54bf941fa9a64d7984a51cfe52ce049e`; response rate-limit
+  headers showed limit 600 and remaining 598. A later poll returned 10/10
+  accepted: row 1 as `24T23883|r=24`, rows 2-10 as `24T24651|r=24`, all with
+  `scoreable=false`, `scoringStatus=pending`, and
+  `scoringReason=discriminant_pending`. Added score-pending ledger pairs
+  `24T23883|r=24` and `24T24651|r=24`. Accepted feedback artifact:
+  `data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json`. Caveat:
+  the earlier live progress probe showed these labels globally fully covered,
+  so this is useful local accepted coverage but not a hit on the top no-team
+  r24 targets.
+  Final validation for the r24 tower milestone:
+  `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q tests/test_igp24_r24_tower_probe.py tests/test_igp24_sair_progress_targets.py tests/test_igp24_sair_api.py`
+  -> 13 passed; `env PYTHONPATH=/tmp/igp24_pydeps python3 -m pytest -q` ->
+  189 passed; `python3 -m json.tool` parsed the r24 tower summary, accepted
+  feedback, and pair-status ledger; `git diff --check` passed; key-fragment
+  scan found no matches; Stage 4 remains present at line 7572.
 
 - Active r16 follow-up: imported the SAIR CSV export for
   `sub_02ecc2457d124584b8325b83608a2e9c`. All eight `24T24979|r=16` rows are

@@ -318,6 +318,10 @@ that branch.
 - `scripts/igp24_submission_package.py`: local/manual submission-review
   package builder.
 - `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
+- `scripts/igp24_sair_progress_targets.py`: compact live progress target
+  planner.
+- `scripts/igp24_r24_tower_probe.py`: target-plan-aligned high-real-root
+  tower probe.
 - `docs/EXPERIMENTS.md`: benchmark and verification result summary.
 - `NOTES_IGP24.md`: design notes and research rationale.
 - `TODO_IGP24.md`: live project log and task status.

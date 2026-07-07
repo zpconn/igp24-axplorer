@@ -1,0 +1,145 @@
+{
+  "coefficient_height_max": 8667684,
+  "coefficient_height_min": 327726,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r24_tower_probe.py",
+    "--output_dir",
+    "data/igp24/r24_tower_probe_20260707",
+    "--seed",
+    "2407",
+    "--max_trials",
+    "600",
+    "--limit",
+    "10",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "2000000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "construction_family": "outer_degree6_all_four_real_preimage_composed_with_even_quartic_double_well",
+  "created_at": "2026-07-07T01:29:29.789557+00:00",
+  "decomposition_degree_pattern": "6x4",
+  "known_hashes_loaded": 94,
+  "observed_root_count_counts": {
+    "0": 1,
+    "12": 8,
+    "16": 31,
+    "20": 4,
+    "24": 329,
+    "4": 14,
+    "8": 59
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/r24_tower_probe_20260707/r24_tower_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r24_tower_probe_20260707/r24_tower_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/r24_tower_probe_20260707/r24_tower_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/r24_tower_probe_20260707/r24_tower_rejected_trials.jsonl",
+    "report_md": "data/igp24/r24_tower_probe_20260707/r24_tower_report.md",
+    "summary_json": "data/igp24/r24_tower_probe_20260707/r24_tower_summary.json"
+  },
+  "queue_status": "api_dry_run_ready",
+  "recommendation": "api_dry_run_then_small_submission_probe",
+  "rejected_counts": {
+    "real_root_count_mismatch": 117,
+    "reducible_over_q": 154
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_family_keys": [
+    "s=6|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-6|outer_y=0",
+    "s=7|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-9|outer_y=0",
+    "s=8|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-7|outer_y=0",
+    "s=9|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-10|outer_y=0",
+    "s=10|mode=outer_constant_shift|real=-1,-2,-3,-4,-5,-9|outer_y=0",
+    "s=11|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-8|outer_y=0",
+    "s=12|mode=outer_constant_shift|real=-1,-2,-3,-4,-7,-10|outer_y=0",
+    "s=6|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-7|outer_y=0",
+    "s=7|mode=outer_constant_shift|real=-1,-2,-3,-4,-6,-11|outer_y=0",
+    "s=8|mode=outer_constant_shift|real=-1,-2,-3,-4,-7,-8|outer_y=0"
+  ],
+  "selected_hashes": [
+    "3d68a81f60f3829e089fec0856b7fba4776ee62a34c62a904f41613a9d5555cb",
+    "279813797174b2c5447251530667881402fe305821793e871a0e6831ba62940c",
+    "505417204dd564b738263e162a0eb468a3849943e59b9bc13d75b6fac2484c88",
+    "c5c54fd906c5959625fe88094cd53f68c6c77b3670bfd16e7fddd76e16b70376",
+    "9bd8d4ef409a67f8f72b12fe5e8fb32fb6c42372d5bf0f96954ca79f248308d4",
+    "f7e44459f1cfdacecc63c573f293cb6cfa4c8853b7cc05c159fc4a720ce9ae8e",
+    "eb3d7bcc205a662a440c5b9fe2288104ac7f3668803dcbbf001962ac243be148",
+    "afa03adae24bbd058c5cc9f7e5720c2355ad201a110dcb157ecb7f44c6ba4175",
+    "8bc15d06f43808a857328717ca2d653c994cf2a843c92cf90188e8faf754b095",
+    "3ef87f855f0829104da9b8729787c096b56cd6c1a25bcaeaffd8d500600095bc"
+  ],
+  "selected_inner_s_counts": {
+    "10": 1,
+    "11": 1,
+    "12": 1,
+    "6": 2,
+    "7": 2,
+    "8": 2,
+    "9": 1
+  },
+  "selected_mode_counts": {
+    "outer_constant_shift": 10
+  },
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "3d68a81f60f3",
+    "279813797174",
+    "505417204dd5",
+    "c5c54fd906c5",
+    "9bd8d4ef409a",
+    "f7e44459f1cf",
+    "eb3d7bcc205a",
+    "afa03adae24b",
+    "8bc15d06f438",
+    "3ef87f855f08"
+  ],
+  "source_commit": "83d320423f2ef3764516975161ee0b7ef903aca4",
+  "structure_preservation": "exact h(q(x)) degree-6-by-degree-4 composition; q(x)=x^4-s*x^2; all outer levels have four real preimages",
+  "target_plan_json": "/home/zpconn/code/igp24-axplorer/data/igp24/sair_live_target_plan_20260707/sair_live_target_plan_summary.json",
+  "target_plan_primary_target": {
+    "label": "24T18897",
+    "label_allowed_signature_count": 12,
+    "label_discovered_signature_count": 0,
+    "label_remaining_signature_count": 12,
+    "label_team_count": 0,
+    "local_label_already_seen": false,
+    "local_pair_already_accepted": false,
+    "minimum_disc_abs": null,
+    "pair_key": "24T18897|r=24",
+    "r": 24,
+    "signature_minimum_disc_abs": null,
+    "signature_team_count": 0,
+    "t": 18897,
+    "target_score": 1056.0
+  },
+  "target_plan_top_remaining_rs": [
+    24,
+    16,
+    8,
+    12,
+    20
+  ],
+  "target_r": 24,
+  "tool": "scripts/igp24_r24_tower_probe.py",
+  "trials_attempted": 600,
+  "valid_mode_counts": {
+    "outer_constant_shift": 305,
+    "outer_three_coefficient_shift": 3,
+    "outer_two_coefficient_shift": 21
+  },
+  "valid_r24_candidates": 329
+}
