@@ -51,6 +51,44 @@ results change.
   size 643, ran one CPU step, and wrote unscored control-token export metadata
   with no exact verifiers, SAIR calls, or local search. This smoke was not a
   model-quality benchmark.
+- AXG-1.2 short CUDA training/evaluation completed. Command template:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --output_dir /tmp/igp24_axg12_target_r_conditioned_20260707/r<r> --run_id axg12_target_r<r>_conditioned_20260707_<id> --probe_mode sample_export_target_r_conditioned --target_r <r> --target_r_conditioned_max_steps 2400 --target_r_model_sample_attempts 768 --timeout_seconds 900 --monitor_interval_seconds 2.0`.
+  Runs used CUDA on `NVIDIA GeForce RTX 5090`, `decimal_coefficients`, and
+  `control_token` conditioning. Combined runtime was 308.0s. Per-target GPU
+  and scoring results:
+  `r=12`: 80.9s, max GPU util 92%, avg 78.6%, 85 decoded/scored, 80 valid,
+  real-root counts `{0:1,2:1,4:9,6:10,8:6,10:6,12:47}`, target survivors 47
+  from `model_generate`.
+  `r=16`: 74.0s, max 92%, avg 81.0%, 35 scored, 34 valid, counts
+  `{8:1,12:2,16:31}`, target survivors 31 from `model_generate`.
+  `r=20`: 78.1s, max 92%, avg 79.5%, 18 scored, 15 valid, counts
+  `{2:1,4:1,16:1,20:12}`, target survivors 12 from `model_generate`.
+  `r=24`: 75.0s, max 94%, avg 81.6%, 74 scored, 70 valid, counts
+  `{0:2,2:4,4:9,6:2,8:4,10:4,12:5,16:1,20:1,24:38}`, target survivors 38
+  from `model_generate`. Aggregate: 212 scored decoded model rows, 199 valid,
+  128 model-generated target-r survivors. This directly answers the steering
+  question: true target-r conditioning works, unlike AXG-1.1 seed-bank-only
+  steering.
+- AXG-1.2 proposal dry-runs completed with no SAIR submission. Commands used
+  `scripts/igp24_axg_proposal_loop.py --version AXG-1.2 --dry_run` against the
+  four scored sample files. Results: `r=12` filtered 47 and selected 2;
+  `r=16` filtered 31 and selected 1; `r=20` filtered 12 and selected 1;
+  `r=24` filtered 38 and selected 3. All decisions were
+  `hold_no_submission` because rows were below the packet gate and many
+  filtered rows had accepted-hash duplicate, composed/even-support, or crowded
+  modular-signature risks. Decision: do not submit these rows as-is and do not
+  jump straight to a 30-60 minute run; next useful work is diversity and
+  basin-avoidance steering around the control-token survivors.
+- AXG-1.2 final validation before commit/push: full test suite passed with
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q` ->
+  `261 passed in 8.60s`. JSON parse check passed for 50 JSON files and JSONL
+  parse check passed for 24 JSONL files / 925 rows under the AXG-1.2 artifact
+  root and model registry. Binary/checkpoint scan under
+  `data/igp24/axg12_target_r_conditioned_20260707` and
+  `data/igp24/model_registry` found no `.pt`, `.pth`, `.ckpt`, `.bin`,
+  `.safetensors`, or `.pkl` files. Secret-shaped `sair_...` scan found no
+  matches. `git diff --check` passed. Registry validation is valid with
+  3 models, 10 runs, and 0 issues. Stage 4 remains present at line 8455.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,

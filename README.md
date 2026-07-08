@@ -49,6 +49,11 @@ baseline. Detailed benchmark tables, exact-label feedback, accepted-batch
 notes, and artifact paths live in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
 and [TODO_IGP24.md](TODO_IGP24.md).
 
+Recent AXG work adds GPU sample-export probes plus target-r control-token
+training over decimal coefficient streams. These model samples are still
+proposal candidates only: CPU filters, basin-risk gates, and explicit review
+remain required before any submission.
+
 ## Capabilities
 
 - Configurable coefficient generation strategies.
@@ -58,6 +63,7 @@ and [TODO_IGP24.md](TODO_IGP24.md).
 - JSONL ledgers with canonical-hash deduplication.
 - CPU benchmark helpers for generation strategy comparisons.
 - GPU training/sample-export probes with CPU scoring handoff.
+- Target-r control-token training for GPU proposal generation.
 - Shortlist, review, and offline verification handoff tools.
 - PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
   credential-safe SAIR API helpers that are explicit and opt-in.

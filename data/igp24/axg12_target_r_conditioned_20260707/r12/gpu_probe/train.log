@@ -1,0 +1,151 @@
+INFO - 07/07/26 21:29:29 - 0:00:00 - ============ Initialized logger ============
+INFO - 07/07/26 21:29:29 - 0:00:00 - N: 24
+                                     always_search: False
+                                     batch_size: 128
+                                     coeff_bound: 1000000000000000
+                                     command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r12_conditioned --dump_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_dump' --exp_id axg12_target_r12_conditioned_20260707_2132 --seed 33012 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl '/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl' --igp24_training_jsonl_target_rs '12,16,20,24' --coeff_bound 1000000000000000 --target_r 12 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 2400 --num_eval_steps 300 --num_samples_from_model 768 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature '0.9' --top_k 12 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl' --sample_export_dedup true --sample_export_max_attempts 768 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --igp24_generation_strategy fixed_sparse_template --igp24_ledger_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl' --exp_id "axg12_target_r12_conditioned_20260707_2132"
+                                     cpu: False
+                                     cycle_diversity_weight: 5.0
+                                     data_generation_only: False
+                                     device: cuda
+                                     discriminant_weight: 1.0
+                                     dump_path: /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_dump/igp24_gpu_sample_export_target_r12_conditioned/axg12_target_r12_conditioned_20260707_2132
+                                     encoding_tokens: decimal_coefficients
+                                     env_name: igp24
+                                     exact_score_timeout: 0.0
+                                     exp_id: axg12_target_r12_conditioned_20260707_2132
+                                     exp_name: igp24_gpu_sample_export_target_r12_conditioned
+                                     gen_batch_size: 64
+                                     gensize: 0
+                                     height_weight: 1.0
+                                     igp24_generation_preset: none
+                                     igp24_generation_strategy: fixed_sparse_template
+                                     igp24_ledger_path: /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl
+                                     igp24_low_height_bound: 3
+                                     igp24_mixed_strategy_weights: uniform:0.1000,low_height:0.2000,sparse:0.2500,lower_degree:0.2000,structured:0.2500,four_real_seed:0.0000,quartic_lift:0.0000,r8_quartic_lift:0.0000,r8_quartic_lift_perturbed:0.0000,r16_quadratic_lift:0.0000,fixed_sparse_template:0.0000
+                                     igp24_sparse_terms: 4
+                                     igp24_target_r_conditioning_mode: control_token
+                                     igp24_training_jsonl: ['/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl']
+                                     igp24_training_jsonl_max_abs_coeff: 0
+                                     igp24_training_jsonl_max_rows: 0
+                                     igp24_training_jsonl_target_rs: 12,16,20,24
+                                     igp24_translation_radius: 2
+                                     igp24_write_ledger: True
+                                     inc_temp: 0.0
+                                     keep_only_unique: True
+                                     learning_rate: 0.0005
+                                     max_epochs: 1
+                                     max_len: 640
+                                     max_local_search_steps: 0
+                                     max_steps: 2400
+                                     n_embd: 256
+                                     n_head: 4
+                                     n_layer: 4
+                                     new_proportion: 0.0
+                                     no_positional: False
+                                     ntest: 64
+                                     num_eval_steps: 300
+                                     num_samples_from_model: 768
+                                     num_workers: 1
+                                     pop_size: 512
+                                     prime_limit: 7
+                                     process_pool: False
+                                     redeem_only: False
+                                     sample_export_dedup: True
+                                     sample_export_max_attempts: 768
+                                     sample_export_only: True
+                                     sample_export_path: /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl
+                                     sample_export_progress_interval: 128
+                                     sample_export_seed_bank_jsonl:
+                                     sample_export_seed_bank_limit: 0
+                                     sample_export_seed_bank_target_r: None
+                                     sample_export_target_r_conditioning_mode: control_token
+                                     sample_export_target_rs:
+                                     sample_export_unique_target: 0
+                                     save_best: False
+                                     seed: 33012
+                                     target_r: 12
+                                     target_t: None
+                                     temp_span: 0
+                                     temperature: 0.9
+                                     top_k: 12
+                                     train_only: False
+                                     weight_decay: 0.01
+INFO - 07/07/26 21:29:29 - 0:00:00 - The experiment will be stored in /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_dump/igp24_gpu_sample_export_target_r12_conditioned/axg12_target_r12_conditioned_20260707_2132
+
+INFO - 07/07/26 21:29:29 - 0:00:00 - Running command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r12_conditioned --dump_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_dump' --exp_id axg12_target_r12_conditioned_20260707_2132 --seed 33012 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl '/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl' --igp24_training_jsonl_target_rs '12,16,20,24' --coeff_bound 1000000000000000 --target_r 12 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 2400 --num_eval_steps 300 --num_samples_from_model 768 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature '0.9' --top_k 12 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl' --sample_export_dedup true --sample_export_max_attempts 768 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --igp24_generation_strategy fixed_sparse_template --igp24_ledger_path '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl'
+
+INFO - 07/07/26 21:29:29 - 0:00:00 - seed: 33012
+INFO - 07/07/26 21:29:29 - 0:00:00 - Number of parameters: 3.32M
+INFO - 07/07/26 21:29:30 - 0:00:01 - Loaded IGP24 JSONL training data: train=217 test=45 paths=['/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl'] target_rs=[12, 16, 20, 24] skipped={'missing_coefficients': 64, 'target_r_filtered': 823, 'missing_r': 0, 'coefficient_bound_filtered': 0, 'invalid_datapoint': 0}
+INFO - 07/07/26 21:29:30 - 0:00:01 - ### Score distribution ###
+INFO - 07/07/26 21:29:30 - 0:00:01 - Valid examples: 217
+INFO - 07/07/26 21:29:30 - 0:00:01 - Mean score: 1.055299539170507
+INFO - 07/07/26 21:29:30 - 0:00:01 - Median score: 1.0
+INFO - 07/07/26 21:29:30 - 0:00:01 - Stdev score: 0.4044681322997931
+INFO - 07/07/26 21:29:30 - 0:00:01 - Max score: 4.0
+INFO - 07/07/26 21:29:30 - 0:00:01 - Top 1 percentile score: 4.0
+INFO - 07/07/26 21:29:30 - 0:00:01 - Distribution of scores:
+INFO - 07/07/26 21:29:30 - 0:00:01 - Score 1.0: Count: 213
+INFO - 07/07/26 21:29:30 - 0:00:01 - Score 4.0: Count: 4
+INFO - 07/07/26 21:29:30 - 0:00:01 - --------------------------------
+INFO - 07/07/26 21:29:30 - 0:00:01 - ==== Starting Epoch 0 =====
+INFO - 07/07/26 21:29:30 - 0:00:01 - [Epoch 0 START] CPU: 0.0% | RAM: 806.1MB
+INFO - 07/07/26 21:29:30 - 0:00:01 - Max encoded sequence length: 307 / block_size 643
+INFO - 07/07/26 21:29:30 - 0:00:01 - Memory allocated: 18.98MB, reserved: 34.00MB
+INFO - 07/07/26 21:29:33 - 0:00:04 - step 100 | loss 1.2758 | steps time 3150.51ms
+INFO - 07/07/26 21:29:36 - 0:00:07 - step 200 | loss 0.2246 | steps time 2990.81ms
+INFO - 07/07/26 21:29:39 - 0:00:10 - step 300 | loss 0.0894 | steps time 2922.44ms
+INFO - 07/07/26 21:29:39 - 0:00:10 - step 300 train loss: 0.8359958525622885 test loss: 3.57916259765625
+INFO - 07/07/26 21:29:42 - 0:00:13 - step 400 | loss 0.0419 | steps time 3245.96ms
+INFO - 07/07/26 21:29:45 - 0:00:16 - step 500 | loss 0.4597 | steps time 3256.70ms
+INFO - 07/07/26 21:29:48 - 0:00:20 - step 600 | loss 0.0368 | steps time 3192.34ms
+INFO - 07/07/26 21:29:48 - 0:00:20 - step 600 train loss: 0.08196626879274845 test loss: 3.8969016075134277
+INFO - 07/07/26 21:29:52 - 0:00:23 - step 700 | loss 0.0381 | steps time 3077.26ms
+INFO - 07/07/26 21:29:54 - 0:00:25 - step 800 | loss 0.1081 | steps time 2847.13ms
+INFO - 07/07/26 21:29:58 - 0:00:29 - step 900 | loss 0.0366 | steps time 3128.69ms
+INFO - 07/07/26 21:29:58 - 0:00:29 - step 900 train loss: 0.1038050111134847 test loss: 4.07136344909668
+INFO - 07/07/26 21:30:01 - 0:00:32 - step 1000 | loss 0.0370 | steps time 3162.83ms
+INFO - 07/07/26 21:30:04 - 0:00:35 - step 1100 | loss 0.0380 | steps time 3034.39ms
+INFO - 07/07/26 21:30:07 - 0:00:38 - step 1200 | loss 0.0369 | steps time 3085.24ms
+INFO - 07/07/26 21:30:07 - 0:00:38 - step 1200 train loss: 0.049896664060652254 test loss: 4.292558193206787
+INFO - 07/07/26 21:30:10 - 0:00:41 - step 1300 | loss 0.0336 | steps time 3185.02ms
+INFO - 07/07/26 21:30:13 - 0:00:44 - step 1400 | loss 0.0367 | steps time 3359.21ms
+INFO - 07/07/26 21:30:17 - 0:00:48 - step 1500 | loss 0.0320 | steps time 3119.56ms
+INFO - 07/07/26 21:30:17 - 0:00:48 - step 1500 train loss: 0.041399081678440176 test loss: 4.462767124176025
+INFO - 07/07/26 21:30:20 - 0:00:51 - step 1600 | loss 0.0446 | steps time 3208.21ms
+INFO - 07/07/26 21:30:23 - 0:00:54 - step 1700 | loss 0.0337 | steps time 3307.46ms
+INFO - 07/07/26 21:30:26 - 0:00:57 - step 1800 | loss 0.0351 | steps time 3300.05ms
+INFO - 07/07/26 21:30:26 - 0:00:57 - step 1800 train loss: 0.041610767673701046 test loss: 4.653582572937012
+INFO - 07/07/26 21:30:29 - 0:01:00 - step 1900 | loss 0.0331 | steps time 3112.81ms
+INFO - 07/07/26 21:30:32 - 0:01:04 - step 2000 | loss 0.0327 | steps time 3022.85ms
+INFO - 07/07/26 21:30:35 - 0:01:06 - step 2100 | loss 0.0321 | steps time 2781.39ms
+INFO - 07/07/26 21:30:35 - 0:01:06 - step 2100 train loss: 0.04316227290779352 test loss: 4.661360740661621
+INFO - 07/07/26 21:30:38 - 0:01:09 - step 2200 | loss 0.0323 | steps time 2839.64ms
+INFO - 07/07/26 21:30:41 - 0:01:12 - step 2300 | loss 0.0331 | steps time 2840.24ms
+INFO - 07/07/26 21:30:44 - 0:01:15 - step 2400 | loss 0.0375 | steps time 2740.54ms
+INFO - 07/07/26 21:30:44 - 0:01:15 - step 2400 train loss: 0.03741471000015736 test loss: 4.64196252822876
+INFO - 07/07/26 21:30:44 - 0:01:15 - [Epoch 0 AFTER_TRAIN] CPU: 0.0% | RAM: 1188.6MB
+INFO - 07/07/26 21:30:44 - 0:01:15 - Export-only model sampling to /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl
+INFO - 07/07/26 21:30:44 - 0:01:15 - Export-only controls: dedup_enabled=True unique_target=0 attempt_budget=768 progress_interval=128 seed_bank_requested=False
+INFO - 07/07/26 21:30:44 - 0:01:15 - 0 / 768 samples attempted for export
+INFO - 07/07/26 21:30:45 - 0:01:16 - 64 / 768 samples attempted for export
+INFO - 07/07/26 21:30:45 - 0:01:16 - Export-only dedup progress: attempts=128/768 records_written=52 unique_decoded=39 duplicate_skipped=76 invalid_decode=13
+INFO - 07/07/26 21:30:45 - 0:01:16 - 128 / 768 samples attempted for export
+INFO - 07/07/26 21:30:45 - 0:01:16 - 192 / 768 samples attempted for export
+INFO - 07/07/26 21:30:46 - 0:01:17 - Export-only dedup progress: attempts=256/768 records_written=79 unique_decoded=52 duplicate_skipped=177 invalid_decode=27
+INFO - 07/07/26 21:30:46 - 0:01:17 - 256 / 768 samples attempted for export
+INFO - 07/07/26 21:30:46 - 0:01:17 - 320 / 768 samples attempted for export
+INFO - 07/07/26 21:30:46 - 0:01:17 - Export-only dedup progress: attempts=384/768 records_written=99 unique_decoded=61 duplicate_skipped=285 invalid_decode=38
+INFO - 07/07/26 21:30:46 - 0:01:17 - 384 / 768 samples attempted for export
+INFO - 07/07/26 21:30:47 - 0:01:18 - 448 / 768 samples attempted for export
+INFO - 07/07/26 21:30:47 - 0:01:18 - Export-only dedup progress: attempts=512/768 records_written=116 unique_decoded=69 duplicate_skipped=396 invalid_decode=47
+INFO - 07/07/26 21:30:47 - 0:01:18 - 512 / 768 samples attempted for export
+INFO - 07/07/26 21:30:47 - 0:01:19 - 576 / 768 samples attempted for export
+INFO - 07/07/26 21:30:48 - 0:01:19 - Export-only dedup progress: attempts=640/768 records_written=137 unique_decoded=77 duplicate_skipped=503 invalid_decode=60
+INFO - 07/07/26 21:30:48 - 0:01:19 - 640 / 768 samples attempted for export
+INFO - 07/07/26 21:30:48 - 0:01:19 - 704 / 768 samples attempted for export
+INFO - 07/07/26 21:30:49 - 0:01:20 - Export-only dedup progress: attempts=768/768 records_written=159 unique_decoded=85 duplicate_skipped=609 invalid_decode=74
+INFO - 07/07/26 21:30:49 - 0:01:20 - Export-only model sampling wrote 159 records to /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl; attempts=768 decoded=85 invalid_decode=74 unique_decoded=85 duplicate_skipped=609 stop_reason=attempt_budget_exhausted
+INFO - 07/07/26 21:30:49 - 0:01:20 - Sample export summary: {'export_path': '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl', 'summary_path': '/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl.summary.json', 'target_r': 12, 'encoding_tokens': 'decimal_coefficients', 'model_target_r_conditioning_mode': 'control_token', 'sample_export_target_r_conditioning_mode': 'control_token', 'records_written': 159, 'requested_samples': 768, 'attempt_budget': 768, 'attempted_samples': 768, 'decoded_attempts': 694, 'invalid_decode_attempts': 74, 'decoded_records': 85, 'invalid_decode_records': 74, 'deduplication_enabled': True, 'deduplication_key_type': 'decoded_coefficients', 'unique_target': 0, 'unique_decoded_coefficients': 85, 'duplicate_decoded_records_skipped': 609, 'stop_reason': 'attempt_budget_exhausted', 'progress_interval': 128, 'scoring_avoided': True, 'local_search_avoided': True, 'dataset_update_avoided': True, 'seed_bank_enabled': False, 'seed_bank_path': None, 'seed_bank_target_r': 12, 'seed_bank_limit': 0, 'seed_bank_source_rows_read': 0, 'seed_bank_rows_matching_target_r': 0, 'seed_bank_records_written': 0, 'seed_bank_duplicate_decoded_records_skipped': 0, 'seed_bank_invalid_rows_skipped': 0, 'seed_bank_max_coefficient_height': None}
+INFO - 07/07/26 21:30:49 - 0:01:20 - [Epoch 0 AFTER_SAMPLE_EXPORT] CPU: 0.0% | RAM: 1730.8MB

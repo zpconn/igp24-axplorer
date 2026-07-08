@@ -1,0 +1,61 @@
+{
+  "created_at_utc": "2026-07-08T02:35:59.283864+00:00",
+  "decoded_input_records": 85,
+  "gpu_probe_summary_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples",
+  "real_root_counts": {
+    "0": 1,
+    "10": 6,
+    "12": 47,
+    "2": 1,
+    "4": 9,
+    "6": 10,
+    "8": 6
+  },
+  "records_read": 159,
+  "records_selected": 159,
+  "rejected_records": 5,
+  "report_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/score_report.md",
+  "runtime_seconds": 7.2644862059969455,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 85
+  },
+  "sample_export_source_target_r_survivors": {
+    "model_generate": 47
+  },
+  "score_all": true,
+  "score_command": "/usr/bin/python3 scripts/igp24_score_sample_export.py /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl --output_dir /tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples --score_all true --gpu_probe_summary /tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_sampler_probe_summary.json --target_r 12 --coeff_bound 1000000000000000 --local_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --exp_name axg12_target_r12_conditioned_score_20260707",
+  "scored_jsonl_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 0.0,
+    "canonical_hash_records": 85,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": -0.058823529411764705,
+    "proxy_scored_records": 80,
+    "rejected_records": 5,
+    "scored_records": 85,
+    "unique_canonical_hashes": 85
+  },
+  "scored_records": 85,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 74,
+  "source_commit": "63ce57a2a43a9bdea2296acfbd149be7d998001f",
+  "source_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/gpu_model_sample_export_target_r12_conditioned.jsonl",
+  "split_manifest_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/split_workflow_manifest.json",
+  "split_report_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/split_workflow_report.md",
+  "summary_path": "/tmp/igp24_axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/score_summary.json",
+  "target_r_survivor_count": 47,
+  "valid_records": 80
+}

@@ -1,0 +1,82 @@
+{
+  "artifacts": {
+    "gpu_report": "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_sampler_probe_report.md",
+    "gpu_summary": "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_sampler_probe_summary.json",
+    "proposal_summary": "data/igp24/axg12_target_r_conditioned_20260707/r12/proposal_loop/axg12_target_r12_conditioned_20260707_2132/proposal_loop_summary.json",
+    "sample_export": "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_model_sample_export_target_r12_conditioned.jsonl",
+    "score_summary": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/score_summary.json",
+    "scored_samples": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/scored_samples.jsonl"
+  },
+  "encoding_tokens": "decimal_coefficients",
+  "gpu": {
+    "avg_gpu_utilization_percent": 78.58974358974359,
+    "final_eval_loss": {
+      "step": 2400,
+      "test_loss": 4.64196252822876,
+      "train_loss": 0.03741471000015736
+    },
+    "gpu_used": true,
+    "max_gpu_utilization_percent": 92.0,
+    "runtime_seconds": 80.91152016900014,
+    "sample_export_decoded_records": 85,
+    "sample_export_records": 159
+  },
+  "model_version": "AXG-1.2",
+  "parent_version": "AXG-1.1",
+  "probe_mode": "sample_export_target_r_conditioned",
+  "proposal_loop": {
+    "decision": "hold_no_submission",
+    "filtered_rows": 47,
+    "recommendation": {
+      "reason": "only_2_eligible_rows_below_min_4; 1_selected_rows_have_risk_reasons; selected_rows_do_not_have_multiple_perturbation_modes",
+      "recommended_for_sair_packet": false,
+      "risk_count": 1,
+      "selected_mod_p_signature_counts": {
+        "p3:1-1-5-7-10;p5:1-1-2-20;p7:7-17": 1,
+        "p5:3-3-3-6-9": 1
+      },
+      "selected_mode_counts": {
+        "unknown": 2
+      },
+      "selected_rows": 2,
+      "status": "hold_no_submission"
+    },
+    "selected_rows": 2
+  },
+  "record_type": "igp24_axg_run_manifest",
+  "run_id": "axg12_target_r12_conditioned_20260707_2132",
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "checkpoints_committed": false,
+    "local_search_enabled": false,
+    "runs_exact_verifiers": false
+  },
+  "schema_version": 1,
+  "scoring": {
+    "real_root_counts": {
+      "0": 1,
+      "10": 6,
+      "12": 47,
+      "2": 1,
+      "4": 9,
+      "6": 10,
+      "8": 6
+    },
+    "sample_export_source_target_r_survivors": {
+      "model_generate": 47
+    },
+    "scored_records": 85,
+    "target_r_survivor_count": 47,
+    "valid_records": 80
+  },
+  "target_r": 12,
+  "target_r_conditioning_mode": "control_token",
+  "training_jsonl": "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+  "training_target_rs": [
+    12,
+    16,
+    20,
+    24
+  ]
+}

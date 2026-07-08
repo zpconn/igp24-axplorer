@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "basin_risk_scores": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/rejected_candidates.jsonl",
+    "report": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/proposal_loop_summary.json"
+  },
+  "candidate_rows": 18,
+  "candidate_sample_export_source_counts": {
+    "model_generate": 18
+  },
+  "candidate_source_count": 1,
+  "coefficient_lines": 1,
+  "created_at": "2026-07-08T02:39:05.648364+00:00",
+  "decision": "hold_no_submission",
+  "dry_run": true,
+  "filtered_rows": 12,
+  "filtered_sample_export_source_counts": {
+    "model_generate": 12
+  },
+  "model_manifest_description": "Target-r control-token decimal coefficient training probe",
+  "model_version": "AXG-1.2",
+  "recommendation": {
+    "reason": "only_1_eligible_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+    "recommended_for_sair_packet": false,
+    "risk_count": 0,
+    "selected_mod_p_signature_counts": {
+      "p2:1-4-9-10;p3:1-2-2-9-10;p5:1-2-2-3-7-9;p7:1-1-1-2-19": 1
+    },
+    "selected_mode_counts": {
+      "unknown": 1
+    },
+    "selected_rows": 1,
+    "status": "hold_no_submission"
+  },
+  "record_type": "igp24_axg_proposal_loop_summary",
+  "rejected_rows": 6,
+  "rejection_reason_counts": {
+    "local_valid_false": 3,
+    "missing_real_root_count": 3,
+    "real_root_count_not_target": 3
+  },
+  "risk_reason_counts": {
+    "accepted_hash_duplicate": 11,
+    "crowded_mod_p_signature_hits=1": 4
+  },
+  "run_id": "axg12_target_r20_conditioned_20260707_2136",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "schema_version": 1,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 11,
+    "strong_packet_candidate": 1
+  },
+  "scored_rows": 12,
+  "selected_rows": 1,
+  "selected_sample_export_source_counts": {
+    "model_generate": 1
+  },
+  "source_commit": "63ce57a2a43a9bdea2296acfbd149be7d998001f",
+  "target_rs": [
+    20
+  ]
+}

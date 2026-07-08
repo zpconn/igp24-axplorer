@@ -35,6 +35,11 @@ Current status:
   seed-bank prefix produced 16 target-r control survivors, but raw
   `model_generate` rows produced 0 target-r survivors, and every proposal loop
   returned `hold_no_submission`.
+- `AXG-1.2` exists as a true target-r control-token probe using
+  `decimal_coefficients`. Four short CUDA runs for `r=12,16,20,24` produced
+  128 model-generated target-r survivors across 212 scored decoded rows.
+  Proposal dry-runs selected 7 rows total but held all targets below the packet
+  gate, so no SAIR submission was made.
 
 Useful commands:
 

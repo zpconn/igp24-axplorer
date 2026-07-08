@@ -2538,6 +2538,29 @@ rows. All 16 target-r survivors came from the seed-bank prefix; raw
 supervision/measurement path, but it does not justify a larger GPU training
 run yet.
 
+AXG-1.2 added real model-side target-r control tokens and the
+`decimal_coefficients` tokenizer. The tokenizer avoids the old integer-vocab
+explosion for high-coefficient r12/r20/r24 feedback rows, while generation can
+request a bucket by starting from `BOS,R<r>`. Four short CUDA diagnostics used
+`sample_export_target_r_conditioned`, 2,400 training steps per target, and 768
+export attempts per target. Combined GPU runtime was 308.0 seconds, with
+92-94% max monitored GPU utilization. CPU scoring found 212 decoded/scored
+model-generated rows, 199 proxy-valid rows, and 128 model-generated target-r
+survivors:
+
+| r | decoded | valid | target-r survivors | proposal selected | decision |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 12 | 85 | 80 | 47 | 2 | hold_no_submission |
+| 16 | 35 | 34 | 31 | 1 | hold_no_submission |
+| 20 | 18 | 15 | 12 | 1 | hold_no_submission |
+| 24 | 74 | 70 | 38 | 3 | hold_no_submission |
+
+This is the first AXG result where high-real-root target survivors come from
+`model_generate` itself. The packet gate still held because selected rows were
+too few per target and many filtered rows had accepted-hash or composed-support
+basin risks. The next model step should improve diversity and basin avoidance
+around control-token survivors before any 30-60 minute training run.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

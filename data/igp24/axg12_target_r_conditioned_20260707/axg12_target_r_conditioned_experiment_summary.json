@@ -1,0 +1,334 @@
+{
+  "aggregate": {
+    "max_gpu_utilization_percent": 94.0,
+    "model_generate_target_r_survivor_count": 128,
+    "rejected_records": 13,
+    "runtime_seconds": 308.0497058460023,
+    "sample_export_decoded_records": 212,
+    "sample_export_records": 366,
+    "sample_export_unique_decoded_coefficients": 212,
+    "scored_records": 212,
+    "target_r_survivor_count": 128,
+    "valid_records": 199
+  },
+  "decision": "hold_no_submission; model conditioning works, but proposal-loop packet gates need more diverse non-basin rows before SAIR submission or a larger run.",
+  "encoding_tokens": "decimal_coefficients",
+  "interpretation": "Control-token decimal training produced model_generate target-r survivors in every requested bucket; unlike AXG-1.1, target-r survivors did not come from seed-bank prefix rows.",
+  "model_version": "AXG-1.2",
+  "parent_version": "AXG-1.1",
+  "probe_mode": "sample_export_target_r_conditioned",
+  "proposal_loop": {
+    "aggregate": {
+      "candidate_rows": 212,
+      "filtered_rows": 128,
+      "hold_decisions": 4,
+      "selected_rows": 7,
+      "strong_packet_candidate_rows": 7
+    },
+    "decision": "hold_no_submission_all_targets",
+    "runs": [
+      {
+        "candidate_rows": 85,
+        "decision": "hold_no_submission",
+        "filtered_rows": 47,
+        "filtered_sample_export_source_counts": {
+          "model_generate": 47
+        },
+        "recommendation": {
+          "reason": "only_2_eligible_rows_below_min_4; 1_selected_rows_have_risk_reasons; selected_rows_do_not_have_multiple_perturbation_modes",
+          "recommended_for_sair_packet": false,
+          "risk_count": 1,
+          "selected_mod_p_signature_counts": {
+            "p3:1-1-5-7-10;p5:1-1-2-20;p7:7-17": 1,
+            "p5:3-3-3-6-9": 1
+          },
+          "selected_mode_counts": {
+            "unknown": 2
+          },
+          "selected_rows": 2,
+          "status": "hold_no_submission"
+        },
+        "risk_reason_counts": {
+          "accepted_hash_duplicate": 38,
+          "crowded_mod_p_signature_hits=1": 14,
+          "even_support_g_x_squared_like": 31,
+          "support_gcd_not_one": 31
+        },
+        "run_id": "axg12_target_r12_conditioned_20260707_2132",
+        "score_classification_counts": {
+          "reject_or_hold_known_basin_risk": 45,
+          "strong_packet_candidate": 2
+        },
+        "selected_rows": 2,
+        "summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/proposal_loop/axg12_target_r12_conditioned_20260707_2132/proposal_loop_summary.json",
+        "target_r": 12
+      },
+      {
+        "candidate_rows": 35,
+        "decision": "hold_no_submission",
+        "filtered_rows": 31,
+        "filtered_sample_export_source_counts": {
+          "model_generate": 31
+        },
+        "recommendation": {
+          "reason": "only_1_eligible_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+          "recommended_for_sair_packet": false,
+          "risk_count": 0,
+          "selected_mod_p_signature_counts": {
+            "p3:2-22;p7:1-10-13": 1
+          },
+          "selected_mode_counts": {
+            "unknown": 1
+          },
+          "selected_rows": 1,
+          "status": "hold_no_submission"
+        },
+        "risk_reason_counts": {
+          "accepted_hash_duplicate": 29,
+          "even_support_g_x_squared_like": 13,
+          "support_gcd_not_one": 13
+        },
+        "run_id": "axg12_target_r16_conditioned_20260707_2134",
+        "score_classification_counts": {
+          "reject_or_hold_known_basin_risk": 30,
+          "strong_packet_candidate": 1
+        },
+        "selected_rows": 1,
+        "summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/proposal_loop/axg12_target_r16_conditioned_20260707_2134/proposal_loop_summary.json",
+        "target_r": 16
+      },
+      {
+        "candidate_rows": 18,
+        "decision": "hold_no_submission",
+        "filtered_rows": 12,
+        "filtered_sample_export_source_counts": {
+          "model_generate": 12
+        },
+        "recommendation": {
+          "reason": "only_1_eligible_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+          "recommended_for_sair_packet": false,
+          "risk_count": 0,
+          "selected_mod_p_signature_counts": {
+            "p2:1-4-9-10;p3:1-2-2-9-10;p5:1-2-2-3-7-9;p7:1-1-1-2-19": 1
+          },
+          "selected_mode_counts": {
+            "unknown": 1
+          },
+          "selected_rows": 1,
+          "status": "hold_no_submission"
+        },
+        "risk_reason_counts": {
+          "accepted_hash_duplicate": 11,
+          "crowded_mod_p_signature_hits=1": 4
+        },
+        "run_id": "axg12_target_r20_conditioned_20260707_2136",
+        "score_classification_counts": {
+          "reject_or_hold_known_basin_risk": 11,
+          "strong_packet_candidate": 1
+        },
+        "selected_rows": 1,
+        "summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/proposal_loop/axg12_target_r20_conditioned_20260707_2136/proposal_loop_summary.json",
+        "target_r": 20
+      },
+      {
+        "candidate_rows": 74,
+        "decision": "hold_no_submission",
+        "filtered_rows": 38,
+        "filtered_sample_export_source_counts": {
+          "model_generate": 38
+        },
+        "recommendation": {
+          "reason": "only_3_eligible_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes",
+          "recommended_for_sair_packet": false,
+          "risk_count": 0,
+          "selected_mod_p_signature_counts": {
+            "none": 1,
+            "p2:1-3-10-10;p5:1-23;p7:1-1-1-1-1-2-2-3-3-4-5": 1,
+            "p3:6-6-6-6;p7:2-4-6-12": 1
+          },
+          "selected_mode_counts": {
+            "unknown": 3
+          },
+          "selected_rows": 3,
+          "status": "hold_no_submission"
+        },
+        "risk_reason_counts": {
+          "accepted_hash_duplicate": 35,
+          "crowded_mod_p_signature_hits=1": 5,
+          "even_support_g_x_squared_like": 9,
+          "support_gcd_not_one": 9
+        },
+        "run_id": "axg12_target_r24_conditioned_20260707_2138",
+        "score_classification_counts": {
+          "reject_or_hold_known_basin_risk": 35,
+          "strong_packet_candidate": 3
+        },
+        "selected_rows": 3,
+        "summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/proposal_loop/axg12_target_r24_conditioned_20260707_2138/proposal_loop_summary.json",
+        "target_r": 24
+      }
+    ],
+    "submitted_to_sair": false
+  },
+  "record_type": "igp24_axg12_target_r_conditioned_experiment_summary",
+  "runs": [
+    {
+      "avg_gpu_utilization_percent": 78.58974358974359,
+      "final_test_loss": 4.64196252822876,
+      "final_train_loss": 0.03741471000015736,
+      "gpu_runtime_seconds": 80.91152016900014,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 47,
+      "real_root_counts": {
+        "0": 1,
+        "10": 6,
+        "12": 47,
+        "2": 1,
+        "4": 9,
+        "6": 10,
+        "8": 6
+      },
+      "rejected_records": 5,
+      "run_id": "axg12_target_r12_conditioned_20260707_2132",
+      "sample_export_decoded_records": 85,
+      "sample_export_duplicate_decoded_records_skipped": 609,
+      "sample_export_records": 159,
+      "sample_export_source_counts": {
+        "model_generate": 85
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 47
+      },
+      "sample_export_unique_decoded_coefficients": 85,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/score_summary.json",
+      "scored_records": 85,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 12,
+      "target_r_survivor_count": 47,
+      "valid_records": 80
+    },
+    {
+      "avg_gpu_utilization_percent": 81.02777777777777,
+      "final_test_loss": 4.871740341186523,
+      "final_train_loss": 0.04046435009067257,
+      "gpu_runtime_seconds": 73.99140519398497,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 31,
+      "real_root_counts": {
+        "12": 2,
+        "16": 31,
+        "8": 1
+      },
+      "rejected_records": 1,
+      "run_id": "axg12_target_r16_conditioned_20260707_2134",
+      "sample_export_decoded_records": 35,
+      "sample_export_duplicate_decoded_records_skipped": 727,
+      "sample_export_records": 41,
+      "sample_export_source_counts": {
+        "model_generate": 35
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 31
+      },
+      "sample_export_unique_decoded_coefficients": 35,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/cpu_scored_samples/score_summary.json",
+      "scored_records": 35,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 16,
+      "target_r_survivor_count": 31,
+      "valid_records": 34
+    },
+    {
+      "avg_gpu_utilization_percent": 79.5,
+      "final_test_loss": 4.91778564453125,
+      "final_train_loss": 0.03578473619495829,
+      "gpu_runtime_seconds": 78.13692450698,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 12,
+      "real_root_counts": {
+        "16": 1,
+        "2": 1,
+        "20": 12,
+        "4": 1
+      },
+      "rejected_records": 3,
+      "run_id": "axg12_target_r20_conditioned_20260707_2136",
+      "sample_export_decoded_records": 18,
+      "sample_export_duplicate_decoded_records_skipped": 734,
+      "sample_export_records": 34,
+      "sample_export_source_counts": {
+        "model_generate": 18
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 12
+      },
+      "sample_export_unique_decoded_coefficients": 18,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/cpu_scored_samples/score_summary.json",
+      "scored_records": 18,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 20,
+      "target_r_survivor_count": 12,
+      "valid_records": 15
+    },
+    {
+      "avg_gpu_utilization_percent": 81.63888888888889,
+      "final_test_loss": 4.621494770050049,
+      "final_train_loss": 0.038035189298292,
+      "gpu_runtime_seconds": 75.00985597603722,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 94.0,
+      "model_generate_target_r_survivor_count": 38,
+      "real_root_counts": {
+        "0": 2,
+        "10": 4,
+        "12": 5,
+        "16": 1,
+        "2": 4,
+        "20": 1,
+        "24": 38,
+        "4": 9,
+        "6": 2,
+        "8": 4
+      },
+      "rejected_records": 4,
+      "run_id": "axg12_target_r24_conditioned_20260707_2138",
+      "sample_export_decoded_records": 74,
+      "sample_export_duplicate_decoded_records_skipped": 636,
+      "sample_export_records": 132,
+      "sample_export_source_counts": {
+        "model_generate": 74
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 38
+      },
+      "sample_export_unique_decoded_coefficients": 74,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/cpu_scored_samples/score_summary.json",
+      "scored_records": 74,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 24,
+      "target_r_survivor_count": 38,
+      "valid_records": 70
+    }
+  ],
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "checkpoints_committed": false,
+    "local_search_enabled": false,
+    "runs_exact_verifiers": false
+  },
+  "sample_attempts_per_target": 768,
+  "schema_version": 1,
+  "steps_per_target": 2400,
+  "target_r_conditioning_mode": "control_token",
+  "target_rs": [
+    12,
+    16,
+    20,
+    24
+  ],
+  "training_data": "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl"
+}

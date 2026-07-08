@@ -67,6 +67,28 @@ testing and supervision, but they do not justify scaling GPU training. The next
 AXG step needs real model-side target-r conditioning or a different tokenizer /
 representation for high-coefficient target-r families.
 
+## AXG-1.2 Target-r Control-token Probe
+
+AXG-1.2 adds real model-side target-r conditioning. It uses the new
+`decimal_coefficients` tokenizer so high-coefficient feedback rows can be
+trained without creating an enormous integer-coefficient vocabulary, and it
+prepends control tokens such as `R12`, `R16`, `R20`, and `R24` after `BOS`.
+
+Four short CUDA runs trained on
+`data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl`
+with `r=12,16,20,24` rows. Aggregate GPU runtime was 308.0 seconds, with
+92-94% max monitored GPU utilization. CPU scoring found model-generated
+target-r survivors in every requested bucket: 47 for `r=12`, 31 for `r=16`,
+12 for `r=20`, and 38 for `r=24` (128 total). This is the key positive result:
+unlike AXG-1.1, target-r survivors came from `model_generate`, not a seed-bank
+prefix.
+
+The proposal-loop dry-runs still returned `hold_no_submission`: selected rows
+were below the packet gate and most filtered rows showed accepted-hash or
+composed-support basin risks. The next useful step is not a blind 30-60 minute
+training run; it is to improve diversity/non-basin steering around these
+control-token survivors, then rerun the dry proposal gate.
+
 ## Axplorer Architecture
 
 Axplorer exposes each math search task as an environment under `src/envs/`. The

@@ -1,0 +1,144 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "encoding_tokens": "decimal_coefficients",
+    "full_control_token_conditioning": true,
+    "status": "short_control_token_training_completed",
+    "target_r_control_tokens": [
+      "R12",
+      "R16",
+      "R20",
+      "R24"
+    ]
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r_control_token",
+    "decimal_coefficient_stream",
+    "sample_export_source",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-08T02:38:42.922617+00:00",
+  "description": "Target-r control-token decimal coefficient training probe",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent_by_target_r": {
+      "12": 78.58974358974359,
+      "16": 81.02777777777777,
+      "20": 79.5,
+      "24": 81.63888888888889
+    },
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 94.0,
+    "max_gpu_utilization_percent_by_target_r": {
+      "12": 92.0,
+      "16": 92.0,
+      "20": 92.0,
+      "24": 94.0
+    },
+    "status": "cuda_used_in_four_short_conditioned_runs"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "63ce57a2a43a9bdea2296acfbd149be7d998001f",
+  "known_limitations": [
+    "AXG-1.2 proves target-r steering on model_generate rows, but most candidates still overlap accepted/collapsed basins.",
+    "Proposal dry-runs selected too few clean rows per target to prepare a SAIR packet.",
+    "No checkpoints are committed; reruns must retrain from the recorded command and data.",
+    "No exact Galois verifier or SAIR submission is run inside training or scoring."
+  ],
+  "model_version": "AXG-1.2",
+  "objective_loss_configuration": {
+    "loss": "baseline transformer next-token loss over decimal coefficient streams with target-r control-token prefix",
+    "primary": "measure whether requested R<r> prefixes produce model_generate rows with matching real-root counts",
+    "secondary": "feed target-r survivors into CPU scoring and proposal-loop basin gates"
+  },
+  "parent_version": "AXG-1.1",
+  "purpose": "Target-r-conditioned GPU proposal generator for IGP24 active learning.",
+  "random_seed": "33000+target_r per run",
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-08T02:40:38.312484+00:00",
+      "run_id": "axg12_target_r12_conditioned_20260707_2132",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.2/axg12_target_r12_conditioned_20260707_2132/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:40:38.331051+00:00",
+      "run_id": "axg12_target_r16_conditioned_20260707_2134",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.2/axg12_target_r16_conditioned_20260707_2134/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:40:38.377980+00:00",
+      "run_id": "axg12_target_r24_conditioned_20260707_2138",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.2/axg12_target_r24_conditioned_20260707_2138/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:40:38.387296+00:00",
+      "run_id": "axg12_target_r20_conditioned_20260707_2136",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.2/axg12_target_r20_conditioned_20260707_2136/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Submission is explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_model_sample_export_target_r12_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r16/gpu_probe/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r20/gpu_probe/gpu_model_sample_export_target_r20_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r24/gpu_probe/gpu_model_sample_export_target_r24_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r <12|16|20|24> --target_r_conditioned_max_steps 2400 --target_r_model_sample_attempts 768",
+    "recommended_template": [
+      "python3",
+      "scripts/igp24_gpu_sampler_probe.py",
+      "--probe_mode",
+      "sample_export_target_r_conditioned",
+      "--target_r",
+      "<target>"
+    ],
+    "status": "four_short_conditioned_runs_completed"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 308.0497058460023,
+    "status": "four_short_conditioned_runs_completed"
+  },
+  "validation_metrics": {
+    "aggregate": {
+      "max_gpu_utilization_percent": 94.0,
+      "model_generate_target_r_survivor_count": 128,
+      "proposal_candidate_rows": 212,
+      "proposal_filtered_rows": 128,
+      "proposal_selected_rows": 7,
+      "proposal_strong_packet_candidate_rows": 7,
+      "rejected_records": 13,
+      "runtime_seconds": 308.0497058460023,
+      "sample_export_decoded_records": 212,
+      "sample_export_records": 366,
+      "sample_export_unique_decoded_coefficients": 212,
+      "scored_records": 212,
+      "submitted_to_sair": false,
+      "target_r_survivor_count": 128,
+      "valid_records": 199
+    },
+    "decision": "hold_no_submission; model conditioning works, but proposal-loop packet gates need more diverse non-basin rows before SAIR submission or a larger run.",
+    "interpretation": "Control-token decimal training produced model_generate target-r survivors in every requested bucket; unlike AXG-1.1, target-r survivors did not come from seed-bank prefix rows.",
+    "status": "control_token_conditioning_succeeded_hold_no_submission",
+    "success_metrics": [
+      "model_generate target-r survivor count",
+      "real-root distribution by requested control token",
+      "proposal-loop selected rows",
+      "basin-risk distribution"
+    ]
+  }
+}

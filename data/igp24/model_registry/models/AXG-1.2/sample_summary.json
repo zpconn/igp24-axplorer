@@ -1,0 +1,166 @@
+{
+  "aggregate": {
+    "max_gpu_utilization_percent": 94.0,
+    "model_generate_target_r_survivor_count": 128,
+    "rejected_records": 13,
+    "runtime_seconds": 308.0497058460023,
+    "sample_export_decoded_records": 212,
+    "sample_export_records": 366,
+    "sample_export_unique_decoded_coefficients": 212,
+    "scored_records": 212,
+    "target_r_survivor_count": 128,
+    "valid_records": 199
+  },
+  "model_version": "AXG-1.2",
+  "record_type": "igp24_axg_sample_summary",
+  "runs": [
+    {
+      "avg_gpu_utilization_percent": 78.58974358974359,
+      "final_test_loss": 4.64196252822876,
+      "final_train_loss": 0.03741471000015736,
+      "gpu_runtime_seconds": 80.91152016900014,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 47,
+      "real_root_counts": {
+        "0": 1,
+        "10": 6,
+        "12": 47,
+        "2": 1,
+        "4": 9,
+        "6": 10,
+        "8": 6
+      },
+      "rejected_records": 5,
+      "run_id": "axg12_target_r12_conditioned_20260707_2132",
+      "sample_export_decoded_records": 85,
+      "sample_export_duplicate_decoded_records_skipped": 609,
+      "sample_export_records": 159,
+      "sample_export_source_counts": {
+        "model_generate": 85
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 47
+      },
+      "sample_export_unique_decoded_coefficients": 85,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/score_summary.json",
+      "scored_records": 85,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 12,
+      "target_r_survivor_count": 47,
+      "valid_records": 80
+    },
+    {
+      "avg_gpu_utilization_percent": 81.02777777777777,
+      "final_test_loss": 4.871740341186523,
+      "final_train_loss": 0.04046435009067257,
+      "gpu_runtime_seconds": 73.99140519398497,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 31,
+      "real_root_counts": {
+        "12": 2,
+        "16": 31,
+        "8": 1
+      },
+      "rejected_records": 1,
+      "run_id": "axg12_target_r16_conditioned_20260707_2134",
+      "sample_export_decoded_records": 35,
+      "sample_export_duplicate_decoded_records_skipped": 727,
+      "sample_export_records": 41,
+      "sample_export_source_counts": {
+        "model_generate": 35
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 31
+      },
+      "sample_export_unique_decoded_coefficients": 35,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/cpu_scored_samples/score_summary.json",
+      "scored_records": 35,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r16/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 16,
+      "target_r_survivor_count": 31,
+      "valid_records": 34
+    },
+    {
+      "avg_gpu_utilization_percent": 79.5,
+      "final_test_loss": 4.91778564453125,
+      "final_train_loss": 0.03578473619495829,
+      "gpu_runtime_seconds": 78.13692450698,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 12,
+      "real_root_counts": {
+        "16": 1,
+        "2": 1,
+        "20": 12,
+        "4": 1
+      },
+      "rejected_records": 3,
+      "run_id": "axg12_target_r20_conditioned_20260707_2136",
+      "sample_export_decoded_records": 18,
+      "sample_export_duplicate_decoded_records_skipped": 734,
+      "sample_export_records": 34,
+      "sample_export_source_counts": {
+        "model_generate": 18
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 12
+      },
+      "sample_export_unique_decoded_coefficients": 18,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/cpu_scored_samples/score_summary.json",
+      "scored_records": 18,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r20/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 20,
+      "target_r_survivor_count": 12,
+      "valid_records": 15
+    },
+    {
+      "avg_gpu_utilization_percent": 81.63888888888889,
+      "final_test_loss": 4.621494770050049,
+      "final_train_loss": 0.038035189298292,
+      "gpu_runtime_seconds": 75.00985597603722,
+      "gpu_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/gpu_probe/gpu_sampler_probe_summary.json",
+      "max_gpu_utilization_percent": 94.0,
+      "model_generate_target_r_survivor_count": 38,
+      "real_root_counts": {
+        "0": 2,
+        "10": 4,
+        "12": 5,
+        "16": 1,
+        "2": 4,
+        "20": 1,
+        "24": 38,
+        "4": 9,
+        "6": 2,
+        "8": 4
+      },
+      "rejected_records": 4,
+      "run_id": "axg12_target_r24_conditioned_20260707_2138",
+      "sample_export_decoded_records": 74,
+      "sample_export_duplicate_decoded_records_skipped": 636,
+      "sample_export_records": 132,
+      "sample_export_source_counts": {
+        "model_generate": 74
+      },
+      "sample_export_source_target_r_survivors": {
+        "model_generate": 38
+      },
+      "sample_export_unique_decoded_coefficients": 74,
+      "score_summary_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/cpu_scored_samples/score_summary.json",
+      "scored_records": 74,
+      "scored_samples_path": "data/igp24/axg12_target_r_conditioned_20260707/r24/cpu_scored_samples/scored_samples.jsonl",
+      "target_r": 24,
+      "target_r_survivor_count": 38,
+      "valid_records": 70
+    }
+  ],
+  "sample_exports": [
+    "data/igp24/axg12_target_r_conditioned_20260707/r12/gpu_probe/gpu_model_sample_export_target_r12_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r16/gpu_probe/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r20/gpu_probe/gpu_model_sample_export_target_r20_conditioned.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r24/gpu_probe/gpu_model_sample_export_target_r24_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "status": "four_conditioned_exports_scored"
+}
