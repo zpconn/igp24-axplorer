@@ -41,6 +41,7 @@ from scripts.igp24_anti_basin_planner import (
     select_diverse_scores,
 )
 from scripts.igp24_model_registry import DEFAULT_REGISTRY, validate_version
+from scripts.igp24_sair_sync import load_sync_status, load_sync_submission_rows
 from scripts.igp24_shortlist import get_source_commit
 from src.igp24.verifiers.sair_api import format_polynomial_line
 
@@ -381,6 +382,8 @@ def run_proposal_loop(
         per_mode_cap=per_mode_cap,
         per_pattern_cap=per_pattern_cap,
     )
+    sync_status = load_sync_status(sync_dir) if sync_dir and (sync_dir / "sair_sync_summary.json").exists() else None
+    sync_submission_rows = load_sync_submission_rows(sync_dir) if sync_dir and sync_dir.exists() else []
     recommendation = build_submission_recommendation(
         selected,
         min_packet_rows=min_packet_rows,
@@ -388,6 +391,9 @@ def run_proposal_loop(
         min_template_family_count=min_template_family_count,
         min_basin_fingerprint_count=min_basin_fingerprint_count,
         reject_unknown_provenance=reject_unknown_provenance,
+        sync_status=sync_status,
+        sync_submission_rows=sync_submission_rows,
+        pending_collision_labels=collapsed_labels,
     )
     decision = "reviewed_packet_ready_for_dry_run" if recommendation["recommended_for_sair_packet"] else "hold_no_submission"
 
@@ -437,6 +443,12 @@ def run_proposal_loop(
         "target_rs": sorted(target_rs),
         "decision": decision,
         "recommendation": recommendation,
+        "sair_sync": {
+            "sync_dir": str(sync_dir) if sync_dir else None,
+            "submission_rows_loaded": len(sync_submission_rows),
+            "sync_status": sync_status,
+            "sync_gate": recommendation.get("sync_submission_gate"),
+        },
         "rejection_reason_counts": dict(rejection_counts),
         "score_classification_counts": dict(score_class_counts),
         "risk_reason_counts": dict(risk_counts),
@@ -487,6 +499,9 @@ def run_proposal_loop(
                 f"- Rejected rows: {len(rejected)}",
                 f"- Selected rows: {len(selected)}",
                 f"- Decision: `{decision}`",
+                f"- Recommendation reason: {recommendation['reason']}",
+                f"- Local packet ready: `{recommendation.get('local_recommended_for_sair_packet')}`",
+                f"- Sync gate: `{json.dumps(recommendation.get('sync_submission_gate') or {}, sort_keys=True)}`",
                 f"- Model-generated target-r survivors: `{source_basin_summary['model_generated_target_r_survivor_rows']}`",
                 f"- Model-generated eligible rows: `{source_basin_summary['model_generated_eligible_rows']}`",
                 f"- Source basin summary: `{json.dumps(source_basin_summary, sort_keys=True)}`",
@@ -525,6 +540,8 @@ def run_proposal_loop(
             },
             "outputs": summary["artifacts"],
             "decision": decision,
+            "recommendation": recommendation,
+            "sair_sync_gate": recommendation.get("sync_submission_gate"),
             "diversity_gates": summary["diversity_gates"],
             "source_basin_summary": source_basin_summary,
             "safety": summary["safety"],

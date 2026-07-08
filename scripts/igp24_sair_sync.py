@@ -43,6 +43,7 @@ PENDING_ROWS_JSONL = "sair_pending_rows.jsonl"
 SCOREABLE_ROWS_JSONL = "sair_scoreable_rows.jsonl"
 FAILED_ROWS_JSONL = "sair_failed_rows.jsonl"
 UNMATCHED_ROWS_JSONL = "sair_unmatched_rows.jsonl"
+FAILED_SUBMISSION_READS_JSONL = "sair_failed_submission_reads.jsonl"
 
 COMMITTED_DATA_ROOT = REPO_ROOT / "data/igp24"
 
@@ -560,6 +561,90 @@ def build_submission_index(
     }
 
 
+def failed_submission_read_entry(
+    *,
+    submission_id: str | None,
+    endpoint: str,
+    exc: SAIRAPIError,
+) -> dict[str, Any]:
+    return {
+        "submission_id": submission_id,
+        "endpoint": endpoint,
+        "status": exc.status,
+        "code": exc.code,
+        "message": str(exc),
+        "retry_after": exc.retry_after,
+    }
+
+
+def build_sync_status(
+    *,
+    global_progress_complete: bool,
+    submission_index_complete: bool,
+    submissions_requested: int = 0,
+    detail_success_count: int = 0,
+    download_success_count: int = 0,
+    failed_submission_reads: list[dict[str, Any]] | None = None,
+    listing_error: SAIRAPIError | None = None,
+) -> dict[str, Any]:
+    failures = list(failed_submission_reads or [])
+    detail_failures = [row for row in failures if row.get("endpoint") == "submissions/{id}"]
+    download_failures = [row for row in failures if row.get("endpoint") == "submissions/{id}/download"]
+    submission_detail_complete = submission_index_complete and detail_success_count == submissions_requested and not detail_failures
+    download_complete = submission_detail_complete and download_success_count == detail_success_count and not download_failures
+    full_submission_state_complete = (
+        bool(global_progress_complete)
+        and bool(submission_index_complete)
+        and bool(submission_detail_complete)
+        and bool(download_complete)
+    )
+    first_failure = failures[0] if failures else None
+    failing_endpoint = None
+    error_code = None
+    error_message = None
+    retry_after = None
+    if listing_error is not None:
+        base = sync_failure_status(listing_error)
+        failing_endpoint = base.get("failing_endpoint")
+        error_code = base.get("error_code")
+        error_message = base.get("error_message")
+        retry_after = base.get("retry_after")
+    elif first_failure is not None:
+        failing_endpoint = first_failure.get("endpoint")
+        error_code = first_failure.get("code")
+        error_message = first_failure.get("message")
+        retry_after = first_failure.get("retry_after")
+
+    if not submission_index_complete:
+        recovered = "submission index unavailable"
+    else:
+        recovered = (
+            f"{detail_success_count}/{submissions_requested} details recovered; "
+            f"{download_success_count}/{detail_success_count} downloads recovered"
+        )
+    return {
+        "partial_sync": not full_submission_state_complete,
+        "global_progress_complete": bool(global_progress_complete),
+        "submission_index_complete": bool(submission_index_complete),
+        "submission_detail_complete": bool(submission_detail_complete),
+        "download_complete": bool(download_complete),
+        "full_submission_state_complete": bool(full_submission_state_complete),
+        "submission_state_complete": bool(full_submission_state_complete),
+        "degraded_mode": not full_submission_state_complete and bool(submission_index_complete),
+        "degraded_mode_summary": recovered,
+        "submissions_requested": int(submissions_requested),
+        "submission_detail_success_count": int(detail_success_count),
+        "submission_detail_failed_count": len(detail_failures),
+        "submission_download_success_count": int(download_success_count),
+        "submission_download_failed_count": len(download_failures),
+        "failed_submission_reads": failures,
+        "failing_endpoint": failing_endpoint,
+        "error_code": error_code,
+        "error_message": error_message,
+        "retry_after": retry_after,
+    }
+
+
 def build_sync_summary(
     *,
     competition: dict[str, Any],
@@ -578,9 +663,21 @@ def build_sync_summary(
     pending = [row for row in submission_rows if row.get("status_class") == "pending"]
     scoreable = [row for row in submission_rows if row.get("status_class") == "scoreable"]
     unmatched = [row for row in submission_rows if row.get("local_match_status") == "unmatched"]
-    status = sync_status or {"partial_sync": False, "submission_state_complete": True}
+    if sync_status is None:
+        submission_count = int(submission_index.get("submission_count") or 0)
+        status = build_sync_status(
+            global_progress_complete=True,
+            submission_index_complete=True,
+            submissions_requested=submission_count,
+            detail_success_count=submission_count,
+            download_success_count=submission_count,
+        )
+    else:
+        status = sync_status
     partial_sync = bool(status.get("partial_sync"))
-    submission_state_complete = bool(status.get("submission_state_complete", not partial_sync))
+    submission_state_complete = bool(
+        status.get("full_submission_state_complete", status.get("submission_state_complete", not partial_sync))
+    )
     planned_endpoints = [
         "GET /api/public/v1/competitions/{competitionId}",
         "GET /api/public/v1/competitions/{competitionId}/me",
@@ -591,11 +688,11 @@ def build_sync_summary(
     ]
     failing_endpoint = status.get("failing_endpoint")
     used_endpoints = planned_endpoints[:3]
-    if not partial_sync or failing_endpoint in {"submissions/me", "submissions/{id}", "submissions/{id}/download"}:
+    if status.get("submission_index_complete") or (not partial_sync or failing_endpoint in {"submissions/me", "submissions/{id}", "submissions/{id}/download"}):
         used_endpoints.append(planned_endpoints[3])
-    if not partial_sync or failing_endpoint in {"submissions/{id}", "submissions/{id}/download"}:
+    if status.get("submission_detail_success_count") or status.get("submission_detail_failed_count") or (not partial_sync or failing_endpoint in {"submissions/{id}", "submissions/{id}/download"}):
         used_endpoints.append(planned_endpoints[4])
-    if not partial_sync or failing_endpoint == "submissions/{id}/download":
+    if status.get("submission_download_success_count") or status.get("submission_download_failed_count") or (not partial_sync or failing_endpoint == "submissions/{id}/download"):
         used_endpoints.append(planned_endpoints[5])
     return {
         "schema_version": 1,
@@ -612,7 +709,20 @@ def build_sync_summary(
         },
         "sync_status": {
             "partial_sync": partial_sync,
+            "global_progress_complete": status.get("global_progress_complete"),
+            "submission_index_complete": status.get("submission_index_complete"),
+            "submission_detail_complete": status.get("submission_detail_complete"),
+            "download_complete": status.get("download_complete"),
+            "full_submission_state_complete": status.get("full_submission_state_complete", submission_state_complete),
             "submission_state_complete": submission_state_complete,
+            "degraded_mode": status.get("degraded_mode"),
+            "degraded_mode_summary": status.get("degraded_mode_summary"),
+            "submissions_requested": status.get("submissions_requested"),
+            "submission_detail_success_count": status.get("submission_detail_success_count"),
+            "submission_detail_failed_count": status.get("submission_detail_failed_count"),
+            "submission_download_success_count": status.get("submission_download_success_count"),
+            "submission_download_failed_count": status.get("submission_download_failed_count"),
+            "failed_submission_reads": status.get("failed_submission_reads") or [],
             "failing_endpoint": status.get("failing_endpoint"),
             "error_code": status.get("error_code"),
             "error_message": status.get("error_message"),
@@ -675,6 +785,11 @@ def build_report(summary: dict[str, Any]) -> str:
             "",
             f"- Partial sync: `{sync_status.get('partial_sync')}`",
             f"- Submission state complete: `{sync_status.get('submission_state_complete')}`",
+            f"- Global progress complete: `{sync_status.get('global_progress_complete')}`",
+            f"- Submission index complete: `{sync_status.get('submission_index_complete')}`",
+            f"- Submission detail complete: `{sync_status.get('submission_detail_complete')}`",
+            f"- Download complete: `{sync_status.get('download_complete')}`",
+            f"- Degraded mode summary: {sync_status.get('degraded_mode_summary')}",
             f"- Failing endpoint: `{sync_status.get('failing_endpoint')}`",
             f"- Labels: {progress.get('label_count')}",
             f"- Remaining signatures: {progress.get('remaining_signature_count')}",
@@ -734,6 +849,7 @@ def write_sync_artifacts(
         "scoreable_rows_jsonl": output_dir / SCOREABLE_ROWS_JSONL,
         "failed_rows_jsonl": output_dir / FAILED_ROWS_JSONL,
         "unmatched_rows_jsonl": output_dir / UNMATCHED_ROWS_JSONL,
+        "failed_submission_reads_jsonl": output_dir / FAILED_SUBMISSION_READS_JSONL,
     }
     output_files = {name: str(path) for name, path in paths.items()}
     progress_summary = build_progress_summary(progress_snapshot)
@@ -741,6 +857,7 @@ def write_sync_artifacts(
     scoreable_rows = [row for row in submission_rows if row.get("status_class") == "scoreable"]
     failed_rows = [row for row in submission_rows if row.get("status_class") == "failed"]
     unmatched_rows = [row for row in submission_rows if row.get("local_match_status") == "unmatched"]
+    failed_submission_reads = list((sync_status or {}).get("failed_submission_reads") or [])
     summary = build_sync_summary(
         competition=competition,
         me=me,
@@ -761,6 +878,7 @@ def write_sync_artifacts(
     write_jsonl(paths["scoreable_rows_jsonl"], scoreable_rows)
     write_jsonl(paths["failed_rows_jsonl"], failed_rows)
     write_jsonl(paths["unmatched_rows_jsonl"], unmatched_rows)
+    write_jsonl(paths["failed_submission_reads_jsonl"], failed_submission_reads)
     write_json(paths["summary_json"], summary)
     paths["report_md"].write_text(build_report(summary), encoding="utf-8")
     return paths
@@ -771,7 +889,20 @@ def sync_failure_status(exc: SAIRAPIError) -> dict[str, Any]:
     failing_endpoint = message.split(":", 1)[0] if ":" in message else None
     return {
         "partial_sync": True,
+        "global_progress_complete": True,
+        "submission_index_complete": False,
+        "submission_detail_complete": False,
+        "download_complete": False,
+        "full_submission_state_complete": False,
         "submission_state_complete": False,
+        "degraded_mode": False,
+        "degraded_mode_summary": "submission index unavailable",
+        "submissions_requested": 0,
+        "submission_detail_success_count": 0,
+        "submission_detail_failed_count": 0,
+        "submission_download_success_count": 0,
+        "submission_download_failed_count": 0,
+        "failed_submission_reads": [],
         "failing_endpoint": failing_endpoint,
         "error_code": exc.code,
         "error_message": message,
@@ -846,7 +977,11 @@ def build_sync_from_client(
     except SAIRAPIError as exc:
         if not allow_partial:
             raise
-        sync_status = sync_failure_status(exc)
+        sync_status = build_sync_status(
+            global_progress_complete=True,
+            submission_index_complete=False,
+            listing_error=exc,
+        )
         submission_index = build_submission_index(
             submission_summaries=[],
             submission_details=[],
@@ -869,39 +1004,54 @@ def build_sync_from_client(
     local_index = build_local_hash_index(local_data_root)
     details: list[dict[str, Any]] = []
     all_rows: list[dict[str, Any]] = []
+    failed_submission_reads: list[dict[str, Any]] = []
+    submissions_requested = 0
+    detail_success_count = 0
+    download_success_count = 0
     for item in submission_summaries:
         submission_id = str(item.get("submissionId") or item.get("id") or "")
         if not submission_id:
             continue
+        submissions_requested += 1
         try:
             detail = fetch_submission_detail(client, submission_id, rate_limits=rate_limits)
-            details.append(detail)
+        except SAIRAPIError as exc:
+            if not allow_partial:
+                raise
+            failed_submission_reads.append(
+                failed_submission_read_entry(
+                    submission_id=submission_id,
+                    endpoint="submissions/{id}",
+                    exc=exc,
+                )
+            )
+            continue
+        details.append(detail)
+        detail_success_count += 1
+        downloaded: list[str] = []
+        try:
             downloaded = download_submission_lines(client, submission_id, rate_limits=rate_limits)
         except SAIRAPIError as exc:
             if not allow_partial:
                 raise
-            sync_status = sync_failure_status(exc)
-            submission_index = build_submission_index(
-                submission_summaries=submission_summaries,
-                submission_details=details,
-                rows=all_rows,
-                pages=pages,
-                rate_limits=rate_limits,
-                sync_status=sync_status,
+            failed_submission_reads.append(
+                failed_submission_read_entry(
+                    submission_id=submission_id,
+                    endpoint="submissions/{id}/download",
+                    exc=exc,
+                )
             )
-            return write_sync_artifacts(
-                output_dir=output_dir,
-                competition=competition,
-                me=me,
-                progress_snapshot=progress_snapshot,
-                submission_index=submission_index,
-                submission_rows=all_rows,
-                command=command,
-                live_fetch=live_fetch,
-                sync_status=sync_status,
-            )
+        else:
+            download_success_count += 1
         all_rows.extend(normalize_submission_rows(detail, downloaded, local_hash_index=local_index))
-    sync_status = {"partial_sync": False, "submission_state_complete": True}
+    sync_status = build_sync_status(
+        global_progress_complete=True,
+        submission_index_complete=True,
+        submissions_requested=submissions_requested,
+        detail_success_count=detail_success_count,
+        download_success_count=download_success_count,
+        failed_submission_reads=failed_submission_reads,
+    )
     submission_index = build_submission_index(
         submission_summaries=submission_summaries,
         submission_details=details,
@@ -1014,6 +1164,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"unmatched_rows\t{summary['submissions']['unmatched_rows']}")
     print(f"partial_sync\t{summary.get('sync_status', {}).get('partial_sync')}")
     print(f"submission_state_complete\t{summary.get('sync_status', {}).get('submission_state_complete')}")
+    print(f"full_submission_state_complete\t{summary.get('sync_status', {}).get('full_submission_state_complete')}")
+    print(f"degraded_mode_summary\t{summary.get('sync_status', {}).get('degraded_mode_summary')}")
     print(f"failing_endpoint\t{summary.get('sync_status', {}).get('failing_endpoint')}")
     for name, path in paths.items():
         print(f"{name}\t{path}")

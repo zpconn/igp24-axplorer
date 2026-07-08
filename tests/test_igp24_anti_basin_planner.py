@@ -328,6 +328,63 @@ def test_submission_recommendation_can_require_axg14_family_and_basin_diversity(
     assert passed["recommended_for_sair_packet"] is True
 
 
+def test_submission_recommendation_holds_local_ready_packet_on_partial_sync_and_pending_basin():
+    selected = []
+    for index in range(4):
+        selected.append(
+            {
+                "risk_reasons": [],
+                "candidate": {"sample_export_source": "model_generate"},
+                "features": {
+                    "r": 20,
+                    "perturbation_mode": "sparse_mixed_support_gcd1" if index % 2 else "medium_mixed_support_gcd1",
+                    "mod_p_pattern_signature": f"p{index + 3}:1-23",
+                    "template_family_id": "model:mixed:r20:sparse_mixed_support_gcd1"
+                    if index < 2
+                    else "model:mixed:r20:medium_mixed_support_gcd1",
+                    "family_key": f"family-{index}",
+                    "basin_fingerprint": f"basin-{index}",
+                },
+            }
+        )
+    selected[0]["candidate"]["pair_key"] = "24T25000|r=20"
+
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+        sync_status={
+            "partial_sync": True,
+            "submission_index_complete": True,
+            "submission_detail_complete": False,
+            "download_complete": False,
+            "full_submission_state_complete": False,
+            "degraded_mode_summary": "19/20 details recovered",
+        },
+        sync_submission_rows=[
+            {
+                "status_class": "pending",
+                "pair_key": "24T25000|r=20",
+                "label": "24T25000",
+                "r": 20,
+                "scoring_status": "pending",
+            }
+            for _ in range(8)
+        ],
+        pending_collision_labels={"24T25000"},
+    )
+
+    assert recommendation["local_recommended_for_sair_packet"] is True
+    assert recommendation["recommended_for_sair_packet"] is False
+    assert recommendation["sync_submission_gate"]["pending_pair_counts"] == {"24T25000|r=20": 8}
+    assert "incomplete_sair_state" in recommendation["reason"]
+    assert "pending_collision_risk:24T25000|r=20=8" in recommendation["reason"]
+    assert "pending_rows_resolve:24T25000|r=20=8" in recommendation["reason"]
+
+
 def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant():
     progress = normalize_progress_cache(_progress_snapshot(), target_rs=[24, 20])
     basin_profile = build_basin_profile(

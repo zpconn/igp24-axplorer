@@ -27,6 +27,11 @@ from scripts.igp24_sair_progress_targets import (  # noqa: E402
     fetch_progress_snapshot,
     load_progress_snapshot,
 )
+from scripts.igp24_sair_sync import (  # noqa: E402
+    load_sync_progress_snapshot,
+    load_sync_status,
+    load_sync_submission_rows,
+)
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 
@@ -253,6 +258,130 @@ def scored_sample_export_source(row: dict[str, Any]) -> str:
 
 def is_model_generated_source(source: str) -> bool:
     return source == "model_generate" or "model_generate" in source or "model_sample" in source
+
+
+def candidate_pair_key(row: dict[str, Any]) -> str | None:
+    features = row.get("features") if isinstance(row.get("features"), dict) else {}
+    candidate = row.get("candidate") if isinstance(row.get("candidate"), dict) else {}
+    pair = (
+        row.get("pair_key")
+        or features.get("pair_key")
+        or candidate.get("pair_key")
+        or candidate.get("verified_pair_key")
+    )
+    if pair:
+        return str(pair)
+    label = (
+        row.get("label")
+        or features.get("label")
+        or candidate.get("label")
+        or candidate.get("verified_group_label")
+    )
+    r_value = row.get("r", features.get("r", candidate.get("r", candidate.get("real_root_count"))))
+    if not label or r_value is None:
+        return None
+    try:
+        return f"{label}|r={int(r_value)}"
+    except (TypeError, ValueError):
+        return None
+
+
+def candidate_r_values(rows: list[dict[str, Any]]) -> set[int]:
+    values: set[int] = set()
+    for row in rows:
+        features = row.get("features") if isinstance(row.get("features"), dict) else {}
+        candidate = row.get("candidate") if isinstance(row.get("candidate"), dict) else {}
+        r_value = row.get("r", features.get("r", candidate.get("r", candidate.get("real_root_count"))))
+        try:
+            parsed = int(r_value)
+        except (TypeError, ValueError):
+            continue
+        if parsed >= 0:
+            values.add(parsed)
+    return values
+
+
+def pending_submission_pair_counts(rows: Iterable[dict[str, Any]]) -> Counter[str]:
+    counts: Counter[str] = Counter()
+    for row in rows:
+        status_class = str(row.get("status_class") or "")
+        scoring_status = str(row.get("scoring_status") or row.get("scoringStatus") or "")
+        if status_class != "pending" and scoring_status != "pending" and not row.get("queued"):
+            continue
+        pair = row.get("pair_key")
+        if not pair and row.get("label") and row.get("r") is not None:
+            try:
+                pair = f"{row['label']}|r={int(row['r'])}"
+            except (TypeError, ValueError):
+                pair = None
+        if pair:
+            counts[str(pair)] += 1
+    return counts
+
+
+def sync_full_submission_state_complete(sync_status: dict[str, Any] | None) -> bool:
+    if sync_status is None:
+        return True
+    if "full_submission_state_complete" in sync_status:
+        return bool(sync_status.get("full_submission_state_complete"))
+    if "submission_state_complete" in sync_status:
+        return bool(sync_status.get("submission_state_complete"))
+    return not bool(sync_status.get("partial_sync"))
+
+
+def build_sync_submission_gate(
+    selected: list[dict[str, Any]],
+    *,
+    sync_status: dict[str, Any] | None = None,
+    sync_submission_rows: list[dict[str, Any]] | None = None,
+    pending_collision_labels: set[str] | None = None,
+) -> dict[str, Any]:
+    sync_rows = sync_submission_rows or []
+    selected_pairs = sorted({pair for row in selected if (pair := candidate_pair_key(row))})
+    selected_rs = sorted(candidate_r_values(selected))
+    pending_counts = pending_submission_pair_counts(sync_rows)
+    exact_pending = {pair: int(pending_counts[pair]) for pair in selected_pairs if pending_counts.get(pair)}
+    labels = set(pending_collision_labels or set())
+    pending_high_label_basin: dict[str, int] = {}
+    for pair, count in pending_counts.items():
+        label, _, r_text = pair.partition("|r=")
+        try:
+            r_value = int(r_text)
+        except ValueError:
+            continue
+        if label in labels and r_value in selected_rs:
+            pending_high_label_basin[pair] = int(count)
+
+    hold_reasons: list[str] = []
+    full_state = sync_full_submission_state_complete(sync_status)
+    if sync_status is not None and not full_state:
+        submission_index_known = sync_status.get("submission_index_complete")
+        if submission_index_known is None and sync_rows:
+            submission_index_known = True
+        if submission_index_known:
+            hold_reasons.append("locally_ready_but_blocked_by_incomplete_sair_state")
+        else:
+            hold_reasons.append("locally_ready_but_blocked_by_missing_sair_submission_index")
+    if exact_pending:
+        pending_text = ",".join(f"{pair}={count}" for pair, count in sorted(exact_pending.items()))
+        hold_reasons.append(f"locally_ready_but_pending_collision_risk:{pending_text}")
+    if pending_high_label_basin:
+        pending_text = ",".join(f"{pair}={count}" for pair, count in sorted(pending_high_label_basin.items()))
+        hold_reasons.append(f"safe_to_review_only_after_pending_rows_resolve:{pending_text}")
+
+    return {
+        "full_submission_state_complete": bool(full_state),
+        "partial_sync": bool((sync_status or {}).get("partial_sync")) if sync_status is not None else False,
+        "submission_detail_complete": (sync_status or {}).get("submission_detail_complete"),
+        "download_complete": (sync_status or {}).get("download_complete"),
+        "degraded_mode_summary": (sync_status or {}).get("degraded_mode_summary"),
+        "selected_pair_keys": selected_pairs,
+        "selected_r_values": selected_rs,
+        "pending_pair_counts": dict(sorted(pending_counts.items())),
+        "selected_exact_pair_pending_collisions": exact_pending,
+        "pending_high_label_basin_collisions": dict(sorted(pending_high_label_basin.items())),
+        "hold_reasons": hold_reasons,
+    }
 
 
 def observation_features(row: dict[str, Any]) -> dict[str, Any]:
@@ -624,6 +753,9 @@ def build_submission_recommendation(
     min_template_family_count: int = 0,
     min_basin_fingerprint_count: int = 0,
     reject_unknown_provenance: bool = False,
+    sync_status: dict[str, Any] | None = None,
+    sync_submission_rows: list[dict[str, Any]] | None = None,
+    pending_collision_labels: set[str] | None = None,
 ) -> dict[str, Any]:
     mode_counts = Counter(str((row.get("features") or {}).get("perturbation_mode") or "unknown") for row in selected)
     mod_counts = Counter(str((row.get("features") or {}).get("mod_p_pattern_signature") or "none") for row in selected)
@@ -642,7 +774,7 @@ def build_submission_recommendation(
     unknown_modes = sum(count for mode, count in mode_counts.items() if mode in {"", "unknown", "manual_or_unknown"})
     unknown_families = sum(count for family, count in family_counts.items() if family in {"", "unknown"})
     unknown_basins = sum(count for basin, count in basin_counts.items() if basin in {"", "unknown"})
-    recommended = (
+    local_recommended = (
         len(selected) >= min_packet_rows
         and model_generated_rows >= int(min_model_generated_rows)
         and risk_count == 0
@@ -676,10 +808,23 @@ def build_submission_recommendation(
         reasons.append(f"{unknown_families}_selected_rows_have_unknown_template_family")
     if reject_unknown_provenance and unknown_basins:
         reasons.append(f"{unknown_basins}_selected_rows_have_unknown_basin_fingerprint")
+    sync_gate = build_sync_submission_gate(
+        selected,
+        sync_status=sync_status,
+        sync_submission_rows=sync_submission_rows,
+        pending_collision_labels=pending_collision_labels,
+    )
+    if sync_gate["hold_reasons"]:
+        reasons.extend(sync_gate["hold_reasons"])
+    recommended = local_recommended and not sync_gate["hold_reasons"]
+    reason = "anti-basin gates passed" if recommended else "; ".join(reasons)
+    if local_recommended and sync_gate["hold_reasons"]:
+        reason = "; ".join(sync_gate["hold_reasons"])
     return {
         "recommended_for_sair_packet": recommended,
+        "local_recommended_for_sair_packet": local_recommended,
         "status": "reviewed_packet_ready_for_dry_run" if recommended else "hold_no_submission",
-        "reason": "anti-basin gates passed" if recommended else "; ".join(reasons),
+        "reason": reason,
         "selected_rows": len(selected),
         "selected_mode_counts": dict(mode_counts),
         "selected_mod_p_signature_counts": dict(mod_counts),
@@ -692,6 +837,7 @@ def build_submission_recommendation(
         "min_basin_fingerprint_count": int(min_basin_fingerprint_count),
         "reject_unknown_provenance": bool(reject_unknown_provenance),
         "risk_count": risk_count,
+        "sync_submission_gate": sync_gate,
     }
 
 
@@ -773,6 +919,8 @@ def build_summary(
         "next_decision": (
             "Run SAIR dry-run on the coefficient file, then submit only if the operator accepts the packet."
             if recommendation["recommended_for_sair_packet"]
+            else "Do not submit this packet; local packet is ready, but wait for complete SAIR state and pending rows to resolve."
+            if recommendation.get("local_recommended_for_sair_packet")
             else "Do not submit this packet; refine generation toward more perturbation-mode and mod-p diversity."
         ),
         "output_files": output_files,
@@ -799,7 +947,9 @@ def build_report(summary: dict[str, Any]) -> str:
         "",
         f"- Status: `{recommendation['status']}`",
         f"- Recommended for packet: `{recommendation['recommended_for_sair_packet']}`",
+        f"- Local packet ready: `{recommendation.get('local_recommended_for_sair_packet')}`",
         f"- Reason: {recommendation['reason']}",
+        f"- Sync gate: `{json.dumps(recommendation.get('sync_submission_gate') or {}, sort_keys=True)}`",
         f"- Mode counts: `{json.dumps(recommendation['selected_mode_counts'], sort_keys=True)}`",
         f"- Mod-p signature counts: `{json.dumps(recommendation['selected_mod_p_signature_counts'], sort_keys=True)}`",
         f"- Template family counts: `{json.dumps(recommendation.get('selected_template_family_counts') or {}, sort_keys=True)}`",
@@ -925,6 +1075,7 @@ def build_parser() -> argparse.ArgumentParser:
     progress = parser.add_mutually_exclusive_group()
     progress.add_argument("--progress_snapshot_json", type=Path)
     progress.add_argument("--fetch_live_progress", action="store_true")
+    progress.add_argument("--sair_sync_dir", type=Path)
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--target_rs", default="24,20,16,12,8")
     parser.add_argument("--avoid_labels", default=",".join(sorted(DEFAULT_AVOID_LABELS)))
@@ -957,7 +1108,14 @@ def main(argv: list[str] | None = None) -> int:
     feedback_paths = args.accepted_feedback_json if args.accepted_feedback_json is not None else DEFAULT_ACCEPTED_FEEDBACK_JSONS
     observations = read_jsonl(args.label_basin_observations_jsonl)
     observations.extend(load_accepted_feedback_observations(feedback_paths))
-    snapshot = load_progress(fetch_live=bool(args.fetch_live_progress), progress_snapshot_json=args.progress_snapshot_json)
+    sync_status = None
+    sync_submission_rows: list[dict[str, Any]] = []
+    if args.sair_sync_dir:
+        snapshot = load_sync_progress_snapshot(args.sair_sync_dir)
+        sync_status = load_sync_status(args.sair_sync_dir)
+        sync_submission_rows = load_sync_submission_rows(args.sair_sync_dir)
+    else:
+        snapshot = load_progress(fetch_live=bool(args.fetch_live_progress), progress_snapshot_json=args.progress_snapshot_json)
     progress_cache = normalize_progress_cache(snapshot, target_rs=target_rs)
     basin_profile = build_basin_profile(
         observations,
@@ -987,6 +1145,9 @@ def main(argv: list[str] | None = None) -> int:
         min_template_family_count=int(args.min_template_family_count),
         min_basin_fingerprint_count=int(args.min_basin_fingerprint_count),
         reject_unknown_provenance=bool(args.reject_unknown_provenance),
+        sync_status=sync_status,
+        sync_submission_rows=sync_submission_rows,
+        pending_collision_labels=avoid_labels,
     )
     placeholder_outputs = {
         "progress_cache_json": str(args.output_dir / PROGRESS_CACHE_JSON),

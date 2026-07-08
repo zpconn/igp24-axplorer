@@ -321,6 +321,48 @@ results change.
   submission/scoring state is incomplete`. The locally ready r20 packet should
   wait for a complete SAIR sync before any live submission attempt. Stage 4
   remains present at line 8697 after this resync TODO update.
+- Active SAIR partial-sync resilience / pending-aware gate phase started
+  2026-07-08. Scope: do not submit anything; make partial SAIR state
+  auditable and useful for planning while preserving strict live-submission
+  blocking until full submission state is complete. Preflight:
+  `git status --short --branch` clean on `igp24-dev`;
+  `git pull --ff-only` -> already up to date; local HEAD and upstream both
+  `29e6d0f12df603d088273941de86e808c17e6b9f`; Stage 4 confirmed present at
+  line 8697 before edits. Implementation targets:
+  `scripts/igp24_sair_sync.py` degraded-mode salvage for partially successful
+  detail/download fetches, `scripts/igp24_anti_basin_planner.py` and
+  `scripts/igp24_axg_proposal_loop.py` pending-aware hold reasons, focused
+  tests, and a small AXG-1.4 r20 vs pending/accepted-state analysis report.
+  Live status: sync salvage loop implemented, including
+  `global_progress_complete`, `submission_index_complete`,
+  `submission_detail_complete`, `download_complete`, and
+  `full_submission_state_complete`; failed per-submission reads now write
+  `sair_failed_submission_reads.jsonl`. Planner/proposal logic now separates
+  `local_recommended_for_sair_packet` from strict
+  `recommended_for_sair_packet` and holds locally ready packets under partial
+  sync or pending basin collisions. Compile check passed for touched scripts;
+  focused tests and r20 pending-collision report generation are in progress.
+  Focused validation now passed:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_sair_sync.py tests/test_igp24_anti_basin_planner.py tests/test_igp24_axg_proposal_loop.py tests/test_igp24_pending_collision_report.py`
+  -> `27 passed in 0.36s`. AXG-1.4 r20 pending analysis wrote
+  `data/igp24/axg14_provenance_20260708/r20/pending_collision_report_20260708/`:
+  4 selected rows, 8 pending `24T25000|r=20` rows, 0 exact selected-vs-pending
+  coefficient-hash overlaps, live submission allowed `false`, evidence weak
+  for label novelty but strong for exact-hash nonoverlap. Pending-gate proposal
+  rerun wrote
+  `data/igp24/axg14_provenance_20260708/r20/proposal_loop_pending_gate/axg14_target_r20_provenance_20260708_pending_gate/`;
+  it selected 4 model-generated rows, kept
+  `local_recommended_for_sair_packet=true`, and correctly returned
+  `recommended_for_sair_packet=false` / `hold_no_submission` because sync is
+  incomplete and `24T25000|r=20` has 8 pending rows.
+  Final validation: full suite passed with
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q` ->
+  `277 passed in 9.45s`; `git diff --check` passed; new artifact parse check
+  passed for 3 JSON files and 4 JSONL files / 57 rows; key-shaped scan
+  `rg -n "sair_[0-9a-f]{12}_[A-Za-z0-9]{20,}" . --glob '!**/.git/**'`
+  found no matches; binary/checkpoint scan in new artifact roots found no
+  `.pt`, `.pth`, `.ckpt`, `.bin`, `.safetensors`, or `.pkl` files; Stage 4
+  remains present at line 8731. No live SAIR submission was attempted.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,

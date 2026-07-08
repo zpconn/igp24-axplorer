@@ -137,9 +137,56 @@ class LiveSyncFakeClient:
         raise AssertionError(path)
 
 
-def _detail():
+class MultiSubmissionPartialClient(LiveSyncFakeClient):
+    def __init__(self, *, fail_detail=None, fail_download=None):
+        super().__init__()
+        self.fail_detail = fail_detail
+        self.fail_download = fail_download
+
+    def _request(self, method, path, *, query=None, body=None, accept="application/json"):
+        self.calls.append((method, path, query, accept))
+        headers = {"X-RateLimit-Remaining": "999"}
+        if path == "/api/public/v1/competitions/igp24":
+            return ({"ok": True, "data": {"competitionId": "igp24", "submissionSpec": {"kind": "igp24-polynomial"}}}, headers)
+        if path == "/api/public/v1/competitions/igp24/me":
+            return ({"ok": True, "data": {"competitionId": "igp24", "team": {"role": "activeMember"}}}, headers)
+        if path == "/api/public/v1/competitions/igp24/labels/progress":
+            progress = _progress_snapshot()
+            return (
+                {
+                    "ok": True,
+                    "data": {
+                        "generatedAt": "2026-07-07T00:00:00Z",
+                        "labels": progress["labels"],
+                        "nextCursor": None,
+                        "meta": {"published": True},
+                    },
+                },
+                headers,
+            )
+        if path == "/api/public/v1/competitions/igp24/submissions/me":
+            return (
+                {
+                    "ok": True,
+                    "data": {"items": [{"submissionId": "sub_a"}, {"submissionId": "sub_b"}], "nextCursor": None},
+                },
+                headers,
+            )
+        for submission_id, line in {"sub_a": LINE_A, "sub_b": LINE_B}.items():
+            if path == f"/api/public/v1/competitions/igp24/submissions/{submission_id}":
+                if self.fail_detail == submission_id:
+                    raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+                return ({"ok": True, "data": _detail(submission_id=submission_id)}, headers)
+            if path == f"/api/public/v1/competitions/igp24/submissions/{submission_id}/download":
+                if self.fail_download == submission_id:
+                    raise SAIRAPIError("temporarily unavailable", status=503, code="IGP24_SERVICE_UNAVAILABLE")
+                return (line, headers)
+        raise AssertionError(path)
+
+
+def _detail(*, submission_id="sub_a"):
     return {
-        "submissionId": "sub_a",
+        "submissionId": submission_id,
         "competitionId": "igp24",
         "createdAt": "2026-07-07T00:00:02Z",
         "updatedAt": "2026-07-07T00:00:03Z",
@@ -310,6 +357,9 @@ def test_live_sync_from_client_writes_complete_artifacts_when_all_endpoints_succ
 
     assert summary["sync_status"]["partial_sync"] is False
     assert status["submission_state_complete"] is True
+    assert status["full_submission_state_complete"] is True
+    assert status["submission_detail_complete"] is True
+    assert status["download_complete"] is True
     assert summary["progress"]["label_count"] == 1
     assert summary["submissions"]["submission_count"] == 1
     assert summary["submissions"]["row_count"] == 3
@@ -332,6 +382,8 @@ def test_partial_sync_writes_progress_when_submission_listing_fails(tmp_path):
 
     assert summary["sync_status"]["partial_sync"] is True
     assert summary["sync_status"]["submission_state_complete"] is False
+    assert summary["sync_status"]["full_submission_state_complete"] is False
+    assert summary["sync_status"]["submission_index_complete"] is False
     assert summary["sync_status"]["failing_endpoint"] == "submissions/me"
     assert summary["decision"]["submission_recommended_now"] is False
     assert summary["progress"]["label_count"] == 1
@@ -369,4 +421,72 @@ def test_partial_sync_writes_progress_when_submission_detail_or_download_fails(t
         assert summary["submissions"]["submission_count"] == 1
         assert summary["decision"]["submission_recommended_now"] is False
         assert index["sync_status"]["partial_sync"] is True
+        assert summary["sync_status"]["failed_submission_reads"]
         assert "sair_0123456789ab_" not in all_text
+
+
+def test_partial_sync_retains_successful_submission_details_when_later_detail_fails(tmp_path):
+    paths = build_sync_from_client(
+        client=MultiSubmissionPartialClient(fail_detail="sub_b"),
+        output_dir=tmp_path / "sync",
+        progress_limit=5000,
+        submission_limit=100,
+        local_data_root=tmp_path / "data",
+        command=["pytest"],
+        allow_partial=True,
+        live_fetch=True,
+    )
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    rows = [json.loads(line) for line in paths["submission_rows_jsonl"].read_text(encoding="utf-8").splitlines()]
+    failed_reads = [json.loads(line) for line in paths["failed_submission_reads_jsonl"].read_text(encoding="utf-8").splitlines()]
+
+    assert summary["sync_status"]["partial_sync"] is True
+    assert summary["sync_status"]["submission_index_complete"] is True
+    assert summary["sync_status"]["submission_detail_complete"] is False
+    assert summary["sync_status"]["download_complete"] is False
+    assert summary["sync_status"]["full_submission_state_complete"] is False
+    assert summary["sync_status"]["degraded_mode_summary"].startswith("1/2 details recovered")
+    assert summary["submissions"]["submission_count"] == 2
+    assert summary["submissions"]["row_count"] == 3
+    assert {row["submission_id"] for row in rows} == {"sub_a"}
+    assert failed_reads == [
+        {
+            "submission_id": "sub_b",
+            "endpoint": "submissions/{id}",
+            "status": 503,
+            "code": "IGP24_SERVICE_UNAVAILABLE",
+            "message": "submissions/{id}: temporarily unavailable",
+            "retry_after": None,
+        }
+    ]
+    assert summary["decision"]["submission_recommended_now"] is False
+
+
+def test_partial_sync_retains_detail_rows_when_download_fails(tmp_path):
+    paths = build_sync_from_client(
+        client=MultiSubmissionPartialClient(fail_download="sub_b"),
+        output_dir=tmp_path / "sync",
+        progress_limit=5000,
+        submission_limit=100,
+        local_data_root=tmp_path / "data",
+        command=["pytest"],
+        allow_partial=True,
+        live_fetch=True,
+    )
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    rows = [json.loads(line) for line in paths["submission_rows_jsonl"].read_text(encoding="utf-8").splitlines()]
+    failed_reads = [json.loads(line) for line in paths["failed_submission_reads_jsonl"].read_text(encoding="utf-8").splitlines()]
+
+    assert summary["sync_status"]["submission_detail_complete"] is True
+    assert summary["sync_status"]["download_complete"] is False
+    assert summary["sync_status"]["submission_download_success_count"] == 1
+    assert summary["sync_status"]["submission_download_failed_count"] == 1
+    assert summary["sync_status"]["degraded_mode_summary"] == "2/2 details recovered; 1/2 downloads recovered"
+    assert summary["submissions"]["row_count"] == 6
+    assert [row["local_match_status"] for row in rows if row["submission_id"] == "sub_b"] == [
+        "no_polynomial_line",
+        "no_polynomial_line",
+        "no_polynomial_line",
+    ]
+    assert failed_reads[0]["submission_id"] == "sub_b"
+    assert failed_reads[0]["endpoint"] == "submissions/{id}/download"

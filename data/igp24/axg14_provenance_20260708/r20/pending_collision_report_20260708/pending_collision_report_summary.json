@@ -1,0 +1,417 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_pending_collision_report.py",
+    "--selected_jsonl",
+    "data/igp24/axg14_provenance_20260708/r20/proposal_loop_live_sync/axg14_target_r20_provenance_20260708_0355_live_sync/selected_review_packet.jsonl",
+    "--sair_sync_dir",
+    "data/igp24/axg14_provenance_20260708/sair_sync",
+    "--focus_pair",
+    "24T25000|r=20",
+    "--output_dir",
+    "data/igp24/axg14_provenance_20260708/r20/pending_collision_report_20260708"
+  ],
+  "comparison": {
+    "exact_hash_overlap": [],
+    "exact_hash_overlap_count": 0,
+    "focus_pending_count": 8,
+    "focus_pending_support_key_counts": {
+      "(25, 1, False, (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23))": 8
+    },
+    "pending_has_mod_p_or_template_metadata": false,
+    "selected_basin_fingerprint_counts": {
+      "33465526667f9ca21a77d799": 1,
+      "64f19fed392372573952bfad": 1,
+      "99b6cb3c4c0d9ae3b90a6dbd": 1,
+      "f29ba57c997c51c793139aa4": 1
+    },
+    "selected_count": 4,
+    "selected_mod_p_signature_counts": {
+      "None": 3,
+      "p2:1-2-3-18;p3:1-1-1-8-13;p5:1-2-10-11;p7:1-1-1-4-17": 1
+    },
+    "selected_perturbation_mode_counts": {
+      "dense_mixed_support_gcd1": 2,
+      "medium_mixed_support_gcd1": 2
+    },
+    "selected_r_values": [
+      20
+    ],
+    "selected_support_key_counts": {
+      "(15, 1, False, (3, 5))": 1,
+      "(15, 1, False, (3, 7))": 1,
+      "(16, 1, False, (3, 7, 11))": 1,
+      "(25, 1, False, (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23))": 1
+    },
+    "selected_template_family_counts": {
+      "model:mixed:r20:dense_mixed_support_gcd1": 2,
+      "model:mixed:r20:medium_mixed_support_gcd1": 2
+    },
+    "support_key_overlap": [
+      "(25, 1, False, (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23))"
+    ]
+  },
+  "conclusion": {
+    "evidence_strength": "weak_for_label_novelty_strong_for_exact_hash_nonoverlap",
+    "live_submission_allowed": false,
+    "reason": "No exact selected-vs-pending coefficient hash overlap was found, but the focus pair still has pending SAIR rows and sync is not complete; treat the packet as review-only until pending rows resolve."
+  },
+  "created_at": "2026-07-08T04:54:07.909727+00:00",
+  "focus_pending_rows": [
+    {
+      "canonical_hash": "296916ec799e612f8951f5abe59479a39065c9800cf4eace5775dc370b8d3ac7",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "296916ec799e",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "1fc392ea555bfcb9b9056a04387a4e555783fbc5a97ece190b80eb2505c8e24c",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "1fc392ea555b",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "bc3044f2ac34cf1a77c491d1096833628c11f65da59859bf1a3af7b8fa2a48e2",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "bc3044f2ac34",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "a43fce9992eca5d144594c46007cb1f51bf1f095ffe4212ba518d36a6d769028",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "a43fce9992ec",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "3653b5643295cbcf21adfa488041f847c00dc6a1813153a7588ade72e2b8959b",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "3653b5643295",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "100b55bd5c96469ce9dedbd2005987e5c5009241119b30a374e0b7015c5670f9",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "100b55bd5c96",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "ef671faed2090e31cb515f34f0a4e16daa98908e11b99a035a2263741e4431e8",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "ef671faed209",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    },
+    {
+      "canonical_hash": "1e1c2b9b446035c35e494c2f586e67dc2b6c11d0547bdaf005bd5812c9d94786",
+      "label": "24T25000",
+      "local_match_status": "matched",
+      "pair_key": "24T25000|r=20",
+      "r": 20,
+      "scoring_status": "pending",
+      "short_hash": "1e1c2b9b4460",
+      "status_class": "pending",
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      }
+    }
+  ],
+  "inputs": {
+    "focus_pair": "24T25000|r=20",
+    "sair_sync_dir": "data/igp24/axg14_provenance_20260708/sair_sync",
+    "selected_jsonl": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_live_sync/axg14_target_r20_provenance_20260708_0355_live_sync/selected_review_packet.jsonl"
+  },
+  "output_files": {
+    "report_md": "data/igp24/axg14_provenance_20260708/r20/pending_collision_report_20260708/pending_collision_report.md",
+    "summary_json": "data/igp24/axg14_provenance_20260708/r20/pending_collision_report_20260708/pending_collision_report_summary.json"
+  },
+  "pending_pair_counts": {
+    "24T24979|r=8": 1,
+    "24T25000|r=20": 8,
+    "24T25000|r=8": 9
+  },
+  "record_type": "igp24_pending_collision_report",
+  "schema_version": 1,
+  "selected_rows": [
+    {
+      "basin_fingerprint": "64f19fed392372573952bfad",
+      "canonical_hash": "2161d95361f01aed7fd46edab97a6b76a52f91cd87e1271f3df9ebd135ef860f",
+      "mod_p_pattern_signature": "p2:1-2-3-18;p3:1-1-1-8-13;p5:1-2-10-11;p7:1-1-1-4-17",
+      "perturbation_mode": "dense_mixed_support_gcd1",
+      "r": 20,
+      "short_hash": "2161d95361f0",
+      "source": "model_generate",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23
+        ],
+        "support_count": 25,
+        "support_gcd": 1
+      },
+      "template_family_id": "model:mixed:r20:dense_mixed_support_gcd1"
+    },
+    {
+      "basin_fingerprint": "99b6cb3c4c0d9ae3b90a6dbd",
+      "canonical_hash": "3e8fad1c89acdaa94dd2484eedbda1a84aca93e0b428efce30b0b3b404318e70",
+      "mod_p_pattern_signature": null,
+      "perturbation_mode": "dense_mixed_support_gcd1",
+      "r": 20,
+      "short_hash": "3e8fad1c89ac",
+      "source": "model_generate",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          7,
+          11
+        ],
+        "support_count": 16,
+        "support_gcd": 1
+      },
+      "template_family_id": "model:mixed:r20:dense_mixed_support_gcd1"
+    },
+    {
+      "basin_fingerprint": "f29ba57c997c51c793139aa4",
+      "canonical_hash": "2291e2bce38aa472c055555c0891e2f0e517a79ad4ab423c5b74f805a469963e",
+      "mod_p_pattern_signature": null,
+      "perturbation_mode": "medium_mixed_support_gcd1",
+      "r": 20,
+      "short_hash": "2291e2bce38a",
+      "source": "model_generate",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          5
+        ],
+        "support_count": 15,
+        "support_gcd": 1
+      },
+      "template_family_id": "model:mixed:r20:medium_mixed_support_gcd1"
+    },
+    {
+      "basin_fingerprint": "33465526667f9ca21a77d799",
+      "canonical_hash": "6a30bae40b37122e078276f3b914b48c407551298d702371d32c7611130b5f8b",
+      "mod_p_pattern_signature": null,
+      "perturbation_mode": "medium_mixed_support_gcd1",
+      "r": 20,
+      "short_hash": "6a30bae40b37",
+      "source": "model_generate",
+      "support": {
+        "even_support": false,
+        "odd_support_exponents": [
+          3,
+          7
+        ],
+        "support_count": 15,
+        "support_gcd": 1
+      },
+      "template_family_id": "model:mixed:r20:medium_mixed_support_gcd1"
+    }
+  ],
+  "source_commit": "29e6d0f12df603d088273941de86e808c17e6b9f",
+  "sync_status": {
+    "error_code": "IGP24_SERVICE_UNAVAILABLE",
+    "error_message": "submissions/{id}: The IGP24 competition service is temporarily unavailable. Please try again shortly.",
+    "failing_endpoint": "submissions/{id}",
+    "partial_sync": true,
+    "retry_after": null,
+    "submission_state_complete": false
+  },
+  "tool": "scripts/igp24_pending_collision_report.py"
+}
