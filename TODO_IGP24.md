@@ -22,6 +22,37 @@ results change.
   target-r control tokens, load this JSONL corpus into training, generate with
   requested `R12/R16/R20/R24` prefixes, run a short CUDA training/evaluation,
   and keep future stages intact.
+- Active r8 score-followup packet pass completed 2026-07-08. Fresh SAIR sync
+  artifacts are under `data/igp24/sair_sync_20260708_r8_followup/`; the sync
+  is complete, not partial, with 25,000 labels, 49,464 remaining signatures,
+  21 submissions, 189 rows, 185 scoreable rows, and 4 pending rows. All
+  pending rows are still `24T25000|r=20`, so that pair remains a pending/high-
+  risk overlay and was not used for a new packet.
+  The bounded CPU-only r8 follow-up targeted the visible score signal
+  `24T9993|r=8` (`0.0019` points, 10 solved teams) using the two source
+  templates `four_positive_fibers_e` and `four_positive_fibers_f`. Generation
+  runs used seeds 3201, 3211, and 3221 for 240, 180, and 220 trials,
+  respectively. They produced 16, 0, and 18 exact local r8 accepted rows; the
+  combined lane accepted 32 unique candidates after rejecting 2 duplicates.
+  Every accepted lane row carries provenance for source, construction family,
+  generation strategy, template family, basin fingerprint, perturbation mode,
+  support pattern, and mod-p signature.
+  Anti-collapse gating selected 4 rows from 32 eligible candidates with
+  `recommended_for_sair_packet=true`, status
+  `reviewed_packet_ready_for_dry_run`, risk count 0, 2 template families,
+  4 distinct basin fingerprints, and 4 distinct mod-p signatures. Selected
+  hashes are `fab80a856ba7`, `fa9b5c0d83b8`, `ee2a23e49c9f`, and
+  `ed07d10ea581`. SAIR dry-run only validation passed with `ok=true`,
+  `dry_run=true`, and `polynomial_count=4`; no live SAIR submission was made.
+  Decision report:
+  `data/igp24/r8_score_followup_20260708/r8_score_followup_decision_report.md`.
+  Validation: compile check passed for the touched r8/planner/SAIR helper
+  scripts; focused tests passed with `21 passed in 0.87s`; JSON/JSONL parse
+  checks passed for 12 JSON files and 19 JSONL files / 25,799 rows;
+  `git diff --check` passed; and the secret-shaped scan across touched scripts,
+  tests, TODO, README, and the new r8/sync artifacts found no matches. Next:
+  commit/push. If the user approves a live submission later, submit only the
+  dry-runed coefficient file and then poll/record feedback.
 - AXG-1.2 implementation status: in progress. Added optional model-side
   `--igp24_target_r_conditioning_mode control_token`, a decimal coefficient
   tokenizer (`--encoding_tokens decimal_coefficients`) for high-coefficient

@@ -1,0 +1,56 @@
+{
+  "accepted_mod_p_signature_counts": {},
+  "accepted_perturbation_mode_counts": {},
+  "accepted_rows": 0,
+  "accepted_template_counts": {},
+  "auto_submits": false,
+  "calls_sair": false,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r8_score_followup_generate.py",
+    "--output_dir",
+    "data/igp24/r8_score_followup_20260708/generation_single",
+    "--seed",
+    "3211",
+    "--templates",
+    "four_positive_fibers_e,four_positive_fibers_f",
+    "--max_trials",
+    "180",
+    "--limit",
+    "40",
+    "--coeff_bound",
+    "16",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "3",
+    "--max_terms",
+    "1",
+    "--max_rejected_records",
+    "80"
+  ],
+  "max_trials": 180,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/r8_score_followup_20260708/generation_single/generated_candidates.jsonl",
+    "rejected_jsonl": "data/igp24/r8_score_followup_20260708/generation_single/generated_rejected.jsonl",
+    "report_md": "data/igp24/r8_score_followup_20260708/generation_single/generation_report.md",
+    "summary_json": "data/igp24/r8_score_followup_20260708/generation_single/generation_summary.json"
+  },
+  "record_type": "igp24_r8_score_followup_generation_summary",
+  "rejected_rows_recorded": 80,
+  "rejection_reason_counts": {
+    "reducible_over_q": 124,
+    "support_profile_rejected": 56
+  },
+  "requires_sympy": true,
+  "seed": 3211,
+  "templates": [
+    "four_positive_fibers_e",
+    "four_positive_fibers_f"
+  ],
+  "trial_template_counts": {
+    "four_positive_fibers_e": 90,
+    "four_positive_fibers_f": 90
+  },
+  "trials_run": 180
+}

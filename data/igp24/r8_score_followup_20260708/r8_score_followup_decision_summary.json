@@ -1,0 +1,154 @@
+{
+  "record_type": "igp24_r8_score_followup_decision_summary",
+  "created_at": "2026-07-08T22:10:00Z",
+  "source_signal_pair": "24T9993|r=8",
+  "source_signal_points": "0.0019",
+  "source_signal_solved_teams": 10,
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": true,
+    "api_key_recorded": false,
+    "gpu_training": false,
+    "model_training": false,
+    "magma": false,
+    "pari": false
+  },
+  "fresh_sair_sync": {
+    "directory": "data/igp24/sair_sync_20260708_r8_followup",
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "degraded_mode_summary": "21/21 details recovered; 21/21 downloads recovered",
+    "label_count": 25000,
+    "remaining_signature_count": 49464,
+    "submission_count": 21,
+    "submission_row_count": 189,
+    "pending_rows": 4,
+    "scoreable_rows": 185,
+    "pending_pair_counts": {
+      "24T25000|r=20": 4
+    },
+    "top_remaining_r_buckets": [
+      {
+        "r": 24,
+        "remaining": 11818
+      },
+      {
+        "r": 16,
+        "remaining": 10160
+      },
+      {
+        "r": 8,
+        "remaining": 6313
+      },
+      {
+        "r": 12,
+        "remaining": 6300
+      },
+      {
+        "r": 20,
+        "remaining": 5408
+      }
+    ]
+  },
+  "generation_runs": [
+    {
+      "name": "generation",
+      "seed": 3201,
+      "trials_run": 240,
+      "accepted_rows": 16,
+      "templates": {
+        "four_positive_fibers_e": 7,
+        "four_positive_fibers_f": 9
+      },
+      "perturbation_modes": {
+        "odd_pair_off_core": 16
+      },
+      "mod_p_signature_count": 14
+    },
+    {
+      "name": "generation_single",
+      "seed": 3211,
+      "trials_run": 180,
+      "accepted_rows": 0,
+      "templates": {},
+      "perturbation_modes": {},
+      "mod_p_signature_count": 0
+    },
+    {
+      "name": "generation_triple",
+      "seed": 3221,
+      "trials_run": 220,
+      "accepted_rows": 18,
+      "templates": {
+        "four_positive_fibers_e": 11,
+        "four_positive_fibers_f": 7
+      },
+      "perturbation_modes": {
+        "odd_pair_off_core": 18
+      },
+      "mod_p_signature_count": 12
+    }
+  ],
+  "combined_lane": {
+    "candidate_jsonl": "data/igp24/r8_score_followup_20260708/lane_combined/r8_score_followup_candidates.jsonl",
+    "input_rows": 34,
+    "accepted_rows": 32,
+    "rejected_rows": 2,
+    "unique_canonical_hashes": 32,
+    "template_family_counts": {
+      "r8_score_followup:four_positive_fibers_e:odd_pair_off_core": 17,
+      "r8_score_followup:four_positive_fibers_f:odd_pair_off_core": 15
+    },
+    "perturbation_mode_counts": {
+      "odd_pair_off_core": 32
+    },
+    "basin_fingerprint_count": 32
+  },
+  "anti_collapse_gate": {
+    "directory": "data/igp24/r8_score_followup_20260708/anti_collapse_gate",
+    "candidate_count": 32,
+    "eligible_candidate_count": 32,
+    "selected_rows": 4,
+    "recommended_for_sair_packet": true,
+    "status": "reviewed_packet_ready_for_dry_run",
+    "reason": "anti-basin gates passed",
+    "risk_count": 0,
+    "min_packet_rows": 4,
+    "min_model_generated_rows": 4,
+    "min_template_family_count": 2,
+    "min_basin_fingerprint_count": 4,
+    "min_perturbation_mode_count": 1,
+    "selected_mode_counts": {
+      "odd_pair_off_core": 4
+    },
+    "selected_template_family_counts": {
+      "r8_score_followup:four_positive_fibers_e:odd_pair_off_core": 3,
+      "r8_score_followup:four_positive_fibers_f:odd_pair_off_core": 1
+    },
+    "selected_basin_fingerprint_counts": {
+      "2a6951bcf67e969d4c75ca90": 1,
+      "21c013281e9b30402d91f1b5": 1,
+      "2f549efd5a79b1ba5cf422ef": 1,
+      "836c81d12ffe0df2b8d42188": 1
+    },
+    "selected_hashes": [
+      "fab80a856ba7",
+      "fa9b5c0d83b8",
+      "ee2a23e49c9f",
+      "ed07d10ea581"
+    ]
+  },
+  "dry_run": {
+    "output_json": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/sair_dry_run.json",
+    "ok": true,
+    "dry_run": true,
+    "polynomial_count": 4,
+    "would_post": "/api/public/v1/competitions/igp24/submissions"
+  },
+  "decision": {
+    "live_submit_now": false,
+    "manual_review_packet_ready": true,
+    "coefficient_txt": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/anti_basin_candidate_coefficients.txt",
+    "report_md": "data/igp24/r8_score_followup_20260708/r8_score_followup_decision_report.md"
+  }
+}

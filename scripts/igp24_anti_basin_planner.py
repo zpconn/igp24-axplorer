@@ -267,7 +267,12 @@ def scored_sample_export_source(row: dict[str, Any]) -> str:
 
 
 def is_model_generated_source(source: str) -> bool:
-    return source == "model_generate" or "model_generate" in source or "model_sample" in source
+    return (
+        source == "model_generate"
+        or "model_generate" in source
+        or "model_sample" in source
+        or "lane_generate" in source
+    )
 
 
 def candidate_pair_key(row: dict[str, Any]) -> str | None:
@@ -799,6 +804,7 @@ def build_submission_recommendation(
     *,
     min_packet_rows: int,
     min_model_generated_rows: int = 0,
+    min_perturbation_mode_count: int = 2,
     min_template_family_count: int = 0,
     min_basin_fingerprint_count: int = 0,
     reject_unknown_provenance: bool = False,
@@ -828,7 +834,7 @@ def build_submission_recommendation(
         and model_generated_rows >= int(min_model_generated_rows)
         and risk_count == 0
         and "outer_constant_shift" not in mode_counts
-        and len(mode_counts) >= 2
+        and len(mode_counts) >= int(min_perturbation_mode_count)
         and len(mod_counts) >= max(2, min_packet_rows // 2)
         and len(family_counts) >= int(min_template_family_count)
         and len(basin_counts) >= int(min_basin_fingerprint_count)
@@ -843,8 +849,8 @@ def build_submission_recommendation(
         reasons.append(f"{risk_count}_selected_rows_have_risk_reasons")
     if "outer_constant_shift" in mode_counts:
         reasons.append("selected_rows_include_outer_constant_shift")
-    if len(mode_counts) < 2:
-        reasons.append("selected_rows_do_not_have_multiple_perturbation_modes")
+    if len(mode_counts) < int(min_perturbation_mode_count):
+        reasons.append(f"selected_rows_do_not_have_min_perturbation_mode_count_{int(min_perturbation_mode_count)}")
     if len(mod_counts) < max(2, min_packet_rows // 2):
         reasons.append("selected_rows_do_not_have_enough_mod_p_diversity")
     if len(family_counts) < int(min_template_family_count):
@@ -876,6 +882,7 @@ def build_submission_recommendation(
         "reason": reason,
         "selected_rows": len(selected),
         "selected_mode_counts": dict(mode_counts),
+        "min_perturbation_mode_count": int(min_perturbation_mode_count),
         "selected_mod_p_signature_counts": dict(mod_counts),
         "selected_template_family_counts": dict(family_counts),
         "selected_basin_fingerprint_counts": dict(basin_counts),
@@ -1140,6 +1147,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=0,
         help="minimum selected rows that must come from model-generated sample export sources before recommending a packet",
     )
+    parser.add_argument("--min_perturbation_mode_count", type=int, default=2)
     parser.add_argument("--per_mode_cap", type=int, default=4)
     parser.add_argument("--per_pattern_cap", type=int, default=12)
     parser.add_argument("--min_template_family_count", type=int, default=0)
@@ -1194,6 +1202,7 @@ def main(argv: list[str] | None = None) -> int:
         selected,
         min_packet_rows=int(args.min_packet_rows),
         min_model_generated_rows=int(args.min_model_generated_rows),
+        min_perturbation_mode_count=int(args.min_perturbation_mode_count),
         min_template_family_count=int(args.min_template_family_count),
         min_basin_fingerprint_count=int(args.min_basin_fingerprint_count),
         reject_unknown_provenance=bool(args.reject_unknown_provenance),

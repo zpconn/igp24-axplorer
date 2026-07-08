@@ -402,6 +402,51 @@ def test_submission_recommendation_can_require_axg14_family_and_basin_diversity(
     assert passed["recommended_for_sair_packet"] is True
 
 
+def test_submission_recommendation_can_allow_single_mode_with_template_diversity_for_lane_generated_rows():
+    selected = []
+    for index in range(4):
+        selected.append(
+            {
+                "risk_reasons": [],
+                "candidate": {"sample_export_source": "lane_generate:r8_score_followup"},
+                "features": {
+                    "r": 8,
+                    "perturbation_mode": "odd_pair_off_core",
+                    "mod_p_pattern_signature": f"p{index + 3}:1-23",
+                    "template_family_id": "r8_score_followup:four_positive_fibers_e:odd_pair_off_core"
+                    if index < 2
+                    else "r8_score_followup:four_positive_fibers_f:odd_pair_off_core",
+                    "family_key": f"family-{index}",
+                    "basin_fingerprint": f"basin-{index}",
+                },
+            }
+        )
+
+    default_held = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+    assert default_held["recommended_for_sair_packet"] is False
+    assert "min_perturbation_mode_count_2" in default_held["reason"]
+
+    r8_lane_passed = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_perturbation_mode_count=1,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+    assert r8_lane_passed["recommended_for_sair_packet"] is True
+    assert r8_lane_passed["model_generated_selected_rows"] == 4
+    assert r8_lane_passed["min_perturbation_mode_count"] == 1
+
+
 def test_submission_recommendation_holds_local_ready_packet_on_partial_sync_and_pending_basin():
     selected = []
     for index in range(4):
