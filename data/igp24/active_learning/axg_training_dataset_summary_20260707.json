@@ -1,0 +1,121 @@
+{
+  "candidate_source_count": 4,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 320,
+    "accepted_globally_covered_high_team_basin": 8,
+    "accepted_useful_score_positive": 8,
+    "wrong_real_root_count": 33
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-07T23:59:18.163670+00:00",
+  "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260707.jsonl",
+  "feedback_source_count": 16,
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "24T25000",
+      163
+    ],
+    [
+      "24T24979",
+      61
+    ],
+    [
+      "24T24932",
+      40
+    ],
+    [
+      "24T24984",
+      36
+    ],
+    [
+      "24T24651",
+      34
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      6
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ],
+    [
+      "24T24648",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 369,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/sair_sync_basin_gate_20260707",
+  "schema_version": 1,
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "50657082727fb00e05958e88e892e0a34d2d58bf",
+  "source_role_counts": {
+    "accepted_feedback": 152,
+    "candidate_queue": 32,
+    "sair_submission_row": 185
+  },
+  "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260707.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 57,
+    "train": 312
+  }
+}

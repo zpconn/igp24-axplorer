@@ -52,9 +52,8 @@ def test_validate_registry_catches_secret_shape_and_binary(tmp_path):
     registry = tmp_path / "registry"
     create_version(registry, "AXG-1", "none", "baseline")
     (registry / "models" / "AXG-1" / "bad.ckpt").write_bytes(b"not a real checkpoint")
-    (registry / "models" / "AXG-1" / "note.txt").write_text(
-        "sair_123456789abc_abcdefghijklmnopqrstuvwx", encoding="utf-8"
-    )
+    fake_key = "sair_" + "123456789abc" + "_" + "abcdefghijklmnopqrstuvwx"
+    (registry / "models" / "AXG-1" / "note.txt").write_text(fake_key, encoding="utf-8")
 
     validation = validate_registry(registry)
 

@@ -87,6 +87,37 @@ results change.
   records `AXG-1`, parent `none`, training status `not_started`, and
   `submitted_to_sair=false`. No GPU training, sample export, SAIR submission,
   Magma/PARI, or API key serialization happened in this registry layer.
+  Added `scripts/igp24_active_learning_dataset.py` to combine generated
+  candidate queues, accepted feedback JSONs, `pair_status_20260706.json`, and
+  the fresh SAIR sync into AXG training rows. Added
+  `scripts/igp24_axg_proposal_loop.py` as a dry-run proposal scaffold that
+  loads an AXG model manifest, filters candidate/sample rows locally, applies
+  the feedback-aware anti-basin scorer, writes a reviewed packet if any rows
+  survive, and never submits to SAIR. Focused scaffold tests:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_model_registry.py tests/test_igp24_active_learning_dataset.py tests/test_igp24_axg_proposal_loop.py`
+  -> 17 passed. Dataset dry-run:
+  `python3 scripts/igp24_active_learning_dataset.py --candidate_jsonl data/igp24/r20_linear_real_probe_20260707/r20_linear_real_candidate_queue.jsonl --candidate_jsonl data/igp24/r16_anti_collapse_probe_20260706/r16_diversified_candidate_queue.jsonl --candidate_jsonl data/igp24/anti_basin_4x6_steering_20260707/anti_basin_selected_queue.jsonl --candidate_jsonl data/igp24/alt_composition_8x3_sair_probe_20260707/anti_basin_selected_queue.jsonl --auto_feedback_root data/igp24 --pair_status_json data/igp24/pair_status_20260706.json --sair_sync_dir data/igp24/sair_sync_basin_gate_20260707 --output_dir data/igp24/active_learning --dataset_date 20260707 --target_rs 8,12,16,20,24`.
+  Result:
+  `data/igp24/active_learning/axg_training_dataset_20260707.jsonl` with 369
+  rows and class counts `accepted_duplicate_collapsed_basin=320`,
+  `accepted_globally_covered_high_team_basin=8`,
+  `accepted_useful_score_positive=8`, and `wrong_real_root_count=33`.
+  Proposal dry-run:
+  `python3 scripts/igp24_axg_proposal_loop.py --version AXG-1 --registry data/igp24/model_registry --run_id axg1_dry_run_20260707 --candidate_jsonl data/igp24/r8_quartic_lift_perturbed_full_sync_gate_20260707/anti_basin_selected_queue.jsonl --auto_feedback_root data/igp24 --sair_sync_dir data/igp24/sair_sync_basin_gate_20260707 --output_dir data/igp24/axg_proposal_runs --target_rs 8 --packet_limit 10 --min_packet_rows 8 --per_mode_cap 10 --per_pattern_cap 10 --dry_run`.
+  Result: 10 candidate rows, 10 filtered rows, 0 selected rows, decision
+  `hold_no_submission`. Risk reasons confirm the known-collapse gate:
+  `accepted_hash_duplicate` x10 and
+  `r8_quartic_in_x6_known_label_collapse=24T24979,24T25000` x10. The run
+  manifest is recorded under
+  `data/igp24/model_registry/runs/AXG-1/axg1_dry_run_20260707/`, and registry
+  validation remains valid with 1 model, 1 run, and 0 issues. No long GPU
+  training run was started and no SAIR submission happened. Final validation
+  for this AXG layer: focused tests passed (`17 passed`), `py_compile`
+  passed for the three AXG scripts, registry validation passed
+  with 0 issues, JSON parsing passed for 9 new JSON artifacts, JSONL parsing
+  passed for 5 files / 389 rows, repo-wide SAIR-key-shaped scan found
+  0 matches, `git diff --check` passed, and Stage 4 remains present at line
+  8252.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.

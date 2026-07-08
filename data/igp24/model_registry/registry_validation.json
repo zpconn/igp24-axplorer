@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-07T23:51:49.054197+00:00",
+  "created_at": "2026-07-08T00:01:43.112268+00:00",
   "issue_count": 0,
   "issues": [],
   "model_count": 1,
@@ -8,7 +8,7 @@
   ],
   "record_type": "igp24_axg_registry_validation",
   "registry": "data/igp24/model_registry",
-  "run_count": 0,
+  "run_count": 1,
   "schema_version": 1,
   "valid": true
 }

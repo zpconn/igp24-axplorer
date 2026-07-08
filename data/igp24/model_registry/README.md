@@ -18,3 +18,20 @@ Safety rules:
   are not stored here.
 - SAIR API keys must never be written here.
 - SAIR submission remains explicit and gated. GPU samples are proposals only.
+
+Current status:
+
+- `AXG-1` exists as the baseline proposal-generator generation.
+- No long GPU training run has started for `AXG-1`.
+- The first registered run is `axg1_dry_run_20260707`, a local dry-run using a
+  known-collapsed r8 packet. It selected 0 rows and returned
+  `hold_no_submission`.
+
+Useful commands:
+
+```bash
+python3 scripts/igp24_model_registry.py --registry data/igp24/model_registry validate
+python3 scripts/igp24_model_registry.py --registry data/igp24/model_registry summarize
+python3 scripts/igp24_active_learning_dataset.py --help
+python3 scripts/igp24_axg_proposal_loop.py --help
+```

@@ -2484,6 +2484,34 @@ new pair keys. The durable lesson is that the non-composed linear-real
 construction gives valid exact `r=20` rows, but this low-perturbation lane is
 still a known `24T25000` basin.
 
+## AXG Active-Learning Pivot
+
+AXG means Axplorer Generator. The project now treats GPU training and sampling
+as proposal generation for an active-learning loop, not as a direct submission
+engine.
+
+The first registry version is `AXG-1`, stored under
+`data/igp24/model_registry/`. It is a documented baseline generation with no
+long training run started yet. The manifest records parentage, training inputs,
+leakage exclusions, conditioning fields, safety rules, checkpoint references,
+and submission status. Registry validation currently reports 1 model, 1 dry-run
+proposal record, and 0 issues.
+
+The active-learning dataset builder combines recent candidate queues, accepted
+SAIR feedback artifacts, `pair_status_20260706.json`, and the read-only SAIR
+sync. The first dataset artifact is
+`data/igp24/active_learning/axg_training_dataset_20260707.jsonl`: 369 rows,
+with 320 collapsed-basin rows, 8 globally covered/high-team rows, 8
+score-positive rows, and 33 wrong-real-root-count rows.
+
+The AXG proposal-loop dry run used the known-collapsed r8 perturbed
+quartic-lift packet as a safety test. It filtered 10/10 candidates locally,
+then selected 0 rows and returned `hold_no_submission`, with risk reasons
+including accepted-hash duplicates and the known
+`r8_quartic_in_x6` collapse to `24T24979/24T25000`. This is the desired
+behavior: a future GPU sample pool must still survive CPU filters and basin
+feedback before any reviewed packet is prepared.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

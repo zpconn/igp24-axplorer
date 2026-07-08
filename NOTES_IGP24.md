@@ -1429,3 +1429,14 @@ coefficient perturbations around this linear-real construction are still in a
 known high-label basin. The next r20 or high-real-root attempt needs either a
 stronger label discriminator before submission, a more disruptive
 perturbation, or a different construction family.
+
+The strategy is now formalized as AXG, the Axplorer Generator lineage. AXG is
+not a replacement for exact checks or SAIR review; it is a proposal generator
+inside an active-learning loop. The repository now has an `AXG-1` model
+manifest, a local active-learning dataset builder, and a proposal-loop dry run
+that can take candidate/sample files, filter locally, apply basin feedback,
+and decide hold versus reviewed packet. The first AXG dry-run deliberately
+used the known-collapsed r8 perturbed quartic packet and correctly held with
+zero selected rows. That is the right failure mode: the GPU phase should
+increase proposal diversity, while the CPU/feedback phase prevents raw or
+basin-risky samples from reaching SAIR.
