@@ -1,9 +1,11 @@
 import os
 import pickle
 import random
+import json
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
 from logging import getLogger
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -14,6 +16,164 @@ from src.envs.environment import do_stats
 from src.utils import MAX_WORKERS
 
 logger = getLogger()
+
+
+def _csv_ints(value):
+    if not value:
+        return set()
+    return {int(part.strip()) for part in str(value).split(",") if part.strip()}
+
+
+def _jsonl_paths(value):
+    if not value:
+        return []
+    if isinstance(value, (list, tuple)):
+        return [Path(path) for path in value if str(path).strip()]
+    return [Path(part.strip()) for part in str(value).split(",") if part.strip()]
+
+
+def _coefficient_vector_from_record(record):
+    for key in ("coefficients", "exported_coefficients", "decoded_coefficients"):
+        value = record.get(key)
+        if isinstance(value, list):
+            try:
+                coeffs = [int(item) for item in value]
+            except (TypeError, ValueError):
+                return None
+            if len(coeffs) == 25 and coeffs[-1] == 1:
+                return coeffs[:-1]
+            if len(coeffs) == 24:
+                return coeffs
+    polynomial = record.get("polynomial")
+    if isinstance(polynomial, str):
+        parts = [part.strip() for part in polynomial.split(",") if part.strip()]
+        if len(parts) == 25:
+            try:
+                coeffs = [int(part) for part in parts]
+            except ValueError:
+                return None
+            if coeffs[-1] == 1:
+                return coeffs[:-1]
+    return None
+
+
+def _r_from_record(record):
+    for key in ("r", "real_root_count", "target_r"):
+        value = record.get(key)
+        if value is not None:
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+    features = record.get("features")
+    if isinstance(features, dict) and features.get("r") is not None:
+        try:
+            return int(features["r"])
+        except (TypeError, ValueError):
+            return None
+    feedback = record.get("sair_feedback")
+    if isinstance(feedback, dict):
+        pair_key = feedback.get("pair_key")
+        if isinstance(pair_key, str) and "|r=" in pair_key:
+            try:
+                return int(pair_key.rsplit("|r=", 1)[-1])
+            except ValueError:
+                return None
+    return None
+
+
+def _score_from_active_learning_class(class_label):
+    score_map = {
+        "accepted_useful_score_positive": 4.0,
+        "accepted_useful_or_unknown": 3.0,
+        "accepted_globally_covered_high_team_basin": 2.0,
+        "accepted_duplicate_collapsed_basin": 1.0,
+        "pending_score": 0.5,
+        "wrong_real_root_count": 0.25,
+        "exact_local_valid": 0.25,
+        "locally_invalid": -1.0,
+    }
+    return score_map.get(str(class_label), 0.0)
+
+
+def _load_igp24_training_jsonl(args, classname):
+    paths = _jsonl_paths(getattr(args, "igp24_training_jsonl", []))
+    if not paths:
+        return None
+
+    target_rs = _csv_ints(getattr(args, "igp24_training_jsonl_target_rs", ""))
+    max_rows = int(getattr(args, "igp24_training_jsonl_max_rows", 0) or 0)
+    max_abs_coeff = int(getattr(args, "igp24_training_jsonl_max_abs_coeff", 0) or 0)
+    train_set = []
+    test_set = []
+    skipped = {
+        "missing_coefficients": 0,
+        "target_r_filtered": 0,
+        "missing_r": 0,
+        "coefficient_bound_filtered": 0,
+        "invalid_datapoint": 0,
+    }
+
+    for path in paths:
+        with path.open("r", encoding="utf-8") as handle:
+            for line_index, line in enumerate(handle):
+                if max_rows > 0 and len(train_set) + len(test_set) >= max_rows:
+                    break
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                coeffs = _coefficient_vector_from_record(record)
+                if coeffs is None:
+                    skipped["missing_coefficients"] += 1
+                    continue
+                r_value = _r_from_record(record)
+                if r_value is None:
+                    skipped["missing_r"] += 1
+                    if target_rs:
+                        continue
+                if target_rs and r_value not in target_rs:
+                    skipped["target_r_filtered"] += 1
+                    continue
+                if max_abs_coeff > 0 and max(abs(value) for value in coeffs) > max_abs_coeff:
+                    skipped["coefficient_bound_filtered"] += 1
+                    continue
+                try:
+                    datapoint = classname(N=args.N, coeffs=coeffs, conditioning_target_r=r_value)
+                except Exception:
+                    skipped["invalid_datapoint"] += 1
+                    continue
+                datapoint.score = _score_from_active_learning_class(record.get("derived_class_label"))
+                datapoint.features = record.get("canonical_hash") or f"{path}:{line_index}"
+                datapoint.source_metadata = {
+                    "source_path": str(path),
+                    "source_index": line_index,
+                    "dataset_row_id": record.get("dataset_row_id"),
+                    "source_role": record.get("source_role"),
+                    "derived_class_label": record.get("derived_class_label"),
+                    "train_eval_split": record.get("train_eval_split"),
+                    "conditioning_target_r": r_value,
+                }
+                if record.get("train_eval_split") == "eval":
+                    test_set.append(datapoint)
+                else:
+                    train_set.append(datapoint)
+        if max_rows > 0 and len(train_set) + len(test_set) >= max_rows:
+            break
+
+    if not train_set and test_set:
+        train_set, test_set = make_train_test(test_set, min(len(test_set) // 2, int(args.ntest)))
+    if not test_set and len(train_set) > max(1, int(args.ntest)):
+        train_set, test_set = make_train_test(train_set, min(int(args.ntest), max(1, len(train_set) // 5)))
+
+    logger.info(
+        "Loaded IGP24 JSONL training data: train=%s test=%s paths=%s target_rs=%s skipped=%s",
+        len(train_set),
+        len(test_set),
+        [str(path) for path in paths],
+        sorted(target_rs),
+        skipped,
+    )
+    return train_set, test_set, skipped
 
 
 def detokenize(data, args, env, executor=None):
@@ -146,17 +306,31 @@ def load_initial_data(args, classname):
         train_set = pickle.load(open(train_data_path, "rb"))
         test_set = pickle.load(open(test_data_path, "rb"))
     else:
-        data = generate_and_score(args, classname=classname)
-        test_set = []
-        train_set = []
-        train_set, test_set, _ = update_datasets(args, data, train_set, test_set, train_data_path, test_data_path)
+        loaded = _load_igp24_training_jsonl(args, classname)
+        if loaded is not None:
+            train_set, test_set, skipped = loaded
+            if not train_set:
+                raise ValueError("IGP24 JSONL training data produced no train rows")
+            os.makedirs(args.dump_path, exist_ok=True)
+            pickle.dump(test_set, open(test_data_path, "wb"))
+            pickle.dump(train_set, open(train_data_path, "wb"))
+            args.igp24_training_jsonl_loaded_rows = len(train_set) + len(test_set)
+            args.igp24_training_jsonl_train_rows = len(train_set)
+            args.igp24_training_jsonl_eval_rows = len(test_set)
+            args.igp24_training_jsonl_skipped = skipped
+        else:
+            data = generate_and_score(args, classname=classname)
+            test_set = []
+            train_set = []
+            train_set, test_set, _ = update_datasets(args, data, train_set, test_set, train_data_path, test_data_path)
     return train_set, test_set
 
 
 class CharDataset(Dataset):
-    def __init__(self, encoded_data, max_len, stoi):
+    def __init__(self, encoded_data, max_len, stoi, block_size=None):
         self.encoded_data = encoded_data
         self.max_len = max_len
+        self.block_size = int(block_size or (max_len + 2))
         self.pad_token_id = stoi["PAD"]
 
     def __len__(self):
@@ -166,9 +340,11 @@ class CharDataset(Dataset):
         return self.encoded_data[idx]
 
     def collate_fn(self, batch):
-        x = np.full((len(batch), self.max_len + 2), self.pad_token_id, dtype=np.int32)
+        x = np.full((len(batch), self.block_size), self.pad_token_id, dtype=np.int32)
 
         for i, el in enumerate(batch):
+            if el.shape[0] > self.block_size:
+                raise ValueError(f"encoded sequence length {el.shape[0]} exceeds block size {self.block_size}")
             x[i, : el.shape[0]] = el
         valid_col = (x != self.pad_token_id).any(axis=0)
         last_col = np.nonzero(valid_col)[0][-1] + 1

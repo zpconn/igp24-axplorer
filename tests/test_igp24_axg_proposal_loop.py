@@ -120,3 +120,67 @@ def test_proposal_loop_dry_run_holds_known_collapsed_family(tmp_path):
     assert summary["safety"]["auto_submits"] is False
     run_manifest = json.loads((tmp_path / "proposal_runs" / "run_20260707_000000" / "run_manifest.json").read_text())
     assert run_manifest["safety"]["auto_submits"] is False
+
+
+def test_proposal_loop_reports_seed_bank_only_when_no_model_generated_survivors(tmp_path):
+    registry = tmp_path / "registry"
+    create_version(registry, "AXG-1.1", "none", "seeded")
+    candidate_path = tmp_path / "seed_bank_scored.jsonl"
+    seed_rows = []
+    for index in range(4):
+        row = _candidate(index)
+        row["canonical_hash"] = "accepted-r8"
+        row["source_sample_export"] = {"sample_export_source": "target_r_seed_bank"}
+        row["generation_metadata"]["target_r_conditioning_mode"] = "seed_bank_prefix"
+        seed_rows.append(row)
+    _write_jsonl(candidate_path, seed_rows)
+    feedback_path = tmp_path / "accepted_feedback.json"
+    _write_json(
+        feedback_path,
+        {
+            "accepted_rows": [
+                {
+                    "canonical_hash": "accepted-r8",
+                    "label": "24T25000",
+                    "pair_key": "24T25000|r=8",
+                    "r": 8,
+                    "status": "accepted",
+                    "exported_coefficients": seed_rows[0]["exported_coefficients"],
+                    "construction_family": "r8_quartic_lift_perturbed",
+                    "decomposition_pattern": "quartic_in_x6",
+                    "perturbation_mode": "odd_single_off_core",
+                    "support_gcd": 1,
+                    "even_support": False,
+                    "family_key": "accepted-r8-family",
+                    "mod_p_pattern_signature": "p3:1-23",
+                }
+            ]
+        },
+    )
+
+    summary = run_proposal_loop(
+        version="AXG-1.1",
+        registry=registry,
+        run_id="seed_bank_only",
+        candidate_paths=[candidate_path],
+        feedback_paths=[feedback_path],
+        sync_dir=None,
+        output_dir=tmp_path / "proposal_runs",
+        target_rs={8},
+        collapsed_labels={"24T25000"},
+        packet_limit=4,
+        min_packet_rows=4,
+        per_mode_cap=4,
+        per_pattern_cap=4,
+        crowded_team_threshold=20,
+        dry_run=True,
+    )
+
+    assert summary["candidate_rows"] == 4
+    assert summary["filtered_rows"] == 4
+    assert summary["selected_rows"] == 0
+    assert summary["decision"] == "hold_no_submission"
+    assert summary["candidate_sample_export_source_counts"] == {"target_r_seed_bank": 4}
+    assert summary["filtered_sample_export_source_counts"] == {"target_r_seed_bank": 4}
+    assert summary["selected_sample_export_source_counts"] == {}
+    assert "model_generate" not in summary["filtered_sample_export_source_counts"]

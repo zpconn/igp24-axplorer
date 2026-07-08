@@ -17,6 +17,18 @@ from src.utils import bool_flag, force_release_memory, initialize_exp, log_resou
 logger = getLogger()
 
 
+def parse_int_csv(value):
+    if not value:
+        return []
+    return [int(part.strip()) for part in str(value).split(",") if part.strip()]
+
+
+def target_export_path(base_path, target_r):
+    root, ext = os.path.splitext(base_path)
+    suffix = ext or ".jsonl"
+    return f"{root}_r{int(target_r)}{suffix}"
+
+
 def get_parser():
     parser = argparse.ArgumentParser("A simple Axplorer loop for different maths problems")
 
@@ -130,6 +142,12 @@ def get_parser():
         default=0,
         help="maximum seed-bank rows to prefix; 0 disables seed-bank prefixing",
     )
+    parser.add_argument(
+        "--sample_export_target_rs",
+        type=str,
+        default="",
+        help="comma-separated target r values to export sequentially after one training pass",
+    )
 
     return parser
 
@@ -167,7 +185,7 @@ if __name__ == "__main__":
 
     args.vocab_size = len(env.tokenizer.itos)
 
-    args.block_size = args.max_len + 2
+    args.block_size = env.tokenizer.block_size_for_max_len(args.max_len)
     stoi = env.tokenizer.stoi
     itos = env.tokenizer.itos
 
@@ -217,9 +235,16 @@ if __name__ == "__main__":
         # tokenize
         train_words = [env.tokenizer.encode(d) for d in train_set]
         test_words = [env.tokenizer.encode(d) for d in test_set]
+        max_encoded_len = max([word.shape[0] for word in train_words + test_words] or [0])
+        logger.info(f"Max encoded sequence length: {max_encoded_len} / block_size {args.block_size}")
+        if max_encoded_len > args.block_size:
+            raise ValueError(
+                f"encoded sequence length {max_encoded_len} exceeds block size {args.block_size}; "
+                "increase --max_len or reduce the JSONL training coefficient size"
+            )
         # data loaders
-        train_dataset = CharDataset(train_words, args.max_len, stoi)
-        test_dataset = CharDataset(test_words, args.max_len, stoi)
+        train_dataset = CharDataset(train_words, args.max_len, stoi, block_size=args.block_size)
+        test_dataset = CharDataset(test_words, args.max_len, stoi, block_size=args.block_size)
         force_release_memory()
 
         if args.device == "cuda":
@@ -242,7 +267,25 @@ if __name__ == "__main__":
 
         if args.sample_export_only:
             export_path = args.sample_export_path or os.path.join(args.dump_path, f"model_samples_epoch_{n_epoch}.jsonl")
-            export_summary = sample_and_export(model, args, stoi, itos, env, temperature, args.temp_span, export_path=export_path)
+            export_target_rs = parse_int_csv(getattr(args, "sample_export_target_rs", ""))
+            if export_target_rs:
+                original_target_r = args.target_r
+                export_summary = {}
+                for target_r in export_target_rs:
+                    args.target_r = int(target_r)
+                    export_summary[str(target_r)] = sample_and_export(
+                        model,
+                        args,
+                        stoi,
+                        itos,
+                        env,
+                        temperature,
+                        args.temp_span,
+                        export_path=target_export_path(export_path, target_r),
+                    )
+                args.target_r = original_target_r
+            else:
+                export_summary = sample_and_export(model, args, stoi, itos, env, temperature, args.temp_span, export_path=export_path)
             logger.info(f"Sample export summary: {export_summary}")
             log_resources(f"Epoch {epoch} AFTER_SAMPLE_EXPORT")
             n_epoch += 1

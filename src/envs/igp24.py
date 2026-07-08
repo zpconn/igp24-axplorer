@@ -23,6 +23,9 @@ from src.utils import bool_flag
 
 logger = logging.getLogger(__name__)
 
+TARGET_R_VALUES = tuple(range(0, DEGREE + 1, 2))
+TARGET_R_CONTROL_SYMBOLS = tuple(f"R{value}" for value in TARGET_R_VALUES)
+
 IGP24_GENERATION_STRATEGIES = [
     "uniform",
     "low_height",
@@ -129,15 +132,33 @@ def resolve_generation_preset(preset, generation_strategy, mixed_strategy_weight
     }
 
 
+def _int_or_none(value):
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _target_r_symbol(value):
+    r_value = _int_or_none(value)
+    if r_value is None or r_value not in TARGET_R_VALUES:
+        return None
+    return f"R{r_value}"
+
+
 class IGP24CoefficientTokenizer(Tokenizer):
     """Fixed-length signed coefficient tokenizer using coeff + coeff_bound."""
 
-    def __init__(self, dataclass, coeff_bound, extra_symbols):
+    def __init__(self, dataclass, coeff_bound, extra_symbols, target_r_conditioning_mode="none"):
         super().__init__()
         self.dataclass = dataclass
         self.N = DEGREE
         self.coeff_bound = int(coeff_bound)
-        self.extra_symbols = extra_symbols
+        self.target_r_conditioning_mode = str(target_r_conditioning_mode or "none")
+        self.target_r_control_symbols = set(TARGET_R_CONTROL_SYMBOLS)
+        self.extra_symbols = list(extra_symbols)
+        if self.target_r_conditioning_mode == "control_token":
+            self.extra_symbols.extend(symbol for symbol in TARGET_R_CONTROL_SYMBOLS if symbol not in self.extra_symbols)
         self.stoi = {}
         self.itos = {}
 
@@ -146,14 +167,36 @@ class IGP24CoefficientTokenizer(Tokenizer):
             self.itos[token_id] = coeff
 
         offset = len(self.stoi)
-        for idx, symbol in enumerate(extra_symbols):
+        for idx, symbol in enumerate(self.extra_symbols):
             token_id = offset + idx
             self.stoi[symbol] = token_id
             self.itos[token_id] = symbol
 
+    def block_size_for_max_len(self, max_len):
+        prefix_extra = 1 if self.target_r_conditioning_mode == "control_token" else 0
+        return int(max_len) + 2 + prefix_extra
+
+    def target_r_control_token_ids(self, target_r):
+        if self.target_r_conditioning_mode != "control_token":
+            return []
+        symbol = _target_r_symbol(target_r)
+        if symbol is None:
+            return []
+        return [self.stoi[symbol]]
+
+    @staticmethod
+    def _datapoint_target_r(datapoint):
+        value = _int_or_none(getattr(datapoint, "conditioning_target_r", None))
+        if value is not None:
+            return value
+        analysis = getattr(datapoint, "analysis", None)
+        return _int_or_none(getattr(analysis, "real_root_count", None))
+
     def encode(self, datapoint_to_encode):
         coeffs = validate_coefficients(datapoint_to_encode.coefficients)
         tokens = [self.stoi["BOS"]]
+        target_r_tokens = self.target_r_control_token_ids(self._datapoint_target_r(datapoint_to_encode))
+        tokens.extend(target_r_tokens)
         for coeff in coeffs:
             if coeff < -self.coeff_bound or coeff > self.coeff_bound:
                 raise ValueError(f"coefficient outside tokenizer bound: {coeff}")
@@ -167,6 +210,12 @@ class IGP24CoefficientTokenizer(Tokenizer):
         token_seq_to_decode = token_seq_to_decode[1:]
         coeffs = []
         try:
+            while len(token_seq_to_decode) > 0:
+                value = self.itos[int(token_seq_to_decode[0])]
+                if value in self.target_r_control_symbols:
+                    token_seq_to_decode = token_seq_to_decode[1:]
+                    continue
+                break
             for token in token_seq_to_decode:
                 value = self.itos[int(token)]
                 if value in self.extra_symbols:
@@ -176,6 +225,113 @@ class IGP24CoefficientTokenizer(Tokenizer):
                     break
         except Exception:
             return None
+        if len(coeffs) != DEGREE:
+            return None
+        return self.dataclass(N=DEGREE, coeffs=coeffs)
+
+
+class IGP24DecimalCoefficientTokenizer(Tokenizer):
+    """Variable-length signed decimal coefficient tokenizer with optional R controls."""
+
+    DIGIT_SYMBOLS = tuple(f"D{digit}" for digit in range(10))
+    STRUCTURAL_SYMBOLS = ("POS", "NEG", "SEP", "EOS", "PAD", "BOS")
+
+    def __init__(self, dataclass, extra_symbols, target_r_conditioning_mode="none"):
+        super().__init__()
+        self.dataclass = dataclass
+        self.N = DEGREE
+        self.target_r_conditioning_mode = str(target_r_conditioning_mode or "none")
+        self.target_r_control_symbols = set(TARGET_R_CONTROL_SYMBOLS)
+        symbols = list(self.DIGIT_SYMBOLS) + list(self.STRUCTURAL_SYMBOLS)
+        if self.target_r_conditioning_mode == "control_token":
+            symbols.extend(TARGET_R_CONTROL_SYMBOLS)
+        for symbol in extra_symbols:
+            if symbol not in symbols:
+                symbols.append(symbol)
+        self.extra_symbols = symbols
+        self.stoi = {symbol: token_id for token_id, symbol in enumerate(symbols)}
+        self.itos = {token_id: symbol for symbol, token_id in self.stoi.items()}
+
+    def block_size_for_max_len(self, max_len):
+        prefix_extra = 1 if self.target_r_conditioning_mode == "control_token" else 0
+        return int(max_len) + 2 + prefix_extra
+
+    def target_r_control_token_ids(self, target_r):
+        if self.target_r_conditioning_mode != "control_token":
+            return []
+        symbol = _target_r_symbol(target_r)
+        if symbol is None:
+            return []
+        return [self.stoi[symbol]]
+
+    @staticmethod
+    def _datapoint_target_r(datapoint):
+        value = _int_or_none(getattr(datapoint, "conditioning_target_r", None))
+        if value is not None:
+            return value
+        analysis = getattr(datapoint, "analysis", None)
+        return _int_or_none(getattr(analysis, "real_root_count", None))
+
+    def encode(self, datapoint_to_encode):
+        coeffs = validate_coefficients(datapoint_to_encode.coefficients)
+        tokens = [self.stoi["BOS"]]
+        tokens.extend(self.target_r_control_token_ids(self._datapoint_target_r(datapoint_to_encode)))
+        for index, coeff in enumerate(coeffs):
+            coeff = int(coeff)
+            tokens.append(self.stoi["NEG" if coeff < 0 else "POS"])
+            for digit in str(abs(coeff)):
+                tokens.append(self.stoi[f"D{digit}"])
+            if index != len(coeffs) - 1:
+                tokens.append(self.stoi["SEP"])
+        tokens.append(self.stoi["EOS"])
+        return np.array(tokens, dtype=np.int32)
+
+    def decode(self, token_seq_to_decode):
+        if len(token_seq_to_decode) == 0:
+            return None
+        try:
+            symbols = [self.itos[int(token)] for token in token_seq_to_decode]
+        except Exception:
+            return None
+        if not symbols or symbols[0] != "BOS":
+            return None
+        symbols = symbols[1:]
+        while symbols and symbols[0] in self.target_r_control_symbols:
+            symbols = symbols[1:]
+
+        coeffs = []
+        sign = None
+        digits = []
+        for symbol in symbols:
+            if symbol in {"EOS", "PAD"}:
+                break
+            if symbol in self.target_r_control_symbols:
+                return None
+            if symbol in {"POS", "NEG"}:
+                if sign is not None or digits:
+                    return None
+                sign = 1 if symbol == "POS" else -1
+                continue
+            if symbol in self.DIGIT_SYMBOLS:
+                if sign is None:
+                    return None
+                digits.append(symbol[1:])
+                continue
+            if symbol == "SEP":
+                if sign is None or not digits:
+                    return None
+                coeffs.append(sign * int("".join(digits)))
+                sign = None
+                digits = []
+                if len(coeffs) > DEGREE:
+                    return None
+                continue
+            return None
+
+        if sign is not None or digits:
+            if sign is None or not digits:
+                return None
+            coeffs.append(sign * int("".join(digits)))
         if len(coeffs) != DEGREE:
             return None
         return self.dataclass(N=DEGREE, coeffs=coeffs)
@@ -205,17 +361,20 @@ class IGP24DataPoint(DataPoint):
     MIXED_STRATEGY_WEIGHTS = DEFAULT_MIXED_STRATEGY_WEIGHTS.copy()
     GENERATION_PRESET = "none"
     GENERATION_PRESET_TARGET_R = None
+    TARGET_R_CONDITIONING_MODE = "none"
     LAST_GENERATION_DETAILS = {}
 
-    def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None):
+    def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None, conditioning_target_r=None):
         super().__init__()
         if int(N) != DEGREE:
             raise ValueError(f"IGP24 uses fixed degree {DEGREE}; got N={N}")
         self.N = DEGREE
         self.coefficients = tuple(validate_coefficients(coeffs)) if coeffs is not None else tuple([0] * DEGREE)
+        self.conditioning_target_r = _int_or_none(conditioning_target_r)
         self.analysis = None
         self.generation_strategy = generation_strategy or "manual"
         self.generation_details = {}
+        self.source_metadata = {}
         self.local_search_stats = {}
         if init:
             self.coefficients, self.generation_strategy = self._generate_coefficients()
@@ -1163,6 +1322,7 @@ class IGP24DataPoint(DataPoint):
             "MIXED_STRATEGY_WEIGHTS": dict(cls.MIXED_STRATEGY_WEIGHTS),
             "GENERATION_PRESET": cls.GENERATION_PRESET,
             "GENERATION_PRESET_TARGET_R": cls.GENERATION_PRESET_TARGET_R,
+            "TARGET_R_CONDITIONING_MODE": cls.TARGET_R_CONDITIONING_MODE,
             "LAST_GENERATION_DETAILS": dict(cls.LAST_GENERATION_DETAILS),
         }
 
@@ -1174,8 +1334,8 @@ class IGP24Environment(BaseEnvironment):
         super().__init__(params)
         if int(params.N) != DEGREE:
             raise ValueError(f"IGP24 uses fixed degree {DEGREE}; got --N {params.N}")
-        if params.encoding_tokens != "coefficients":
-            raise ValueError("IGP24 currently supports --encoding_tokens coefficients")
+        if params.encoding_tokens not in {"coefficients", "decimal_coefficients"}:
+            raise ValueError("IGP24 supports --encoding_tokens coefficients or decimal_coefficients")
 
         self.data_class.COEFF_BOUND = int(params.coeff_bound)
         self.data_class.TARGET_R = params.target_r
@@ -1207,13 +1367,33 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.MIXED_STRATEGY_WEIGHTS = generation_resolution["resolved_mixed_strategy_weights"]
         self.data_class.GENERATION_PRESET = generation_resolution["preset_name"]
         self.data_class.GENERATION_PRESET_TARGET_R = generation_resolution["target_r_intent"]
+        target_r_conditioning_mode = str(getattr(params, "igp24_target_r_conditioning_mode", "none"))
+        self.data_class.TARGET_R_CONDITIONING_MODE = target_r_conditioning_mode
 
-        self.tokenizer = IGP24CoefficientTokenizer(self.data_class, params.coeff_bound, self.SPECIAL_SYMBOLS)
+        if params.encoding_tokens == "decimal_coefficients":
+            self.tokenizer = IGP24DecimalCoefficientTokenizer(
+                self.data_class,
+                self.SPECIAL_SYMBOLS,
+                target_r_conditioning_mode=target_r_conditioning_mode,
+            )
+        else:
+            self.tokenizer = IGP24CoefficientTokenizer(
+                self.data_class,
+                params.coeff_bound,
+                self.SPECIAL_SYMBOLS,
+                target_r_conditioning_mode=target_r_conditioning_mode,
+            )
 
     @staticmethod
     def register_args(parser):
         parser.add_argument("--N", type=int, default=DEGREE, help="Fixed IGP24 degree; must remain 24")
-        parser.add_argument("--encoding_tokens", type=str, default="coefficients", help="IGP24 fixed signed coefficient vector tokenizer")
+        parser.add_argument(
+            "--encoding_tokens",
+            type=str,
+            default="coefficients",
+            choices=["coefficients", "decimal_coefficients"],
+            help="IGP24 tokenizer: fixed signed coefficient IDs or variable-length signed decimal coefficients",
+        )
         parser.add_argument("--coeff_bound", type=int, default=10, help="Search bound for coefficients a0..a23")
         parser.add_argument("--target_r", type=int, default=None, help="Optional target real-root count")
         parser.add_argument("--target_t", type=str, default=None, help="Optional target 24Tt metadata; not exact-scored in stage 0")
@@ -1239,6 +1419,38 @@ class IGP24Environment(BaseEnvironment):
             default="none",
             choices=sorted(IGP24_GENERATION_PRESETS),
             help="Optional target-specific generation preset; none preserves explicit strategy settings",
+        )
+        parser.add_argument(
+            "--igp24_target_r_conditioning_mode",
+            type=str,
+            default="none",
+            choices=["none", "control_token"],
+            help="Optional model-side target-r conditioning; control_token prepends R<r> after BOS",
+        )
+        parser.add_argument(
+            "--igp24_training_jsonl",
+            type=str,
+            action="append",
+            default=[],
+            help="Optional active-learning JSONL source to load as initial train/test data",
+        )
+        parser.add_argument(
+            "--igp24_training_jsonl_target_rs",
+            type=str,
+            default="",
+            help="Comma-separated r values to keep from --igp24_training_jsonl; empty keeps all rows with coefficients",
+        )
+        parser.add_argument(
+            "--igp24_training_jsonl_max_rows",
+            type=int,
+            default=0,
+            help="Optional cap on rows loaded from --igp24_training_jsonl; 0 disables",
+        )
+        parser.add_argument(
+            "--igp24_training_jsonl_max_abs_coeff",
+            type=int,
+            default=0,
+            help="Optional absolute coefficient cap for JSONL training rows; 0 disables",
         )
         parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")
         parser.add_argument("--igp24_low_height_bound", type=int, default=3, help="Inner coefficient bound for low-height and structured generation")

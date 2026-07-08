@@ -44,6 +44,7 @@ PROBE_MODE_SAMPLE_EXPORT_MEDIUM = "sample_export_split_medium"
 PROBE_MODE_SAMPLE_EXPORT_DIVERSITY = "sample_export_split_diversity"
 PROBE_MODE_SAMPLE_EXPORT_DEDUP = "sample_export_split_dedup"
 PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED = "sample_export_target_r_seeded"
+PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED = "sample_export_target_r_conditioned"
 DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
     "fixed_template_t09_top9": {
         "seed": "2201",
@@ -71,6 +72,7 @@ DIVERSITY_EXPORT_VARIANTS: dict[str, dict[str, Any]] = {
     },
 }
 DEFAULT_TARGET_R_SEED_BANK = REPO_ROOT / "data/igp24/active_learning/axg_training_dataset_20260707_axg_gpu_tiny.jsonl"
+DEFAULT_TARGET_R_TRAINING_JSONL = REPO_ROOT / "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl"
 STRICT_SUCCESS_ACTIONS = {
     "proceed_to_medium_30_60_minute_gpu_run_later",
     "decouple_gpu_training_from_cpu_scoring",
@@ -1156,6 +1158,151 @@ def build_sample_export_target_r_seeded_command(
     }
 
 
+def build_sample_export_target_r_conditioned_command(
+    *,
+    python_executable: str,
+    output_dir: Path,
+    run_id: str,
+    target_r: int,
+    training_jsonl: Path,
+    target_rs: str = "12,16,20,24",
+    seed: int | str | None = None,
+    model_sample_attempts: int = 512,
+    max_steps: int = 1800,
+    max_len: int = 640,
+) -> dict[str, Any]:
+    seed_text = str(seed if seed is not None else 33000 + int(target_r))
+    exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
+    dump_root = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_dump"
+    ledger_path = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_initial_candidates.jsonl"
+    sample_export_path = output_dir / f"gpu_model_sample_export_target_r{int(target_r)}_conditioned.jsonl"
+    train_log_path = dump_root / exp_name / run_id / "train.log"
+    cmd = [
+        python_executable,
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        exp_name,
+        "--dump_path",
+        str(dump_root),
+        "--exp_id",
+        run_id,
+        "--seed",
+        seed_text,
+        "--encoding_tokens",
+        "decimal_coefficients",
+        "--igp24_target_r_conditioning_mode",
+        "control_token",
+        "--igp24_training_jsonl",
+        str(training_jsonl),
+        "--igp24_training_jsonl_target_rs",
+        str(target_rs),
+        "--coeff_bound",
+        "1000000000000000",
+        "--target_r",
+        str(int(target_r)),
+        "--gensize",
+        "0",
+        "--pop_size",
+        "512",
+        "--ntest",
+        "64",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        str(int(max_steps)),
+        "--num_eval_steps",
+        str(max(50, min(300, int(max_steps) // 3))),
+        "--num_samples_from_model",
+        str(int(model_sample_attempts)),
+        "--batch_size",
+        "128",
+        "--n_layer",
+        "4",
+        "--n_head",
+        "4",
+        "--n_embd",
+        "256",
+        "--max_len",
+        str(int(max_len)),
+        "--temperature",
+        "0.9",
+        "--top_k",
+        "12",
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "7",
+        "--exact_score_timeout",
+        "0",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        str(sample_export_path),
+        "--sample_export_dedup",
+        "true",
+        "--sample_export_max_attempts",
+        str(int(model_sample_attempts)),
+        "--sample_export_progress_interval",
+        "128",
+        "--sample_export_target_r_conditioning_mode",
+        "control_token",
+        "--igp24_generation_strategy",
+        "fixed_sparse_template",
+        "--igp24_ledger_path",
+        str(ledger_path),
+    ]
+    return {
+        "probe_mode": PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED,
+        "target_r": int(target_r),
+        "target_r_conditioning_mode": "control_token",
+        "target_r_training_jsonl": str(training_jsonl),
+        "target_r_training_target_rs": str(target_rs),
+        "target_r_seed": seed_text,
+        "command": cmd,
+        "command_text": command_text(cmd),
+        "dump_root": str(dump_root),
+        "ledger_path": str(ledger_path),
+        "sample_export_path": str(sample_export_path),
+        "train_log_path": str(train_log_path),
+        "exp_name": exp_name,
+        "exp_id": run_id,
+        "caps": {
+            "timeout_seconds": 900,
+            "max_epochs": 1,
+            "max_steps_per_epoch": int(max_steps),
+            "num_eval_steps": max(50, min(300, int(max_steps) // 3)),
+            "num_samples_from_model_per_epoch": int(model_sample_attempts),
+            "batch_size": 128,
+            "n_layer": 4,
+            "n_head": 4,
+            "n_embd": 256,
+            "temperature": 0.9,
+            "top_k": 12,
+            "encoding_tokens": "decimal_coefficients",
+            "model_target_r_conditioning_mode": "control_token",
+            "training_jsonl": str(training_jsonl),
+            "training_target_rs": str(target_rs),
+            "generation_strategy": "fixed_sparse_template",
+            "seed": int(seed_text),
+            "target_r": int(target_r),
+            "max_len": int(max_len),
+        },
+        "post_train_cpu_sampling_scoring_avoided": True,
+    }
+
+
 def load_baseline_summary(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -1207,6 +1354,8 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "target_r_seed_bank_jsonl": command_config.get("target_r_seed_bank_jsonl"),
         "target_r_seed_bank_limit": command_config.get("target_r_seed_bank_limit"),
         "target_r_seed": command_config.get("target_r_seed"),
+        "target_r_training_jsonl": command_config.get("target_r_training_jsonl"),
+        "target_r_training_target_rs": command_config.get("target_r_training_target_rs"),
         "returncode": command_result.get("returncode"),
         "timed_out": command_result.get("timed_out"),
         "interrupted": command_result.get("interrupted", False),
@@ -1234,6 +1383,8 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         "target_r_seed_bank_jsonl": command_config.get("target_r_seed_bank_jsonl"),
         "target_r_seed_bank_limit": command_config.get("target_r_seed_bank_limit"),
         "target_r_seed": command_config.get("target_r_seed"),
+        "target_r_training_jsonl": command_config.get("target_r_training_jsonl"),
+        "target_r_training_target_rs": command_config.get("target_r_training_target_rs"),
     }
 
 
@@ -1248,6 +1399,7 @@ def build_recommendation(summary: dict[str, Any]) -> dict[str, Any]:
         PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
         PROBE_MODE_SAMPLE_EXPORT_DEDUP,
         PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED,
+        PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED,
     }
     train_log = run.get("train_log") or {}
     eval_losses = train_log.get("eval_losses") or []
@@ -1394,6 +1546,8 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Target-r conditioning mode: `{run.get('target_r_conditioning_mode')}`",
         f"- Target-r seed bank: `{run.get('target_r_seed_bank_jsonl')}`",
         f"- Target-r seed-bank limit: `{run.get('target_r_seed_bank_limit')}`",
+        f"- Target-r training JSONL: `{run.get('target_r_training_jsonl')}`",
+        f"- Target-r training target set: `{run.get('target_r_training_target_rs')}`",
         f"- Dedup unique target: `{run.get('sample_export_unique_target')}`",
         f"- Dedup attempt budget: `{run.get('sample_export_attempt_budget')}`",
         f"- Dedup stop reason: `{run.get('sample_export_stop_reason')}`",
@@ -1528,6 +1682,7 @@ def get_parser() -> argparse.ArgumentParser:
             PROBE_MODE_SAMPLE_EXPORT_DIVERSITY,
             PROBE_MODE_SAMPLE_EXPORT_DEDUP,
             PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED,
+            PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED,
         ],
         default=PROBE_MODE_SAMPLER,
         help=(
@@ -1536,7 +1691,8 @@ def get_parser() -> argparse.ArgumentParser:
             "sample_export_split_medium runs a bounded longer export-only sampler; "
             "sample_export_split_diversity runs a bounded named diversity variant; "
             "sample_export_split_dedup runs a bounded named variant with decoded-coefficient dedup export controls; "
-            "sample_export_target_r_seeded prefixes target-r-labelled seed rows before bounded GPU model samples"
+            "sample_export_target_r_seeded prefixes target-r-labelled seed rows before bounded GPU model samples; "
+            "sample_export_target_r_conditioned trains decimal coefficient control-token rows and exports one requested target r"
         ),
     )
     parser.add_argument(
@@ -1564,6 +1720,19 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--target_r_seed_bank_limit", type=int, default=4, help="seed rows to prefix for sample_export_target_r_seeded")
     parser.add_argument("--target_r_seed", type=int, default=None, help="optional seed override for sample_export_target_r_seeded")
     parser.add_argument("--target_r_model_sample_attempts", type=int, default=512, help="model-sample attempts for sample_export_target_r_seeded")
+    parser.add_argument(
+        "--target_r_training_jsonl",
+        type=Path,
+        default=DEFAULT_TARGET_R_TRAINING_JSONL,
+        help="active-learning JSONL for sample_export_target_r_conditioned",
+    )
+    parser.add_argument(
+        "--target_r_training_target_rs",
+        default="12,16,20,24",
+        help="comma-separated r values loaded from --target_r_training_jsonl for sample_export_target_r_conditioned",
+    )
+    parser.add_argument("--target_r_conditioned_max_steps", type=int, default=1800, help="training steps for sample_export_target_r_conditioned")
+    parser.add_argument("--target_r_conditioned_max_len", type=int, default=640, help="max token payload for decimal conditioned training")
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
 
@@ -1586,10 +1755,20 @@ def main() -> int:
         "dedup_unique_target": args.dedup_unique_target if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
         "dedup_max_attempts": args.dedup_max_attempts if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
         "dedup_progress_interval": args.dedup_progress_interval if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
-        "target_r": args.target_r if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
+        "target_r": args.target_r
+        if args.probe_mode in {PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED, PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED}
+        else None,
         "target_r_seed_bank_jsonl": str(args.target_r_seed_bank_jsonl) if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
         "target_r_seed_bank_limit": args.target_r_seed_bank_limit if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
-        "target_r_model_sample_attempts": args.target_r_model_sample_attempts if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
+        "target_r_model_sample_attempts": args.target_r_model_sample_attempts
+        if args.probe_mode in {PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED, PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED}
+        else None,
+        "target_r_training_jsonl": str(args.target_r_training_jsonl)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_training_target_rs": args.target_r_training_target_rs
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
         "safety": {
             "proxy_only": True,
             "runs_exact_verifiers": False,
@@ -1662,6 +1841,19 @@ def main() -> int:
                 seed_bank_limit=args.target_r_seed_bank_limit,
                 seed=args.target_r_seed,
                 model_sample_attempts=args.target_r_model_sample_attempts,
+            )
+        elif args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED:
+            command_config = build_sample_export_target_r_conditioned_command(
+                python_executable=args.python_executable,
+                output_dir=args.output_dir,
+                run_id=run_id,
+                target_r=args.target_r,
+                training_jsonl=args.target_r_training_jsonl,
+                target_rs=args.target_r_training_target_rs,
+                seed=args.target_r_seed,
+                model_sample_attempts=args.target_r_model_sample_attempts,
+                max_steps=args.target_r_conditioned_max_steps,
+                max_len=args.target_r_conditioned_max_len,
             )
         else:
             command_config = build_sampler_command(

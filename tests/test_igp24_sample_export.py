@@ -214,6 +214,74 @@ def test_sample_and_export_prefixes_target_r_seed_bank(tmp_path):
     assert records[1]["generation_metadata"]["target_r_intent"] == 12
 
 
+def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coefficient):
+            self.coefficients = [coefficient] + [0] * 23
+
+    class DummyTokenizer:
+        def target_r_control_token_ids(self, target_r):
+            return [9] if int(target_r) == 16 else []
+
+        def decode(self, row):
+            values = [int(value) for value in row.tolist()]
+            assert values[:2] == [0, 9]
+            return DummyDecoded(values[2])
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            assert x_init.shape == (2, 2)
+            assert x_init[:, 0].tolist() == [0, 0]
+            assert x_init[:, 1].tolist() == [9, 9]
+            return torch.tensor([[0, 9, 5] + [0] * (length - 1), [0, 9, 6] + [0] * (length - 1)], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="control_export_test",
+        exp_id="run",
+        device="cpu",
+        max_len=24,
+        block_size=27,
+        coeff_bound=100,
+        gen_batch_size=2,
+        num_samples_from_model=2,
+        sample_export_dedup=False,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=2,
+        sample_export_progress_interval=1,
+        top_k=-1,
+        encoding_tokens="decimal_coefficients",
+        igp24_generation_strategy="fixed_sparse_template",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=16,
+        sample_export_target_r_conditioning_mode="none",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "control_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0, "R16": 9},
+        {},
+        DummyEnv(),
+        temp=0.9,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["model_target_r_conditioning_mode"] == "control_token"
+    assert records[0]["token_ids"][:2] == [0, 9]
+    assert records[0]["generation_metadata"]["target_r_conditioning_mode"] == "control_token"
+    assert records[0]["generation_metadata"]["model_target_r_conditioning_mode"] == "control_token"
+
+
 def test_extract_decoded_coefficients_accepts_decoded_or_exported():
     decoded = {"decoded_coefficients": list(range(24))}
     exported = {"exported_coefficients": list(range(24)) + [1]}

@@ -8,6 +8,49 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active AXG-1.2 target-r conditioning pass started 2026-07-08. Preflight:
+  `git pull --ff-only zpconn igp24-dev` reported already up to date, and
+  `git status --short --branch` was clean on `igp24-dev`. AXG-1.1 manifest
+  inspection confirmed `full_control_token_conditioning=false`, with
+  0 raw `model_generate` target-r survivors and all 16 target-r survivors
+  coming from seed-bank rows. Active-learning corpus
+  `data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl`
+  contains 1,149 rows with r-counts `{0:80, 2:429, 4:205, 6:10, 8:32,
+  12:108, 16:76, 20:48, 24:88, missing:73}` and source roles
+  `{artifact_row:780, sair_submission_row:185, accepted_feedback:152,
+  candidate_queue:32}`. Current implementation task: add real model-side
+  target-r control tokens, load this JSONL corpus into training, generate with
+  requested `R12/R16/R20/R24` prefixes, run a short CUDA training/evaluation,
+  and keep future stages intact.
+- AXG-1.2 implementation status: in progress. Added optional model-side
+  `--igp24_target_r_conditioning_mode control_token`, a decimal coefficient
+  tokenizer (`--encoding_tokens decimal_coefficients`) for high-coefficient
+  active-learning rows, JSONL initial-data loading via `--igp24_training_jsonl`,
+  block-size handling for variable-length token streams, generation prefixes
+  that start from `BOS,R<target>`, multi-target sample-export support, a
+  `sample_export_target_r_conditioned` GPU probe mode, and proposal-loop
+  source-count summaries for `model_generate` versus seed-bank rows. Focused
+  tests added for control-token training examples, high-coefficient decimal
+  roundtrip, JSONL conditioning labels, sample-export prefixing, conditioned
+  GPU-probe command construction, and seed-bank-only proposal-loop holds. Next:
+  run focused tests, fix failures, then commit the implementation before CUDA
+  training.
+- AXG-1.2 implementation validation: focused tests passed with
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24.py tests/test_igp24_sample_export.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_axg_proposal_loop.py tests/test_igp24_active_learning_dataset.py`
+  -> `72 passed in 1.87s`. Compile check passed for `train.py`,
+  `src/envs/igp24.py`, `src/evaluator.py`, `src/datasets.py`,
+  `scripts/igp24_gpu_sampler_probe.py`, and
+  `scripts/igp24_axg_proposal_loop.py`. `scripts/igp24_gpu_sampler_probe.py
+  --help` shows new `sample_export_target_r_conditioned` mode. Stage 4 remains
+  present at line 8411. Tiny CPU integration smoke of `train.py` with
+  `--encoding_tokens decimal_coefficients`,
+  `--igp24_target_r_conditioning_mode control_token`,
+  `--igp24_training_jsonl data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl`,
+  `--igp24_training_jsonl_target_rs 12,16,20,24`, and `--target_r 12`
+  loaded 217 train / 45 eval rows, max encoded sequence length 307 of block
+  size 643, ran one CPU step, and wrote unscored control-token export metadata
+  with no exact verifiers, SAIR calls, or local search. This smoke was not a
+  model-quality benchmark.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,

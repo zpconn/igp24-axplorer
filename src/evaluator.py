@@ -104,11 +104,16 @@ def sample_and_score(model, args, stoi, itos, env, temp, temp_span=0):
                     scored_so_far = len(results)
                 logger.info(f"{i*sample_batch_size} / {todo * sample_batch_size} samples generated, {scored_so_far} scored")
 
-            X_init = torch.empty((sample_batch_size, 1), dtype=torch.long)
-            X_init[:, 0] = stoi["BOS"]
+            X_init = generation_prefix_tensor(sample_batch_size, args, stoi, env)
             X_init = X_init.to(args.device)
             top_k = args.top_k if args.top_k != -1 else None
-            batch_numpy = model.generate(X_init, args.max_len + 1, temperature=curr_temp, top_k=top_k, do_sample=True).cpu().numpy()
+            batch_numpy = model.generate(
+                X_init,
+                generation_max_new_tokens(args, X_init.shape[1]),
+                temperature=curr_temp,
+                top_k=top_k,
+                do_sample=True,
+            ).cpu().numpy()
 
             pending_batches.append(batch_numpy)
 
@@ -154,6 +159,32 @@ def _record_r_value(record):
             if value is not None:
                 return value
     return None
+
+
+def generation_prefix_token_ids(args: Any, stoi: dict[Any, int], env: Any) -> list[int]:
+    tokens = [int(stoi["BOS"])]
+    mode = str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none")
+    if mode != "control_token":
+        return tokens
+    token_ids = []
+    helper = getattr(env.tokenizer, "target_r_control_token_ids", None)
+    if helper is not None:
+        token_ids = helper(getattr(args, "target_r", None))
+    tokens.extend(int(token_id) for token_id in token_ids)
+    return tokens
+
+
+def generation_prefix_tensor(batch_size: int, args: Any, stoi: dict[Any, int], env: Any) -> torch.Tensor:
+    prefix = generation_prefix_token_ids(args, stoi, env)
+    X_init = torch.empty((int(batch_size), len(prefix)), dtype=torch.long)
+    for index, token_id in enumerate(prefix):
+        X_init[:, index] = int(token_id)
+    return X_init
+
+
+def generation_max_new_tokens(args: Any, prefix_length: int) -> int:
+    block_size = int(getattr(args, "block_size", int(getattr(args, "max_len", 0)) + 2))
+    return max(1, block_size - int(prefix_length))
 
 
 def _decoded_coefficients_from_record(record):
@@ -338,7 +369,9 @@ def build_sample_export_record(
 ) -> dict[str, Any]:
     exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
     target_r = _int_or_none(getattr(args, "target_r", None))
-    conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none")
+    sample_conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none")
+    model_conditioning_mode = str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none")
+    conditioning_mode = model_conditioning_mode if sample_conditioning_mode == "none" else sample_conditioning_mode
     return {
         "schema_version": 1,
         "record_type": "igp24_model_sample_export",
@@ -369,9 +402,12 @@ def build_sample_export_record(
             "source": "gpu_or_device_model_generate",
             "resolved_generation_strategy": getattr(args, "igp24_generation_strategy", None),
             "generation_preset": getattr(args, "igp24_generation_preset", None),
+            "encoding_tokens": getattr(args, "encoding_tokens", None),
             "target_r": target_r,
             "target_r_intent": target_r,
             "target_r_conditioning_mode": conditioning_mode,
+            "model_target_r_conditioning_mode": model_conditioning_mode,
+            "sample_export_target_r_conditioning_mode": sample_conditioning_mode,
             "sample_export_only": True,
         },
         "deduplication": {
@@ -461,12 +497,11 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                 curr_temp = temp
             logger.info(f"{attempted_samples} / {attempt_budget} samples attempted for export")
 
-            X_init = torch.empty((batch_size, 1), dtype=torch.long)
-            X_init[:, 0] = stoi["BOS"]
+            X_init = generation_prefix_tensor(batch_size, args, stoi, env)
             X_init = X_init.to(args.device)
             batch_numpy = model.generate(
                 X_init,
-                args.max_len + 1,
+                generation_max_new_tokens(args, X_init.shape[1]),
                 temperature=curr_temp,
                 top_k=top_k,
                 do_sample=True,
@@ -550,6 +585,10 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     summary = {
         "export_path": str(export_path),
         "summary_path": str(summary_path) if summary_path is not None else None,
+        "target_r": _int_or_none(getattr(args, "target_r", None)),
+        "encoding_tokens": getattr(args, "encoding_tokens", None),
+        "model_target_r_conditioning_mode": getattr(args, "igp24_target_r_conditioning_mode", "none"),
+        "sample_export_target_r_conditioning_mode": getattr(args, "sample_export_target_r_conditioning_mode", "none"),
         "records_written": records_written,
         "requested_samples": requested_total,
         "attempt_budget": attempt_budget,

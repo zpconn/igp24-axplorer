@@ -8,6 +8,7 @@ from scripts.igp24_gpu_sampler_probe import (
     build_sample_export_diversity_command,
     build_sample_export_split_command,
     build_sample_export_split_medium_command,
+    build_sample_export_target_r_conditioned_command,
     build_sample_export_target_r_seeded_command,
     build_train_only_utilization_command,
     load_baseline_summary,
@@ -337,6 +338,41 @@ def test_build_sample_export_target_r_seeded_command_records_target_intent(tmp_p
     assert command[command.index("--sample_export_max_attempts") + 1] == "256"
     assert command[command.index("--always_search") + 1] == "false"
     assert command[command.index("--max_local_search_steps") + 1] == "0"
+    assert all("sair" not in str(part).lower() for part in command)
+    assert all("magma" not in str(part).lower() for part in command)
+    assert all("pari" not in str(part).lower() for part in command)
+
+
+def test_build_sample_export_target_r_conditioned_command_uses_control_tokens_and_jsonl(tmp_path):
+    training_jsonl = tmp_path / "active.jsonl"
+    config = build_sample_export_target_r_conditioned_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        target_r=24,
+        training_jsonl=training_jsonl,
+        target_rs="12,16,20,24",
+        seed=33024,
+        model_sample_attempts=384,
+        max_steps=900,
+    )
+    command = config["command"]
+
+    assert config["probe_mode"] == "sample_export_target_r_conditioned"
+    assert config["target_r"] == 24
+    assert config["target_r_conditioning_mode"] == "control_token"
+    assert config["target_r_training_jsonl"] == str(training_jsonl)
+    assert config["caps"]["encoding_tokens"] == "decimal_coefficients"
+    assert config["caps"]["model_target_r_conditioning_mode"] == "control_token"
+    assert config["caps"]["max_steps_per_epoch"] == 900
+    assert command[command.index("--encoding_tokens") + 1] == "decimal_coefficients"
+    assert command[command.index("--igp24_target_r_conditioning_mode") + 1] == "control_token"
+    assert command[command.index("--igp24_training_jsonl") + 1] == str(training_jsonl)
+    assert command[command.index("--igp24_training_jsonl_target_rs") + 1] == "12,16,20,24"
+    assert command[command.index("--target_r") + 1] == "24"
+    assert command[command.index("--sample_export_target_r_conditioning_mode") + 1] == "control_token"
+    assert command[command.index("--num_samples_from_model") + 1] == "384"
+    assert command[command.index("--sample_export_max_attempts") + 1] == "384"
     assert all("sair" not in str(part).lower() for part in command)
     assert all("magma" not in str(part).lower() for part in command)
     assert all("pari" not in str(part).lower() for part in command)

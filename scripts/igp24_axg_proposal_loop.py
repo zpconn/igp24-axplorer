@@ -238,6 +238,30 @@ def selected_coefficients_rows(selected: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
+def sample_export_source(row: dict[str, Any]) -> str:
+    source = row.get("sample_export_source")
+    if source:
+        return str(source)
+    source_sample_export = row.get("source_sample_export")
+    if isinstance(source_sample_export, dict):
+        source = source_sample_export.get("sample_export_source")
+        if source:
+            return str(source)
+    generation_metadata = row.get("generation_metadata")
+    if isinstance(generation_metadata, dict):
+        source = generation_metadata.get("source")
+        if source:
+            return str(source)
+    return "unknown"
+
+
+def selected_sample_export_source(row: dict[str, Any]) -> str:
+    candidate = row.get("candidate")
+    if isinstance(candidate, dict):
+        return sample_export_source(candidate)
+    return sample_export_source(row)
+
+
 def run_proposal_loop(
     *,
     version: str,
@@ -334,6 +358,9 @@ def run_proposal_loop(
         "rejection_reason_counts": dict(rejection_counts),
         "score_classification_counts": dict(score_class_counts),
         "risk_reason_counts": dict(risk_counts),
+        "candidate_sample_export_source_counts": dict(Counter(sample_export_source(row) for row in candidates)),
+        "filtered_sample_export_source_counts": dict(Counter(sample_export_source(row) for row in filtered_rows)),
+        "selected_sample_export_source_counts": dict(Counter(selected_sample_export_source(row) for row in selected)),
         "artifacts": {
             "filtered_candidates": str(filtered_path),
             "rejected_candidates": str(rejected_path),

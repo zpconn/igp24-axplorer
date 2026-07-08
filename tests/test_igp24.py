@@ -1,3 +1,4 @@
+import json
 import math
 import random
 from types import SimpleNamespace
@@ -8,6 +9,7 @@ import pytest
 sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
+from src.datasets import load_initial_data
 from src.envs.igp24 import (
     DEFAULT_MIXED_STRATEGY_WEIGHTS,
     IGP24DataPoint,
@@ -162,11 +164,11 @@ def test_environment_registration_tokenizer_and_existing_env_imports(tmp_path):
     assert decoded.coefficients == VALID
 
 
-def _igp24_params(tmp_path, seed=123, strategy="mixed"):
+def _igp24_params(tmp_path, seed=123, strategy="mixed", encoding_tokens="coefficients", target_r_conditioning_mode="none"):
     return SimpleNamespace(
         env_name="igp24",
         N=DEGREE,
-        encoding_tokens="coefficients",
+        encoding_tokens=encoding_tokens,
         coeff_bound=5,
         target_r=2,
         target_t="24T1",
@@ -181,12 +183,95 @@ def _igp24_params(tmp_path, seed=123, strategy="mixed"):
         igp24_translation_radius=2,
         igp24_generation_strategy=strategy,
         igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode=target_r_conditioning_mode,
+        igp24_training_jsonl=[],
+        igp24_training_jsonl_target_rs="",
+        igp24_training_jsonl_max_rows=0,
+        igp24_training_jsonl_max_abs_coeff=0,
         igp24_sparse_terms=4,
         igp24_low_height_bound=3,
         igp24_mixed_strategy_weights="uniform:0.1,low_height:0.2,sparse:0.25,lower_degree:0.2,structured:0.25",
         exp_name="pytest",
         seed=seed,
     )
+
+
+def test_control_token_conditioning_roundtrips_fixed_coefficients(tmp_path):
+    params = _igp24_params(tmp_path, target_r_conditioning_mode="control_token")
+    env = build_env(params)
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=VALID, conditioning_target_r=16)
+
+    encoded = env.tokenizer.encode(datapoint)
+    decoded = env.tokenizer.decode(encoded)
+
+    assert encoded[0] == env.tokenizer.stoi["BOS"]
+    assert encoded[1] == env.tokenizer.stoi["R16"]
+    assert decoded is not None
+    assert decoded.coefficients == VALID
+    assert env.tokenizer.block_size_for_max_len(24) == 27
+
+
+def test_decimal_tokenizer_roundtrips_high_coefficients_with_target_r(tmp_path):
+    params = _igp24_params(
+        tmp_path,
+        encoding_tokens="decimal_coefficients",
+        target_r_conditioning_mode="control_token",
+    )
+    env = build_env(params)
+    coeffs = tuple([434550251520000, -2258902656, 0, 17] + [0] * 20)
+    datapoint = IGP24DataPoint(N=DEGREE, coeffs=coeffs, conditioning_target_r=20)
+
+    encoded = env.tokenizer.encode(datapoint)
+    decoded = env.tokenizer.decode(encoded)
+
+    assert encoded[0] == env.tokenizer.stoi["BOS"]
+    assert encoded[1] == env.tokenizer.stoi["R20"]
+    assert env.tokenizer.stoi["D9"] < len(env.tokenizer.itos)
+    assert len(env.tokenizer.itos) < 40
+    assert decoded is not None
+    assert decoded.coefficients == coeffs
+
+
+def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_path):
+    dataset_path = tmp_path / "active.jsonl"
+    rows = [
+        {
+            "coefficients": [1] + [0] * 23 + [1],
+            "r": 12,
+            "canonical_hash": "h12",
+            "derived_class_label": "accepted_useful_score_positive",
+            "train_eval_split": "train",
+        },
+        {
+            "coefficients": [2] + [0] * 23 + [1],
+            "r": 16,
+            "canonical_hash": "h16",
+            "derived_class_label": "accepted_duplicate_collapsed_basin",
+            "train_eval_split": "eval",
+        },
+        {
+            "coefficients": [3] + [0] * 23 + [1],
+            "r": 4,
+            "canonical_hash": "h4",
+            "derived_class_label": "wrong_real_root_count",
+            "train_eval_split": "train",
+        },
+    ]
+    dataset_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    params = _igp24_params(tmp_path, encoding_tokens="decimal_coefficients", target_r_conditioning_mode="control_token")
+    params.dump_path = str(tmp_path / "dump")
+    params.ntest = 1
+    params.igp24_training_jsonl = [str(dataset_path)]
+    params.igp24_training_jsonl_target_rs = "12,16"
+
+    train_set, test_set = load_initial_data(params, IGP24DataPoint)
+
+    assert [row.conditioning_target_r for row in train_set] == [12]
+    assert [row.conditioning_target_r for row in test_set] == [16]
+    assert params.igp24_training_jsonl_loaded_rows == 2
+    env = build_env(params)
+    encoded = env.tokenizer.encode(train_set[0])
+    assert encoded[1] == env.tokenizer.stoi["R12"]
 
 
 def test_environment_seed_resets_generation(tmp_path):
