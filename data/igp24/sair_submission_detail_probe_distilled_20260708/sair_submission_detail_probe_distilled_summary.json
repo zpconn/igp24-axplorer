@@ -1,0 +1,485 @@
+{
+  "conclusion": {
+    "do_not_use_for_live_submission_gate": true,
+    "reason": "manual probe omitted the failed detail and predates the pending-aware sync artifact format; use normal sync artifacts for live gates",
+    "usefulness": "outage-era provenance for manual 19/20 submission-detail recovery"
+  },
+  "created_at": "2026-07-08T20:46:27.329311+00:00",
+  "failed_reads": [
+    {
+      "code": "IGP24_SERVICE_UNAVAILABLE",
+      "message": "The IGP24 competition service is temporarily unavailable. Please try again shortly.",
+      "status": 503,
+      "submission_id": "sub_ef0fdc26a49c42ae9b77422b6c521d96"
+    }
+  ],
+  "pair_counts": {
+    "24T1310|r=8": 2,
+    "24T21844|r=4": 1,
+    "24T22770|r=12": 2,
+    "24T23883|r=12": 2,
+    "24T23883|r=24": 1,
+    "24T24648|r=4": 1,
+    "24T24651|r=12": 8,
+    "24T24651|r=24": 9,
+    "24T24759|r=4": 1,
+    "24T24932|r=12": 4,
+    "24T24932|r=24": 16,
+    "24T24970|r=12": 3,
+    "24T24970|r=4": 3,
+    "24T24979|r=12": 15,
+    "24T24979|r=16": 13,
+    "24T24979|r=4": 3,
+    "24T24979|r=8": 1,
+    "24T25000|r=16": 17,
+    "24T25000|r=20": 18,
+    "24T25000|r=24": 16,
+    "24T25000|r=4": 23,
+    "24T25000|r=8": 9,
+    "24T657|r=8": 1,
+    "24T661|r=8": 1,
+    "24T9683|r=4": 1,
+    "24T9993|r=8": 2
+  },
+  "pending_pair_counts": {
+    "24T24979|r=8": 1,
+    "24T25000|r=20": 8,
+    "24T25000|r=8": 9
+  },
+  "probe_totals": {
+    "failed_submissions": 1,
+    "recovered_failed_rows": 0,
+    "recovered_queued_rows": 0,
+    "recovered_verified_rows": 173,
+    "requested_submissions": 20,
+    "scoring_counts": {
+      "pending": 18,
+      "scoreable": 155
+    },
+    "status_counts": {
+      "accepted": 173
+    },
+    "succeeded_submissions": 19
+  },
+  "record_type": "igp24_sair_submission_detail_probe_distilled",
+  "safety": {
+    "api_key_recorded": false,
+    "network_calls_in_this_distillation": false,
+    "raw_api_detail_bodies_committed": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "scoreable_pair_counts": {
+    "24T1310|r=8": 2,
+    "24T21844|r=4": 1,
+    "24T22770|r=12": 2,
+    "24T23883|r=12": 2,
+    "24T23883|r=24": 1,
+    "24T24648|r=4": 1,
+    "24T24651|r=12": 8,
+    "24T24651|r=24": 9,
+    "24T24759|r=4": 1,
+    "24T24932|r=12": 4,
+    "24T24932|r=24": 16,
+    "24T24970|r=12": 3,
+    "24T24970|r=4": 3,
+    "24T24979|r=12": 15,
+    "24T24979|r=16": 13,
+    "24T24979|r=4": 3,
+    "24T25000|r=16": 17,
+    "24T25000|r=20": 10,
+    "24T25000|r=24": 16,
+    "24T25000|r=4": 23,
+    "24T657|r=8": 1,
+    "24T661|r=8": 1,
+    "24T9683|r=4": 1,
+    "24T9993|r=8": 2
+  },
+  "source": {
+    "raw_probe_dir": "/tmp/igp24_submission_detail_probe_20260708",
+    "raw_submission_detail_files_committed": false,
+    "raw_submission_detail_files_seen": 19,
+    "raw_summary_file": "/tmp/igp24_submission_detail_probe_20260708/summary.json",
+    "source_kind": "manual_detail_probe_during_sair_detail_endpoint_outage"
+  },
+  "submissions": [
+    {
+      "created_at": "2026-07-06T03:54:42Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24648|r=4": 1,
+        "24T24759|r=4": 1,
+        "24T24970|r=4": 1,
+        "24T24979|r=4": 1,
+        "24T9683|r=4": 1
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 5
+      },
+      "source_file": "sub_2a6f8c6e61a045ad886c8d37041327f2.json",
+      "status_counts": {
+        "accepted": 5
+      },
+      "submission_id": "sub_2a6f8c6e61a045ad886c8d37041327f2",
+      "updated_at": "2026-07-06T03:54:42Z",
+      "verified_rows": 5
+    },
+    {
+      "created_at": "2026-07-06T04:25:30Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=4": 1
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 1
+      },
+      "source_file": "sub_743fdd6e963c41498817f10ebdd39b5d.json",
+      "status_counts": {
+        "accepted": 1
+      },
+      "submission_id": "sub_743fdd6e963c41498817f10ebdd39b5d",
+      "updated_at": "2026-07-06T04:25:30Z",
+      "verified_rows": 1
+    },
+    {
+      "created_at": "2026-07-06T15:48:28Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24979|r=4": 2,
+        "24T25000|r=4": 22
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 24
+      },
+      "source_file": "sub_76742af07fb7489c92232b3bc22bbeb1.json",
+      "status_counts": {
+        "accepted": 24
+      },
+      "submission_id": "sub_76742af07fb7489c92232b3bc22bbeb1",
+      "updated_at": "2026-07-06T15:48:28Z",
+      "verified_rows": 24
+    },
+    {
+      "created_at": "2026-07-06T18:05:46Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T21844|r=4": 1,
+        "24T24970|r=4": 2
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 3
+      },
+      "source_file": "sub_11f2ec82cabc4ae98f807d3df922a199.json",
+      "status_counts": {
+        "accepted": 3
+      },
+      "submission_id": "sub_11f2ec82cabc4ae98f807d3df922a199",
+      "updated_at": "2026-07-06T18:05:46Z",
+      "verified_rows": 3
+    },
+    {
+      "created_at": "2026-07-06T19:57:38Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T1310|r=8": 2,
+        "24T657|r=8": 1,
+        "24T661|r=8": 1,
+        "24T9993|r=8": 2
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 6
+      },
+      "source_file": "sub_5f42a87ac9bf484eaf2eafdcfe76808d.json",
+      "status_counts": {
+        "accepted": 6
+      },
+      "submission_id": "sub_5f42a87ac9bf484eaf2eafdcfe76808d",
+      "updated_at": "2026-07-06T19:57:38Z",
+      "verified_rows": 6
+    },
+    {
+      "created_at": "2026-07-06T20:37:39Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24979|r=16": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 8
+      },
+      "source_file": "sub_02ecc2457d124584b8325b83608a2e9c.json",
+      "status_counts": {
+        "accepted": 8
+      },
+      "submission_id": "sub_02ecc2457d124584b8325b83608a2e9c",
+      "updated_at": "2026-07-06T20:37:39Z",
+      "verified_rows": 8
+    },
+    {
+      "created_at": "2026-07-06T21:20:00Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24979|r=16": 5,
+        "24T25000|r=16": 5
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_8ac1fdf9e9f64ec3a9bb4ed3669be6e8.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_8ac1fdf9e9f64ec3a9bb4ed3669be6e8",
+      "updated_at": "2026-07-06T21:20:00Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-06T21:45:58Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=16": 12
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 12
+      },
+      "source_file": "sub_5975e0ab848b4ab7b18fd58768b10954.json",
+      "status_counts": {
+        "accepted": 12
+      },
+      "submission_id": "sub_5975e0ab848b4ab7b18fd58768b10954",
+      "updated_at": "2026-07-06T21:45:58Z",
+      "verified_rows": 12
+    },
+    {
+      "created_at": "2026-07-06T22:49:47Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=24": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 8
+      },
+      "source_file": "sub_5ae80eef209f4882a28854adf6bdd4d2.json",
+      "status_counts": {
+        "accepted": 8
+      },
+      "submission_id": "sub_5ae80eef209f4882a28854adf6bdd4d2",
+      "updated_at": "2026-07-06T22:49:47Z",
+      "verified_rows": 8
+    },
+    {
+      "created_at": "2026-07-06T23:13:41Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=20": 10
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_88f73b4be4cb4ff08a8a16fa192bcad5.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_88f73b4be4cb4ff08a8a16fa192bcad5",
+      "updated_at": "2026-07-06T23:13:41Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-06T23:34:53Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T22770|r=12": 2,
+        "24T24970|r=12": 1,
+        "24T24979|r=12": 7
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_5f372f76678d4e15b0e769b8b64ac876.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_5f372f76678d4e15b0e769b8b64ac876",
+      "updated_at": "2026-07-06T23:34:53Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-06T23:54:32Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24970|r=12": 2,
+        "24T24979|r=12": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_40b8ff2598d24bb383c86f9e4dbb9edf.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_40b8ff2598d24bb383c86f9e4dbb9edf",
+      "updated_at": "2026-07-06T23:54:32Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-07T00:38:13Z",
+      "description": null,
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T23883|r=12": 2,
+        "24T24651|r=12": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_a1fa1196ad8b48b88a7fa4c31f153d0c.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_a1fa1196ad8b48b88a7fa4c31f153d0c",
+      "updated_at": "2026-07-07T00:38:13Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-07T01:30:49Z",
+      "description": "r24 exact tower probe from live target plan 20260707",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T23883|r=24": 1,
+        "24T24651|r=24": 9
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 10
+      },
+      "source_file": "sub_54bf941fa9a64d7984a51cfe52ce049e.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_54bf941fa9a64d7984a51cfe52ce049e",
+      "updated_at": "2026-07-07T01:30:49Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-07T03:41:59Z",
+      "description": "r24 tower odd-escape anti-basin probe 20260707",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=24": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 8
+      },
+      "source_file": "sub_d7bc66004b0c4db2a89071c651c7583e.json",
+      "status_counts": {
+        "accepted": 8
+      },
+      "submission_id": "sub_d7bc66004b0c4db2a89071c651c7583e",
+      "updated_at": "2026-07-07T03:41:59Z",
+      "verified_rows": 8
+    },
+    {
+      "created_at": "2026-07-07T15:22:06Z",
+      "description": "IGP24 reviewed 8x3 r24 probe, 8 rows",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24932|r=24": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 8
+      },
+      "source_file": "sub_25c17affdf3c4505a8f10cfda2d94217.json",
+      "status_counts": {
+        "accepted": 8
+      },
+      "submission_id": "sub_25c17affdf3c4505a8f10cfda2d94217",
+      "updated_at": "2026-07-07T15:22:06Z",
+      "verified_rows": 8
+    },
+    {
+      "created_at": "2026-07-07T16:13:46Z",
+      "description": "IGP24 anti-basin nonconstant 8x3 probe 20260707",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24932|r=12": 4,
+        "24T24932|r=24": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "scoreable": 12
+      },
+      "source_file": "sub_442d9ff1c6974974ab38df65e70dddf0.json",
+      "status_counts": {
+        "accepted": 12
+      },
+      "submission_id": "sub_442d9ff1c6974974ab38df65e70dddf0",
+      "updated_at": "2026-07-07T16:13:46Z",
+      "verified_rows": 12
+    },
+    {
+      "created_at": "2026-07-07T20:38:25Z",
+      "description": "r8 perturbed quartic-lift full-sync gate 20260707",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T24979|r=8": 1,
+        "24T25000|r=8": 9
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "pending": 10
+      },
+      "source_file": "sub_4622b4196ca64a9d91441cf5184acafe.json",
+      "status_counts": {
+        "accepted": 10
+      },
+      "submission_id": "sub_4622b4196ca64a9d91441cf5184acafe",
+      "updated_at": "2026-07-07T20:38:25Z",
+      "verified_rows": 10
+    },
+    {
+      "created_at": "2026-07-07T23:34:12Z",
+      "description": "r20 linear-real full-sync gate 20260707",
+      "failed_rows": 0,
+      "pair_counts": {
+        "24T25000|r=20": 8
+      },
+      "queued_rows": 0,
+      "scoring_counts": {
+        "pending": 8
+      },
+      "source_file": "sub_3557a403ea664b2f97ac059f9083b206.json",
+      "status_counts": {
+        "accepted": 8
+      },
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "updated_at": "2026-07-07T23:34:12Z",
+      "verified_rows": 8
+    }
+  ]
+}
