@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_high_real_after_r8_basin_stop_summary",
+  "created_at": "2026-07-08",
+  "objective": "Evaluate materially different high-real-root lanes after stopping the r8 quartic-in-x^6 follow-up basin.",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "gpu_training": false,
+    "model_training": false,
+    "api_key_recorded": false
+  },
+  "refresh_state": {
+    "git_pull": "already_up_to_date",
+    "initial_worktree_clean": true,
+    "sair_api_key_env": "missing",
+    "sair_sync_used": "data/igp24/sair_sync_20260708_r8_followup_after_submit",
+    "sair_sync_partial": false,
+    "submission_state_complete": true,
+    "pending_pair_counts": {
+      "24T25000|r=8": 4,
+      "24T25000|r=20": 4
+    }
+  },
+  "lane_choice": {
+    "primary_lane": "r24_model_sample_export_high_real_refinement",
+    "reason": "r24 has the largest remaining-signature bucket and is not the pending r20 24T25000 basin.",
+    "comparison_lanes": [
+      "r16_model_sample_export_high_real_refinement",
+      "r20_model_sample_export_pending_hold"
+    ]
+  },
+  "gate_results": {
+    "r24": {
+      "candidate_count": 39,
+      "eligible_candidate_count": 2,
+      "selected_rows": 2,
+      "recommended_for_sair_packet": false,
+      "local_recommended_for_sair_packet": false,
+      "reason": "only_2_eligible_rows_below_min_4; only_2_model_generated_rows_below_min_4; selected_rows_do_not_have_min_perturbation_mode_count_2; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity"
+    },
+    "r16": {
+      "candidate_count": 40,
+      "eligible_candidate_count": 5,
+      "selected_rows": 3,
+      "recommended_for_sair_packet": false,
+      "local_recommended_for_sair_packet": false,
+      "reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_enough_basin_fingerprint_diversity"
+    },
+    "r20": {
+      "candidate_count": 35,
+      "eligible_candidate_count": 7,
+      "selected_rows": 4,
+      "recommended_for_sair_packet": false,
+      "local_recommended_for_sair_packet": true,
+      "reason": "safe_to_review_only_after_pending_rows_resolve:24T25000|r=20=4"
+    }
+  },
+  "decision": {
+    "status": "no_submission",
+    "submission_recommended_now": false,
+    "dry_run_recommended_now": false,
+    "decision_report": "data/igp24/high_real_after_r8_basin_stop_20260708/high_real_lane_report.md",
+    "next_refinement": "Stay on the r24/r16 high-real model-sample lane, but generate more support-pattern diversity so r24 reaches at least four model-generated selected rows across at least two modes, two template families, and four basin fingerprints. Do not use r20 until pending 24T25000|r=20 rows resolve."
+  },
+  "artifacts": {
+    "generation_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/generation_summary.json",
+    "generation_report": "data/igp24/high_real_after_r8_basin_stop_20260708/generation_report.md",
+    "r24_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r24_gate/anti_basin_planner_summary.json",
+    "r16_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r16_gate/anti_basin_planner_summary.json",
+    "r20_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r20_gate/anti_basin_planner_summary.json"
+  }
+}

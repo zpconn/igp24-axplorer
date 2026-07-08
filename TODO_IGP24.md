@@ -107,6 +107,32 @@ results change.
   `22 passed in 0.22s`; JSON/JSONL parse checks passed for 8 JSON files and
   4 JSONL files / 488 rows; `git diff --check` passed; and the secret-shaped
   scan found no matches. Next: commit and push.
+- High-real lane pass after the r8 basin stop is in progress on 2026-07-08.
+  `git pull --ff-only` reported already up to date and the worktree was clean.
+  `SAIR_API_KEY` was not present in the environment, so the pass used the
+  latest complete local sync
+  `data/igp24/sair_sync_20260708_r8_followup_after_submit/` with pending rows
+  `24T25000|r=8` = 4 and `24T25000|r=20` = 4. The evaluated materially
+  different high-real lanes reused bounded AXG-1.4 provenance-aware CUDA model
+  sample exports; no new model training, live SAIR call, dry-run, or live
+  submission was made. Gate results with current negative-basin memory:
+  `r24` scored 39 candidates, 2 eligible, 2 selected, held below the 4-row /
+  4-model-row / diversity gates; `r16` scored 40 candidates, 5 eligible,
+  3 selected, held one row short and one basin short; `r20` scored 35
+  candidates, 7 eligible, 4 selected and locally packet-shaped, but held by
+  `safe_to_review_only_after_pending_rows_resolve:24T25000|r=20=4`.
+  Decision: no submission now. Primary next refinement should be r24 first,
+  r16 second, with more support-pattern/template-family/basin diversity; do
+  not use r20 until the pending `24T25000|r=20` rows resolve. Reports:
+  `data/igp24/high_real_after_r8_basin_stop_20260708/high_real_lane_report.md`
+  and
+  `data/igp24/high_real_after_r8_basin_stop_20260708/generation_report.md`.
+  Validation: compile check passed for `scripts/igp24_anti_basin_planner.py`,
+  `scripts/igp24_axg_proposal_loop.py`, and
+  `scripts/igp24_score_aware_target_planner.py`; focused tests passed with
+  `26 passed in 0.31s`; JSON/JSONL parse checks passed for 5 JSON files and
+  6 JSONL files / 123 rows; `git diff --check` passed; and the secret-shaped
+  scan found no matches. Next: commit and push.
 - AXG-1.2 implementation status: in progress. Added optional model-side
   `--igp24_target_r_conditioning_mode control_token`, a decimal coefficient
   tokenizer (`--encoding_tokens decimal_coefficients`) for high-coefficient
