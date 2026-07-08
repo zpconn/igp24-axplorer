@@ -2633,6 +2633,50 @@ Benchmark commands and full result tables are recorded in `TODO_IGP24.md`.
 - `scripts/igp24_anti_basin_feedback.py`: feedback ingestion for anti-basin
   planner packets.
 
+## AXG-1.3 Diversity-Aware Target-r Probe
+
+AXG-1.3 kept AXG-1.2's decimal coefficient control-token path and added
+source-aware anti-basin packet gates. The GPU probe also gained target-r
+conditioned sampling controls for temperature, top-k, unique decoded target,
+and generation-strategy metadata.
+
+Run summary:
+
+- Targets: `r=12,16,20,24`.
+- GPU runtime: 645.8s total on the RTX 5090.
+- Sampling: `temperature=1.15`, `top_k=-1`, `unique_target=512`,
+  `max_steps=4800`, `attempt_budget=2048`.
+- Scored decoded rows: 371.
+- Valid rows: 353.
+- Model-generated target-r survivors: 172.
+- Model-generated eligible rows after anti-basin gates: 39.
+- Proposal selected rows: 13.
+- SAIR submission: none.
+
+Per-target result:
+
+| r | decoded | scored | valid | target survivors | eligible | selected | decision |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 12 | 108 | 108 | 108 | 51 | 4 | 4 | `hold_no_submission` |
+| 16 | 89 | 89 | 85 | 44 | 7 | 4 | `hold_no_submission` |
+| 20 | 83 | 83 | 73 | 38 | 27 | 4 | `hold_no_submission` |
+| 24 | 91 | 91 | 87 | 39 | 1 | 1 | `hold_no_submission` |
+
+Fresh read-only SAIR sync completed during the decision pass:
+25,000 labels, 51,266 remaining signatures, 20 submissions, 50 pending rows,
+135 scoreable rows, complete submission state. The sync did not submit
+anything and did not serialize the API key.
+
+Interpretation: AXG-1.3 improved aggregate target-r survivor count versus
+AXG-1.2, but it did not produce submission-grade packets. The source-aware
+gates did their job: `r=12`, `r=16`, and `r=20` selected four model-generated
+rows each, but all selected rows had `perturbation_mode=unknown`, so the
+mode-diversity gate held the packets. `r=24` had only one eligible
+model-generated row. The next useful model-side change is not merely longer
+training; it is preserving or inferring family/perturbation metadata for model
+samples, or adding a model-side diversity objective that avoids
+accepted-hash/even-support basins while producing distinguishable modes.
+
 ## Reproducibility Notes
 
 Most historical artifacts are under `/tmp` and are not committed. Committed

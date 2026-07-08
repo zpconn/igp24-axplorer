@@ -1,0 +1,1408 @@
+{
+  "baseline": {
+    "cpu_baseline": {
+      "ledger_records": 12,
+      "returncode": 0,
+      "runtime_seconds": 2.3882648409926333,
+      "valid_candidates": 7
+    },
+    "gpu_smoke": {
+      "gpu_used": true,
+      "ledger_records": 12,
+      "returncode": 0,
+      "runtime_seconds": 3.879966279011569,
+      "valid_candidates": 4
+    },
+    "path": "/tmp/igp24_gpu_smoke_20260704/gpu_smoke_summary.json",
+    "recommendation": {
+      "action": "run_both_in_parallel",
+      "reason": "CUDA training works on the tiny smoke. Keep CPU proxy-search and exact-tool prep as the main candidate pipeline while using GPU training as a parallel sampler path."
+    }
+  },
+  "created_at_utc": "2026-07-08T02:57:47.733008+00:00",
+  "dedup_max_attempts": null,
+  "dedup_progress_interval": null,
+  "dedup_unique_target": null,
+  "diversity_seed": null,
+  "diversity_variant": null,
+  "output_dir": "/tmp/igp24_axg13_diversity_20260708/r16",
+  "probe_mode": "sample_export_target_r_conditioned",
+  "probes": {
+    "nvidia_smi": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,driver_version",
+        "--format=csv,noheader"
+      ],
+      "command_text": "nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader",
+      "gpus": [
+        {
+          "driver_version": "596.49",
+          "memory_total_mib": 32607,
+          "name": "NVIDIA GeForce RTX 5090"
+        }
+      ],
+      "returncode": 0,
+      "runtime_seconds": 0.027260222006589174,
+      "stderr": "",
+      "stderr_tail": [],
+      "stdout": "NVIDIA GeForce RTX 5090, 32607 MiB, 596.49\n",
+      "stdout_tail": [
+        "NVIDIA GeForce RTX 5090, 32607 MiB, 596.49"
+      ],
+      "timed_out": false
+    },
+    "torch_cuda": {
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "\nimport json\n\nout = {\n    \"torch_imported\": False,\n    \"torch_version\": None,\n    \"cuda_available\": False,\n    \"cuda_device_count\": 0,\n    \"cuda_device_name\": None,\n    \"cuda_total_memory_bytes\": None,\n    \"cuda_capability\": None,\n    \"cuda_tensor_ok\": False,\n    \"error\": None,\n}\n\ntry:\n    import torch\n\n    out[\"torch_imported\"] = True\n    out[\"torch_version\"] = torch.__version__\n    out[\"cuda_available\"] = bool(torch.cuda.is_available())\n    out[\"cuda_device_count\"] = int(torch.cuda.device_count())\n    if out[\"cuda_available\"]:\n        props = torch.cuda.get_device_properties(0)\n        out[\"cuda_device_name\"] = torch.cuda.get_device_name(0)\n        out[\"cuda_total_memory_bytes\"] = int(props.total_memory)\n        out[\"cuda_capability\"] = list(torch.cuda.get_device_capability(0))\n        tensor = torch.ones((1,), device=\"cuda\")\n        out[\"cuda_tensor_ok\"] = bool(tensor.item() == 1.0)\n        torch.cuda.synchronize()\nexcept Exception as exc:\n    out[\"error\"] = repr(exc)\n\nprint(json.dumps(out, sort_keys=True))\n"
+      ],
+      "command_text": "/usr/bin/python3 -c '\nimport json\n\nout = {\n    \"torch_imported\": False,\n    \"torch_version\": None,\n    \"cuda_available\": False,\n    \"cuda_device_count\": 0,\n    \"cuda_device_name\": None,\n    \"cuda_total_memory_bytes\": None,\n    \"cuda_capability\": None,\n    \"cuda_tensor_ok\": False,\n    \"error\": None,\n}\n\ntry:\n    import torch\n\n    out[\"torch_imported\"] = True\n    out[\"torch_version\"] = torch.__version__\n    out[\"cuda_available\"] = bool(torch.cuda.is_available())\n    out[\"cuda_device_count\"] = int(torch.cuda.device_count())\n    if out[\"cuda_available\"]:\n        props = torch.cuda.get_device_properties(0)\n        out[\"cuda_device_name\"] = torch.cuda.get_device_name(0)\n        out[\"cuda_total_memory_bytes\"] = int(props.total_memory)\n        out[\"cuda_capability\"] = list(torch.cuda.get_device_capability(0))\n        tensor = torch.ones((1,), device=\"cuda\")\n        out[\"cuda_tensor_ok\"] = bool(tensor.item() == 1.0)\n        torch.cuda.synchronize()\nexcept Exception as exc:\n    out[\"error\"] = repr(exc)\n\nprint(json.dumps(out, sort_keys=True))\n'",
+      "parsed": {
+        "cuda_available": true,
+        "cuda_capability": [
+          12,
+          0
+        ],
+        "cuda_device_count": 1,
+        "cuda_device_name": "NVIDIA GeForce RTX 5090",
+        "cuda_tensor_ok": true,
+        "cuda_total_memory_bytes": 34190458880,
+        "error": null,
+        "torch_imported": true,
+        "torch_version": "2.12.1+cu130"
+      },
+      "returncode": 0,
+      "runtime_seconds": 2.2892804539878853,
+      "stderr": "",
+      "stderr_tail": [],
+      "stdout": "{\"cuda_available\": true, \"cuda_capability\": [12, 0], \"cuda_device_count\": 1, \"cuda_device_name\": \"NVIDIA GeForce RTX 5090\", \"cuda_tensor_ok\": true, \"cuda_total_memory_bytes\": 34190458880, \"error\": null, \"torch_imported\": true, \"torch_version\": \"2.12.1+cu130\"}\n",
+      "stdout_tail": [
+        "{\"cuda_available\": true, \"cuda_capability\": [12, 0], \"cuda_device_count\": 1, \"cuda_device_name\": \"NVIDIA GeForce RTX 5090\", \"cuda_tensor_ok\": true, \"cuda_total_memory_bytes\": 34190458880, \"error\": null, \"torch_imported\": true, \"torch_version\": \"2.12.1+cu130\"}"
+      ],
+      "timed_out": false
+    }
+  },
+  "recommendation": {
+    "action": "consume_exported_samples_with_cpu_proxy_helper",
+    "reason": "CUDA training/sampling produced unscored export records while avoiding CPU scoring/local search. The next check is to consume that export with the CPU proxy scorer before considering a medium run."
+  },
+  "repo_root": "/home/zpconn/code/igp24-axplorer",
+  "run_id": "axg13_target_r16_diversity_20260708_2158",
+  "runs": {
+    "gpu_sampler_probe": {
+      "best_generation_strategy": null,
+      "best_hash": null,
+      "best_matching_score": null,
+      "best_score": null,
+      "command": [
+        "/usr/bin/python3",
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        "igp24_gpu_sample_export_target_r16_conditioned",
+        "--dump_path",
+        "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_dump",
+        "--exp_id",
+        "axg13_target_r16_diversity_20260708_2158",
+        "--seed",
+        "33016",
+        "--encoding_tokens",
+        "decimal_coefficients",
+        "--igp24_target_r_conditioning_mode",
+        "control_token",
+        "--igp24_training_jsonl",
+        "/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+        "--igp24_training_jsonl_target_rs",
+        "12,16,20,24",
+        "--coeff_bound",
+        "1000000000000000",
+        "--target_r",
+        "16",
+        "--gensize",
+        "0",
+        "--pop_size",
+        "512",
+        "--ntest",
+        "64",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "4800",
+        "--num_eval_steps",
+        "300",
+        "--num_samples_from_model",
+        "2048",
+        "--batch_size",
+        "128",
+        "--n_layer",
+        "4",
+        "--n_head",
+        "4",
+        "--n_embd",
+        "256",
+        "--max_len",
+        "640",
+        "--temperature",
+        "1.15",
+        "--top_k",
+        "-1",
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "7",
+        "--exact_score_timeout",
+        "0",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        "/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+        "--sample_export_dedup",
+        "true",
+        "--sample_export_unique_target",
+        "512",
+        "--sample_export_max_attempts",
+        "2048",
+        "--sample_export_progress_interval",
+        "128",
+        "--sample_export_target_r_conditioning_mode",
+        "control_token",
+        "--igp24_generation_strategy",
+        "mixed",
+        "--igp24_ledger_path",
+        "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl"
+      ],
+      "command_text": "/usr/bin/python3 train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r16_conditioned --dump_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_dump --exp_id axg13_target_r16_diversity_20260708_2158 --seed 33016 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl /home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl --igp24_training_jsonl_target_rs 12,16,20,24 --coeff_bound 1000000000000000 --target_r 16 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 4800 --num_eval_steps 300 --num_samples_from_model 2048 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature 1.15 --top_k -1 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl --sample_export_dedup true --sample_export_unique_target 512 --sample_export_max_attempts 2048 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --igp24_generation_strategy mixed --igp24_ledger_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl",
+      "diversity_seed": null,
+      "diversity_variant": null,
+      "gpu_monitor": {
+        "avg_gpu_utilization_percent": 79.52702702702703,
+        "avg_power_draw_watts": 469.30783783783784,
+        "max_gpu_utilization_percent": 92.0,
+        "max_memory_used_mib": 8574.0,
+        "parsed_sample_count": 74,
+        "sample_count": 74,
+        "samples": [
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.032691197004169226,
+            "sample": {
+              "gpu_utilization_percent": 3.0,
+              "memory_used_mib": 4360.0,
+              "power_draw_watts": 67.55
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.049825052032247186,
+            "sample": {
+              "gpu_utilization_percent": 89.0,
+              "memory_used_mib": 7986.0,
+              "power_draw_watts": 468.92
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.037138288957066834,
+            "sample": {
+              "gpu_utilization_percent": 82.0,
+              "memory_used_mib": 7988.0,
+              "power_draw_watts": 477.68
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.030739256995730102,
+            "sample": {
+              "gpu_utilization_percent": 78.0,
+              "memory_used_mib": 7988.0,
+              "power_draw_watts": 474.7
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.041708229982759804,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7987.0,
+              "power_draw_watts": 477.17
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04301541799213737,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7985.0,
+              "power_draw_watts": 454.94
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03421274002175778,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 7991.0,
+              "power_draw_watts": 478.9
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.043086347985081375,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 7998.0,
+              "power_draw_watts": 436.4
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.054209215042646974,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 8019.0,
+              "power_draw_watts": 476.05
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03917611698852852,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8018.0,
+              "power_draw_watts": 474.3
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.037216272961813956,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 8003.0,
+              "power_draw_watts": 457.92
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.049901394988410175,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 7993.0,
+              "power_draw_watts": 513.28
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.05196614097803831,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7983.0,
+              "power_draw_watts": 500.52
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.0307187270373106,
+            "sample": {
+              "gpu_utilization_percent": 87.0,
+              "memory_used_mib": 7981.0,
+              "power_draw_watts": 497.41
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03877392504364252,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7979.0,
+              "power_draw_watts": 511.96
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04001054400578141,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 7977.0,
+              "power_draw_watts": 510.57
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04602655197959393,
+            "sample": {
+              "gpu_utilization_percent": 88.0,
+              "memory_used_mib": 7976.0,
+              "power_draw_watts": 507.01
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034385000995825976,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 7976.0,
+              "power_draw_watts": 496.8
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03382954699918628,
+            "sample": {
+              "gpu_utilization_percent": 79.0,
+              "memory_used_mib": 7972.0,
+              "power_draw_watts": 491.79
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03411851800046861,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 7948.0,
+              "power_draw_watts": 495.85
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.027208902989514172,
+            "sample": {
+              "gpu_utilization_percent": 82.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 498.17
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.026345506019424647,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 505.83
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03450299199903384,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 501.17
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.039370236976537853,
+            "sample": {
+              "gpu_utilization_percent": 77.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 500.47
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03116421599406749,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 512.15
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04341344797285274,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 506.95
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.043937786016613245,
+            "sample": {
+              "gpu_utilization_percent": 82.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 501.09
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04308227798901498,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 513.05
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.032773354032542557,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7953.0,
+              "power_draw_watts": 513.23
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03972831997089088,
+            "sample": {
+              "gpu_utilization_percent": 89.0,
+              "memory_used_mib": 7962.0,
+              "power_draw_watts": 512.8
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04296771402005106,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 7991.0,
+              "power_draw_watts": 502.85
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.05642556201200932,
+            "sample": {
+              "gpu_utilization_percent": 81.0,
+              "memory_used_mib": 8020.0,
+              "power_draw_watts": 498.87
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03846644703298807,
+            "sample": {
+              "gpu_utilization_percent": 91.0,
+              "memory_used_mib": 8009.0,
+              "power_draw_watts": 509.14
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04175695701269433,
+            "sample": {
+              "gpu_utilization_percent": 88.0,
+              "memory_used_mib": 8037.0,
+              "power_draw_watts": 507.37
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03865904803387821,
+            "sample": {
+              "gpu_utilization_percent": 82.0,
+              "memory_used_mib": 8073.0,
+              "power_draw_watts": 479.43
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04207978304475546,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8071.0,
+              "power_draw_watts": 494.94
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034013121970929205,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 8020.0,
+              "power_draw_watts": 493.06
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.042638709011953324,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8014.0,
+              "power_draw_watts": 494.62
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03860696998890489,
+            "sample": {
+              "gpu_utilization_percent": 89.0,
+              "memory_used_mib": 8018.0,
+              "power_draw_watts": 488.7
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03324101597536355,
+            "sample": {
+              "gpu_utilization_percent": 81.0,
+              "memory_used_mib": 7998.0,
+              "power_draw_watts": 484.62
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.043793161981739104,
+            "sample": {
+              "gpu_utilization_percent": 82.0,
+              "memory_used_mib": 7991.0,
+              "power_draw_watts": 489.77
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03971966600511223,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 7996.0,
+              "power_draw_watts": 505.74
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03838083997834474,
+            "sample": {
+              "gpu_utilization_percent": 77.0,
+              "memory_used_mib": 8129.0,
+              "power_draw_watts": 481.26
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.029881755996029824,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 8121.0,
+              "power_draw_watts": 499.17
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034934344002977014,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8114.0,
+              "power_draw_watts": 501.15
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.028321344987489283,
+            "sample": {
+              "gpu_utilization_percent": 80.0,
+              "memory_used_mib": 8099.0,
+              "power_draw_watts": 496.55
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.0389610409620218,
+            "sample": {
+              "gpu_utilization_percent": 88.0,
+              "memory_used_mib": 8110.0,
+              "power_draw_watts": 495.5
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.040303624991793185,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 8104.0,
+              "power_draw_watts": 504.4
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03193617198849097,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 8104.0,
+              "power_draw_watts": 530.06
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03711538598872721,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 8100.0,
+              "power_draw_watts": 532.93
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03322552400641143,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 7958.0,
+              "power_draw_watts": 534.44
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.02938378299586475,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 7955.0,
+              "power_draw_watts": 520.02
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03014014899963513,
+            "sample": {
+              "gpu_utilization_percent": 92.0,
+              "memory_used_mib": 7951.0,
+              "power_draw_watts": 521.09
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.031859794980846345,
+            "sample": {
+              "gpu_utilization_percent": 88.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 521.11
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03123351000249386,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 7944.0,
+              "power_draw_watts": 510.6
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.038585855974815786,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8006.0,
+              "power_draw_watts": 499.79
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03616949397837743,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8006.0,
+              "power_draw_watts": 525.78
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.032898536999709904,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 8072.0,
+              "power_draw_watts": 481.68
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.035359713016077876,
+            "sample": {
+              "gpu_utilization_percent": 87.0,
+              "memory_used_mib": 8091.0,
+              "power_draw_watts": 474.54
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03811365697765723,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 8089.0,
+              "power_draw_watts": 514.87
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.035930145997554064,
+            "sample": {
+              "gpu_utilization_percent": 86.0,
+              "memory_used_mib": 8097.0,
+              "power_draw_watts": 504.26
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.032230345997959375,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 8097.0,
+              "power_draw_watts": 464.79
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.031229831976816058,
+            "sample": {
+              "gpu_utilization_percent": 84.0,
+              "memory_used_mib": 8091.0,
+              "power_draw_watts": 492.46
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.033808801032137126,
+            "sample": {
+              "gpu_utilization_percent": 87.0,
+              "memory_used_mib": 8047.0,
+              "power_draw_watts": 498.05
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.036626246001105756,
+            "sample": {
+              "gpu_utilization_percent": 87.0,
+              "memory_used_mib": 8048.0,
+              "power_draw_watts": 486.69
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04369008197681978,
+            "sample": {
+              "gpu_utilization_percent": 69.0,
+              "memory_used_mib": 8081.0,
+              "power_draw_watts": 491.49
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034735478984657675,
+            "sample": {
+              "gpu_utilization_percent": 83.0,
+              "memory_used_mib": 8039.0,
+              "power_draw_watts": 469.99
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.039888961997348815,
+            "sample": {
+              "gpu_utilization_percent": 74.0,
+              "memory_used_mib": 8493.0,
+              "power_draw_watts": 455.42
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.049715732980985194,
+            "sample": {
+              "gpu_utilization_percent": 85.0,
+              "memory_used_mib": 8296.0,
+              "power_draw_watts": 465.02
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.033569196006283164,
+            "sample": {
+              "gpu_utilization_percent": 3.0,
+              "memory_used_mib": 8305.0,
+              "power_draw_watts": 320.94
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.036923640000168234,
+            "sample": {
+              "gpu_utilization_percent": 30.0,
+              "memory_used_mib": 8574.0,
+              "power_draw_watts": 162.38
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03837803902570158,
+            "sample": {
+              "gpu_utilization_percent": 29.0,
+              "memory_used_mib": 8516.0,
+              "power_draw_watts": 170.07
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.04437479900661856,
+            "sample": {
+              "gpu_utilization_percent": 33.0,
+              "memory_used_mib": 8523.0,
+              "power_draw_watts": 156.94
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.037919941009022295,
+            "sample": {
+              "gpu_utilization_percent": 36.0,
+              "memory_used_mib": 8553.0,
+              "power_draw_watts": 161.6
+            },
+            "stderr_tail": []
+          }
+        ]
+      },
+      "gpu_used": true,
+      "interrupted": false,
+      "ledger_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl",
+      "ledger_records": 0,
+      "local_search_accepted": 0,
+      "local_search_attempted": 0,
+      "local_search_records": 0,
+      "mean_score": null,
+      "median_score": null,
+      "metadata_complete": false,
+      "model_sample_best_score": null,
+      "model_sample_hashes": [],
+      "model_sample_ledger_records": 0,
+      "model_sample_mean_score": null,
+      "post_train_cpu_sampling_scoring_avoided": true,
+      "probe_mode": "sample_export_target_r_conditioned",
+      "returncode": 0,
+      "runtime_seconds": 151.95239574997686,
+      "sample_export_attempt_budget": 2048,
+      "sample_export_attempted_samples": 2048,
+      "sample_export_decoded_records": 89,
+      "sample_export_dedup_enabled": true,
+      "sample_export_duplicate_decoded_records_skipped": 1887,
+      "sample_export_exact_verifiers_avoided": true,
+      "sample_export_exists": true,
+      "sample_export_first_indices": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "sample_export_invalid_decode_records": 72,
+      "sample_export_local_search_avoided": true,
+      "sample_export_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+      "sample_export_records": 161,
+      "sample_export_scoring_avoided": true,
+      "sample_export_seed_bank_duplicate_skipped": 0,
+      "sample_export_seed_bank_enabled": false,
+      "sample_export_seed_bank_invalid_rows_skipped": 0,
+      "sample_export_seed_bank_limit": 0,
+      "sample_export_seed_bank_matching_rows": 0,
+      "sample_export_seed_bank_max_coefficient_height": null,
+      "sample_export_seed_bank_path": null,
+      "sample_export_seed_bank_records": 0,
+      "sample_export_seed_bank_target_r": 16,
+      "sample_export_source_counts": {
+        "model_generate": 161
+      },
+      "sample_export_stop_reason": "attempt_budget_exhausted",
+      "sample_export_summary_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl.summary.json",
+      "sample_export_target_r_intent_counts": {
+        "16": 161
+      },
+      "sample_export_unique_decoded_coefficients": 89,
+      "sample_export_unique_target": 512,
+      "status": "completed",
+      "stderr_tail": [
+        "INFO - 07/07/26 22:00:16 - 0:02:25 - 896 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:16 - 0:02:26 - 960 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:17 - 0:02:26 - Export-only dedup progress: attempts=1024/2048 records_written=86 unique_decoded=58 duplicate_skipped=938 invalid_decode=28",
+        "INFO - 07/07/26 22:00:17 - 0:02:26 - 1024 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:17 - 0:02:26 - 1088 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:17 - 0:02:27 - Export-only dedup progress: attempts=1152/2048 records_written=97 unique_decoded=63 duplicate_skipped=1055 invalid_decode=34",
+        "INFO - 07/07/26 22:00:17 - 0:02:27 - 1152 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:18 - 0:02:27 - 1216 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:18 - 0:02:27 - Export-only dedup progress: attempts=1280/2048 records_written=107 unique_decoded=67 duplicate_skipped=1173 invalid_decode=40",
+        "INFO - 07/07/26 22:00:18 - 0:02:27 - 1280 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:18 - 0:02:27 - 1344 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:18 - 0:02:28 - Export-only dedup progress: attempts=1408/2048 records_written=118 unique_decoded=69 duplicate_skipped=1290 invalid_decode=49",
+        "INFO - 07/07/26 22:00:18 - 0:02:28 - 1408 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:19 - 0:02:28 - 1472 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:19 - 0:02:28 - Export-only dedup progress: attempts=1536/2048 records_written=125 unique_decoded=71 duplicate_skipped=1411 invalid_decode=54",
+        "INFO - 07/07/26 22:00:19 - 0:02:28 - 1536 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:19 - 0:02:28 - 1600 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:19 - 0:02:29 - Export-only dedup progress: attempts=1664/2048 records_written=135 unique_decoded=78 duplicate_skipped=1529 invalid_decode=57",
+        "INFO - 07/07/26 22:00:19 - 0:02:29 - 1664 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:20 - 0:02:29 - 1728 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:20 - 0:02:29 - Export-only dedup progress: attempts=1792/2048 records_written=146 unique_decoded=82 duplicate_skipped=1646 invalid_decode=64",
+        "INFO - 07/07/26 22:00:20 - 0:02:29 - 1792 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:20 - 0:02:29 - 1856 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:20 - 0:02:30 - Export-only dedup progress: attempts=1920/2048 records_written=152 unique_decoded=84 duplicate_skipped=1768 invalid_decode=68",
+        "INFO - 07/07/26 22:00:20 - 0:02:30 - 1920 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:21 - 0:02:30 - 1984 / 2048 samples attempted for export",
+        "INFO - 07/07/26 22:00:21 - 0:02:30 - Export-only dedup progress: attempts=2048/2048 records_written=161 unique_decoded=89 duplicate_skipped=1887 invalid_decode=72",
+        "INFO - 07/07/26 22:00:21 - 0:02:30 - Export-only model sampling wrote 161 records to /tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl; attempts=2048 decoded=89 invalid_decode=72 unique_decoded=89 duplicate_skipped=1887 stop_reason=attempt_budget_exhausted",
+        "INFO - 07/07/26 22:00:21 - 0:02:30 - Sample export summary: {'export_path': '/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl', 'summary_path': '/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl.summary.json', 'target_r': 16, 'encoding_tokens': 'decimal_coefficients', 'model_target_r_conditioning_mode': 'control_token', 'sample_export_target_r_conditioning_mode': 'control_token', 'records_written': 161, 'requested_samples': 2048, 'attempt_budget': 2048, 'attempted_samples': 2048, 'decoded_attempts': 1976, 'invalid_decode_attempts': 72, 'decoded_records': 89, 'invalid_decode_records': 72, 'deduplication_enabled': True, 'deduplication_key_type': 'decoded_coefficients', 'unique_target': 512, 'unique_decoded_coefficients': 89, 'duplicate_decoded_records_skipped': 1887, 'stop_reason': 'attempt_budget_exhausted', 'progress_interval': 128, 'scoring_avoided': True, 'local_search_avoided': True, 'dataset_update_avoided': True, 'seed_bank_enabled': False, 'seed_bank_path': None, 'seed_bank_target_r': 16, 'seed_bank_limit': 0, 'seed_bank_source_rows_read': 0, 'seed_bank_rows_matching_target_r': 0, 'seed_bank_records_written': 0, 'seed_bank_duplicate_decoded_records_skipped': 0, 'seed_bank_invalid_rows_skipped': 0, 'seed_bank_max_coefficient_height': None}",
+        "INFO - 07/07/26 22:00:21 - 0:02:30 - [Epoch 0 AFTER_SAMPLE_EXPORT] CPU: 0.0% | RAM: 1674.6MB"
+      ],
+      "stdout_tail": [],
+      "strategy_mix": {},
+      "target_r": 16,
+      "target_r_conditioning_mode": "control_token",
+      "target_r_match_count": null,
+      "target_r_match_rate": null,
+      "target_r_seed": "33016",
+      "target_r_seed_bank_jsonl": null,
+      "target_r_seed_bank_limit": null,
+      "target_r_training_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+      "target_r_training_target_rs": "12,16,20,24",
+      "timed_out": false,
+      "train_log": {
+        "cuda_memory": [
+          {
+            "allocated_mb": 18.98,
+            "reserved_mb": 34.0
+          }
+        ],
+        "cuda_memory_logged": true,
+        "epoch_count": 1,
+        "eval_losses": [
+          {
+            "step": 300,
+            "test_loss": 3.422248125076294,
+            "train_loss": 0.7964272329459587
+          },
+          {
+            "step": 600,
+            "test_loss": 3.959411859512329,
+            "train_loss": 0.08834756694734097
+          },
+          {
+            "step": 900,
+            "test_loss": 4.199795722961426,
+            "train_loss": 0.05983259669194619
+          },
+          {
+            "step": 1200,
+            "test_loss": 4.191197872161865,
+            "train_loss": 0.050475874952971934
+          },
+          {
+            "step": 1500,
+            "test_loss": 4.598452568054199,
+            "train_loss": 0.053341812553505105
+          },
+          {
+            "step": 1800,
+            "test_loss": 4.673518180847168,
+            "train_loss": 0.0402959568426013
+          },
+          {
+            "step": 2100,
+            "test_loss": 4.530428409576416,
+            "train_loss": 0.04277469198529919
+          },
+          {
+            "step": 2400,
+            "test_loss": 4.887062072753906,
+            "train_loss": 0.03338819265365601
+          },
+          {
+            "step": 2700,
+            "test_loss": 5.000466823577881,
+            "train_loss": 0.038420144462337096
+          },
+          {
+            "step": 3000,
+            "test_loss": 5.029197692871094,
+            "train_loss": 0.04045932982116938
+          },
+          {
+            "step": 3300,
+            "test_loss": 5.155731201171875,
+            "train_loss": 0.03292301821211974
+          },
+          {
+            "step": 3600,
+            "test_loss": 5.156429767608643,
+            "train_loss": 0.043048727593074244
+          },
+          {
+            "step": 3900,
+            "test_loss": 4.752124786376953,
+            "train_loss": 0.03639654302348693
+          },
+          {
+            "step": 4200,
+            "test_loss": 5.238778591156006,
+            "train_loss": 0.032932013689229885
+          },
+          {
+            "step": 4500,
+            "test_loss": 5.377885341644287,
+            "train_loss": 0.03474430159976085
+          },
+          {
+            "step": 4800,
+            "test_loss": 5.454671859741211,
+            "train_loss": 0.03472086881597837
+          }
+        ],
+        "exists": true,
+        "line_count": 213,
+        "logged_device": "cuda",
+        "max_cuda_allocated_mb": 18.98,
+        "max_cuda_reserved_mb": 34.0,
+        "sample_export_dedup_progress_logged": true,
+        "sample_export_only_logged": true,
+        "sample_invalid_before_local_search_total": 0,
+        "sample_requested_total": 0,
+        "sample_sections": [],
+        "sample_valid_total": 0,
+        "step_losses": [
+          {
+            "loss": 1.2206,
+            "step": 100,
+            "step_time_ms": 3237.39
+          },
+          {
+            "loss": 0.243,
+            "step": 200,
+            "step_time_ms": 2895.83
+          },
+          {
+            "loss": 0.065,
+            "step": 300,
+            "step_time_ms": 2917.83
+          },
+          {
+            "loss": 0.3591,
+            "step": 400,
+            "step_time_ms": 3005.96
+          },
+          {
+            "loss": 0.0427,
+            "step": 500,
+            "step_time_ms": 2986.12
+          },
+          {
+            "loss": 0.0369,
+            "step": 600,
+            "step_time_ms": 3021.87
+          },
+          {
+            "loss": 0.0367,
+            "step": 700,
+            "step_time_ms": 3067.41
+          },
+          {
+            "loss": 0.0352,
+            "step": 800,
+            "step_time_ms": 2732.85
+          },
+          {
+            "loss": 0.0346,
+            "step": 900,
+            "step_time_ms": 2819.2
+          },
+          {
+            "loss": 0.0345,
+            "step": 1000,
+            "step_time_ms": 2769.36
+          },
+          {
+            "loss": 0.0342,
+            "step": 1100,
+            "step_time_ms": 2746.05
+          },
+          {
+            "loss": 0.0426,
+            "step": 1200,
+            "step_time_ms": 2819.21
+          },
+          {
+            "loss": 0.0354,
+            "step": 1300,
+            "step_time_ms": 2828.08
+          },
+          {
+            "loss": 0.0454,
+            "step": 1400,
+            "step_time_ms": 2842.4
+          },
+          {
+            "loss": 0.0346,
+            "step": 1500,
+            "step_time_ms": 2753.26
+          },
+          {
+            "loss": 0.0341,
+            "step": 1600,
+            "step_time_ms": 2748.56
+          },
+          {
+            "loss": 0.0378,
+            "step": 1700,
+            "step_time_ms": 2790.55
+          },
+          {
+            "loss": 0.0318,
+            "step": 1800,
+            "step_time_ms": 2784.95
+          },
+          {
+            "loss": 0.0332,
+            "step": 1900,
+            "step_time_ms": 2774.82
+          },
+          {
+            "loss": 0.0344,
+            "step": 2000,
+            "step_time_ms": 2776.59
+          },
+          {
+            "loss": 0.0354,
+            "step": 2100,
+            "step_time_ms": 2764.2
+          },
+          {
+            "loss": 0.0331,
+            "step": 2200,
+            "step_time_ms": 2963.12
+          },
+          {
+            "loss": 0.0351,
+            "step": 2300,
+            "step_time_ms": 2906.41
+          },
+          {
+            "loss": 0.0347,
+            "step": 2400,
+            "step_time_ms": 2949.32
+          },
+          {
+            "loss": 0.0344,
+            "step": 2500,
+            "step_time_ms": 3076.22
+          },
+          {
+            "loss": 0.0328,
+            "step": 2600,
+            "step_time_ms": 2971.61
+          },
+          {
+            "loss": 0.0315,
+            "step": 2700,
+            "step_time_ms": 2905.23
+          },
+          {
+            "loss": 0.0329,
+            "step": 2800,
+            "step_time_ms": 2897.44
+          },
+          {
+            "loss": 0.1179,
+            "step": 2900,
+            "step_time_ms": 2884.25
+          },
+          {
+            "loss": 0.0343,
+            "step": 3000,
+            "step_time_ms": 2988.21
+          },
+          {
+            "loss": 0.0322,
+            "step": 3100,
+            "step_time_ms": 2915.75
+          },
+          {
+            "loss": 0.0315,
+            "step": 3200,
+            "step_time_ms": 2897.96
+          },
+          {
+            "loss": 0.0314,
+            "step": 3300,
+            "step_time_ms": 3019.2
+          },
+          {
+            "loss": 0.0355,
+            "step": 3400,
+            "step_time_ms": 2767.82
+          },
+          {
+            "loss": 0.0339,
+            "step": 3500,
+            "step_time_ms": 2704.43
+          },
+          {
+            "loss": 0.0348,
+            "step": 3600,
+            "step_time_ms": 2733.53
+          },
+          {
+            "loss": 0.0328,
+            "step": 3700,
+            "step_time_ms": 2757.67
+          },
+          {
+            "loss": 0.0314,
+            "step": 3800,
+            "step_time_ms": 2802.51
+          },
+          {
+            "loss": 0.0346,
+            "step": 3900,
+            "step_time_ms": 2942.39
+          },
+          {
+            "loss": 0.0318,
+            "step": 4000,
+            "step_time_ms": 2835.14
+          },
+          {
+            "loss": 0.0328,
+            "step": 4100,
+            "step_time_ms": 3203.49
+          },
+          {
+            "loss": 0.032,
+            "step": 4200,
+            "step_time_ms": 2936.34
+          },
+          {
+            "loss": 0.0326,
+            "step": 4300,
+            "step_time_ms": 3017.93
+          },
+          {
+            "loss": 0.0329,
+            "step": 4400,
+            "step_time_ms": 3046.46
+          },
+          {
+            "loss": 0.0327,
+            "step": 4500,
+            "step_time_ms": 3031.81
+          },
+          {
+            "loss": 0.0347,
+            "step": 4600,
+            "step_time_ms": 3117.54
+          },
+          {
+            "loss": 0.0313,
+            "step": 4700,
+            "step_time_ms": 3308.1
+          },
+          {
+            "loss": 0.0327,
+            "step": 4800,
+            "step_time_ms": 3277.7
+          }
+        ],
+        "train_only_skip_logged": false
+      },
+      "train_log_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_dump/igp24_gpu_sample_export_target_r16_conditioned/axg13_target_r16_diversity_20260708_2158/train.log"
+    }
+  },
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "target_r": 16,
+  "target_r_model_sample_attempts": 2048,
+  "target_r_seed_bank_jsonl": null,
+  "target_r_seed_bank_limit": null,
+  "target_r_training_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+  "target_r_training_target_rs": "12,16,20,24"
+}

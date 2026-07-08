@@ -1,0 +1,22 @@
+{
+  "model_version": "AXG-1.3",
+  "notes": [
+    "Fresh SAIR sync succeeded, but proposal dry-runs held every target. r12/r16/r20 selected four model-generated rows each, yet all selected rows had perturbation_mode=unknown and failed mode-diversity gates; r24 had only one eligible model-generated row.",
+    "No AXG-1.3 rows were submitted to SAIR."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": null,
+  "sair_sync": {
+    "endpoint_count": null,
+    "label_count": null,
+    "partial_sync": null,
+    "pending_rows": null,
+    "remaining_signature_count": null,
+    "scoreable_rows": null,
+    "submission_count": null,
+    "submission_state_complete": null,
+    "summary_path": "data/igp24/axg13_diversity_20260708/sair_sync/sair_sync_summary.json"
+  },
+  "schema_version": 1,
+  "status": "fresh_sair_sync_no_submission"
+}

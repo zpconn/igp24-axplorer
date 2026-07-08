@@ -40,6 +40,12 @@ Current status:
   128 model-generated target-r survivors across 212 scored decoded rows.
   Proposal dry-runs selected 7 rows total but held all targets below the packet
   gate, so no SAIR submission was made.
+- `AXG-1.3` exists as a diversity-aware target-r-conditioned probe. Four
+  short CUDA runs used broader sampling (`temperature=1.15`, open top-k,
+  unique decoded target 512) and produced 172 model-generated target-r
+  survivors across 371 scored rows. Source-aware proposal gates selected 13
+  rows total but held all targets because selected rows lacked perturbation-mode
+  diversity, and `r=24` had only one eligible model-generated row.
 
 Useful commands:
 

@@ -1,0 +1,66 @@
+{
+  "artifacts": {
+    "cpu_score_report_path": "/tmp/igp24_axg13_diversity_20260708/r16/cpu_scored_samples/score_report.md",
+    "cpu_score_summary_path": "/tmp/igp24_axg13_diversity_20260708/r16/cpu_scored_samples/score_summary.json",
+    "gpu_probe_report_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sampler_probe_report.md",
+    "gpu_probe_summary_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sampler_probe_summary.json",
+    "sample_export_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "scored_jsonl_path": "/tmp/igp24_axg13_diversity_20260708/r16/cpu_scored_samples/scored_samples.jsonl",
+    "train_log_path": "/tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_dump/igp24_gpu_sample_export_target_r16_conditioned/axg13_target_r16_diversity_20260708_2158/train.log"
+  },
+  "commands": {
+    "cpu_score": "/usr/bin/python3 scripts/igp24_score_sample_export.py /tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl --output_dir /tmp/igp24_axg13_diversity_20260708/r16/cpu_scored_samples --score_all true --coeff_bound 1000000000000000 --target_r 16 --prime_limit 7 --exact_score_timeout 0 --local_search false --max_local_search_steps 0",
+    "gpu_probe": "/usr/bin/python3 train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r16_conditioned --dump_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_dump --exp_id axg13_target_r16_diversity_20260708_2158 --seed 33016 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl /home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl --igp24_training_jsonl_target_rs 12,16,20,24 --coeff_bound 1000000000000000 --target_r 16 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 4800 --num_eval_steps 300 --num_samples_from_model 2048 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature 1.15 --top_k -1 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl --sample_export_dedup true --sample_export_unique_target 512 --sample_export_max_attempts 2048 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --igp24_generation_strategy mixed --igp24_ledger_path /tmp/igp24_axg13_diversity_20260708/r16/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl"
+  },
+  "cpu_phase": {
+    "decoded_input_records": 89,
+    "local_search_enabled": false,
+    "max_records": null,
+    "records_read": 161,
+    "records_selected": 161,
+    "rejected_records": 4,
+    "runtime_seconds": 5.8171359919942915,
+    "scored_records": 89,
+    "selection_mode": "all_explicit",
+    "valid_records": 85
+  },
+  "created_at_utc": "2026-07-08T03:10:00.727864+00:00",
+  "dedup": {
+    "best_score": 9414.762585040236,
+    "canonical_hash_records": 89,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 1463.676379343981,
+    "proxy_scored_records": 85,
+    "rejected_records": 4,
+    "scored_records": 89,
+    "unique_canonical_hashes": 89
+  },
+  "gpu_phase": {
+    "avg_gpu_utilization_percent": 79.52702702702703,
+    "device": "cuda",
+    "eval_count": 16,
+    "interrupted": false,
+    "max_cuda_reserved_mb": 34.0,
+    "max_gpu_utilization_percent": 92.0,
+    "max_memory_used_mib": 8574.0,
+    "present": true,
+    "returncode": 0,
+    "runtime_seconds": 151.95239574997686,
+    "sample_export_decoded_records": 89,
+    "sample_export_records": 161,
+    "scoring_local_search_avoided": true,
+    "timed_out": false
+  },
+  "record_type": "igp24_split_workflow_manifest",
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "797f42693d437ef1af27ac557f4c27dc1b565a59"
+}

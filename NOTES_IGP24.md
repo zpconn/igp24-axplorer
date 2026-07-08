@@ -1499,3 +1499,19 @@ used the known-collapsed r8 perturbed quartic packet and correctly held with
 zero selected rows. That is the right failure mode: the GPU phase should
 increase proposal diversity, while the CPU/feedback phase prevents raw or
 basin-risky samples from reaching SAIR.
+
+AXG-1.2 proved true model-side target-r control-token conditioning: short
+CUDA runs produced 128 model-generated target-r survivors across
+`r=12,16,20,24`. AXG-1.3 then tested whether broader conditioned sampling and
+source-aware anti-basin gates would turn that steering into submission-grade
+packets. It increased aggregate target-r survivors to 172 across 371 scored
+decoded rows and produced 39 model-generated rows eligible after basin gates,
+but still made no submission. The selected `r=12`, `r=16`, and `r=20` rows
+were clean enough to select locally yet all had `perturbation_mode=unknown`,
+so the mode-diversity gate held them; `r=24` had only one eligible
+model-generated row. This is a useful negative result: target-r conditioning
+and hotter sampling are not enough by themselves. The next AXG improvement
+should preserve, infer, or learn construction-family / perturbation-mode
+features for model-generated rows, or add a diversity objective that directly
+discourages accepted-hash duplicates, even-support `g(x^2)`-like forms, and
+crowded mod-p signatures before packet selection.

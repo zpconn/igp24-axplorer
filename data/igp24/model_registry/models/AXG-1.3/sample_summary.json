@@ -1,0 +1,67 @@
+{
+  "aggregate": {
+    "max_gpu_utilization_percent": 92.0,
+    "model_generate_target_r_survivor_count": 172,
+    "model_generated_eligible_rows": 39,
+    "proposal_selected_rows": 13,
+    "rejected_records": 18,
+    "runtime_seconds": 645.7669243339333,
+    "sample_export_decoded_records": 371,
+    "sample_export_records": 814,
+    "sample_export_unique_decoded_coefficients": 371,
+    "scored_records": 371,
+    "target_r_survivor_count": 172,
+    "valid_records": 353
+  },
+  "decision": "hold_no_submission",
+  "model_version": "AXG-1.3",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "decision": "hold_no_submission",
+      "decoded_records": 108,
+      "model_generated_eligible_rows": 4,
+      "proposal_selected_rows": 4,
+      "sample_export_path": "data/igp24/axg13_diversity_20260708/r12/gpu_model_sample_export_target_r12_conditioned.jsonl",
+      "scored_records": 108,
+      "target_r": 12,
+      "target_r_survivors": 51,
+      "valid_records": 108
+    },
+    {
+      "decision": "hold_no_submission",
+      "decoded_records": 89,
+      "model_generated_eligible_rows": 7,
+      "proposal_selected_rows": 4,
+      "sample_export_path": "data/igp24/axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+      "scored_records": 89,
+      "target_r": 16,
+      "target_r_survivors": 44,
+      "valid_records": 85
+    },
+    {
+      "decision": "hold_no_submission",
+      "decoded_records": 83,
+      "model_generated_eligible_rows": 27,
+      "proposal_selected_rows": 4,
+      "sample_export_path": "data/igp24/axg13_diversity_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl",
+      "scored_records": 83,
+      "target_r": 20,
+      "target_r_survivors": 38,
+      "valid_records": 73
+    },
+    {
+      "decision": "hold_no_submission",
+      "decoded_records": 91,
+      "model_generated_eligible_rows": 1,
+      "proposal_selected_rows": 1,
+      "sample_export_path": "data/igp24/axg13_diversity_20260708/r24/gpu_model_sample_export_target_r24_conditioned.jsonl",
+      "scored_records": 91,
+      "target_r": 24,
+      "target_r_survivors": 39,
+      "valid_records": 87
+    }
+  ],
+  "schema_version": 1,
+  "status": "four_target_diversity_exports_scored"
+}

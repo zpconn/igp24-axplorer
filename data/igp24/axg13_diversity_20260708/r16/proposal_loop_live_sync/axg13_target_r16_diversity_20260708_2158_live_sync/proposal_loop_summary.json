@@ -1,0 +1,127 @@
+{
+  "artifacts": {
+    "basin_risk_scores": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/basin_risk_scores.jsonl",
+    "filtered_candidates": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/filtered_candidates.jsonl",
+    "rejected_candidates": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/rejected_candidates.jsonl",
+    "report": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/proposal_loop_report.md",
+    "run_manifest": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/run_manifest.json",
+    "selected_review_coefficients": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/selected_review_coefficients.txt",
+    "selected_review_packet": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/selected_review_packet.jsonl",
+    "summary": "/tmp/igp24_axg13_diversity_20260708/r16/proposal_loop_live_sync/axg13_target_r16_diversity_20260708_2158_live_sync/proposal_loop_summary.json"
+  },
+  "candidate_rows": 89,
+  "candidate_sample_export_source_counts": {
+    "model_generate": 89
+  },
+  "candidate_source_count": 1,
+  "coefficient_lines": 4,
+  "created_at": "2026-07-08T03:13:03.974494+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "packet_limit": 12,
+    "per_mode_cap": 4,
+    "per_pattern_cap": 4
+  },
+  "dry_run": true,
+  "filtered_rows": 44,
+  "filtered_sample_export_source_counts": {
+    "model_generate": 44
+  },
+  "model_manifest_description": "Diversity-aware target-r conditioned proposal generator",
+  "model_version": "AXG-1.3",
+  "recommendation": {
+    "min_model_generated_rows": 4,
+    "model_generated_selected_rows": 4,
+    "reason": "selected_rows_do_not_have_multiple_perturbation_modes",
+    "recommended_for_sair_packet": false,
+    "risk_count": 0,
+    "selected_mod_p_signature_counts": {
+      "p7:1-23": 1,
+      "p7:10-14": 1,
+      "p7:2-22": 1,
+      "p7:7-8-9": 1
+    },
+    "selected_mode_counts": {
+      "unknown": 4
+    },
+    "selected_rows": 4,
+    "selected_source_counts": {
+      "model_generate": 4
+    },
+    "status": "hold_no_submission"
+  },
+  "record_type": "igp24_axg_proposal_loop_summary",
+  "rejected_rows": 45,
+  "rejection_reason_counts": {
+    "local_valid_false": 4,
+    "missing_real_root_count": 4,
+    "real_root_count_not_target": 41
+  },
+  "risk_reason_counts": {
+    "accepted_hash_duplicate": 29,
+    "even_support_g_x_squared_like": 20,
+    "support_gcd_not_one": 20
+  },
+  "run_id": "axg13_target_r16_diversity_20260708_2158_live_sync",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "schema_version": 1,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 37,
+    "strong_packet_candidate": 7
+  },
+  "scored_rows": 44,
+  "selected_rows": 4,
+  "selected_sample_export_source_counts": {
+    "model_generate": 4
+  },
+  "source_basin_summary": {
+    "candidate_rows_by_source": {
+      "model_generate": 89
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 37,
+        "strong_packet_candidate": 7
+      }
+    },
+    "eligible_rows_by_source": {
+      "model_generate": 7
+    },
+    "model_generated_eligible_rows": 7,
+    "model_generated_selected_rows": 4,
+    "model_generated_target_r_survivor_rows": 44,
+    "rejected_basin_rows_by_source": {
+      "model_generate": 37
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 29,
+        "even_support_g_x_squared_like": 20,
+        "support_gcd_not_one": 20
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 44
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "model_generate": 4
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 44
+    }
+  },
+  "source_commit": "797f42693d437ef1af27ac557f4c27dc1b565a59",
+  "target_rs": [
+    16
+  ]
+}

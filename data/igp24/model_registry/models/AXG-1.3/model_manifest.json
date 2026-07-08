@@ -1,0 +1,143 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "diversity_sampling": {
+      "generation_strategy": "mixed",
+      "sample_export_attempt_budget": 2048,
+      "sample_export_unique_target": 512,
+      "temperature": 1.15,
+      "top_k": -1
+    },
+    "encoding_tokens": "decimal_coefficients",
+    "full_control_token_conditioning": true,
+    "status": "four_short_diversity_conditioned_runs_completed",
+    "target_r_control_tokens": [
+      "R12",
+      "R16",
+      "R20",
+      "R24"
+    ]
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r_control_token",
+    "decimal_coefficient_stream",
+    "sample_export_source",
+    "source_aware_basin_gate",
+    "model_generated_minimum_packet_gate"
+  ],
+  "created_at": "2026-07-08T03:14:36.211078+00:00",
+  "description": "Diversity-aware target-r conditioned proposal generator",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent_by_target_r": {
+      "12": 78.825,
+      "16": 79.52702702702703,
+      "20": 77.26190476190476,
+      "24": 79.73684210526316
+    },
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 92.0,
+    "max_gpu_utilization_percent_by_target_r": {
+      "12": 91.0,
+      "16": 92.0,
+      "20": 87.0,
+      "24": 91.0
+    },
+    "status": "cuda_used_in_four_axg13_diversity_runs"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "797f42693d437ef1af27ac557f4c27dc1b565a59",
+  "known_limitations": [
+    "AXG-1.3 improved aggregate target-r survivors versus AXG-1.2 but selected rows still lack perturbation-mode metadata diversity.",
+    "r24 produced only one eligible model-generated row under source-aware anti-basin gates.",
+    "No checkpoints are committed; reruns must retrain from recorded commands and data.",
+    "No exact Galois verifier or live SAIR submission is run inside training or scoring."
+  ],
+  "model_version": "AXG-1.3",
+  "objective_loss_configuration": {
+    "loss": "baseline transformer next-token loss over decimal coefficient streams with target-r control-token prefix",
+    "primary": "measure whether broader conditioned sampling improves non-basin proposal readiness, not just target-r hit rate",
+    "secondary": "use source-aware anti-basin gates to require model-generated selected rows before any packet recommendation"
+  },
+  "parent_version": "AXG-1.2",
+  "purpose": "Broaden AXG target-r conditioned GPU sampling and gate candidates through source-aware anti-basin proposal checks.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-08T03:15:07.242196+00:00",
+      "run_id": "axg13_target_r12_diversity_20260708_2207",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.3/axg13_target_r12_diversity_20260708_2207/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T03:15:07.311520+00:00",
+      "run_id": "axg13_target_r16_diversity_20260708_2158",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.3/axg13_target_r16_diversity_20260708_2158/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T03:15:07.341129+00:00",
+      "run_id": "axg13_target_r20_diversity_20260708_2201",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.3/axg13_target_r20_diversity_20260708_2201/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T03:15:07.387703+00:00",
+      "run_id": "axg13_target_r24_diversity_20260708_2204",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.3/axg13_target_r24_diversity_20260708_2204/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Fresh read-only SAIR sync completed; proposal dry-runs held all targets, so no submission was made.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg13_diversity_20260708/r12/gpu_model_sample_export_target_r12_conditioned.jsonl",
+    "data/igp24/axg13_diversity_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "data/igp24/axg13_diversity_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl",
+    "data/igp24/axg13_diversity_20260708/r24/gpu_model_sample_export_target_r24_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r <12|16|20|24> --target_r_conditioned_max_steps 4800 --target_r_model_sample_attempts 2048 --target_r_conditioned_temperature 1.15 --target_r_conditioned_top_k -1 --target_r_conditioned_unique_target 512 --target_r_conditioned_generation_strategy mixed",
+    "status": "four_short_diversity_conditioned_runs_completed"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 645.7669243339333,
+    "status": "four_short_diversity_conditioned_runs_completed"
+  },
+  "validation_metrics": {
+    "aggregate": {
+      "max_gpu_utilization_percent": 92.0,
+      "model_generate_target_r_survivor_count": 172,
+      "model_generated_eligible_rows": 39,
+      "proposal_selected_rows": 13,
+      "rejected_records": 18,
+      "runtime_seconds": 645.7669243339333,
+      "sample_export_decoded_records": 371,
+      "sample_export_records": 814,
+      "sample_export_unique_decoded_coefficients": 371,
+      "scored_records": 371,
+      "submitted_to_sair": false,
+      "target_r_survivor_count": 172,
+      "valid_records": 353
+    },
+    "comparison_to_axg12": "AXG-1.3 increased total target-r survivors from 128 to 172 and total selected rows from 7 to 13, but did not improve submission readiness because source rows still lack meaningful perturbation-mode metadata and r24 eligible rows dropped.",
+    "decision": "hold_no_submission; Fresh SAIR sync succeeded, but proposal dry-runs held every target. r12/r16/r20 selected four model-generated rows each, yet all selected rows had perturbation_mode=unknown and failed mode-diversity gates; r24 had only one eligible model-generated row.",
+    "status": "diversity_sampling_succeeded_hold_no_submission",
+    "success_metrics": [
+      "model_generate target-r survivor count",
+      "model-generated eligible rows",
+      "proposal selected rows",
+      "source-aware basin-risk distribution",
+      "fresh SAIR sync status"
+    ]
+  }
+}

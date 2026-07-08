@@ -112,6 +112,40 @@ results change.
   `scripts/igp24_axg_proposal_loop.py`, and
   `scripts/igp24_gpu_sampler_probe.py`. GPU probe `--help` shows the new
   AXG-1.3 conditioned sampling knobs. Stage 4 remains present at line 8476.
+- AXG-1.3 bounded CUDA diversity experiment completed. Command template:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --output_dir /tmp/igp24_axg13_diversity_20260708/r<r> --run_id axg13_target_r<r>_diversity_20260708_<id> --probe_mode sample_export_target_r_conditioned --target_r <r> --target_r_conditioned_max_steps 4800 --target_r_model_sample_attempts 2048 --target_r_conditioned_temperature 1.15 --target_r_conditioned_top_k -1 --target_r_conditioned_unique_target 512 --target_r_conditioned_generation_strategy mixed --timeout_seconds 1200 --monitor_interval_seconds 2.0`.
+  Runs used CUDA on `NVIDIA GeForce RTX 5090`, `decimal_coefficients`, and
+  `control_token` conditioning. Total GPU runtime was 645.8s. Per-target:
+  `r=12`: 164.3s, max GPU util 91%, avg 78.8%, 108 decoded/scored, 108 valid,
+  real-root counts `{0:7,2:4,4:11,6:16,8:12,10:7,12:51}`, target survivors
+  51 from `model_generate`.
+  `r=16`: 152.0s, max 92%, avg 79.5%, 89 scored, 85 valid, counts
+  `{0:6,2:1,4:23,6:1,8:8,10:1,12:1,16:44}`, target survivors 44.
+  `r=20`: 172.5s, max 87%, avg 77.3%, 83 scored, 73 valid, counts
+  `{0:2,2:1,4:16,6:4,8:10,10:2,20:38}`, target survivors 38.
+  `r=24`: 157.0s, max 91%, avg 79.7%, 91 scored, 87 valid, counts
+  `{0:4,2:6,4:9,6:3,8:10,10:4,12:7,14:1,16:3,22:1,24:39}`,
+  target survivors 39. Aggregate: 371 scored decoded model rows, 353 valid,
+  172 model-generated target-r survivors, and 39 model-generated rows eligible
+  after source-aware anti-basin gates.
+- AXG-1.3 fresh SAIR context sync completed read-only with
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py --output_dir /tmp/igp24_axg13_diversity_20260708/sair_sync --fetch_live --allow_partial --progress_limit 5000 --submission_limit 25`.
+  Result: endpoint_count 6, label_count 25000, remaining_signature_count
+  51266, submission_count 20, submission_row_count 185, pending_rows 50,
+  scoreable_rows 135, partial_sync false, submission_state_complete true.
+  The API key stayed in the environment and was not written to artifacts.
+- AXG-1.3 proposal dry-runs used the fresh sync and
+  `--min_packet_rows 4 --min_model_generated_rows 4`. Results:
+  `r=12`: filtered 51, model-generated eligible 4, selected 4,
+  `hold_no_submission` because selected rows did not have multiple
+  perturbation modes.
+  `r=16`: filtered 44, eligible 7, selected 4, same hold reason.
+  `r=20`: filtered 38, eligible 27, selected 4, same hold reason.
+  `r=24`: filtered 39, eligible 1, selected 1, held below packet/model-row
+  gates and lacked mode/mod-p diversity. Decision: no SAIR submission. AXG-1.3
+  improved target-r survivor count versus AXG-1.2 (172 vs 128) and selected
+  rows (13 vs 7), but did not improve submission readiness because
+  model-generated rows still lack meaningful perturbation-mode/family metadata.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,
