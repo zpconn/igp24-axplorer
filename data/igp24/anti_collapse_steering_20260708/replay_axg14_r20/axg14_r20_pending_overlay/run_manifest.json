@@ -1,0 +1,183 @@
+{
+  "accepted_feedback_paths": [
+    "/home/zpconn/code/igp24-axplorer/data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/anti_collapse_steering_20260708/axg14_r20_pending_24t25000_feedback.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg14_provenance_20260708/r20/cpu_scored_samples/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-08T21:31:35.800084+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "min_template_family_count": 2,
+    "packet_limit": 4,
+    "per_mode_cap": 2,
+    "per_pattern_cap": 2,
+    "reject_unknown_provenance": true
+  },
+  "extra_submission_status_paths": [
+    "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/sair_status_poll4.json"
+  ],
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.4",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/rejected_candidates.jsonl",
+    "report": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/proposal_loop_report.md",
+    "run_manifest": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/selected_review_packet.jsonl",
+    "summary": "data/igp24/anti_collapse_steering_20260708/replay_axg14_r20/axg14_r20_pending_overlay/proposal_loop_summary.json"
+  },
+  "recommendation": {
+    "local_recommended_for_sair_packet": false,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_template_family_count": 2,
+    "model_generated_selected_rows": 0,
+    "reason": "only_0_eligible_rows_below_min_4; only_0_model_generated_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {},
+    "selected_mod_p_signature_counts": {},
+    "selected_mode_counts": {},
+    "selected_rows": 0,
+    "selected_source_counts": {},
+    "selected_template_family_counts": {},
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "20/20 details recovered; 20/20 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {
+        "24T25000|r=20": 4
+      },
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "/home/zpconn/code/igp24-axplorer/data/igp24/model_registry",
+  "run_id": "axg14_r20_pending_overlay",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/sair_sync_20260708_retry_partial",
+  "sair_sync_gate": {
+    "degraded_mode_summary": "20/20 details recovered; 20/20 downloads recovered",
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "hold_reasons": [],
+    "partial_sync": false,
+    "pending_high_label_basin_collisions": {},
+    "pending_pair_counts": {
+      "24T25000|r=20": 4
+    },
+    "selected_exact_pair_pending_collisions": {},
+    "selected_pair_keys": [],
+    "selected_r_values": [],
+    "submission_detail_complete": true
+  },
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "33465526667f9ca21a77d799": 3,
+        "4f2ea644cc66bb89d89d0242": 2,
+        "64f19fed392372573952bfad": 6,
+        "99b6cb3c4c0d9ae3b90a6dbd": 2,
+        "a8d377ad551d84fbd33d11d8": 1,
+        "ab7b0d06e137df0f017aa075": 1,
+        "ba9cec390cf5da49ae63e373": 1,
+        "f29ba57c997c51c793139aa4": 2
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 35
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 18
+      }
+    },
+    "eligible_rows_by_source": {},
+    "model_generated_eligible_rows": 0,
+    "model_generated_selected_rows": 0,
+    "model_generated_target_r_survivor_rows": 18,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "dense_mixed_support_gcd1": 10,
+        "medium_mixed_support_gcd1": 8
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 18
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 15,
+        "crowded_mod_p_signature_hits=1": 5,
+        "exact_crowded_basin_fingerprint_hits=1": 3,
+        "exact_crowded_basin_fingerprint_hits=2": 7,
+        "loose_crowded_basin_fingerprint_hits=2": 8,
+        "model_basin_fingerprint_known_high_label_collapse=24T25000": 13,
+        "model_template_family_known_high_label_collapse=24T25000": 18
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 18
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {},
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 18
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:mixed:r20:dense_mixed_support_gcd1": 10,
+        "model:mixed:r20:medium_mixed_support_gcd1": 8
+      }
+    }
+  },
+  "source_commit": "29df45b403fd8c4e4b4869b1197c82fb66231ce8",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

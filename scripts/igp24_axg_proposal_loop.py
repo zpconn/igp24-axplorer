@@ -194,10 +194,105 @@ def accepted_observations(paths: list[Path]) -> list[dict[str, Any]]:
                     "support_gcd": row.get("support_gcd"),
                     "even_support": row.get("even_support"),
                     "family_key": row.get("family_key") or "",
+                    "template_family_id": row.get("template_family_id") or "",
+                    "basin_fingerprint": row.get("basin_fingerprint") or "",
                     "mod_p_pattern_signature": row.get("mod_p_pattern_signature"),
                 }
             )
     return observations
+
+
+def row_status_class_from_submission_status(row: dict[str, Any]) -> str:
+    if row.get("status") == "failed" or row.get("failed_reason"):
+        return "failed"
+    if row.get("queued"):
+        return "pending"
+    if row.get("scoring_status") == "pending":
+        return "pending"
+    if row.get("scoreable") is True or row.get("scoring_status") == "scoreable":
+        return "scoreable"
+    if row.get("status") == "accepted":
+        return "accepted_not_scoreable_or_unknown"
+    return "unknown"
+
+
+def submission_status_rows_from_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    data = payload.get("data") if isinstance(payload.get("data"), dict) else payload
+    if not isinstance(data, dict):
+        return []
+    rows: list[dict[str, Any]] = []
+    submission_id = str(data.get("submissionId") or "")
+    base = {
+        "submission_id": submission_id,
+        "competition_id": data.get("competitionId"),
+        "created_at": data.get("createdAt"),
+        "updated_at": data.get("updatedAt"),
+        "kind": data.get("kind"),
+        "description": (data.get("meta") or {}).get("description") or data.get("description"),
+    }
+    for row in data.get("verifiedPolynomials") or []:
+        if not isinstance(row, dict):
+            continue
+        pair_key = None
+        if row.get("label") and row.get("r") is not None:
+            try:
+                pair_key = f"{row['label']}|r={int(row['r'])}"
+            except (TypeError, ValueError):
+                pair_key = None
+        normalized = {
+            **base,
+            "polynomial_index": row.get("polynomialIndex"),
+            "submitted_line_number": int(row.get("polynomialIndex") or 0) + 1,
+            "status": row.get("status") or "accepted",
+            "label": row.get("label"),
+            "t": row.get("t"),
+            "r": row.get("r"),
+            "pair_key": pair_key,
+            "scoreable": row.get("scoreable"),
+            "scoring_status": row.get("scoringStatus"),
+            "scoring_reason": row.get("scoringReason"),
+            "no_score_reason": row.get("noScoreReason"),
+            "in_baseline": row.get("inBaseline"),
+            "baseline_unlocked": row.get("baselineUnlocked"),
+            "baseline_disc_abs": row.get("baselineDiscAbs"),
+            "field_disc_abs": row.get("fieldDiscAbs"),
+            "disc_source": row.get("discSource"),
+        }
+        normalized["status_class"] = row_status_class_from_submission_status(normalized)
+        rows.append(normalized)
+    for row in (data.get("payload") or {}).get("queuedPolynomials") or []:
+        if not isinstance(row, dict):
+            continue
+        normalized = {
+            **base,
+            "polynomial_index": row.get("polynomialIndex"),
+            "submitted_line_number": int(row.get("polynomialIndex") or 0) + 1,
+            "status": row.get("status") or "queued",
+            "queued": True,
+        }
+        normalized["status_class"] = row_status_class_from_submission_status(normalized)
+        rows.append(normalized)
+    for row in data.get("failedPolynomials") or []:
+        if not isinstance(row, dict):
+            continue
+        normalized = {
+            **base,
+            "polynomial_index": row.get("polynomialIndex"),
+            "submitted_line_number": int(row.get("polynomialIndex") or 0) + 1,
+            "status": row.get("status") or "failed",
+            "failed_reason": row.get("reason") or row.get("message") or row.get("error"),
+        }
+        normalized["status_class"] = row_status_class_from_submission_status(normalized)
+        rows.append(normalized)
+    return rows
+
+
+def load_extra_submission_status_rows(paths: list[Path] | None) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for path in paths or []:
+        if path.exists():
+            rows.extend(submission_status_rows_from_payload(read_json(path)))
+    return rows
 
 
 def score_filtered_candidates(
@@ -349,6 +444,7 @@ def run_proposal_loop(
     min_template_family_count: int = 0,
     min_basin_fingerprint_count: int = 0,
     reject_unknown_provenance: bool = False,
+    extra_submission_status_paths: list[Path] | None = None,
 ) -> dict[str, Any]:
     manifest = load_model_manifest(registry, version)
     candidates = load_candidate_rows(candidate_paths)
@@ -384,6 +480,8 @@ def run_proposal_loop(
     )
     sync_status = load_sync_status(sync_dir) if sync_dir and (sync_dir / "sair_sync_summary.json").exists() else None
     sync_submission_rows = load_sync_submission_rows(sync_dir) if sync_dir and sync_dir.exists() else []
+    extra_submission_rows = load_extra_submission_status_rows(extra_submission_status_paths)
+    sync_submission_rows = [*sync_submission_rows, *extra_submission_rows]
     recommendation = build_submission_recommendation(
         selected,
         min_packet_rows=min_packet_rows,
@@ -446,6 +544,8 @@ def run_proposal_loop(
         "sair_sync": {
             "sync_dir": str(sync_dir) if sync_dir else None,
             "submission_rows_loaded": len(sync_submission_rows),
+            "extra_submission_status_paths": [str(path) for path in extra_submission_status_paths or []],
+            "extra_submission_rows_loaded": len(extra_submission_rows),
             "sync_status": sync_status,
             "sync_gate": recommendation.get("sync_submission_gate"),
         },
@@ -527,6 +627,7 @@ def run_proposal_loop(
             "candidate_paths": [str(path) for path in candidate_paths],
             "accepted_feedback_paths": [str(path) for path in feedback_paths],
             "sair_sync_dir": str(sync_dir) if sync_dir else None,
+            "extra_submission_status_paths": [str(path) for path in extra_submission_status_paths or []],
             "training_phase": {
                 "status": "not_started_in_this_run",
                 "uses_existing_candidate_files": True,
@@ -559,6 +660,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--accepted_feedback_json", type=Path, action="append", default=[])
     parser.add_argument("--auto_feedback_root", type=Path, default=DEFAULT_ACCEPTED_FEEDBACK_ROOT)
     parser.add_argument("--sair_sync_dir", type=Path, default=DEFAULT_SAIR_SYNC_DIR)
+    parser.add_argument("--extra_submission_status_json", type=Path, action="append", default=[])
     parser.add_argument("--output_dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--target_rs", default="24,20,16,12,8")
     parser.add_argument("--collapsed_labels", default=",".join(sorted(DEFAULT_COLLAPSED_LABELS)))
@@ -605,6 +707,7 @@ def main(argv: list[str] | None = None) -> int:
         min_template_family_count=args.min_template_family_count,
         min_basin_fingerprint_count=args.min_basin_fingerprint_count,
         reject_unknown_provenance=bool(args.reject_unknown_provenance),
+        extra_submission_status_paths=list(args.extra_submission_status_json),
     )
     print(f"summary\t{summary['artifacts']['summary']}")
     print(f"run_manifest\t{summary['artifacts']['run_manifest']}")

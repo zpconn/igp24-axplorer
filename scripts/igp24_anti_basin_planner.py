@@ -201,9 +201,19 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     coefficient_hash = str(metadata.get("coefficient_hash") or row.get("coefficient_hash") or "")
     decoded_hash = str(metadata.get("decoded_hash") or row.get("decoded_hash") or "")
     source_seed_hash = str(metadata.get("source_seed_hash") or row.get("source_seed_hash") or "")
+    label = str(row.get("label") or row.get("verified_group_label") or "")
+    r_for_pair = row.get("real_root_count", row.get("r"))
+    pair_key = str(row.get("pair_key") or row.get("verified_pair_key") or "")
+    if not pair_key and label and r_for_pair is not None:
+        try:
+            pair_key = f"{label}|r={int(r_for_pair)}"
+        except (TypeError, ValueError):
+            pair_key = ""
     return {
         "canonical_hash": str(row.get("canonical_hash") or ""),
         "short_hash": str(row.get("canonical_hash") or "")[:12],
+        "label": label,
+        "pair_key": pair_key,
         "r": int(row.get("real_root_count") or row.get("r") or -1),
         "coefficient_height": int(row.get("coefficient_height") or metadata.get("alt_coefficient_height") or 0),
         "construction_family": construction,
@@ -395,6 +405,8 @@ def observation_features(row: dict[str, Any]) -> dict[str, Any]:
         "support_gcd": int(row["support_gcd"]) if row.get("support_gcd") is not None else None,
         "even_support": row.get("even_support"),
         "family_key": str(row.get("family_key") or ""),
+        "template_family_id": str(row.get("template_family_id") or ""),
+        "basin_fingerprint": str(row.get("basin_fingerprint") or ""),
         "mod_p_pattern_signature": row.get("mod_p_pattern_signature"),
         "canonical_hash": str(row.get("canonical_hash") or ""),
     }
@@ -519,6 +531,9 @@ def build_basin_profile(
     mod_signatures = Counter()
     mode_by_family_pattern = Counter()
     collapsed_family_pattern_labels: dict[tuple[str, str, int], set[str]] = defaultdict(set)
+    collapsed_pair_counts: Counter[str] = Counter()
+    collapsed_model_template_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
+    collapsed_model_basin_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
     accepted_hashes = set()
     for row in crowded_observations:
         exact_key = (
@@ -540,6 +555,13 @@ def build_basin_profile(
             mod_signatures[str(row["mod_p_pattern_signature"])] += 1
         mode_by_family_pattern[(row["construction_family"], row["decomposition_pattern"], row["perturbation_mode"])] += 1
         collapsed_family_pattern_labels[(row["construction_family"], row["decomposition_pattern"], row["r"])].add(row["label"])
+        if row.get("pair_key"):
+            collapsed_pair_counts[str(row["pair_key"])] += 1
+        if row["construction_family"] == "model_sample_export":
+            if row.get("template_family_id"):
+                collapsed_model_template_r_labels[(str(row["template_family_id"]), row["r"])].add(row["label"])
+            if row.get("basin_fingerprint"):
+                collapsed_model_basin_r_labels[(str(row["basin_fingerprint"]), row["r"])].add(row["label"])
         if row.get("canonical_hash"):
             accepted_hashes.add(str(row["canonical_hash"]))
 
@@ -553,6 +575,13 @@ def build_basin_profile(
         "mode_by_family_pattern": mode_by_family_pattern,
         "collapsed_family_pattern_labels": {
             key: sorted(labels) for key, labels in collapsed_family_pattern_labels.items()
+        },
+        "collapsed_pair_counts": collapsed_pair_counts,
+        "collapsed_model_template_r_labels": {
+            key: sorted(labels) for key, labels in collapsed_model_template_r_labels.items()
+        },
+        "collapsed_model_basin_r_labels": {
+            key: sorted(labels) for key, labels in collapsed_model_basin_r_labels.items()
         },
         "accepted_hashes": accepted_hashes,
     }
@@ -632,6 +661,10 @@ def score_candidate_row(
     mode_hits = int(basin_profile["mode_by_family_pattern"].get(mode_key, 0))
     family_pattern_key = (features["construction_family"], features["decomposition_pattern"], r_value)
     collapsed_labels = basin_profile.get("collapsed_family_pattern_labels", {}).get(family_pattern_key, [])
+    if features.get("pair_key") and basin_profile.get("collapsed_pair_counts", {}).get(features["pair_key"]):
+        hits = basin_profile["collapsed_pair_counts"][features["pair_key"]]
+        risk_reasons.append(f"known_repeated_pair_collision:{features['pair_key']}={hits}")
+        score -= 180.0
     if (
         features["construction_family"] == "r8_quartic_lift_perturbed"
         and features["decomposition_pattern"] == "quartic_in_x6"
@@ -641,6 +674,19 @@ def score_candidate_row(
         labels = ",".join(str(label) for label in collapsed_labels)
         risk_reasons.append(f"r8_quartic_in_x6_known_label_collapse={labels}")
         score -= 140.0
+    if features["construction_family"] == "model_sample_export":
+        template_key = (features.get("template_family_id") or "", r_value)
+        template_labels = basin_profile.get("collapsed_model_template_r_labels", {}).get(template_key, [])
+        if template_labels:
+            labels = ",".join(str(label) for label in template_labels)
+            risk_reasons.append(f"model_template_family_known_high_label_collapse={labels}")
+            score -= 160.0
+        basin_key = (features.get("basin_fingerprint") or "", r_value)
+        basin_labels = basin_profile.get("collapsed_model_basin_r_labels", {}).get(basin_key, [])
+        if basin_labels:
+            labels = ",".join(str(label) for label in basin_labels)
+            risk_reasons.append(f"model_basin_fingerprint_known_high_label_collapse={labels}")
+            score -= 180.0
     if exact_hits:
         risk_reasons.append(f"exact_crowded_basin_fingerprint_hits={exact_hits}")
         score -= 85.0
@@ -678,8 +724,11 @@ def score_candidate_row(
             "support_gcd_not_one",
             "even_support",
             "accepted_hash_duplicate",
+            "known_repeated_pair_collision",
             "outer_constant_shift",
             "r8_quartic_in_x6_known_label_collapse",
+            "model_template_family_known_high_label_collapse",
+            "model_basin_fingerprint_known_high_label_collapse",
             "exact_crowded_basin_fingerprint",
         )
     )
@@ -889,6 +938,9 @@ def build_summary(
             "loose_fingerprint_count": len(basin_profile["loose_fingerprints"]),
             "mod_p_signature_count": len(basin_profile["mod_signatures"]),
             "collapsed_family_pattern_count": len(basin_profile.get("collapsed_family_pattern_labels") or {}),
+            "collapsed_pair_count": len(basin_profile.get("collapsed_pair_counts") or {}),
+            "collapsed_model_template_r_count": len(basin_profile.get("collapsed_model_template_r_labels") or {}),
+            "collapsed_model_basin_r_count": len(basin_profile.get("collapsed_model_basin_r_labels") or {}),
         },
         "candidate_count": len(scored_rows),
         "eligible_candidate_count": len(eligible),

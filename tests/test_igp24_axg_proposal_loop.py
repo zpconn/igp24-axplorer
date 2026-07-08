@@ -341,6 +341,104 @@ def test_proposal_loop_holds_clean_packet_when_sync_is_partial_and_pending_same_
     assert summary["sair_sync"]["sync_gate"]["pending_high_label_basin_collisions"] == {"24T25000|r=8": 1}
 
 
+def test_proposal_loop_holds_clean_packet_with_extra_pending_status_overlay(tmp_path):
+    registry = tmp_path / "registry"
+    create_version(registry, "AXG-1.4", "none", "provenance")
+    candidate_path = tmp_path / "clean_model_generated.jsonl"
+    rows = []
+    for index in range(4):
+        row = _candidate(index)
+        row["sample_export_source"] = "model_generate"
+        rows.append(row)
+    _write_jsonl(candidate_path, rows)
+    sync_dir = tmp_path / "sync"
+    _write_jsonl(
+        sync_dir / "sair_label_progress.jsonl",
+        [
+            {
+                "label": "24T25000",
+                "t": 25000,
+                "teamCount": 50,
+                "allowedR": [8],
+                "discoveredSignatures": [],
+                "remainingSignatures": [8],
+                "signatures": [{"r": 8, "teamCount": 50, "discovered": False}],
+            }
+        ],
+    )
+    _write_json(
+        sync_dir / "sair_sync_summary.json",
+        {
+            "created_at": "2026-07-08T00:00:00Z",
+            "sync_status": {
+                "partial_sync": False,
+                "submission_index_complete": True,
+                "submission_detail_complete": True,
+                "download_complete": True,
+                "full_submission_state_complete": True,
+                "submission_state_complete": True,
+                "degraded_mode_summary": "complete",
+            },
+        },
+    )
+    _write_jsonl(sync_dir / "sair_submission_rows.jsonl", [])
+    status_path = tmp_path / "status_poll.json"
+    _write_json(
+        status_path,
+        {
+            "data": {
+                "submissionId": "sub_pending",
+                "competitionId": "igp24",
+                "createdAt": "2026-07-08T00:01:00Z",
+                "updatedAt": "2026-07-08T00:01:00Z",
+                "kind": "igp24-polynomial",
+                "meta": {"description": "pending overlay"},
+                "payload": {"queuedPolynomials": []},
+                "failedPolynomials": [],
+                "verifiedPolynomials": [
+                    {
+                        "polynomialIndex": 0,
+                        "status": "accepted",
+                        "label": "24T25000",
+                        "t": 25000,
+                        "r": 8,
+                        "scoreable": False,
+                        "scoringStatus": "pending",
+                        "scoringReason": "discriminant_pending",
+                    }
+                ],
+            },
+            "ok": True,
+        },
+    )
+
+    summary = run_proposal_loop(
+        version="AXG-1.4",
+        registry=registry,
+        run_id="clean_model_extra_pending_hold",
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        sync_dir=sync_dir,
+        output_dir=tmp_path / "proposal_runs",
+        target_rs={8},
+        collapsed_labels={"24T25000"},
+        packet_limit=4,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        per_mode_cap=4,
+        per_pattern_cap=4,
+        crowded_team_threshold=20,
+        dry_run=True,
+        extra_submission_status_paths=[status_path],
+    )
+
+    assert summary["selected_rows"] == 4
+    assert summary["decision"] == "hold_no_submission"
+    assert summary["recommendation"]["local_recommended_for_sair_packet"] is True
+    assert summary["sair_sync"]["extra_submission_rows_loaded"] == 1
+    assert summary["sair_sync"]["sync_gate"]["pending_high_label_basin_collisions"] == {"24T25000|r=8": 1}
+
+
 def test_proposal_loop_reports_axg14_provenance_diversity_gates(tmp_path):
     registry = tmp_path / "registry"
     create_version(registry, "AXG-1", "none", "baseline")

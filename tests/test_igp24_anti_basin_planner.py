@@ -126,6 +126,51 @@ def _r8_perturbed_candidate(candidate_hash, mode="odd_single_off_core", *, mod_s
     }
 
 
+def _axg_model_candidate(candidate_hash, *, template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"):
+    return {
+        "canonical_hash": candidate_hash,
+        "real_root_count": 20,
+        "coefficient_height": 64,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 5, "degrees": [1, 23]}],
+        "generation_metadata": {
+            "construction_family": "model_sample_export",
+            "generation_strategy": "mixed",
+            "template_family_id": template,
+            "family_key": f"{template}:{basin}",
+            "perturbation_mode": template.rsplit(":", 1)[-1],
+            "support_pattern": template.rsplit(":", 1)[-1],
+            "support_gcd": 1,
+            "even_support_like": False,
+            "odd_support_exponents": [1],
+            "basin_fingerprint": basin,
+        },
+    }
+
+
+def _axg_model_pending_observation(label="24T25000", template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"):
+    return {
+        "label": label,
+        "pair_key": f"{label}|r=20",
+        "r": 20,
+        "canonical_hash": f"pending-{label}-{basin}",
+        "status": "accepted",
+        "scoreable": False,
+        "scoring_status": "pending",
+        "construction_family": "model_sample_export",
+        "decomposition_pattern": template.rsplit(":", 1)[-1],
+        "perturbation_mode": template.rsplit(":", 1)[-1],
+        "support_gcd": 1,
+        "even_support": False,
+        "family_key": f"{template}:{basin}",
+        "template_family_id": template,
+        "basin_fingerprint": basin,
+        "mod_p_pattern_signature": "p5:1-23",
+    }
+
+
 def test_load_accepted_feedback_observations_reads_rows(tmp_path):
     path = tmp_path / "feedback.json"
     path.write_text(json.dumps({"accepted_rows": [_r8_perturbed_observation()]}), encoding="utf-8")
@@ -241,6 +286,35 @@ def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signat
         any(reason.startswith("r8_quartic_in_x6_known_label_collapse=24T24979,24T25000") for reason in row["risk_reasons"])
         for row in scored
     )
+
+
+def test_model_template_and_basin_feedback_hold_24t25000_repeat():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[20])
+    basin_profile = build_basin_profile(
+        [_axg_model_pending_observation()],
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 52}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+
+    repeat = score_candidate_row(
+        _axg_model_candidate("repeat-model", template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"),
+        target_rs={20},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+    novel = score_candidate_row(
+        _axg_model_candidate("novel-model", template="model:mixed:r20:new_support_gcd1", basin="basin-b"),
+        target_rs={20},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert repeat["eligible_for_packet"] is False
+    assert "model_template_family_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert novel["eligible_for_packet"] is True
+    assert novel["score"] > repeat["score"]
 
 
 def test_submission_recommendation_can_require_model_generated_rows():
