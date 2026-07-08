@@ -1,0 +1,195 @@
+{
+  "accepted_feedback_paths": [
+    "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg14_provenance_20260708/r20/cpu_scored_samples/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-08T21:03:18.416143+00:00",
+  "decision": "reviewed_packet_ready_for_dry_run",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "min_template_family_count": 2,
+    "packet_limit": 4,
+    "per_mode_cap": 2,
+    "per_pattern_cap": 2,
+    "reject_unknown_provenance": false
+  },
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.4",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/rejected_candidates.jsonl",
+    "report": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg14_provenance_20260708/r20/proposal_loop_resynced_gate/axg14_target_r20_provenance_20260708_resynced_gate/proposal_loop_summary.json"
+  },
+  "recommendation": {
+    "local_recommended_for_sair_packet": true,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_template_family_count": 2,
+    "model_generated_selected_rows": 4,
+    "reason": "anti-basin gates passed",
+    "recommended_for_sair_packet": true,
+    "reject_unknown_provenance": false,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {
+      "33465526667f9ca21a77d799": 1,
+      "64f19fed392372573952bfad": 1,
+      "99b6cb3c4c0d9ae3b90a6dbd": 1,
+      "f29ba57c997c51c793139aa4": 1
+    },
+    "selected_mod_p_signature_counts": {
+      "none": 3,
+      "p2:1-2-3-18;p3:1-1-1-8-13;p5:1-2-10-11;p7:1-1-1-4-17": 1
+    },
+    "selected_mode_counts": {
+      "dense_mixed_support_gcd1": 2,
+      "medium_mixed_support_gcd1": 2
+    },
+    "selected_rows": 4,
+    "selected_source_counts": {
+      "model_generate": 4
+    },
+    "selected_template_family_counts": {
+      "model:mixed:r20:dense_mixed_support_gcd1": 2,
+      "model:mixed:r20:medium_mixed_support_gcd1": 2
+    },
+    "status": "reviewed_packet_ready_for_dry_run",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "20/20 details recovered; 20/20 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        20
+      ],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "/home/zpconn/code/igp24-axplorer/data/igp24/model_registry",
+  "run_id": "axg14_target_r20_provenance_20260708_resynced_gate",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/sair_sync_20260708_retry_partial",
+  "sair_sync_gate": {
+    "degraded_mode_summary": "20/20 details recovered; 20/20 downloads recovered",
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "hold_reasons": [],
+    "partial_sync": false,
+    "pending_high_label_basin_collisions": {},
+    "pending_pair_counts": {},
+    "selected_exact_pair_pending_collisions": {},
+    "selected_pair_keys": [],
+    "selected_r_values": [
+      20
+    ],
+    "submission_detail_complete": true
+  },
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "33465526667f9ca21a77d799": 3,
+        "4f2ea644cc66bb89d89d0242": 2,
+        "64f19fed392372573952bfad": 6,
+        "99b6cb3c4c0d9ae3b90a6dbd": 2,
+        "a8d377ad551d84fbd33d11d8": 1,
+        "ab7b0d06e137df0f017aa075": 1,
+        "ba9cec390cf5da49ae63e373": 1,
+        "f29ba57c997c51c793139aa4": 2
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 35
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 11,
+        "strong_packet_candidate": 7
+      }
+    },
+    "eligible_rows_by_source": {
+      "model_generate": 7
+    },
+    "model_generated_eligible_rows": 7,
+    "model_generated_selected_rows": 4,
+    "model_generated_target_r_survivor_rows": 18,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "dense_mixed_support_gcd1": 10,
+        "medium_mixed_support_gcd1": 8
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 11
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 11,
+        "crowded_mod_p_signature_hits=1": 4
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 18
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "model_generate": 4
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 18
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:mixed:r20:dense_mixed_support_gcd1": 10,
+        "model:mixed:r20:medium_mixed_support_gcd1": 8
+      }
+    }
+  },
+  "source_commit": "5a78308118015366201d22dcd72a6154eb50cb4b",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

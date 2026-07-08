@@ -1,0 +1,621 @@
+{
+  "record_type": "igp24_sair_submission_index",
+  "created_at": "2026-07-08T21:00:01.518386+00:00",
+  "page_count": 1,
+  "pages": [
+    {
+      "items": 20,
+      "nextCursorPresent": false
+    }
+  ],
+  "submission_count": 20,
+  "submissions": [
+    {
+      "submission_id": "sub_3557a403ea664b2f97ac059f9083b206",
+      "created_at": "2026-07-07T23:34:12Z",
+      "updated_at": "2026-07-07T23:34:12Z",
+      "description": "r20 linear-real full-sync gate 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 8
+      }
+    },
+    {
+      "submission_id": "sub_4622b4196ca64a9d91441cf5184acafe",
+      "created_at": "2026-07-07T20:38:25Z",
+      "updated_at": "2026-07-07T20:38:25Z",
+      "description": "r8 perturbed quartic-lift full-sync gate 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_ef0fdc26a49c42ae9b77422b6c521d96",
+      "created_at": "2026-07-07T16:34:22Z",
+      "updated_at": "2026-07-07T16:34:22Z",
+      "description": "IGP24 anti-basin 4x6 probe 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 12
+      }
+    },
+    {
+      "submission_id": "sub_442d9ff1c6974974ab38df65e70dddf0",
+      "created_at": "2026-07-07T16:13:46Z",
+      "updated_at": "2026-07-07T16:13:46Z",
+      "description": "IGP24 anti-basin nonconstant 8x3 probe 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 12
+      }
+    },
+    {
+      "submission_id": "sub_25c17affdf3c4505a8f10cfda2d94217",
+      "created_at": "2026-07-07T15:22:06Z",
+      "updated_at": "2026-07-07T15:22:06Z",
+      "description": "IGP24 reviewed 8x3 r24 probe, 8 rows",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 8
+      }
+    },
+    {
+      "submission_id": "sub_d7bc66004b0c4db2a89071c651c7583e",
+      "created_at": "2026-07-07T03:41:59Z",
+      "updated_at": "2026-07-07T03:41:59Z",
+      "description": "r24 tower odd-escape anti-basin probe 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 8
+      }
+    },
+    {
+      "submission_id": "sub_54bf941fa9a64d7984a51cfe52ce049e",
+      "created_at": "2026-07-07T01:30:49Z",
+      "updated_at": "2026-07-07T01:30:49Z",
+      "description": "r24 exact tower probe from live target plan 20260707",
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_a1fa1196ad8b48b88a7fa4c31f153d0c",
+      "created_at": "2026-07-07T00:38:13Z",
+      "updated_at": "2026-07-07T00:38:13Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_40b8ff2598d24bb383c86f9e4dbb9edf",
+      "created_at": "2026-07-06T23:54:32Z",
+      "updated_at": "2026-07-06T23:54:32Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_5f372f76678d4e15b0e769b8b64ac876",
+      "created_at": "2026-07-06T23:34:53Z",
+      "updated_at": "2026-07-06T23:34:53Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_88f73b4be4cb4ff08a8a16fa192bcad5",
+      "created_at": "2026-07-06T23:13:41Z",
+      "updated_at": "2026-07-06T23:13:41Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_5ae80eef209f4882a28854adf6bdd4d2",
+      "created_at": "2026-07-06T22:49:47Z",
+      "updated_at": "2026-07-06T22:49:47Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 8
+      }
+    },
+    {
+      "submission_id": "sub_5975e0ab848b4ab7b18fd58768b10954",
+      "created_at": "2026-07-06T21:45:58Z",
+      "updated_at": "2026-07-06T21:45:58Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 12
+      }
+    },
+    {
+      "submission_id": "sub_8ac1fdf9e9f64ec3a9bb4ed3669be6e8",
+      "created_at": "2026-07-06T21:20:00Z",
+      "updated_at": "2026-07-06T21:20:00Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 10
+      }
+    },
+    {
+      "submission_id": "sub_02ecc2457d124584b8325b83608a2e9c",
+      "created_at": "2026-07-06T20:37:39Z",
+      "updated_at": "2026-07-06T20:37:39Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 8
+      }
+    },
+    {
+      "submission_id": "sub_5f42a87ac9bf484eaf2eafdcfe76808d",
+      "created_at": "2026-07-06T19:57:38Z",
+      "updated_at": "2026-07-06T19:57:38Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 6
+      }
+    },
+    {
+      "submission_id": "sub_11f2ec82cabc4ae98f807d3df922a199",
+      "created_at": "2026-07-06T18:05:46Z",
+      "updated_at": "2026-07-06T18:05:46Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 3
+      }
+    },
+    {
+      "submission_id": "sub_76742af07fb7489c92232b3bc22bbeb1",
+      "created_at": "2026-07-06T15:48:28Z",
+      "updated_at": "2026-07-06T15:48:28Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 24
+      }
+    },
+    {
+      "submission_id": "sub_743fdd6e963c41498817f10ebdd39b5d",
+      "created_at": "2026-07-06T04:25:30Z",
+      "updated_at": "2026-07-06T04:25:30Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 1
+      }
+    },
+    {
+      "submission_id": "sub_2a6f8c6e61a045ad886c8d37041327f2",
+      "created_at": "2026-07-06T03:54:42Z",
+      "updated_at": "2026-07-06T03:54:42Z",
+      "description": null,
+      "kind": "igp24-polynomial",
+      "row_counts": {
+        "scoreable": 5
+      }
+    }
+  ],
+  "rate_limit_observations": [
+    {
+      "endpoint": "competition",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "599",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "competition/me",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "598",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "labels/progress",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "597",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "labels/progress",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "596",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "labels/progress",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "595",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "labels/progress",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "594",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "labels/progress",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "593",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/me",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "592",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "591",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "590",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "589",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "588",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "587",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "586",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "585",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "584",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "583",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "582",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "581",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "580",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "579",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "578",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "577",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "576",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "575",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "574",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "573",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "572",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "571",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "570",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "569",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "568",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "567",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "566",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "565",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "564",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "563",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "562",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "561",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "560",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "559",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "558",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "557",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "556",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "555",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "554",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "553",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    },
+    {
+      "endpoint": "submissions/{id}/download",
+      "headers": {
+        "X-Ratelimit-Limit": "600",
+        "X-Ratelimit-Remaining": "552",
+        "X-Ratelimit-Reset": "1783544431"
+      }
+    }
+  ],
+  "sync_status": {
+    "partial_sync": false,
+    "global_progress_complete": true,
+    "submission_index_complete": true,
+    "submission_detail_complete": true,
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "submission_state_complete": true,
+    "degraded_mode": false,
+    "degraded_mode_summary": "20/20 details recovered; 20/20 downloads recovered",
+    "submissions_requested": 20,
+    "submission_detail_success_count": 20,
+    "submission_detail_failed_count": 0,
+    "submission_download_success_count": 20,
+    "submission_download_failed_count": 0,
+    "failed_submission_reads": [],
+    "failing_endpoint": null,
+    "error_code": null,
+    "error_message": null,
+    "retry_after": null
+  }
+}
