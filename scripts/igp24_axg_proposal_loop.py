@@ -381,6 +381,7 @@ def run_proposal_loop(
             "schema_version": 1,
             "record_type": "igp24_axg_proposal_run",
             "created_at": utc_now(),
+            "source_commit": get_source_commit(REPO_ROOT),
             "model_version": version,
             "run_id": run_id,
             "registry": str(registry),
