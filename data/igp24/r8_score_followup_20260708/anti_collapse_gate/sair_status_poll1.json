@@ -1,0 +1,67 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-08T22:20:42Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r8 score-followup 24T9993 anti-collapse packet 20260708"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+    "updatedAt": "2026-07-08T22:20:42Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 0,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 1,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 2,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 3,
+        "r": 8,
+        "scoreable": false,
+        "scoringReason": "discriminant_pending",
+        "scoringStatus": "pending",
+        "status": "accepted",
+        "t": 25000
+      }
+    ]
+  },
+  "ok": true
+}

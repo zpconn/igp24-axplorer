@@ -53,6 +53,29 @@ results change.
   tests, TODO, README, and the new r8/sync artifacts found no matches. Next:
   commit/push. If the user approves a live submission later, submit only the
   dry-runed coefficient file and then poll/record feedback.
+- r8 score-followup live submission and sync completed 2026-07-08 after
+  explicit approval. Submitted
+  `data/igp24/r8_score_followup_20260708/anti_collapse_gate/anti_basin_candidate_coefficients.txt`
+  as `sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7`; SAIR queued 4 rows and rejected
+  0. First poll verified all 4 rows immediately as accepted `24T25000|r=8`,
+  all `scoreable=false` with `scoringStatus=pending` and
+  `scoringReason=discriminant_pending`. Feedback ingest wrote
+  `data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json`
+  and appended 4 alternates to the existing `24T25000|r=8` pair-status entry;
+  no new pair was added and no representative was replaced. Post-submit sync
+  artifacts are under
+  `data/igp24/sair_sync_20260708_r8_followup_after_submit/`; sync is complete,
+  not partial, with 22 submissions, 193 rows, 185 scoreable rows, 8 pending
+  rows, 0 unmatched rows, and 49,462 remaining signatures. Pending rows are now
+  4 at `24T25000|r=8` plus the previous 4 at `24T25000|r=20`. Lesson: the
+  `24T9993`-sourced r8 e/f template perturbation lane verified cleanly but
+  collapsed to the known crowded `24T25000|r=8` basin. Do not submit more r8
+  quartic-in-`x^6` odd off-core variants from this neighborhood without a
+  materially different construction family or stronger label discriminator.
+  Validation: compile check passed for the touched SAIR/feedback scripts;
+  focused tests passed with `17 passed in 0.41s`; JSON/JSONL parse checks
+  passed for 16 JSON files and 19 JSONL files / 25,786 rows; `git diff --check`
+  passed; and the secret-shaped scan found no matches.
 - AXG-1.2 implementation status: in progress. Added optional model-side
   `--igp24_target_r_conditioning_mode control_token`, a decimal coefficient
   tokenizer (`--encoding_tokens decimal_coefficients`) for high-coefficient

@@ -1,0 +1,63 @@
+{
+  "record_type": "igp24_r8_score_followup_submission_summary",
+  "created_at": "2026-07-08T22:24:00Z",
+  "source_packet": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/anti_basin_candidate_coefficients.txt",
+  "submission": {
+    "submitted": true,
+    "submission_id": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+    "submitted_at": "2026-07-08T22:20:42Z",
+    "description": "r8 score-followup 24T9993 anti-collapse packet 20260708",
+    "queued_count": 4,
+    "rejected_count": 0,
+    "response_json": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/sair_submit.json"
+  },
+  "first_poll": {
+    "status_json": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/sair_status_poll1.json",
+    "accepted_rows": 4,
+    "failed_rows": 0,
+    "queued_rows": 0,
+    "label_counts": {
+      "24T25000": 4
+    },
+    "pair_counts": {
+      "24T25000|r=8": 4
+    },
+    "scoreable_rows": 0,
+    "pending_disc_rows": 4,
+    "scoring_status": "pending",
+    "scoring_reason": "discriminant_pending"
+  },
+  "feedback_ingest": {
+    "feedback_json": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+    "pair_status_updated": true,
+    "new_pairs_added": 0,
+    "alternates_added": 4,
+    "already_present": 0
+  },
+  "post_submit_sync": {
+    "directory": "data/igp24/sair_sync_20260708_r8_followup_after_submit",
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "degraded_mode_summary": "22/22 details recovered; 22/22 downloads recovered",
+    "submission_count": 22,
+    "submission_row_count": 193,
+    "pending_rows": 8,
+    "scoreable_rows": 185,
+    "unmatched_rows": 0,
+    "remaining_signature_count": 49462,
+    "pending_pair_counts": {
+      "24T25000|r=8": 4,
+      "24T25000|r=20": 4
+    }
+  },
+  "interpretation": {
+    "escaped_known_basin": false,
+    "result": "The 24T9993-sourced r8 score-followup packet verified cleanly but collapsed to the known crowded 24T25000|r=8 pair.",
+    "next_gate": "Do not submit more r8 quartic-in-x6 odd off-core variants without a materially different construction, mode family, or label discriminator."
+  },
+  "safety": {
+    "api_key_recorded": false,
+    "live_submission_was_explicit": true,
+    "automatic_submission": false
+  }
+}

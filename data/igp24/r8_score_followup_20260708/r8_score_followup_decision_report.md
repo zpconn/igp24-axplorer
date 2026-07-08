@@ -125,8 +125,10 @@ rows still use one perturbation mode, `odd_pair_off_core`; this was accepted
 for this lane because the bounded single-term variant produced zero exact r8
 survivors and the template/basin/mod-p diversity gates passed.
 
-Recommendation: keep this as a manual-review packet. Submit only after explicit
-operator approval.
+Postscript: after explicit operator approval, this packet was submitted as
+`sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7`. All 4 rows were accepted as
+`24T25000|r=8` with discriminants pending. See
+`data/igp24/r8_score_followup_20260708/r8_score_followup_submission_report.md`.
 
 ## Validation
 

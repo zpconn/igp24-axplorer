@@ -1,0 +1,45 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783549302"
+  },
+  "data": {
+    "batchId": "igp24_batch_801b80bac7a04052",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-08T22:20:42Z",
+    "description": "r8 score-followup 24T9993 anti-collapse packet 20260708",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r8 score-followup 24T9993 anti-collapse packet 20260708"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 4,
+    "rejectedCount": 0,
+    "submissionId": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-08T22:20:42Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}
