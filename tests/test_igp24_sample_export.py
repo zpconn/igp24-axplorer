@@ -12,7 +12,7 @@ from scripts.igp24_score_sample_export import (
     score_export_records,
     summarize_scored_records,
 )
-from src.evaluator import build_sample_export_record, sample_and_export
+from src.evaluator import build_sample_export_record, sample_and_export, sample_support_profile
 
 
 def test_build_sample_export_record_marks_unscored_and_safe():
@@ -50,11 +50,32 @@ def test_build_sample_export_record_marks_unscored_and_safe():
     assert record["generation_metadata"]["target_r"] == 16
     assert record["generation_metadata"]["target_r_intent"] == 16
     assert record["generation_metadata"]["target_r_conditioning_mode"] == "seed_bank_prefix"
+    assert record["template_family_id"] == "model:fixed_sparse_template:r16:zero_decoded"
+    assert record["perturbation_mode"] == "sparse_mixed_support_gcd1"
+    assert record["generation_metadata"]["template_family_id"] == record["template_family_id"]
+    assert record["generation_metadata"]["basin_fingerprint"] == record["basin_fingerprint"]
+    assert record["generation_metadata"]["source_seed_hash"] == record["source_seed_hash"]
     assert not record["safety"]["scored"]
     assert not record["safety"]["local_search_run"]
     assert not record["safety"]["runs_exact_verifiers"]
     assert not record["safety"]["calls_sair"]
     assert not record["safety"]["auto_submits"]
+
+
+def test_sample_support_profile_identifies_axg14_basin_shapes():
+    even = [0] * 24
+    even[0] = 2
+    even[2] = -1
+    even[4] = 1
+    mixed = [0] * 24
+    mixed[0] = 2
+    mixed[1] = 1
+    mixed[6] = -3
+
+    assert sample_support_profile(even)["support_pattern"] == "even_support_like"
+    assert sample_support_profile(even)["even_support_like"] is True
+    assert sample_support_profile(mixed)["support_pattern"] == "sparse_mixed_support_gcd1"
+    assert sample_support_profile(mixed)["support_gcd"] == 1
 
 
 def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
@@ -130,6 +151,82 @@ def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
     assert [record["deduplication"]["unique_decoded_index"] for record in records] == [0, 1]
     assert all(record["deduplication"]["enabled"] for record in records)
     assert all(not record["safety"]["scored"] for record in records)
+
+
+def test_sample_and_export_axg14_provenance_controls_skip_bad_basins(tmp_path):
+    class DummyDecoded:
+        def __init__(self, a0, a1):
+            self.coefficients = [a0, a1] + [0] * 22
+
+    class DummyTokenizer:
+        def decode(self, row):
+            return DummyDecoded(int(row[0]), int(row[1]))
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.values = [(2, 0), (2, 1), (3, 0), (3, 1)]
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            values = self.values[self.offset : self.offset + batch_size]
+            self.offset += batch_size
+            return torch.tensor([[a0, a1] + [0] * (length - 2) for a0, a1 in values], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="axg14_export_test",
+        exp_id="run",
+        seed=44,
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=4,
+        num_samples_from_model=4,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=4,
+        sample_export_progress_interval=1,
+        sample_export_avoid_even_support_like=True,
+        sample_export_require_support_gcd_one=True,
+        sample_export_family_cap=1,
+        sample_export_basin_fingerprint_cap=0,
+        top_k=-1,
+        igp24_generation_strategy="mixed",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=20,
+        sample_export_target_r_conditioning_mode="control_token",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "axg14_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.15,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["records_written"] == 1
+    assert summary["provenance_controls_enabled"]
+    assert summary["provenance_skip_counts"] == {
+        "even_support_like": 2,
+        "support_gcd_not_one": 2,
+        "template_family_cap": 1,
+    }
+    assert records[0]["generation_metadata"]["generation_strategy"] == "mixed"
+    assert records[0]["generation_metadata"]["support_gcd"] == 1
+    assert records[0]["generation_metadata"]["perturbation_mode"] == "sparse_mixed_support_gcd1"
 
 
 def test_sample_and_export_prefixes_target_r_seed_bank(tmp_path):
@@ -321,6 +418,14 @@ def test_score_export_records_consumes_decoded_samples_without_local_search():
             "generation_metadata": {
                 "strategy": "target_r_seed_bank_export",
                 "target_r_conditioning_mode": "seed_bank_prefix",
+                "template_family_id": "model:mixed:r20:sparse_mixed_support_gcd1",
+                "family_key": "model:mixed:r20:sparse_mixed_support_gcd1:fingerprint",
+                "perturbation_mode": "sparse_mixed_support_gcd1",
+                "support_pattern": "sparse_mixed_support_gcd1",
+                "support_gcd": 1,
+                "even_support_like": False,
+                "basin_fingerprint": "fingerprint",
+                "source_seed_hash": "seedhash",
             },
         },
         {"sample_index": 1, "decoded_coefficients": None},
@@ -340,6 +445,10 @@ def test_score_export_records_consumes_decoded_samples_without_local_search():
     assert not summary["safety"]["auto_submits"]
     assert all(record["generation_metadata"]["strategy"] == "model_sample_export" for record in scored)
     assert scored[0]["source_sample_export"]["sample_export_source"] == "target_r_seed_bank"
+    assert scored[0]["generation_metadata"]["template_family_id"] == "model:mixed:r20:sparse_mixed_support_gcd1"
+    assert scored[0]["generation_metadata"]["perturbation_mode"] == "sparse_mixed_support_gcd1"
+    assert scored[0]["template_family_id"] == "model:mixed:r20:sparse_mixed_support_gcd1"
+    assert scored[0]["basin_fingerprint"] == "fingerprint"
     assert summary["sample_export_source_counts"] == {"target_r_seed_bank": 1}
 
 

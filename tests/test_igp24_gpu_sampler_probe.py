@@ -397,6 +397,10 @@ def test_build_sample_export_target_r_conditioned_command_accepts_diversity_samp
         top_k=-1,
         unique_target=256,
         generation_strategy="mixed",
+        avoid_even_support_like=True,
+        require_support_gcd_one=True,
+        family_cap=3,
+        basin_fingerprint_cap=2,
     )
     command = config["command"]
 
@@ -405,11 +409,20 @@ def test_build_sample_export_target_r_conditioned_command_accepts_diversity_samp
     assert config["caps"]["sample_export_unique_target"] == 256
     assert config["caps"]["generation_strategy"] == "mixed"
     assert config["caps"]["conditioned_diversity_sampling"] is True
+    assert config["caps"]["provenance_aware_export"] is True
+    assert config["caps"]["sample_export_avoid_even_support_like"] is True
+    assert config["caps"]["sample_export_require_support_gcd_one"] is True
+    assert config["caps"]["sample_export_family_cap"] == 3
+    assert config["caps"]["sample_export_basin_fingerprint_cap"] == 2
     assert command[command.index("--temperature") + 1] == "1.15"
     assert command[command.index("--top_k") + 1] == "-1"
     assert command[command.index("--sample_export_unique_target") + 1] == "256"
     assert command[command.index("--sample_export_max_attempts") + 1] == "1024"
     assert command[command.index("--igp24_generation_strategy") + 1] == "mixed"
+    assert command[command.index("--sample_export_avoid_even_support_like") + 1] == "true"
+    assert command[command.index("--sample_export_require_support_gcd_one") + 1] == "true"
+    assert command[command.index("--sample_export_family_cap") + 1] == "3"
+    assert command[command.index("--sample_export_basin_fingerprint_cap") + 1] == "2"
 
 
 def test_summarize_sample_export_reads_safety_flags(tmp_path):

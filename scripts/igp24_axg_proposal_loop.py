@@ -276,12 +276,19 @@ def build_source_basin_summary(
 ) -> dict[str, Any]:
     classification_by_source: dict[str, Counter[str]] = {}
     risk_by_source: dict[str, Counter[str]] = {}
+    mode_by_source: dict[str, Counter[str]] = {}
+    template_family_by_source: dict[str, Counter[str]] = {}
+    basin_fingerprint_by_source: dict[str, Counter[str]] = {}
     eligible_by_source: Counter[str] = Counter()
     rejected_basin_by_source: Counter[str] = Counter()
 
     for row in scores:
         source = selected_sample_export_source(row)
+        features = row.get("features") or {}
         classification_by_source.setdefault(source, Counter())[str(row.get("anti_basin_classification") or "unknown")] += 1
+        mode_by_source.setdefault(source, Counter())[str(features.get("perturbation_mode") or "unknown")] += 1
+        template_family_by_source.setdefault(source, Counter())[str(features.get("template_family_id") or "unknown")] += 1
+        basin_fingerprint_by_source.setdefault(source, Counter())[str(features.get("basin_fingerprint") or "unknown")] += 1
         if row.get("eligible_for_packet"):
             eligible_by_source[source] += 1
         else:
@@ -306,6 +313,9 @@ def build_source_basin_summary(
         "selected_rows_by_source": dict(selected_source_counts),
         "classification_counts_by_source": _counter_map(classification_by_source),
         "risk_reason_counts_by_source": _counter_map(risk_by_source),
+        "perturbation_mode_counts_by_source": _counter_map(mode_by_source),
+        "template_family_counts_by_source": _counter_map(template_family_by_source),
+        "basin_fingerprint_counts_by_source": _counter_map(basin_fingerprint_by_source),
         "model_generated_target_r_survivor_rows": model_generated_survivors,
         "seed_bank_target_r_survivor_rows": seed_bank_survivors,
         "model_generated_eligible_rows": sum(
@@ -335,6 +345,9 @@ def run_proposal_loop(
     crowded_team_threshold: int,
     dry_run: bool,
     min_model_generated_rows: int = 0,
+    min_template_family_count: int = 0,
+    min_basin_fingerprint_count: int = 0,
+    reject_unknown_provenance: bool = False,
 ) -> dict[str, Any]:
     manifest = load_model_manifest(registry, version)
     candidates = load_candidate_rows(candidate_paths)
@@ -372,6 +385,9 @@ def run_proposal_loop(
         selected,
         min_packet_rows=min_packet_rows,
         min_model_generated_rows=min_model_generated_rows,
+        min_template_family_count=min_template_family_count,
+        min_basin_fingerprint_count=min_basin_fingerprint_count,
+        reject_unknown_provenance=reject_unknown_provenance,
     )
     decision = "reviewed_packet_ready_for_dry_run" if recommendation["recommended_for_sair_packet"] else "hold_no_submission"
 
@@ -432,6 +448,9 @@ def run_proposal_loop(
             "packet_limit": int(packet_limit),
             "min_packet_rows": int(min_packet_rows),
             "min_model_generated_rows": int(min_model_generated_rows),
+            "min_template_family_count": int(min_template_family_count),
+            "min_basin_fingerprint_count": int(min_basin_fingerprint_count),
+            "reject_unknown_provenance": bool(reject_unknown_provenance),
             "per_mode_cap": int(per_mode_cap),
             "per_pattern_cap": int(per_pattern_cap),
             "crowded_team_threshold": int(crowded_team_threshold),
@@ -536,6 +555,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--per_mode_cap", type=int, default=4)
     parser.add_argument("--per_pattern_cap", type=int, default=4)
+    parser.add_argument("--min_template_family_count", type=int, default=0)
+    parser.add_argument("--min_basin_fingerprint_count", type=int, default=0)
+    parser.add_argument("--reject_unknown_provenance", action="store_true", default=False)
     parser.add_argument("--crowded_team_threshold", type=int, default=20)
     parser.add_argument("--dry_run", action="store_true", default=False)
     return parser
@@ -563,6 +585,9 @@ def main(argv: list[str] | None = None) -> int:
         crowded_team_threshold=args.crowded_team_threshold,
         dry_run=bool(args.dry_run),
         min_model_generated_rows=args.min_model_generated_rows,
+        min_template_family_count=args.min_template_family_count,
+        min_basin_fingerprint_count=args.min_basin_fingerprint_count,
+        reject_unknown_provenance=bool(args.reject_unknown_provenance),
     )
     print(f"summary\t{summary['artifacts']['summary']}")
     print(f"run_manifest\t{summary['artifacts']['run_manifest']}")

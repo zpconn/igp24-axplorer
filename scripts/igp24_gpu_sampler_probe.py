@@ -224,6 +224,14 @@ def summarize_sample_export(path: Path) -> dict[str, Any]:
         "sample_export_attempted_samples": dedup.get("attempted_samples", len(records)),
         "sample_export_unique_decoded_coefficients": dedup.get("unique_decoded_coefficients"),
         "sample_export_duplicate_decoded_records_skipped": dedup.get("duplicate_decoded_records_skipped", 0),
+        "sample_export_provenance_controls_enabled": bool(dedup.get("provenance_controls_enabled", False)),
+        "sample_export_provenance_skip_counts": dedup.get("provenance_skip_counts", {}),
+        "sample_export_template_family_counts": dedup.get("exported_template_family_counts", {}),
+        "sample_export_basin_fingerprint_counts": dedup.get("exported_basin_fingerprint_counts", {}),
+        "sample_export_avoid_even_support_like": bool(dedup.get("avoid_even_support_like", False)),
+        "sample_export_require_support_gcd_one": bool(dedup.get("require_support_gcd_one", False)),
+        "sample_export_family_cap": dedup.get("family_cap"),
+        "sample_export_basin_fingerprint_cap": dedup.get("basin_fingerprint_cap"),
         "sample_export_dedup_enabled": bool(dedup.get("deduplication_enabled", False)),
         "sample_export_unique_target": dedup.get("unique_target"),
         "sample_export_attempt_budget": dedup.get("attempt_budget"),
@@ -1174,6 +1182,10 @@ def build_sample_export_target_r_conditioned_command(
     top_k: int = 12,
     unique_target: int = 0,
     generation_strategy: str = "fixed_sparse_template",
+    avoid_even_support_like: bool = False,
+    require_support_gcd_one: bool = False,
+    family_cap: int = 0,
+    basin_fingerprint_cap: int = 0,
 ) -> dict[str, Any]:
     seed_text = str(seed if seed is not None else 33000 + int(target_r))
     exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
@@ -1264,6 +1276,14 @@ def build_sample_export_target_r_conditioned_command(
         "128",
         "--sample_export_target_r_conditioning_mode",
         "control_token",
+        "--sample_export_avoid_even_support_like",
+        "true" if avoid_even_support_like else "false",
+        "--sample_export_require_support_gcd_one",
+        "true" if require_support_gcd_one else "false",
+        "--sample_export_family_cap",
+        str(int(family_cap)),
+        "--sample_export_basin_fingerprint_cap",
+        str(int(basin_fingerprint_cap)),
         "--igp24_generation_strategy",
         str(generation_strategy),
         "--igp24_ledger_path",
@@ -1303,6 +1323,13 @@ def build_sample_export_target_r_conditioned_command(
             "training_target_rs": str(target_rs),
             "generation_strategy": str(generation_strategy),
             "conditioned_diversity_sampling": bool(float(temperature) > 0.9 or int(top_k) < 0 or int(unique_target) > 0),
+            "provenance_aware_export": bool(
+                avoid_even_support_like or require_support_gcd_one or int(family_cap) > 0 or int(basin_fingerprint_cap) > 0
+            ),
+            "sample_export_avoid_even_support_like": bool(avoid_even_support_like),
+            "sample_export_require_support_gcd_one": bool(require_support_gcd_one),
+            "sample_export_family_cap": int(family_cap),
+            "sample_export_basin_fingerprint_cap": int(basin_fingerprint_cap),
             "seed": int(seed_text),
             "target_r": int(target_r),
             "max_len": int(max_len),
@@ -1764,6 +1791,30 @@ def get_parser() -> argparse.ArgumentParser:
         default="fixed_sparse_template",
         help="IGP24 generation strategy metadata for sample_export_target_r_conditioned",
     )
+    parser.add_argument(
+        "--target_r_conditioned_avoid_even_support_like",
+        action="store_true",
+        default=False,
+        help="AXG-1.4: skip model-export rows whose decoded support is g(x^2)-like",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_require_support_gcd_one",
+        action="store_true",
+        default=False,
+        help="AXG-1.4: skip model-export rows whose positive support gcd is not one",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_family_cap",
+        type=int,
+        default=0,
+        help="AXG-1.4: maximum export rows per inferred template family; 0 disables",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_basin_fingerprint_cap",
+        type=int,
+        default=0,
+        help="AXG-1.4: maximum export rows per inferred basin fingerprint; 0 disables",
+    )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
 
@@ -1798,6 +1849,18 @@ def main() -> int:
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_training_target_rs": args.target_r_training_target_rs
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_avoid_even_support_like": bool(args.target_r_conditioned_avoid_even_support_like)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_require_support_gcd_one": bool(args.target_r_conditioned_require_support_gcd_one)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_family_cap": args.target_r_conditioned_family_cap
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_basin_fingerprint_cap": args.target_r_conditioned_basin_fingerprint_cap
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "safety": {
@@ -1889,6 +1952,10 @@ def main() -> int:
                 top_k=args.target_r_conditioned_top_k,
                 unique_target=args.target_r_conditioned_unique_target,
                 generation_strategy=args.target_r_conditioned_generation_strategy,
+                avoid_even_support_like=bool(args.target_r_conditioned_avoid_even_support_like),
+                require_support_gcd_one=bool(args.target_r_conditioned_require_support_gcd_one),
+                family_cap=int(args.target_r_conditioned_family_cap),
+                basin_fingerprint_cap=int(args.target_r_conditioned_basin_fingerprint_cap),
             )
         else:
             command_config = build_sampler_command(

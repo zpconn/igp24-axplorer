@@ -29,6 +29,25 @@ from src.utils import bool_flag
 
 
 DEFAULT_OUTPUT_DIR = Path("/tmp/igp24_scored_sample_export_20260704")
+PROVENANCE_METADATA_KEYS = [
+    "generation_strategy",
+    "construction_family",
+    "source_family",
+    "template_family_id",
+    "family_key",
+    "perturbation_mode",
+    "support_pattern",
+    "support_gcd",
+    "even_support_like",
+    "odd_support_exponents",
+    "coefficient_hash",
+    "decoded_hash",
+    "exported_coefficient_hash",
+    "basin_fingerprint",
+    "modular_signature",
+    "source_seed_hash",
+    "sampler_knobs",
+]
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -152,6 +171,7 @@ def score_export_records(
             or source_generation_metadata.get("strategy")
             or "unknown"
         )
+        source_provenance = record.get("sample_provenance") if isinstance(record.get("sample_provenance"), dict) else {}
         generation_metadata = {
             "strategy": "model_sample_export",
             "source": "sample_export_import_score",
@@ -167,6 +187,14 @@ def score_export_records(
             "target_r_intent": source_generation_metadata.get("target_r_intent"),
             "local_search_enabled": bool(args.local_search),
         }
+        for key in PROVENANCE_METADATA_KEYS:
+            value = source_generation_metadata.get(key)
+            if value is None:
+                value = source_provenance.get(key)
+            if value is None and key in record:
+                value = record.get(key)
+            if value is not None:
+                generation_metadata[key] = value
         scored_record = analysis_to_record(
             datapoint.analysis,
             datapoint.score,
@@ -183,8 +211,23 @@ def score_export_records(
             "schema_version": record.get("schema_version"),
             "sample_export_source": sample_export_source,
             "generation_metadata": source_generation_metadata,
+            "sample_provenance": source_provenance,
             "seed_bank": record.get("seed_bank"),
         }
+        for key in (
+            "template_family_id",
+            "perturbation_mode",
+            "support_pattern",
+            "support_gcd",
+            "even_support_like",
+            "coefficient_hash",
+            "decoded_hash",
+            "basin_fingerprint",
+            "modular_signature",
+            "source_seed_hash",
+        ):
+            if generation_metadata.get(key) is not None:
+                scored_record[key] = generation_metadata[key]
         scored_record["safety"] = {
             "proxy_only": True,
             "runs_exact_verifiers": False,

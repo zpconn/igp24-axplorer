@@ -63,6 +63,22 @@ def test_create_axg13_links_to_axg12_parent(tmp_path):
     assert validate_registry(registry)["models"] == ["AXG-1", "AXG-1.1", "AXG-1.2", "AXG-1.3"]
 
 
+def test_create_axg14_links_to_axg13_parent(tmp_path):
+    registry = tmp_path / "registry"
+    create_version(registry, "AXG-1", "none", "baseline")
+    create_version(registry, "AXG-1.1", "AXG-1", "seeded target r")
+    create_version(registry, "AXG-1.2", "AXG-1.1", "control-token target r")
+    create_version(registry, "AXG-1.3", "AXG-1.2", "diversity-aware target r")
+
+    created = create_version(registry, "AXG-1.4", "AXG-1.3", "provenance-aware diversity")
+    manifest = json.loads((registry / "models" / "AXG-1.4" / "model_manifest.json").read_text(encoding="utf-8"))
+
+    assert created["manifest"].endswith("AXG-1.4/model_manifest.json")
+    assert manifest["parent_version"] == "AXG-1.3"
+    assert manifest["description"] == "provenance-aware diversity"
+    assert validate_registry(registry)["models"] == ["AXG-1", "AXG-1.1", "AXG-1.2", "AXG-1.3", "AXG-1.4"]
+
+
 def test_validate_registry_catches_secret_shape_and_binary(tmp_path):
     registry = tmp_path / "registry"
     create_version(registry, "AXG-1", "none", "baseline")

@@ -1,7 +1,10 @@
+import hashlib
 import json
+import math
 import queue
 import threading
 from concurrent.futures import ProcessPoolExecutor
+from collections import Counter
 from contextlib import contextmanager
 from logging import getLogger
 from pathlib import Path
@@ -226,6 +229,144 @@ def _decoded_coefficients_from_record(record):
     return None
 
 
+def _json_hash(payload: Any) -> str:
+    text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, Any]:
+    if decoded_coefficients is None:
+        return {
+            "support": [],
+            "support_count": 0,
+            "support_gcd": None,
+            "even_support_like": None,
+            "odd_support_exponents": [],
+            "support_pattern": "invalid_decode",
+        }
+    coeffs = [int(value) for value in decoded_coefficients]
+    support = [index for index, value in enumerate(coeffs) if value != 0]
+    positive_support = [index for index in support if index > 0]
+    support_gcd = 0
+    for exponent in positive_support:
+        support_gcd = math.gcd(support_gcd, int(exponent))
+    support_gcd_value = support_gcd or None
+    even_support_like = bool(support) and all(index % 2 == 0 for index in support)
+    odd_support = [index for index in support if index % 2 == 1]
+    if not support:
+        support_pattern = "zero_decoded"
+    elif len(support) == 1 and support[0] == 0:
+        support_pattern = "constant_only"
+    elif even_support_like:
+        support_pattern = "even_support_like"
+    elif support_gcd_value and support_gcd_value > 1:
+        support_pattern = f"support_gcd_{support_gcd_value}"
+    elif len(support) <= 6:
+        support_pattern = "sparse_mixed_support_gcd1"
+    elif len(support) <= 14:
+        support_pattern = "medium_mixed_support_gcd1"
+    else:
+        support_pattern = "dense_mixed_support_gcd1"
+    return {
+        "support": support,
+        "support_count": len(support),
+        "support_gcd": support_gcd_value,
+        "even_support_like": even_support_like,
+        "odd_support_exponents": odd_support,
+        "support_pattern": support_pattern,
+    }
+
+
+def build_sample_provenance(
+    *,
+    decoded_coefficients: list[int] | None,
+    args: Any,
+    sample_index: int,
+    batch_index: int,
+    batch_row: int,
+    temperature: float,
+    top_k: int | None,
+) -> dict[str, Any]:
+    target_r = _int_or_none(getattr(args, "target_r", None))
+    strategy = str(getattr(args, "igp24_generation_strategy", "") or "unknown")
+    preset = str(getattr(args, "igp24_generation_preset", "") or "none")
+    support = sample_support_profile(decoded_coefficients)
+    support_gcd = support["support_gcd"]
+    even_support_like = support["even_support_like"]
+    support_pattern = str(support["support_pattern"])
+    if decoded_coefficients is None:
+        perturbation_mode = "invalid_decode"
+    elif even_support_like:
+        perturbation_mode = "even_support_g_x2_like"
+    elif support_gcd and int(support_gcd) > 1:
+        perturbation_mode = f"support_gcd_{int(support_gcd)}_composed_like"
+    elif support["support_count"] <= 6:
+        perturbation_mode = "sparse_mixed_support_gcd1"
+    elif support["support_count"] <= 14:
+        perturbation_mode = "medium_mixed_support_gcd1"
+    else:
+        perturbation_mode = "dense_mixed_support_gcd1"
+
+    template_family_id = f"model:{strategy}:r{target_r if target_r is not None else 'any'}:{support_pattern}"
+    basin_key = {
+        "strategy": strategy,
+        "target_r": target_r,
+        "support_pattern": support_pattern,
+        "support_gcd": support_gcd,
+        "even_support_like": even_support_like,
+        "perturbation_mode": perturbation_mode,
+    }
+    basin_fingerprint = _json_hash(basin_key)[:24]
+    lineage = {
+        "seed": getattr(args, "seed", None),
+        "exp_name": getattr(args, "exp_name", None),
+        "exp_id": getattr(args, "exp_id", None),
+        "sample_index": int(sample_index),
+        "batch_index": int(batch_index),
+        "batch_row": int(batch_row),
+    }
+    coefficient_hash = _json_hash({"degree": 24, "coefficients": decoded_coefficients}) if decoded_coefficients is not None else None
+    exported_hash = (
+        _json_hash({"degree": 24, "exported_coefficients": list(decoded_coefficients) + [1]})
+        if decoded_coefficients is not None
+        else None
+    )
+    return {
+        "schema_version": 1,
+        "generation_strategy": strategy,
+        "generation_preset": preset,
+        "target_r": target_r,
+        "template_family_id": template_family_id,
+        "family_key": f"{template_family_id}:{basin_fingerprint}",
+        "perturbation_mode": perturbation_mode,
+        "support_pattern": support_pattern,
+        "support": support["support"],
+        "support_count": support["support_count"],
+        "support_gcd": support_gcd,
+        "even_support_like": even_support_like,
+        "odd_support_exponents": support["odd_support_exponents"],
+        "coefficient_hash": coefficient_hash,
+        "decoded_hash": coefficient_hash,
+        "exported_coefficient_hash": exported_hash,
+        "basin_fingerprint": basin_fingerprint,
+        "basin_fingerprint_key": basin_key,
+        "modular_signature": None,
+        "source_seed_hash": _json_hash(lineage)[:24],
+        "source_lineage": lineage,
+        "sampler_knobs": {
+            "temperature": float(temperature),
+            "top_k": top_k,
+            "unique_target": int(getattr(args, "sample_export_unique_target", 0) or 0),
+            "dedup": bool(getattr(args, "sample_export_dedup", False)),
+            "max_attempts": int(getattr(args, "sample_export_max_attempts", 0) or 0),
+            "model_target_r_conditioning_mode": str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none"),
+            "sample_export_target_r_conditioning_mode": str(
+                getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none"
+            ),
+        },
+    }
+
+
 def _seed_label(record):
     feedback = record.get("sair_feedback")
     if isinstance(feedback, dict) and feedback.get("label"):
@@ -366,13 +507,23 @@ def build_sample_export_record(
     top_k: int | None,
     dedup_enabled: bool = False,
     unique_decoded_index: int | None = None,
+    sample_provenance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
     target_r = _int_or_none(getattr(args, "target_r", None))
     sample_conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none")
     model_conditioning_mode = str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none")
     conditioning_mode = model_conditioning_mode if sample_conditioning_mode == "none" else sample_conditioning_mode
-    return {
+    provenance = sample_provenance or build_sample_provenance(
+        decoded_coefficients=decoded_coefficients,
+        args=args,
+        sample_index=sample_index,
+        batch_index=batch_index,
+        batch_row=batch_row,
+        temperature=temperature,
+        top_k=top_k,
+    )
+    record = {
         "schema_version": 1,
         "record_type": "igp24_model_sample_export",
         "sample_index": int(sample_index),
@@ -391,6 +542,17 @@ def build_sample_export_record(
         "decoded": decoded_coefficients is not None,
         "decoded_coefficients": decoded_coefficients,
         "exported_coefficients": exported_coefficients,
+        "sample_provenance": provenance,
+        "template_family_id": provenance.get("template_family_id"),
+        "perturbation_mode": provenance.get("perturbation_mode"),
+        "support_pattern": provenance.get("support_pattern"),
+        "support_gcd": provenance.get("support_gcd"),
+        "even_support_like": provenance.get("even_support_like"),
+        "coefficient_hash": provenance.get("coefficient_hash"),
+        "decoded_hash": provenance.get("decoded_hash"),
+        "basin_fingerprint": provenance.get("basin_fingerprint"),
+        "modular_signature": provenance.get("modular_signature"),
+        "source_seed_hash": provenance.get("source_seed_hash"),
         "score": None,
         "scoring_status": "unscored",
         "local_search_status": "not_run",
@@ -401,7 +563,24 @@ def build_sample_export_record(
             "strategy": "model_sample_export",
             "source": "gpu_or_device_model_generate",
             "resolved_generation_strategy": getattr(args, "igp24_generation_strategy", None),
+            "generation_strategy": provenance.get("generation_strategy"),
             "generation_preset": getattr(args, "igp24_generation_preset", None),
+            "construction_family": "model_sample_export",
+            "source_family": "model_sample_export",
+            "template_family_id": provenance.get("template_family_id"),
+            "family_key": provenance.get("family_key"),
+            "perturbation_mode": provenance.get("perturbation_mode"),
+            "support_pattern": provenance.get("support_pattern"),
+            "support_gcd": provenance.get("support_gcd"),
+            "even_support_like": provenance.get("even_support_like"),
+            "odd_support_exponents": provenance.get("odd_support_exponents"),
+            "coefficient_hash": provenance.get("coefficient_hash"),
+            "decoded_hash": provenance.get("decoded_hash"),
+            "exported_coefficient_hash": provenance.get("exported_coefficient_hash"),
+            "basin_fingerprint": provenance.get("basin_fingerprint"),
+            "modular_signature": provenance.get("modular_signature"),
+            "source_seed_hash": provenance.get("source_seed_hash"),
+            "sampler_knobs": provenance.get("sampler_knobs"),
             "encoding_tokens": getattr(args, "encoding_tokens", None),
             "target_r": target_r,
             "target_r_intent": target_r,
@@ -426,6 +605,7 @@ def build_sample_export_record(
             "auto_submits": False,
         },
     }
+    return record
 
 
 def sample_export_summary_path(export_path: Path) -> Path:
@@ -447,7 +627,20 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     dedup_enabled = bool(getattr(args, "sample_export_dedup", False) or unique_target > 0)
     progress_interval = int(getattr(args, "sample_export_progress_interval", 0) or 0)
     seed_bank_requested = bool(getattr(args, "sample_export_seed_bank_jsonl", "") and int(getattr(args, "sample_export_seed_bank_limit", 0) or 0) > 0)
-    controlled_export = dedup_enabled or unique_target > 0 or max_attempts_arg > 0 or seed_bank_requested
+    avoid_even_support_like = bool(getattr(args, "sample_export_avoid_even_support_like", False))
+    require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
+    family_cap = int(getattr(args, "sample_export_family_cap", 0) or 0)
+    basin_fingerprint_cap = int(getattr(args, "sample_export_basin_fingerprint_cap", 0) or 0)
+    provenance_controls_enabled = (
+        avoid_even_support_like or require_support_gcd_one or family_cap > 0 or basin_fingerprint_cap > 0
+    )
+    controlled_export = (
+        dedup_enabled
+        or unique_target > 0
+        or max_attempts_arg > 0
+        or seed_bank_requested
+        or provenance_controls_enabled
+    )
 
     top_k = args.top_k if args.top_k != -1 else None
     attempted_samples = 0
@@ -458,18 +651,22 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     invalid_decode_attempts = 0
     duplicate_decoded_records_skipped = 0
     seen_decoded_coefficients: dict[tuple[int, ...], int] = {}
+    exported_family_counts: Counter[str] = Counter()
+    exported_basin_fingerprint_counts: Counter[str] = Counter()
+    provenance_skip_counts: Counter[str] = Counter()
     stop_reason = "no_attempts_requested" if attempt_budget <= 0 else None
     seed_bank_stats: dict[str, Any] = {}
 
     logger.info(f"Export-only model sampling to {export_path}")
     if controlled_export:
         logger.info(
-            "Export-only controls: dedup_enabled=%s unique_target=%s attempt_budget=%s progress_interval=%s seed_bank_requested=%s",
+            "Export-only controls: dedup_enabled=%s unique_target=%s attempt_budget=%s progress_interval=%s seed_bank_requested=%s provenance_controls=%s",
             dedup_enabled,
             unique_target,
             attempt_budget,
             progress_interval,
             seed_bank_requested,
+            provenance_controls_enabled,
         )
     with export_path.open("w", encoding="utf-8") as handle:
         records_written, seed_bank_stats = _write_seed_bank_export_records(
@@ -518,11 +715,13 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                 decoded = env.tokenizer.decode(batch_numpy[batch_row])
                 decoded_coefficients = None
                 unique_decoded_index = None
+                sample_provenance = None
                 if decoded is not None:
                     decoded_coefficients = [int(coefficient) for coefficient in decoded.coefficients]
                     decoded_attempts += 1
                     decoded_key = tuple(decoded_coefficients)
-                    if decoded_key in seen_decoded_coefficients:
+                    decoded_already_seen = decoded_key in seen_decoded_coefficients
+                    if decoded_already_seen:
                         if dedup_enabled:
                             duplicate_decoded_records_skipped += 1
                             if progress_interval > 0 and attempted_samples % progress_interval == 0:
@@ -536,9 +735,48 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                                     invalid_decode_attempts,
                                 )
                             continue
+                    sample_provenance = build_sample_provenance(
+                        decoded_coefficients=decoded_coefficients,
+                        args=args,
+                        sample_index=sample_index,
+                        batch_index=batch_index,
+                        batch_row=batch_row,
+                        temperature=curr_temp,
+                        top_k=top_k,
+                    )
+                    skip_reasons: list[str] = []
+                    if avoid_even_support_like and sample_provenance.get("even_support_like") is True:
+                        skip_reasons.append("even_support_like")
+                    support_gcd = sample_provenance.get("support_gcd")
+                    if require_support_gcd_one and support_gcd != 1:
+                        skip_reasons.append("support_gcd_not_one")
+                    family_id = str(sample_provenance.get("template_family_id") or "unknown")
+                    basin_fingerprint = str(sample_provenance.get("basin_fingerprint") or "unknown")
+                    if family_cap > 0 and exported_family_counts[family_id] >= family_cap:
+                        skip_reasons.append("template_family_cap")
+                    if basin_fingerprint_cap > 0 and exported_basin_fingerprint_counts[basin_fingerprint] >= basin_fingerprint_cap:
+                        skip_reasons.append("basin_fingerprint_cap")
+                    if skip_reasons:
+                        for reason in skip_reasons:
+                            provenance_skip_counts[reason] += 1
+                        if progress_interval > 0 and attempted_samples % progress_interval == 0:
+                            logger.info(
+                                "Export-only provenance skip: attempts=%s/%s reasons=%s written=%s unique_decoded=%s",
+                                attempted_samples,
+                                attempt_budget,
+                                ",".join(skip_reasons),
+                                records_written,
+                                len(seen_decoded_coefficients),
+                            )
+                        continue
                     else:
-                        unique_decoded_index = len(seen_decoded_coefficients)
-                        seen_decoded_coefficients[decoded_key] = sample_index
+                        if decoded_already_seen:
+                            unique_decoded_index = seen_decoded_coefficients[decoded_key]
+                        else:
+                            unique_decoded_index = len(seen_decoded_coefficients)
+                            seen_decoded_coefficients[decoded_key] = sample_index
+                    exported_family_counts[family_id] += 1
+                    exported_basin_fingerprint_counts[basin_fingerprint] += 1
                     decoded_records += 1
                 else:
                     invalid_decode_attempts += 1
@@ -556,6 +794,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     top_k=top_k,
                     dedup_enabled=dedup_enabled,
                     unique_decoded_index=unique_decoded_index,
+                    sample_provenance=sample_provenance,
                 )
                 handle.write(json.dumps(record, sort_keys=True) + "\n")
                 records_written += 1
@@ -602,6 +841,14 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "unique_target": unique_target,
         "unique_decoded_coefficients": len(seen_decoded_coefficients),
         "duplicate_decoded_records_skipped": duplicate_decoded_records_skipped,
+        "provenance_controls_enabled": provenance_controls_enabled,
+        "avoid_even_support_like": avoid_even_support_like,
+        "require_support_gcd_one": require_support_gcd_one,
+        "family_cap": family_cap,
+        "basin_fingerprint_cap": basin_fingerprint_cap,
+        "provenance_skip_counts": dict(provenance_skip_counts),
+        "exported_template_family_counts": dict(exported_family_counts),
+        "exported_basin_fingerprint_counts": dict(exported_basin_fingerprint_counts),
         "stop_reason": stop_reason,
         "progress_interval": progress_interval,
         "scoring_avoided": True,

@@ -168,6 +168,45 @@ def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
     assert features["odd_support_exponents"] == [11]
 
 
+def test_candidate_features_reads_axg14_generic_provenance_metadata():
+    row = {
+        "canonical_hash": "model-hash",
+        "real_root_count": 20,
+        "coefficient_height": 7,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 5, "degrees": [1, 23]}],
+        "generation_metadata": {
+            "construction_family": "model_sample_export",
+            "generation_strategy": "mixed",
+            "template_family_id": "model:mixed:r20:sparse_mixed_support_gcd1",
+            "family_key": "model:mixed:r20:sparse_mixed_support_gcd1:basin-a",
+            "perturbation_mode": "sparse_mixed_support_gcd1",
+            "support_pattern": "sparse_mixed_support_gcd1",
+            "support_gcd": 1,
+            "even_support_like": False,
+            "odd_support_exponents": [1],
+            "coefficient_hash": "coeff-hash",
+            "decoded_hash": "decoded-hash",
+            "basin_fingerprint": "basin-a",
+            "source_seed_hash": "seed-a",
+        },
+    }
+
+    features = candidate_features(row)
+
+    assert features["construction_family"] == "model_sample_export"
+    assert features["decomposition_pattern"] == "sparse_mixed_support_gcd1"
+    assert features["template_family_id"] == "model:mixed:r20:sparse_mixed_support_gcd1"
+    assert features["family_key"] == "model:mixed:r20:sparse_mixed_support_gcd1:basin-a"
+    assert features["perturbation_mode"] == "sparse_mixed_support_gcd1"
+    assert features["support_gcd"] == 1
+    assert features["even_support"] is False
+    assert features["basin_fingerprint"] == "basin-a"
+    assert features["coefficient_hash"] == "coeff-hash"
+
+
 def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signature():
     progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
     basin_profile = build_basin_profile(
@@ -241,6 +280,52 @@ def test_submission_recommendation_can_require_model_generated_rows():
     assert model_recommendation["recommended_for_sair_packet"] is True
     assert model_recommendation["model_generated_selected_rows"] == 4
     assert model_recommendation["selected_source_counts"] == {"model_generate": 4}
+
+
+def test_submission_recommendation_can_require_axg14_family_and_basin_diversity():
+    selected = []
+    for index in range(4):
+        selected.append(
+            {
+                "risk_reasons": [],
+                "candidate": {"sample_export_source": "model_generate"},
+                "features": {
+                    "perturbation_mode": "sparse_mixed_support_gcd1" if index % 2 else "medium_mixed_support_gcd1",
+                    "mod_p_pattern_signature": f"p{index + 3}:1-23",
+                    "template_family_id": "model:mixed:r20:sparse_mixed_support_gcd1",
+                    "family_key": f"family-{index}",
+                    "basin_fingerprint": f"basin-{index}",
+                },
+            }
+        )
+
+    held = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+    assert held["recommended_for_sair_packet"] is False
+    assert "template_family" in held["reason"]
+    assert held["selected_basin_fingerprint_counts"] == {
+        "basin-0": 1,
+        "basin-1": 1,
+        "basin-2": 1,
+        "basin-3": 1,
+    }
+
+    selected[1]["features"]["template_family_id"] = "model:mixed:r20:medium_mixed_support_gcd1"
+    passed = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+    assert passed["recommended_for_sair_packet"] is True
 
 
 def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant():

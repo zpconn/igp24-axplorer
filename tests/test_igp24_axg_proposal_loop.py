@@ -260,3 +260,64 @@ def test_proposal_loop_can_recommend_clean_model_generated_packet(tmp_path):
     assert summary["recommendation"]["model_generated_selected_rows"] == 4
     assert summary["source_basin_summary"]["model_generated_target_r_survivor_rows"] == 4
     assert summary["source_basin_summary"]["selected_rows_by_source"] == {"model_generate": 4}
+
+
+def test_proposal_loop_reports_axg14_provenance_diversity_gates(tmp_path):
+    registry = tmp_path / "registry"
+    create_version(registry, "AXG-1", "none", "baseline")
+    create_version(registry, "AXG-1.1", "AXG-1", "seeded")
+    create_version(registry, "AXG-1.2", "AXG-1.1", "conditioned")
+    create_version(registry, "AXG-1.3", "AXG-1.2", "diversity")
+    create_version(registry, "AXG-1.4", "AXG-1.3", "provenance")
+    candidate_path = tmp_path / "model_generated_axg14.jsonl"
+    rows = []
+    for index in range(4):
+        row = _candidate(index)
+        row["sample_export_source"] = "model_generate"
+        row["generation_metadata"].update(
+            {
+                "construction_family": "model_sample_export",
+                "template_family_id": "model:mixed:r8:sparse_mixed_support_gcd1",
+                "family_key": f"model:mixed:r8:sparse_mixed_support_gcd1:basin-{index}",
+                "perturbation_mode": "sparse_mixed_support_gcd1" if index % 2 else "medium_mixed_support_gcd1",
+                "support_pattern": "sparse_mixed_support_gcd1",
+                "support_gcd": 1,
+                "even_support_like": False,
+                "basin_fingerprint": f"basin-{index}",
+                "source_seed_hash": f"seed-{index}",
+            }
+        )
+        rows.append(row)
+    _write_jsonl(candidate_path, rows)
+
+    summary = run_proposal_loop(
+        version="AXG-1.4",
+        registry=registry,
+        run_id="axg14_provenance",
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        sync_dir=None,
+        output_dir=tmp_path / "proposal_runs",
+        target_rs={8},
+        collapsed_labels=set(),
+        packet_limit=4,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+        per_mode_cap=4,
+        per_pattern_cap=4,
+        crowded_team_threshold=20,
+        dry_run=True,
+    )
+
+    assert summary["decision"] == "hold_no_submission"
+    assert "template_family" in summary["recommendation"]["reason"]
+    assert summary["diversity_gates"]["min_template_family_count"] == 2
+    assert summary["source_basin_summary"]["basin_fingerprint_counts_by_source"]["model_generate"] == {
+        "basin-0": 1,
+        "basin-1": 1,
+        "basin-2": 1,
+        "basin-3": 1,
+    }

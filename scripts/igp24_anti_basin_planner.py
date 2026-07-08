@@ -120,6 +120,9 @@ def support_summary(coefficients: Iterable[int] | None) -> dict[str, Any]:
 
 def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
     for key in (
+        "family_key",
+        "template_family_id",
+        "basin_fingerprint",
         "alt_composition_family_key",
         "r24_tower_family_key",
         "r12_tower_family_key",
@@ -132,7 +135,7 @@ def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
     ):
         if metadata.get(key):
             return str(metadata[key])
-    return str(row.get("source_family_key") or "")
+    return str(row.get("source_family_key") or row.get("template_family_id") or row.get("basin_fingerprint") or "")
 
 
 def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
@@ -140,18 +143,32 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     exported = row.get("exported_coefficients")
     support = support_summary(exported if isinstance(exported, list) else None)
     support_gcd = (
+        metadata.get("support_gcd")
+        or row.get("support_gcd")
+        or
         metadata.get("alt_support_gcd")
         or metadata.get("r8_quartic_lift_support_gcd")
         or support.get("support_gcd")
     )
-    even_support = metadata.get("alt_even_support")
+    even_support = metadata.get("even_support_like")
+    if even_support is None:
+        even_support = row.get("even_support_like")
+    if even_support is None:
+        even_support = metadata.get("alt_even_support")
     if even_support is None:
         even_support = metadata.get("r8_quartic_lift_even_support")
     if even_support is None:
         even_support = support.get("even_support")
-    perturbations = metadata.get("alt_outer_perturbations") or metadata.get("r8_quartic_lift_perturbation_exponents") or []
+    perturbations = (
+        metadata.get("alt_outer_perturbations")
+        or metadata.get("r8_quartic_lift_perturbation_exponents")
+        or metadata.get("odd_support_exponents")
+        or []
+    )
     mode = str(
-        metadata.get("alt_perturbation_mode")
+        metadata.get("perturbation_mode")
+        or row.get("perturbation_mode")
+        or metadata.get("alt_perturbation_mode")
         or metadata.get("r8_quartic_lift_perturbation_mode")
         or metadata.get("r24_tower_mode")
         or metadata.get("r20_linear_mode")
@@ -162,9 +179,23 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     pattern = str(
         metadata.get("decomposition_degree_pattern")
         or metadata.get("decomposition_pattern")
+        or metadata.get("support_pattern")
+        or row.get("support_pattern")
         or ("quartic_in_x6" if metadata.get("source_family") == "r8_quartic_lift_perturbed" else "")
     )
-    construction = str(metadata.get("construction_family") or metadata.get("source_family") or row.get("construction_family") or "")
+    construction = str(
+        metadata.get("construction_family")
+        or metadata.get("source_family")
+        or row.get("construction_family")
+        or metadata.get("generation_strategy")
+        or metadata.get("resolved_generation_strategy")
+        or ""
+    )
+    template_family_id = str(metadata.get("template_family_id") or row.get("template_family_id") or "")
+    basin_fingerprint = str(metadata.get("basin_fingerprint") or row.get("basin_fingerprint") or "")
+    coefficient_hash = str(metadata.get("coefficient_hash") or row.get("coefficient_hash") or "")
+    decoded_hash = str(metadata.get("decoded_hash") or row.get("decoded_hash") or "")
+    source_seed_hash = str(metadata.get("source_seed_hash") or row.get("source_seed_hash") or "")
     return {
         "canonical_hash": str(row.get("canonical_hash") or ""),
         "short_hash": str(row.get("canonical_hash") or "")[:12],
@@ -175,9 +206,19 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "perturbation_mode": mode,
         "perturbation_terms": len(perturbations) if isinstance(perturbations, list) else 0,
         "family_key": family_key(metadata, row),
+        "template_family_id": template_family_id,
+        "basin_fingerprint": basin_fingerprint,
+        "coefficient_hash": coefficient_hash,
+        "decoded_hash": decoded_hash,
+        "source_seed_hash": source_seed_hash,
         "support_gcd": int(support_gcd) if support_gcd is not None else None,
         "even_support": bool(even_support) if even_support is not None else None,
-        "odd_support_exponents": metadata.get("alt_odd_support_exponents") or support.get("odd_support_exponents") or [],
+        "odd_support_exponents": (
+            metadata.get("alt_odd_support_exponents")
+            or metadata.get("odd_support_exponents")
+            or support.get("odd_support_exponents")
+            or []
+        ),
         "mod_p_pattern_signature": mod_pattern_signature(row),
         "irreducible": bool(row.get("irreducible")),
         "squarefree": bool(row.get("squarefree")),
@@ -551,7 +592,7 @@ def select_diverse_scores(
             continue
         features = row.get("features") or {}
         hash_value = str(row.get("canonical_hash") or "")
-        family = str(features.get("family_key") or hash_value)
+        family = str(features.get("family_key") or features.get("template_family_id") or features.get("basin_fingerprint") or hash_value)
         mode = str(features.get("perturbation_mode") or "unknown")
         pattern = str(features.get("decomposition_pattern") or "unknown")
         if hash_value in hashes or family in family_keys:
@@ -580,12 +621,27 @@ def build_submission_recommendation(
     *,
     min_packet_rows: int,
     min_model_generated_rows: int = 0,
+    min_template_family_count: int = 0,
+    min_basin_fingerprint_count: int = 0,
+    reject_unknown_provenance: bool = False,
 ) -> dict[str, Any]:
     mode_counts = Counter(str((row.get("features") or {}).get("perturbation_mode") or "unknown") for row in selected)
     mod_counts = Counter(str((row.get("features") or {}).get("mod_p_pattern_signature") or "none") for row in selected)
+    family_counts = Counter(
+        str(
+            (row.get("features") or {}).get("template_family_id")
+            or (row.get("features") or {}).get("family_key")
+            or "unknown"
+        )
+        for row in selected
+    )
+    basin_counts = Counter(str((row.get("features") or {}).get("basin_fingerprint") or "unknown") for row in selected)
     source_counts = Counter(scored_sample_export_source(row) for row in selected)
     model_generated_rows = sum(count for source, count in source_counts.items() if is_model_generated_source(source))
     risk_count = sum(1 for row in selected if row.get("risk_reasons"))
+    unknown_modes = sum(count for mode, count in mode_counts.items() if mode in {"", "unknown", "manual_or_unknown"})
+    unknown_families = sum(count for family, count in family_counts.items() if family in {"", "unknown"})
+    unknown_basins = sum(count for basin, count in basin_counts.items() if basin in {"", "unknown"})
     recommended = (
         len(selected) >= min_packet_rows
         and model_generated_rows >= int(min_model_generated_rows)
@@ -593,6 +649,9 @@ def build_submission_recommendation(
         and "outer_constant_shift" not in mode_counts
         and len(mode_counts) >= 2
         and len(mod_counts) >= max(2, min_packet_rows // 2)
+        and len(family_counts) >= int(min_template_family_count)
+        and len(basin_counts) >= int(min_basin_fingerprint_count)
+        and not (reject_unknown_provenance and (unknown_modes or unknown_families or unknown_basins))
     )
     reasons: list[str] = []
     if len(selected) < min_packet_rows:
@@ -607,6 +666,16 @@ def build_submission_recommendation(
         reasons.append("selected_rows_do_not_have_multiple_perturbation_modes")
     if len(mod_counts) < max(2, min_packet_rows // 2):
         reasons.append("selected_rows_do_not_have_enough_mod_p_diversity")
+    if len(family_counts) < int(min_template_family_count):
+        reasons.append("selected_rows_do_not_have_enough_template_family_diversity")
+    if len(basin_counts) < int(min_basin_fingerprint_count):
+        reasons.append("selected_rows_do_not_have_enough_basin_fingerprint_diversity")
+    if reject_unknown_provenance and unknown_modes:
+        reasons.append(f"{unknown_modes}_selected_rows_have_unknown_perturbation_mode")
+    if reject_unknown_provenance and unknown_families:
+        reasons.append(f"{unknown_families}_selected_rows_have_unknown_template_family")
+    if reject_unknown_provenance and unknown_basins:
+        reasons.append(f"{unknown_basins}_selected_rows_have_unknown_basin_fingerprint")
     return {
         "recommended_for_sair_packet": recommended,
         "status": "reviewed_packet_ready_for_dry_run" if recommended else "hold_no_submission",
@@ -614,9 +683,14 @@ def build_submission_recommendation(
         "selected_rows": len(selected),
         "selected_mode_counts": dict(mode_counts),
         "selected_mod_p_signature_counts": dict(mod_counts),
+        "selected_template_family_counts": dict(family_counts),
+        "selected_basin_fingerprint_counts": dict(basin_counts),
         "selected_source_counts": dict(source_counts),
         "model_generated_selected_rows": model_generated_rows,
         "min_model_generated_rows": int(min_model_generated_rows),
+        "min_template_family_count": int(min_template_family_count),
+        "min_basin_fingerprint_count": int(min_basin_fingerprint_count),
+        "reject_unknown_provenance": bool(reject_unknown_provenance),
         "risk_count": risk_count,
     }
 
@@ -728,6 +802,8 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Reason: {recommendation['reason']}",
         f"- Mode counts: `{json.dumps(recommendation['selected_mode_counts'], sort_keys=True)}`",
         f"- Mod-p signature counts: `{json.dumps(recommendation['selected_mod_p_signature_counts'], sort_keys=True)}`",
+        f"- Template family counts: `{json.dumps(recommendation.get('selected_template_family_counts') or {}, sort_keys=True)}`",
+        f"- Basin fingerprint counts: `{json.dumps(recommendation.get('selected_basin_fingerprint_counts') or {}, sort_keys=True)}`",
         "",
         "## Selected Rows",
         "",
@@ -863,6 +939,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--per_mode_cap", type=int, default=4)
     parser.add_argument("--per_pattern_cap", type=int, default=12)
+    parser.add_argument("--min_template_family_count", type=int, default=0)
+    parser.add_argument("--min_basin_fingerprint_count", type=int, default=0)
+    parser.add_argument("--reject_unknown_provenance", action="store_true", default=False)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
     return parser
 
@@ -905,6 +984,9 @@ def main(argv: list[str] | None = None) -> int:
         selected,
         min_packet_rows=int(args.min_packet_rows),
         min_model_generated_rows=int(args.min_model_generated_rows),
+        min_template_family_count=int(args.min_template_family_count),
+        min_basin_fingerprint_count=int(args.min_basin_fingerprint_count),
+        reject_unknown_provenance=bool(args.reject_unknown_provenance),
     )
     placeholder_outputs = {
         "progress_cache_json": str(args.output_dir / PROGRESS_CACHE_JSON),

@@ -148,6 +148,30 @@ def get_parser():
         default="",
         help="comma-separated target r values to export sequentially after one training pass",
     )
+    parser.add_argument(
+        "--sample_export_avoid_even_support_like",
+        type=bool_flag,
+        default="false",
+        help="opt-in: skip decoded export rows whose nonzero support is g(x^2)-like",
+    )
+    parser.add_argument(
+        "--sample_export_require_support_gcd_one",
+        type=bool_flag,
+        default="false",
+        help="opt-in: skip decoded export rows whose positive support gcd is not one",
+    )
+    parser.add_argument(
+        "--sample_export_family_cap",
+        type=int,
+        default=0,
+        help="opt-in: maximum exported rows per inferred template family; 0 disables",
+    )
+    parser.add_argument(
+        "--sample_export_basin_fingerprint_cap",
+        type=int,
+        default=0,
+        help="opt-in: maximum exported rows per inferred basin fingerprint; 0 disables",
+    )
 
     return parser
 

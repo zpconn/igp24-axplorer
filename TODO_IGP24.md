@@ -146,6 +146,55 @@ results change.
   improved target-r survivor count versus AXG-1.2 (172 vs 128) and selected
   rows (13 vs 7), but did not improve submission readiness because
   model-generated rows still lack meaningful perturbation-mode/family metadata.
+- Active AXG-1.4 provenance-aware diversity phase started 2026-07-08.
+  Preflight: `git status --short --branch` was clean on `igp24-dev`;
+  `git pull` reported already up to date; recent commits end at
+  `f428ca9 Record AXG diversity-aware target-r runs`; and
+  `rg -n "^### Stage 4: Competition Packaging And Reproducibility" TODO_IGP24.md`
+  confirmed Stage 4 remains present at line 8522 before edits. Inspection
+  target: `train.py`/`src/evaluator.py` sample export, `src/envs/igp24.py`
+  generation metadata, `scripts/igp24_gpu_sampler_probe.py` target-r export
+  wrapper, `scripts/igp24_score_sample_export.py` CPU scoring import,
+  `scripts/igp24_anti_basin_planner.py` feature extraction/recommendation,
+  and `scripts/igp24_axg_proposal_loop.py` source summaries. Implementation
+  task: preserve AXG-1.2/AXG-1.3 target-r control tokens, add cheap
+  model-sample provenance (`template_family_id`, `perturbation_mode`,
+  `support_pattern`, `support_gcd`, `even_support_like`, coefficient hashes,
+  source lineage, basin fingerprint, and sampler knobs), pass that provenance
+  through CPU scoring, strengthen planner gates for family/mode/basin
+  diversity, run focused tests, then run a bounded r16/r20/r24 CUDA experiment
+  before any SAIR submission decision.
+- AXG-1.4 implementation checkpoint: added export-time provenance helpers in
+  `src/evaluator.py`, new `train.py` sample-export controls
+  (`--sample_export_avoid_even_support_like`,
+  `--sample_export_require_support_gcd_one`, `--sample_export_family_cap`,
+  and `--sample_export_basin_fingerprint_cap`), CPU-score pass-through for
+  provenance fields, generic AXG-1.4 feature extraction in the anti-basin
+  planner, opt-in template-family/basin-fingerprint/unknown-provenance gates,
+  and GPU-probe wrapper flags
+  (`--target_r_conditioned_avoid_even_support_like`,
+  `--target_r_conditioned_require_support_gcd_one`,
+  `--target_r_conditioned_family_cap`, and
+  `--target_r_conditioned_basin_fingerprint_cap`). Focused validation:
+  `python3 -m py_compile train.py src/evaluator.py scripts/igp24_score_sample_export.py scripts/igp24_anti_basin_planner.py scripts/igp24_axg_proposal_loop.py scripts/igp24_gpu_sampler_probe.py`
+  passed, and
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_sample_export.py tests/test_igp24_anti_basin_planner.py tests/test_igp24_axg_proposal_loop.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_model_registry.py`
+  -> `64 passed in 1.27s`. Next: run full tests, then commit/push the
+  implementation before starting bounded CUDA runs. Stage 4 remains preserved.
+- AXG-1.4 full implementation validation: `PYTHONPATH=.:/tmp/igp24_pydeps
+  /tmp/igp24_pydeps/bin/pytest -q` -> `272 passed in 8.08s`.
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py
+  --help` lists the AXG-1.4 flags for avoiding even support, requiring
+  support gcd one, and capping template-family/basin-fingerprint exports.
+  Implementation diff touches 12 files and is ready for hygiene scans and a
+  separate implementation commit before GPU experiments.
+- AXG-1.4 implementation hygiene: `git diff --check` passed; secret-shaped
+  `sair_...` scan across README/TODO/NOTES/docs/data/scripts/src/tests/train.py
+  found no matches; changed-file checkpoint extension scan found no
+  `.pt/.pth/.ckpt/.bin/.safetensors/.pkl` files. Broad repo scan still shows
+  older pre-existing `.pkl` artifacts under prior data dumps, so the commit
+  gate is changed/staged files only. Stage 4 remains present at line 8564
+  after the AXG-1.4 TODO updates.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,
