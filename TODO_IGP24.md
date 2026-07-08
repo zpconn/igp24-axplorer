@@ -121,6 +121,9 @@ results change.
   3 selected, held one row short and one basin short; `r20` scored 35
   candidates, 7 eligible, 4 selected and locally packet-shaped, but held by
   `safe_to_review_only_after_pending_rows_resolve:24T25000|r=20=4`.
+  Local exact-filter audit passed for all 9 selected rows across r24/r16/r20:
+  25 integer coefficients, monic degree 24, nonzero constant, coefficient gcd
+  1, target real-root count, squarefree, irreducible, and local-valid status.
   Decision: no submission now. Primary next refinement should be r24 first,
   r16 second, with more support-pattern/template-family/basin diversity; do
   not use r20 until the pending `24T25000|r=20` rows resolve. Reports:
@@ -130,7 +133,7 @@ results change.
   Validation: compile check passed for `scripts/igp24_anti_basin_planner.py`,
   `scripts/igp24_axg_proposal_loop.py`, and
   `scripts/igp24_score_aware_target_planner.py`; focused tests passed with
-  `26 passed in 0.31s`; JSON/JSONL parse checks passed for 5 JSON files and
+  `26 passed in 0.31s`; JSON/JSONL parse checks passed for 6 JSON files and
   6 JSONL files / 123 rows; `git diff --check` passed; and the secret-shaped
   scan found no matches. Next: commit and push.
 - AXG-1.2 implementation status: in progress. Added optional model-side

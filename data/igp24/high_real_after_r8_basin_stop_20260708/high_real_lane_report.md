@@ -37,6 +37,9 @@ more provenance-diverse rows before any packet is considered.
 - Candidate rows included useful provenance: construction family, target r,
   template family, perturbation mode, support pattern/gcd, basin fingerprint,
   mod-p signature when sampled, and source lineage.
+- Local exact filters passed for all 9 selected rows across r24/r16/r20:
+  25 integer coefficients, monic degree 24, nonzero constant, coefficient gcd
+  1, target real-root count, squarefree, irreducible, and local-valid status.
 - The sync gate saw the current pending rows and correctly blocked r20.
 
 ## What Failed

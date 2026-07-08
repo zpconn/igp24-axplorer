@@ -63,9 +63,15 @@
     "decision_report": "data/igp24/high_real_after_r8_basin_stop_20260708/high_real_lane_report.md",
     "next_refinement": "Stay on the r24/r16 high-real model-sample lane, but generate more support-pattern diversity so r24 reaches at least four model-generated selected rows across at least two modes, two template families, and four basin fingerprints. Do not use r20 until pending 24T25000|r=20 rows resolve."
   },
+  "local_exact_filters": {
+    "summary": "data/igp24/high_real_after_r8_basin_stop_20260708/local_exact_filter_summary.json",
+    "all_selected_rows_passed": true,
+    "selected_rows_checked": 9
+  },
   "artifacts": {
     "generation_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/generation_summary.json",
     "generation_report": "data/igp24/high_real_after_r8_basin_stop_20260708/generation_report.md",
+    "local_exact_filter_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/local_exact_filter_summary.json",
     "r24_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r24_gate/anti_basin_planner_summary.json",
     "r16_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r16_gate/anti_basin_planner_summary.json",
     "r20_gate_summary": "data/igp24/high_real_after_r8_basin_stop_20260708/r20_gate/anti_basin_planner_summary.json"

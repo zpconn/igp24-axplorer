@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_high_real_after_r8_basin_stop_local_exact_filter_summary",
+  "created_at": "2026-07-08",
+  "scope": "selected rows from r24, r16, and r20 anti-basin gate outputs",
+  "checks": [
+    "exactly_25_integer_coefficients",
+    "monic_degree_24",
+    "nonzero_constant",
+    "coefficient_gcd_1",
+    "target_real_root_count",
+    "squarefree_true",
+    "irreducible_true",
+    "local_valid_true"
+  ],
+  "lane_results": {
+    "r24": {
+      "target_r": 24,
+      "selected_rows": 2,
+      "passed_rows": 2,
+      "rows": [
+        {
+          "short_hash": "79d50771cbb4",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 24,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "e408737b742b",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 24,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        }
+      ]
+    },
+    "r16": {
+      "target_r": 16,
+      "selected_rows": 3,
+      "passed_rows": 3,
+      "rows": [
+        {
+          "short_hash": "e5a78c6bb1ba",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 16,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "f749dfde7a2e",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 16,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "7d6bd67c4b29",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 16,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        }
+      ]
+    },
+    "r20": {
+      "target_r": 20,
+      "selected_rows": 4,
+      "passed_rows": 4,
+      "rows": [
+        {
+          "short_hash": "2161d95361f0",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 20,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "3e8fad1c89ac",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 20,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "2291e2bce38a",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 20,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        },
+        {
+          "short_hash": "6a30bae40b37",
+          "passed": true,
+          "degree_24": true,
+          "monic": true,
+          "nonzero_constant": true,
+          "coefficient_gcd": 1,
+          "target_r": 20,
+          "squarefree": true,
+          "irreducible": true,
+          "valid": true
+        }
+      ]
+    }
+  },
+  "all_selected_rows_passed": true
+}
