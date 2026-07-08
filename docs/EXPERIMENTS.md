@@ -2512,6 +2512,21 @@ including accepted-hash duplicates and the known
 behavior: a future GPU sample pool must still survive CPU filters and basin
 feedback before any reviewed packet is prepared.
 
+The first live AXG-1 GPU-generated sample pass was intentionally tiny:
+`axg1_gpu_tiny_20260707_1909`. It used the RTX 5090 through CUDA, completed in
+29.816 seconds, reached 95% max monitored GPU utilization, and exported 1,024
+model samples while keeping checkpoint binaries out of the repository. CPU
+scoring consumed 256 exported samples, found 230 proxy-valid rows and 256
+unique canonical hashes, but all locally valid rows landed in `r=0,2,4,6`.
+There were zero valid survivors in target buckets `r=8,12,16,20,24`, so the
+AXG proposal loop selected 0 rows and returned `hold_no_submission`.
+
+This is a useful negative signal rather than a failure of the machinery: the
+GPU training/export path works, but the baseline tiny sampler is not yet
+conditioned toward the high-value real-root strata. The next model step should
+add target-r conditioning or a target-r-biased training/export objective before
+scaling AXG beyond short probes.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy
@@ -2533,8 +2548,9 @@ Important observations from the 2026-07-04 GPU probes:
 
 Current recommendation: keep CPU proxy scoring, shortlist export, and exact
 verification handoff as the main pipeline. Use GPU training/sample export only
-as a bounded, audited sampler path. Do not start a larger GPU run until the
-verified exact labels are wired back into candidate selection.
+as a bounded, audited sampler path. Do not start a larger GPU run until AXG can
+condition on, or otherwise bias toward, target real-root buckets and avoid
+spending most generated samples on `r=0,2,4,6`.
 
 ## CPU Benchmark Findings
 

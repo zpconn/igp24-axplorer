@@ -15,7 +15,9 @@
   "description": "Baseline GPU proposal generator for IGP24 active learning",
   "device_gpu_info": {
     "expected": "CUDA GPU when --cpu false",
-    "status": "not_started"
+    "latest_observed_device": "NVIDIA GeForce RTX 5090",
+    "latest_observed_torch": "2.12.1+cu130",
+    "status": "tiny_probe_completed"
   },
   "excluded_leakage_prevention_inputs": [
     "SAIR API keys",
@@ -25,7 +27,8 @@
   "git_commit": "ee7351a987fe40f1be7d6666c19c357276ca0b3e",
   "known_limitations": [
     "AXG-1 is initially a registry and dry-run scaffold, not a completed long training run.",
-    "GPU samples must pass CPU filters and basin gates before any submission review."
+    "GPU samples must pass CPU filters and basin gates before any submission review.",
+    "The first tiny GPU probe produced no valid survivors in target r=8,12,16,20,24; target-r conditioning is needed before scaling."
   ],
   "model_version": "AXG-1",
   "objective_loss_configuration": {
@@ -42,6 +45,11 @@
       "recorded_at": "2026-07-07T23:58:14.973699+00:00",
       "run_id": "axg1_dry_run_20260707",
       "run_manifest": "data/igp24/model_registry/runs/AXG-1/axg1_dry_run_20260707/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T00:14:18.111989+00:00",
+      "run_id": "axg1_gpu_tiny_20260707_1909",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1/axg1_gpu_tiny_20260707_1909/run_manifest.json"
     }
   ],
   "sair_submission": {
@@ -50,7 +58,9 @@
     "raw_gpu_samples_submitted": false,
     "submitted_to_sair": false
   },
-  "sample_export_paths": [],
+  "sample_export_paths": [
+    "data/igp24/axg_gpu_tiny_20260707/gpu_probe/gpu_model_sample_export.jsonl"
+  ],
   "schema_version": 1,
   "training_command": {
     "command": null,
@@ -69,11 +79,18 @@
     "data/igp24/**/*candidate_queue.jsonl"
   ],
   "training_duration": {
+    "latest_tiny_probe_seconds": 29.81646273698425,
     "seconds": 0,
-    "status": "not_started"
+    "status": "tiny_probe_completed_no_long_run"
   },
   "validation_metrics": {
-    "status": "not_started",
+    "latest_tiny_probe": {
+      "cpu_scored_records": 256,
+      "cpu_valid_records": 230,
+      "proposal_decision": "hold_no_submission",
+      "target_r_survivors_8_12_16_20_24": 0
+    },
+    "status": "tiny_probe_completed",
     "success_metrics": [
       "valid exact-r yield after CPU filters",
       "diversity by family/mod-p/support",

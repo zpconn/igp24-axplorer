@@ -1,8 +1,25 @@
 {
+  "active_learning_datasets": [
+    {
+      "class_counts": {
+        "accepted_duplicate_collapsed_basin": 320,
+        "accepted_globally_covered_high_team_basin": 8,
+        "accepted_useful_score_positive": 8,
+        "locally_invalid": 26,
+        "wrong_real_root_count": 263
+      },
+      "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260707_axg_gpu_tiny.jsonl",
+      "row_count": 625,
+      "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260707_axg_gpu_tiny.json"
+    }
+  ],
   "model_version": "AXG-1",
-  "notes": [],
+  "notes": [
+    "axg1_gpu_tiny_20260707_1909 added 256 model-generated scored rows to the active-learning dataset.",
+    "The tiny probe produced wrong-r/invalid negative labels for target r=8,12,16,20,24 and no submission packet."
+  ],
   "record_type": "igp24_axg_feedback_summary",
   "sair_feedback_rows": 0,
   "schema_version": 1,
-  "status": "initialized"
+  "status": "tiny_probe_feedback_recorded"
 }

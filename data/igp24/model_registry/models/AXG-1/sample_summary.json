@@ -1,7 +1,23 @@
 {
   "model_version": "AXG-1",
   "record_type": "igp24_axg_sample_summary",
-  "sample_exports": [],
+  "sample_exports": [
+    {
+      "cpu_scored_records": 256,
+      "cpu_valid_records": 230,
+      "gpu_device": "NVIDIA GeForce RTX 5090",
+      "max_gpu_utilization_percent": 95.0,
+      "post_train_cpu_sampling_scoring_avoided": true,
+      "proposal_decision": "hold_no_submission",
+      "probe_mode": "sample_export_split",
+      "run_id": "axg1_gpu_tiny_20260707_1909",
+      "sample_export_decoded_records": 1021,
+      "sample_export_path": "data/igp24/axg_gpu_tiny_20260707/gpu_probe/gpu_model_sample_export.jsonl",
+      "sample_export_records": 1024,
+      "scored_sample_path": "data/igp24/axg_gpu_tiny_20260707/cpu_scored_samples/scored_samples.jsonl",
+      "target_r_survivors_8_12_16_20_24": 0
+    }
+  ],
   "schema_version": 1,
-  "status": "not_started"
+  "status": "tiny_probe_completed"
 }

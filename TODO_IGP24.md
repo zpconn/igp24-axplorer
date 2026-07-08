@@ -118,6 +118,64 @@ results change.
   passed for 5 files / 389 rows, repo-wide SAIR-key-shaped scan found
   0 matches, `git diff --check` passed, and Stage 4 remains present at line
   8252.
+- Active AXG-1 tiny GPU smoke: preflight for a bounded GPU-generated proposal
+  pass is underway before any larger model training. Starting state:
+  `git status --short --branch` was clean at `dd41dd3`; AXG registry
+  validation passed with 1 model, 1 run, and 0 issues; `nvidia-smi` saw an
+  RTX 5090 with CUDA 13.2, about 3,151 MiB used, 2% utilization, and no
+  running compute processes. Safety decision: run the GPU probe output under
+  `/tmp` because `train.py` writes `model.pt` and `optimizer.pt`; commit only
+  text/JSON/sample artifacts that reference checkpoint paths rather than
+  storing checkpoint binaries. Planned probe mode is the smaller
+  `sample_export_split` path rather than the heavier dedup variant, then CPU
+  scoring and AXG proposal-loop gating will handle dedup/basin filtering. No
+  SAIR submission, Magma/PARI, online calculator, or API-key serialization is
+  allowed in this goal.
+  GPU probe command:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py --output_dir /tmp/igp24_axg1_gpu_tiny_20260707 --run_id axg1_gpu_tiny_20260707_1909 --probe_mode sample_export_split --timeout_seconds 300 --monitor_interval_seconds 1.0`.
+  Sandbox PyTorch could not see CUDA, but the approved non-sandbox CUDA probe
+  and GPU sampler run saw `torch 2.12.1+cu130`, CUDA available, and
+  `NVIDIA GeForce RTX 5090`. GPU result: return code 0, runtime 29.816s,
+  logged device `cuda`, max GPU utilization 95%, average utilization 10.96%,
+  max memory used 5,760 MiB, max CUDA reserved 88 MiB, 1,024 sample-export
+  rows, 1,021 decoded rows, and post-train CPU scoring/local-search avoided.
+  Safe copied artifacts are under
+  `data/igp24/axg_gpu_tiny_20260707/gpu_probe/`; checkpoint binaries remain
+  referenced only under `/tmp`.
+  CPU scoring command:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_score_sample_export.py data/igp24/axg_gpu_tiny_20260707/gpu_probe/gpu_model_sample_export.jsonl --output_dir data/igp24/axg_gpu_tiny_20260707/cpu_scored_samples --max_records 256 --gpu_probe_summary data/igp24/axg_gpu_tiny_20260707/gpu_probe/gpu_sampler_probe_summary.json --local_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --exp_name axg1_gpu_tiny_score_20260707`.
+  CPU result: 1,024 rows read, 256 selected, 256 decoded, 256 scored,
+  230 proxy-valid, 26 rejected, 256 unique canonical hashes, best score
+  9950.58, mean score 8912.44, no local search, and no SAIR/exact verifier
+  calls. Real-root distribution among scored rows was `r=0` x24, `r=2` x151,
+  `r=4` x53, `r=6` x2, and rejected/unknown x26; zero valid rows landed in
+  target buckets `r=8,12,16,20,24`.
+  Proposal-loop command:
+  `python3 scripts/igp24_axg_proposal_loop.py --version AXG-1 --registry data/igp24/model_registry --run_id axg1_gpu_tiny_20260707_1909 --candidate_jsonl data/igp24/axg_gpu_tiny_20260707/cpu_scored_samples/scored_samples.jsonl --auto_feedback_root data/igp24 --sair_sync_dir data/igp24/sair_sync_basin_gate_20260707 --output_dir data/igp24/axg_gpu_tiny_20260707/proposal_loop --target_rs 8,12,16,20,24 --packet_limit 12 --min_packet_rows 8 --per_mode_cap 4 --per_pattern_cap 4 --dry_run`.
+  Proposal result: 256 candidate rows, 0 filtered rows, 0 selected rows,
+  decision `hold_no_submission`; rejection counts were
+  `real_root_count_not_target=230`, `local_valid_false=26`, and
+  `missing_real_root_count=26`. Registered run
+  `axg1_gpu_tiny_20260707_1909` under `AXG-1`; registry validation now passes
+  with 1 model, 2 runs, and 0 issues. Rebuilt active-learning dataset
+  `data/igp24/active_learning/axg_training_dataset_20260707_axg_gpu_tiny.jsonl`
+  with 625 rows and class counts `accepted_duplicate_collapsed_basin=320`,
+  `accepted_globally_covered_high_team_basin=8`,
+  `accepted_useful_score_positive=8`, `wrong_real_root_count=263`, and
+  `locally_invalid=26`. Lesson: the GPU loop works end-to-end, but this tiny
+  baseline sampler does not yet target the high-value real-root buckets; the
+  next model step should add target-r conditioning or a target-r-biased
+  training/export objective before any larger AXG run.
+  Final validation for this tiny AXG GPU pass: focused tests passed
+  (`48 passed` across model registry, active-learning dataset, proposal loop,
+  GPU sampler probe, and sample export tests); `py_compile` passed for the
+  relevant AXG/GPU/scoring scripts; registry validation passed with 1 model,
+  2 runs, and 0 issues; JSON parsing passed for 14 registry/run artifacts;
+  JSONL parsing passed for 8 files / 2,623 rows; repo-wide
+  SAIR-key-shaped scan found 0 matches; checkpoint-binary scan found no
+  `.pt`, `.pth`, `.ckpt`, `.bin`, or `.safetensors` files under the committed
+  AXG GPU/registry artifact roots; `git diff --check` passed; and Stage 4
+  remains present at line 8310.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.

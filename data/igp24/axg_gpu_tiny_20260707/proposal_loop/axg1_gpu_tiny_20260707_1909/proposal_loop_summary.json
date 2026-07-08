@@ -1,0 +1,58 @@
+{
+  "artifacts": {
+    "basin_risk_scores": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/rejected_candidates.jsonl",
+    "report": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg_gpu_tiny_20260707/proposal_loop/axg1_gpu_tiny_20260707_1909/proposal_loop_summary.json"
+  },
+  "candidate_rows": 256,
+  "candidate_source_count": 1,
+  "coefficient_lines": 0,
+  "created_at": "2026-07-08T00:13:27.510889+00:00",
+  "decision": "hold_no_submission",
+  "dry_run": true,
+  "filtered_rows": 0,
+  "model_manifest_description": "Baseline GPU proposal generator for IGP24 active learning",
+  "model_version": "AXG-1",
+  "recommendation": {
+    "reason": "only_0_eligible_rows_below_min_8; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+    "recommended_for_sair_packet": false,
+    "risk_count": 0,
+    "selected_mod_p_signature_counts": {},
+    "selected_mode_counts": {},
+    "selected_rows": 0,
+    "status": "hold_no_submission"
+  },
+  "record_type": "igp24_axg_proposal_loop_summary",
+  "rejected_rows": 256,
+  "rejection_reason_counts": {
+    "local_valid_false": 26,
+    "missing_real_root_count": 26,
+    "real_root_count_not_target": 230
+  },
+  "risk_reason_counts": {},
+  "run_id": "axg1_gpu_tiny_20260707_1909",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "schema_version": 1,
+  "score_classification_counts": {},
+  "scored_rows": 0,
+  "selected_rows": 0,
+  "source_commit": "dd41dd3857841ae851d89d55de95847433689e19",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ]
+}

@@ -26,6 +26,10 @@ Current status:
 - The first registered run is `axg1_dry_run_20260707`, a local dry-run using a
   known-collapsed r8 packet. It selected 0 rows and returned
   `hold_no_submission`.
+- The second registered run is `axg1_gpu_tiny_20260707_1909`, a tiny CUDA
+  train/export smoke. It exported 1,024 model samples, CPU-scored 256 rows,
+  found 0 valid survivors in target `r=8,12,16,20,24`, selected 0 rows, and
+  returned `hold_no_submission`.
 
 Useful commands:
 

@@ -30,6 +30,23 @@ submission, but no longer requires another full sync before offline planning.
 The remaining pending pairs are `24T24932|r=24`, `24T24984|r=12`, and
 `24T24932|r=12`.
 
+## AXG-1 Tiny GPU Smoke
+
+The first AXG-1 GPU-generated smoke run, `axg1_gpu_tiny_20260707_1909`,
+proved the full bounded loop: CUDA train/export, CPU proxy scoring, proposal
+gate, registry run, and active-learning dataset update. The run used the RTX
+5090, completed in 29.816 seconds, reached 95% max monitored GPU utilization,
+and exported 1,024 unscored model samples. CPU scoring examined 256 exported
+rows, found 230 proxy-valid rows and 256 unique canonical hashes, but all valid
+rows were in `r=0,2,4,6`; none survived the target `r=8,12,16,20,24` gate.
+The proposal loop therefore returned `hold_no_submission`.
+
+The practical lesson is that GPU execution is not the blocker anymore. Before
+starting a larger AXG training run, the model path needs target-r conditioning
+or an export objective that biases toward the high-value real-root strata.
+Checkpoint binaries from this smoke remain referenced only under `/tmp`; the
+repository stores manifests, logs, summaries, and sample/scoring JSONL only.
+
 ## Axplorer Architecture
 
 Axplorer exposes each math search task as an environment under `src/envs/`. The

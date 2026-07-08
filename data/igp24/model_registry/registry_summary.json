@@ -1,14 +1,14 @@
 {
-  "created_at": "2026-07-08T00:00:29.058204+00:00",
+  "created_at": "2026-07-08T00:19:09.093820+00:00",
   "model_count": 1,
   "models": [
     {
       "description": "Baseline GPU proposal generator for IGP24 active learning",
       "model_version": "AXG-1",
       "parent_version": "none",
-      "run_count": 1,
+      "run_count": 2,
       "submitted_to_sair": false,
-      "training_status": "not_started"
+      "training_status": "tiny_probe_completed_no_long_run"
     }
   ],
   "record_type": "igp24_axg_registry_summary",
