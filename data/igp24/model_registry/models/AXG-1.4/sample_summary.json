@@ -1,0 +1,106 @@
+{
+  "aggregate": {
+    "main_gpu_runtime_minutes": 15.65,
+    "main_gpu_runtime_seconds": 938.742,
+    "ready_packets": [
+      "r20"
+    ],
+    "total_scored_records": 136,
+    "total_target_r_survivors": 82,
+    "total_valid_records": 134
+  },
+  "model_version": "AXG-1.4",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "decoded_records_written": 22,
+      "duplicate_decoded_records_skipped": 1056,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+      "proposal_selected_rows": 3,
+      "records_written": 97,
+      "sample_export_path": "data/igp24/axg14_provenance_20260708/r12/gpu_model_sample_export_target_r12_conditioned.jsonl",
+      "scored_records": 22,
+      "survivor_basin_fingerprint_count": 6,
+      "survivor_mode_counts": {
+        "dense_mixed_support_gcd1": 11,
+        "medium_mixed_support_gcd1": 3
+      },
+      "survivor_template_family_counts": {
+        "model:mixed:r12:dense_mixed_support_gcd1": 11,
+        "model:mixed:r12:medium_mixed_support_gcd1": 3
+      },
+      "target_r": 12,
+      "target_r_survivor_count": 14,
+      "valid_records": 21
+    },
+    {
+      "decoded_records_written": 40,
+      "duplicate_decoded_records_skipped": 1816,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+      "proposal_selected_rows": 3,
+      "records_written": 124,
+      "sample_export_path": "data/igp24/axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl",
+      "scored_records": 40,
+      "survivor_basin_fingerprint_count": 8,
+      "survivor_mode_counts": {
+        "dense_mixed_support_gcd1": 6,
+        "medium_mixed_support_gcd1": 16
+      },
+      "survivor_template_family_counts": {
+        "model:mixed:r16:dense_mixed_support_gcd1": 6,
+        "model:mixed:r16:medium_mixed_support_gcd1": 16
+      },
+      "target_r": 16,
+      "target_r_survivor_count": 22,
+      "valid_records": 40
+    },
+    {
+      "decoded_records_written": 35,
+      "duplicate_decoded_records_skipped": 2917,
+      "proposal_decision": "reviewed_packet_ready_for_dry_run",
+      "proposal_reason": "anti-basin gates passed",
+      "proposal_selected_rows": 4,
+      "records_written": 122,
+      "sample_export_path": "data/igp24/axg14_provenance_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl",
+      "scored_records": 35,
+      "survivor_basin_fingerprint_count": 8,
+      "survivor_mode_counts": {
+        "dense_mixed_support_gcd1": 10,
+        "medium_mixed_support_gcd1": 8
+      },
+      "survivor_template_family_counts": {
+        "model:mixed:r20:dense_mixed_support_gcd1": 10,
+        "model:mixed:r20:medium_mixed_support_gcd1": 8
+      },
+      "target_r": 20,
+      "target_r_survivor_count": 18,
+      "valid_records": 34
+    },
+    {
+      "decoded_records_written": 39,
+      "duplicate_decoded_records_skipped": 2220,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "only_2_eligible_rows_below_min_4; only_2_model_generated_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+      "proposal_selected_rows": 2,
+      "records_written": 140,
+      "sample_export_path": "data/igp24/axg14_provenance_20260708/r24/gpu_model_sample_export_target_r24_conditioned.jsonl",
+      "scored_records": 39,
+      "survivor_basin_fingerprint_count": 12,
+      "survivor_mode_counts": {
+        "dense_mixed_support_gcd1": 10,
+        "medium_mixed_support_gcd1": 18
+      },
+      "survivor_template_family_counts": {
+        "model:mixed:r24:dense_mixed_support_gcd1": 10,
+        "model:mixed:r24:medium_mixed_support_gcd1": 18
+      },
+      "target_r": 24,
+      "target_r_survivor_count": 28,
+      "valid_records": 39
+    }
+  ],
+  "schema_version": 1,
+  "status": "four_bounded_provenance_exports_scored"
+}

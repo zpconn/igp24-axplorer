@@ -1,0 +1,59 @@
+{
+  "created_at_utc": "2026-07-08T04:06:59.021192+00:00",
+  "decoded_input_records": 40,
+  "gpu_probe_summary_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples",
+  "real_root_counts": {
+    "14": 1,
+    "16": 22,
+    "2": 2,
+    "4": 10,
+    "8": 5
+  },
+  "records_read": 124,
+  "records_selected": 124,
+  "rejected_records": 0,
+  "report_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/score_report.md",
+  "runtime_seconds": 2.7441251249983907,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 40
+  },
+  "sample_export_source_target_r_survivors": {
+    "model_generate": 22
+  },
+  "score_all": true,
+  "score_command": "/usr/bin/python3 scripts/igp24_score_sample_export.py /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl --output_dir /tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples --score_all true --coeff_bound 1000000000000000 --target_r 16 --prime_limit 7 --exact_score_timeout 0 --local_search false --max_local_search_steps 0",
+  "scored_jsonl_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 9244.379855485078,
+    "canonical_hash_records": 40,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 567.4020562604092,
+    "proxy_scored_records": 40,
+    "rejected_records": 0,
+    "scored_records": 40,
+    "unique_canonical_hashes": 40
+  },
+  "scored_records": 40,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 84,
+  "source_commit": "2a35f72fedb2ba938b30aa5cf60e5664a2d42759",
+  "source_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl",
+  "split_manifest_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/split_workflow_manifest.json",
+  "split_report_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/split_workflow_report.md",
+  "summary_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/score_summary.json",
+  "target_r_survivor_count": 22,
+  "valid_records": 40
+}

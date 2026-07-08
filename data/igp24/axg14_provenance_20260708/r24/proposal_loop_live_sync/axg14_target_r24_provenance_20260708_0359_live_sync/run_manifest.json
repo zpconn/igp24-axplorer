@@ -1,0 +1,135 @@
+{
+  "accepted_feedback_paths": [
+    "/home/zpconn/code/igp24-axplorer/data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json"
+  ],
+  "candidate_paths": [
+    "/tmp/igp24_axg14_provenance_20260708/r24/cpu_scored_samples/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-08T04:09:17.017134+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "min_template_family_count": 2,
+    "packet_limit": 12,
+    "per_mode_cap": 4,
+    "per_pattern_cap": 4,
+    "reject_unknown_provenance": true
+  },
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.4",
+  "outputs": {
+    "basin_risk_scores": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/basin_risk_scores.jsonl",
+    "filtered_candidates": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/filtered_candidates.jsonl",
+    "rejected_candidates": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/rejected_candidates.jsonl",
+    "report": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/proposal_loop_report.md",
+    "run_manifest": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/run_manifest.json",
+    "selected_review_coefficients": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/selected_review_coefficients.txt",
+    "selected_review_packet": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/selected_review_packet.jsonl",
+    "summary": "/tmp/igp24_axg14_provenance_20260708/r24/proposal_loop_live_sync/axg14_target_r24_provenance_20260708_0359_live_sync/proposal_loop_summary.json"
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "data/igp24/model_registry",
+  "run_id": "axg14_target_r24_provenance_20260708_0359_live_sync",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "/tmp/igp24_axg14_provenance_20260708/sair_sync",
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "1d5261d1c012fd41aae493d6": 1,
+        "1ef89bf9556019f197c060ad": 3,
+        "5568f32b7eac61f4cca6045f": 8,
+        "74d091697e91e9e305a6e540": 1,
+        "886c747b4c88d216df1263c8": 1,
+        "898877151f3a305a2cca1864": 7,
+        "8c465ce1e11c4b961f7e3ada": 1,
+        "9fb151d86cb8e93ac1badc54": 1,
+        "b83111c9e1d3ca3b02f91145": 1,
+        "b9888af191af9c42a1f76f50": 1,
+        "d973d0eb231ca82cf8896650": 2,
+        "ff9a8c3b2c85bd7cf2a8b7b4": 1
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 39
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 26,
+        "strong_packet_candidate": 2
+      }
+    },
+    "eligible_rows_by_source": {
+      "model_generate": 2
+    },
+    "model_generated_eligible_rows": 2,
+    "model_generated_selected_rows": 2,
+    "model_generated_target_r_survivor_rows": 28,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "dense_mixed_support_gcd1": 10,
+        "medium_mixed_support_gcd1": 18
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 26
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 26,
+        "crowded_mod_p_signature_hits=1": 5
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 28
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "model_generate": 2
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 28
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:mixed:r24:dense_mixed_support_gcd1": 10,
+        "model:mixed:r24:medium_mixed_support_gcd1": 18
+      }
+    }
+  },
+  "source_commit": "2a35f72fedb2ba938b30aa5cf60e5664a2d42759",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

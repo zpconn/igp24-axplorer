@@ -1,0 +1,66 @@
+{
+  "artifacts": {
+    "cpu_score_report_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/score_report.md",
+    "cpu_score_summary_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/score_summary.json",
+    "gpu_probe_report_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sampler_probe_report.md",
+    "gpu_probe_summary_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sampler_probe_summary.json",
+    "sample_export_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "scored_jsonl_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples/scored_samples.jsonl",
+    "train_log_path": "/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump/igp24_gpu_sample_export_target_r16_conditioned/axg14_target_r16_provenance_20260708_0350/train.log"
+  },
+  "commands": {
+    "cpu_score": "/usr/bin/python3 scripts/igp24_score_sample_export.py /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl --output_dir /tmp/igp24_axg14_provenance_20260708/r16_corrected/cpu_scored_samples --score_all true --coeff_bound 1000000000000000 --target_r 16 --prime_limit 7 --exact_score_timeout 0 --local_search false --max_local_search_steps 0",
+    "gpu_probe": "/usr/bin/python3 train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r16_conditioned --dump_path /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump --exp_id axg14_target_r16_provenance_20260708_0350 --seed 33016 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl /home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl --igp24_training_jsonl_target_rs 12,16,20,24 --coeff_bound 1000000000000000 --target_r 16 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 7200 --num_eval_steps 300 --num_samples_from_model 3072 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature 1.15 --top_k -1 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl --sample_export_dedup true --sample_export_unique_target 384 --sample_export_max_attempts 3072 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --sample_export_avoid_even_support_like true --sample_export_require_support_gcd_one true --sample_export_family_cap 0 --sample_export_basin_fingerprint_cap 8 --igp24_generation_strategy mixed --igp24_ledger_path /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl"
+  },
+  "cpu_phase": {
+    "decoded_input_records": 40,
+    "local_search_enabled": false,
+    "max_records": null,
+    "records_read": 124,
+    "records_selected": 124,
+    "rejected_records": 0,
+    "runtime_seconds": 2.7441251249983907,
+    "scored_records": 40,
+    "selection_mode": "all_explicit",
+    "valid_records": 40
+  },
+  "created_at_utc": "2026-07-08T04:06:59.024633+00:00",
+  "dedup": {
+    "best_score": 9244.379855485078,
+    "canonical_hash_records": 40,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 567.4020562604092,
+    "proxy_scored_records": 40,
+    "rejected_records": 0,
+    "scored_records": 40,
+    "unique_canonical_hashes": 40
+  },
+  "gpu_phase": {
+    "avg_gpu_utilization_percent": 77.64347826086957,
+    "device": "cuda",
+    "eval_count": 24,
+    "interrupted": false,
+    "max_cuda_reserved_mb": 34.0,
+    "max_gpu_utilization_percent": 87.0,
+    "max_memory_used_mib": 7160.0,
+    "present": true,
+    "returncode": 0,
+    "runtime_seconds": 235.93067599396454,
+    "sample_export_decoded_records": 40,
+    "sample_export_records": 124,
+    "scoring_local_search_avoided": true,
+    "timed_out": false
+  },
+  "record_type": "igp24_split_workflow_manifest",
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "2a35f72fedb2ba938b30aa5cf60e5664a2d42759"
+}

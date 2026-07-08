@@ -195,6 +195,116 @@ results change.
   older pre-existing `.pkl` artifacts under prior data dumps, so the commit
   gate is changed/staged files only. Stage 4 remains present at line 8564
   after the AXG-1.4 TODO updates.
+- AXG-1.4 implementation committed and pushed as
+  `2a35f72 Add AXG provenance-aware diversity gates`; local HEAD matched
+  remote `zpconn/igp24-dev` after push. AXG-1.4 registry entry created with
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_model_registry.py
+  --registry data/igp24/model_registry create-version --version AXG-1.4
+  --parent AXG-1.3 --description "Provenance-aware target-r diversity
+  generator"`. Next run plan: bounded CUDA target-r conditioned exports for
+  r=16/20/24 and optional r=12 with
+  `--target_r_conditioned_max_steps 7200`,
+  `--target_r_model_sample_attempts 3072`,
+  `--target_r_conditioned_temperature 1.15`,
+  `--target_r_conditioned_top_k -1`,
+  `--target_r_conditioned_unique_target 384`,
+  `--target_r_conditioned_generation_strategy mixed`,
+  `--target_r_conditioned_avoid_even_support_like`,
+  `--target_r_conditioned_require_support_gcd_one`, and
+  `--target_r_conditioned_basin_fingerprint_cap 8`.
+- AXG-1.4 r=16 calibration run completed with CUDA:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_gpu_sampler_probe.py
+  --output_dir /tmp/igp24_axg14_provenance_20260708/r16 --run_id
+  axg14_target_r16_provenance_20260708_0344 --probe_mode
+  sample_export_target_r_conditioned --target_r 16
+  --target_r_conditioned_max_steps 7200 --target_r_model_sample_attempts
+  3072 --target_r_conditioned_temperature 1.15
+  --target_r_conditioned_top_k -1 --target_r_conditioned_unique_target 384
+  --target_r_conditioned_generation_strategy mixed
+  --target_r_conditioned_avoid_even_support_like
+  --target_r_conditioned_require_support_gcd_one
+  --target_r_conditioned_basin_fingerprint_cap 8 --timeout_seconds 1500
+  --monitor_interval_seconds 2.0`. Runtime 237.1s on CUDA, max GPU util 87%,
+  avg 77.1%, 3072 attempts, 90 records written, 16 decoded-written rows, 1251
+  duplicate decoded rows skipped, provenance skips
+  `{even_support_like:1207, support_gcd_not_one:1207,
+  basin_fingerprint_cap:524}`. The sidecar showed only two basin fingerprints
+  because the first AXG-1.4 fingerprint used support class rather than actual
+  support set. Code correction: basin fingerprint now includes decoded support
+  indices, support count, and odd-support exponents; focused tests
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q
+  tests/test_igp24_sample_export.py tests/test_igp24_anti_basin_planner.py
+  tests/test_igp24_axg_proposal_loop.py tests/test_igp24_gpu_sampler_probe.py`
+  -> `52 passed in 1.15s`. Treat the first r=16 run as a calibration artifact;
+  continue bounded r16/r20/r24/r12 generation with the corrected fingerprint.
+- AXG-1.4 bounded corrected CUDA pass completed and lightweight artifacts were
+  copied under `data/igp24/axg14_provenance_20260708`. Corrected main runs
+  used CUDA with target-r control tokens, decimal coefficient encoding,
+  `--target_r_conditioned_max_steps 7200`,
+  `--target_r_model_sample_attempts 3072`,
+  `--target_r_conditioned_temperature 1.15`,
+  `--target_r_conditioned_top_k -1`,
+  `--target_r_conditioned_unique_target 384`,
+  `--target_r_conditioned_generation_strategy mixed`,
+  `--target_r_conditioned_avoid_even_support_like`,
+  `--target_r_conditioned_require_support_gcd_one`, and
+  `--target_r_conditioned_basin_fingerprint_cap 8`. Main GPU runtime was
+  938.742s (15.65m), or 1175.836s (19.60m) including the calibration run.
+  Per-target results:
+  `r=12`: 230.4s, max GPU 88%, avg 76.8%, 97 export rows, 22 decoded/scored,
+  21 valid, 14 target survivors, 6 survivor basins, 3 selected,
+  `hold_no_submission`.
+  `r=16`: 235.9s, max GPU 87%, avg 77.6%, 124 export rows, 40 decoded/scored,
+  40 valid, 22 target survivors, 8 survivor basins, 3 selected,
+  `hold_no_submission`.
+  `r=20`: 241.1s, max GPU 86%, avg 76.1%, 122 export rows, 35
+  decoded/scored, 34 valid, 18 target survivors, 8 survivor basins, 4
+  selected, `reviewed_packet_ready_for_dry_run`.
+  `r=24`: 231.3s, max GPU 89%, avg 76.5%, 140 export rows, 39 decoded/scored,
+  39 valid, 28 target survivors, 12 survivor basins, 2 selected,
+  `hold_no_submission`.
+  Aggregate corrected runs: 483 export rows, 136 decoded/scored rows, 134
+  valid rows, 82 target-r survivors, 17 model-generated eligible rows, and 12
+  selected rows. AXG-1.4 produced fewer raw target-r survivors than AXG-1.3
+  (82 vs 172) because filters are stricter, but it produced the first locally
+  ready packet under provenance gates: r20.
+- AXG-1.4 fresh read-only SAIR sync was run with the key only from the
+  environment. Result: endpoint_count 5, label_count 25000,
+  remaining_signature_count 51009, submission_count 20, submission_row_count
+  78, pending_rows 18, scoreable_rows 60, unmatched_rows 0,
+  `partial_sync=true`, `submission_state_complete=false`, failing endpoint
+  `submissions/{id}`. Decision: no SAIR submission yet because sync is
+  partial and submission/scoring state is incomplete. The sync summary records
+  `api_key_recorded=false` and `sair_submission=false`.
+- AXG-1.4 registry/docs close-out started after the bounded run. Registered
+  the four main proposal-loop manifests with
+  `scripts/igp24_model_registry.py record-run` under
+  `data/igp24/model_registry/runs/AXG-1.4/`, updated
+  `data/igp24/model_registry/models/AXG-1.4/` manifest, sample summary,
+  feedback summary, and training summary, and updated `README.md`,
+  `docs/EXPERIMENTS.md`, `NOTES_IGP24.md`, and the registry README. Next:
+  run focused/full validation, registry/artifact/secret/binary checks, confirm
+  Stage 4 remains present, commit/push the close-out, then retry read-only
+  SAIR sync before any r20 submission decision.
+- AXG-1.4 close-out validation checkpoint:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q
+  tests/test_igp24_sample_export.py tests/test_igp24_anti_basin_planner.py
+  tests/test_igp24_axg_proposal_loop.py tests/test_igp24_gpu_sampler_probe.py
+  tests/test_igp24_model_registry.py` -> `64 passed in 2.09s`.
+  Full suite `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q`
+  -> `272 passed in 8.08s`. Py-compile for changed entrypoints passed.
+  Registry validation refreshed
+  `data/igp24/model_registry/registry_validation.json` with 5 models, 18 runs,
+  0 issues, `valid=true`; registry summary refreshed with AXG-1.4 run_count 4.
+  JSON/JSONL parse validation over
+  `data/igp24/axg14_provenance_20260708` and `data/igp24/model_registry`
+  parsed 65 JSON files and 26095 JSONL lines with 0 bad records. `git diff
+  --check` passed. Secret-shaped `sair_...` scan found no matches. Checkpoint
+  extension scan over the AXG-1.4 artifact root and model registry found no
+  `.pt/.pth/.ckpt/.bin/.safetensors/.pkl` files. `nvidia-smi
+  --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`
+  reported no active compute apps. Stage 4 remains present at line 8681 after
+  the documentation updates.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,

@@ -1,0 +1,23 @@
+{
+  "model_version": "AXG-1.4",
+  "notes": [
+    "No AXG-1.4 rows were submitted to SAIR because read-only sync was partial.",
+    "r20 is locally ready for manual/live review once SAIR submission state can be synced completely.",
+    "r12, r16, and r24 remain hold/no-submission under strict provenance gates."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "sair_sync": {
+    "error_code": "IGP24_SERVICE_UNAVAILABLE",
+    "failing_endpoint": "submissions/{id}",
+    "partial_sync": true,
+    "pending_rows": 18,
+    "remaining_signature_count": 51009,
+    "scoreable_rows": 60,
+    "submission_reason": "partial sync only; submission/scoring state is incomplete",
+    "submission_recommended_now": false,
+    "submission_state_complete": false
+  },
+  "schema_version": 1,
+  "status": "local_feedback_only_no_sair_submission"
+}

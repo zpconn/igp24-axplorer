@@ -2677,6 +2677,58 @@ training; it is preserving or inferring family/perturbation metadata for model
 samples, or adding a model-side diversity objective that avoids
 accepted-hash/even-support basins while producing distinguishable modes.
 
+## AXG-1.4 Provenance-Aware Target-r Probe
+
+AXG-1.4 kept the decimal coefficient target-r control-token path and added
+model-sample provenance: template family, perturbation mode, support pattern,
+support gcd, even-support risk, coefficient hashes, source lineage, basin
+fingerprint, modular signature, and sampler knobs. CPU scoring preserves that
+metadata, and proposal gates can now require template-family and
+basin-fingerprint diversity while rejecting unknown provenance.
+
+Run summary:
+
+- Targets: `r=12,16,20,24`.
+- Main GPU runtime: 938.7s total on the RTX 5090, excluding one 237.1s r16
+  calibration run that exposed an overly coarse basin fingerprint.
+- Sampling: `temperature=1.15`, `top_k=-1`, `unique_target=384`,
+  `max_steps=7200`, `attempt_budget=3072`, mixed generation strategy,
+  support-gcd/even-support avoidance, and basin-fingerprint cap 8.
+- Scored decoded rows: 136.
+- Valid rows: 134.
+- Target-r survivors: 82.
+- Proposal selected rows: 12.
+- Locally ready packets: `r=20`.
+- SAIR submission: none.
+
+Per-target result:
+
+| r | decoded | scored | valid | target survivors | survivor basins | selected | decision |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 12 | 22 | 22 | 21 | 14 | 6 | 3 | `hold_no_submission` |
+| 16 | 40 | 40 | 40 | 22 | 8 | 3 | `hold_no_submission` |
+| 20 | 35 | 35 | 34 | 18 | 8 | 4 | `reviewed_packet_ready_for_dry_run` |
+| 24 | 39 | 39 | 39 | 28 | 12 | 2 | `hold_no_submission` |
+
+The first r16 calibration run found only two basin fingerprints because the
+fingerprint used broad support class rather than the actual decoded support
+set. The corrected AXG-1.4 fingerprint includes support indices, support
+count, and odd-support exponents; the corrected r16 run produced 16 export
+basin fingerprints and 8 target-survivor basin fingerprints.
+
+Fresh read-only SAIR sync during the decision pass was partial:
+25,000 labels, 51,009 remaining signatures, 20 submissions, 78 visible
+submission rows, 18 pending rows, 60 scoreable rows, `partial_sync=true`, and
+failing endpoint `submissions/{id}`. The API key remained environment-only and
+was not written to artifacts.
+
+Interpretation: AXG-1.4 produced fewer raw target-r survivors than AXG-1.3
+(82 vs 172), because the export filters are stricter. It still improved
+submission readiness: the selected r20 packet passed local anti-basin gates
+with explicit mode, family, support, and basin evidence. The immediate
+bottleneck is complete SAIR sync plus exact/live review of that r20 packet,
+not another blind GPU run.
+
 ## Reproducibility Notes
 
 Most historical artifacts are under `/tmp` and are not committed. Committed

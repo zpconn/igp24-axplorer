@@ -1,0 +1,60 @@
+{
+  "created_at_utc": "2026-07-08T04:06:59.307690+00:00",
+  "decoded_input_records": 35,
+  "gpu_probe_summary_path": "/tmp/igp24_axg14_provenance_20260708/r20/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples",
+  "real_root_counts": {
+    "10": 1,
+    "16": 1,
+    "2": 1,
+    "20": 18,
+    "4": 12,
+    "6": 1
+  },
+  "records_read": 122,
+  "records_selected": 122,
+  "rejected_records": 1,
+  "report_path": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples/score_report.md",
+  "runtime_seconds": 2.9318542730179615,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 35
+  },
+  "sample_export_source_target_r_survivors": {
+    "model_generate": 18
+  },
+  "score_all": true,
+  "score_command": "/usr/bin/python3 scripts/igp24_score_sample_export.py /tmp/igp24_axg14_provenance_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl --output_dir /tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples --score_all true --coeff_bound 1000000000000000 --target_r 20 --prime_limit 7 --exact_score_timeout 0 --local_search false --max_local_search_steps 0",
+  "scored_jsonl_path": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 0.0,
+    "canonical_hash_records": 35,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": -0.02857142857142857,
+    "proxy_scored_records": 34,
+    "rejected_records": 1,
+    "scored_records": 35,
+    "unique_canonical_hashes": 35
+  },
+  "scored_records": 35,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 87,
+  "source_commit": "2a35f72fedb2ba938b30aa5cf60e5664a2d42759",
+  "source_path": "/tmp/igp24_axg14_provenance_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl",
+  "split_manifest_path": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples/split_workflow_manifest.json",
+  "split_report_path": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples/split_workflow_report.md",
+  "summary_path": "/tmp/igp24_axg14_provenance_20260708/r20/cpu_scored_samples/score_summary.json",
+  "target_r_survivor_count": 18,
+  "valid_records": 34
+}

@@ -1515,3 +1515,14 @@ should preserve, infer, or learn construction-family / perturbation-mode
 features for model-generated rows, or add a diversity objective that directly
 discourages accepted-hash duplicates, even-support `g(x^2)`-like forms, and
 crowded mod-p signatures before packet selection.
+
+AXG-1.4 answered that metadata problem more directly. It adds export-time
+provenance for target-r-conditioned model samples and lets the planner gate on
+template-family and basin-fingerprint diversity. The bounded CUDA pass over
+`r=12,16,20,24` scored 136 decoded rows, found 82 target-r survivors, and
+produced one locally ready r20 packet under strict anti-basin gates. That is a
+real readiness improvement even though raw survivor count fell versus AXG-1.3:
+we now know why rows are selected or held. The r20 packet was not submitted
+because the fresh SAIR sync was partial at `submissions/{id}`. So the next
+bottleneck is live sync completeness and exact review of that r20 packet, not
+larger blind model training.

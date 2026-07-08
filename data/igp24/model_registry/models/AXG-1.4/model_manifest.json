@@ -1,0 +1,314 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "coefficient_encoding": "decimal_coefficients",
+    "model_change": "No larger retraining architecture change; AXG-1.4 adds provenance export, target-r sampler controls, and stricter proposal gates.",
+    "target_r_control_tokens": true
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "decimal_coefficients",
+    "generation_strategy",
+    "template_family_id",
+    "perturbation_mode",
+    "support_pattern",
+    "support_gcd",
+    "even_support_like",
+    "basin_fingerprint",
+    "modular_signature",
+    "source_seed_hash"
+  ],
+  "created_at": "2026-07-08T03:43:17.907370+00:00",
+  "description": "Provenance-aware target-r diversity generator",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent_by_target_r": {
+      "12": 76.84821428571429,
+      "16": 77.64347826086957,
+      "20": 76.14529914529915,
+      "24": 76.51327433628319
+    },
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 89.0,
+    "max_gpu_utilization_percent_by_target_r": {
+      "12": 88.0,
+      "16": 87.0,
+      "20": 86.0,
+      "24": 89.0
+    },
+    "status": "cuda_used_in_four_axg14_provenance_runs"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "2a35f72fedb2ba938b30aa5cf60e5664a2d42759",
+  "known_limitations": [
+    "AXG-1.4 improves provenance explainability but reduces raw decoded volume under stricter export filters.",
+    "r12, r16, and r24 still failed packet gates because selected rows lacked enough eligible row count and/or mode/family/basin diversity.",
+    "The first r16 calibration run used an overly coarse basin fingerprint and is retained only as calibration evidence; corrected runs include support sets in the fingerprint.",
+    "The r20 packet is only locally ready. It must not be submitted until SAIR sync has complete submission/scoring state.",
+    "No checkpoints are committed; reruns must retrain from recorded commands and data."
+  ],
+  "model_version": "AXG-1.4",
+  "objective_loss_configuration": {
+    "loss": "same AXG target-r control-token training path as AXG-1.2/AXG-1.3; diversity is enforced at export/proposal gates rather than via a new learned loss",
+    "primary": "target-r-conditioned degree-24 proposal generation",
+    "secondary": "provenance-aware diversity, support-gcd/even-support avoidance, and basin-fingerprint crowding control"
+  },
+  "parent_version": "AXG-1.3",
+  "purpose": "Generate target-r-conditioned IGP24 proposals with explicit provenance, support-shape, and basin-diversity metadata before proposal selection.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-08T04:15:27.035014+00:00",
+      "run_id": "axg14_target_r12_provenance_20260708_0403_live_sync",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.4/axg14_target_r12_provenance_20260708_0403_live_sync/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T04:15:37.627652+00:00",
+      "run_id": "axg14_target_r16_provenance_20260708_0350_live_sync",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.4/axg14_target_r16_provenance_20260708_0350_live_sync/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T04:15:37.691077+00:00",
+      "run_id": "axg14_target_r20_provenance_20260708_0355_live_sync",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.4/axg14_target_r20_provenance_20260708_0355_live_sync/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T04:15:37.700804+00:00",
+      "run_id": "axg14_target_r24_provenance_20260708_0359_live_sync",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.4/axg14_target_r24_provenance_20260708_0359_live_sync/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Fresh read-only SAIR sync was partial (submissions/{id} unavailable). The locally ready r20 packet was not submitted.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg14_provenance_20260708/r12/gpu_model_sample_export_target_r12_conditioned.jsonl",
+    "data/igp24/axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "data/igp24/axg14_provenance_20260708/r20/gpu_model_sample_export_target_r20_conditioned.jsonl",
+    "data/igp24/axg14_provenance_20260708/r24/gpu_model_sample_export_target_r24_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r <12|16|20|24> --target_r_conditioned_max_steps 7200 --target_r_model_sample_attempts 3072 --target_r_conditioned_temperature 1.15 --target_r_conditioned_top_k -1 --target_r_conditioned_unique_target 384 --target_r_conditioned_generation_strategy mixed --target_r_conditioned_avoid_even_support_like --target_r_conditioned_require_support_gcd_one --target_r_conditioned_basin_fingerprint_cap 8",
+    "status": "bounded_provenance_aware_cuda_runs_completed"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+    "data/igp24/sair_sync_20260707/",
+    "data/igp24/axg13_diversity_20260708/",
+    "data/igp24/pair_status_20260706.json",
+    "data/igp24/*accepted_feedback*.json"
+  ],
+  "training_duration": {
+    "calibration_seconds_excluded_from_main_total": 237.0935505789821,
+    "minutes": 15.65,
+    "seconds": 938.742,
+    "status": "four_bounded_provenance_runs_completed"
+  },
+  "validation_metrics": {
+    "aggregate": {
+      "calibration_runtime_seconds": 237.0935505789821,
+      "model_generated_eligible_rows": 17,
+      "proposal_selected_rows": 12,
+      "ready_packets": [
+        "r20"
+      ],
+      "runtime_minutes": 15.65,
+      "runtime_seconds": 938.742,
+      "sample_export_decoded_records": 136,
+      "sample_export_records": 483,
+      "scored_records": 136,
+      "submitted_to_sair": false,
+      "target_r_survivor_count": 82,
+      "valid_records": 134
+    },
+    "comparison_to_axg13": "AXG-1.4 produced fewer total target-r survivors than AXG-1.3 (82 vs 172) because provenance filters were stricter, but it improved submission readiness by producing one r20 packet that passed local anti-basin gates with explicit mode, family, support, and basin evidence.",
+    "decision": "no_sair_submission; r20 passed local gates but the fresh SAIR sync was partial at submissions/{id}, so submission/scoring state was incomplete.",
+    "per_target": {
+      "12": {
+        "attempted_samples": 3072,
+        "avg_gpu_utilization_percent": 76.84821428571429,
+        "duplicate_decoded_records_skipped": 1056,
+        "gpu_runtime_seconds": 230.41516006697202,
+        "max_gpu_utilization_percent": 88.0,
+        "model_generated_eligible_rows": 3,
+        "model_generated_selected_rows": 3,
+        "proposal_decision": "hold_no_submission",
+        "proposal_filtered_rows": 14,
+        "proposal_reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+        "proposal_selected_rows": 3,
+        "provenance_skip_counts": {
+          "basin_fingerprint_cap": 235,
+          "even_support_like": 1684,
+          "support_gcd_not_one": 1684
+        },
+        "real_root_counts": {
+          "12": 14,
+          "4": 3,
+          "6": 3,
+          "8": 1
+        },
+        "rejected_records": 1,
+        "sample_export_decoded_records": 22,
+        "sample_export_records": 97,
+        "score_records_read": 97,
+        "scored_records": 22,
+        "survivor_basin_fingerprint_count": 6,
+        "survivor_mode_counts": {
+          "dense_mixed_support_gcd1": 11,
+          "medium_mixed_support_gcd1": 3
+        },
+        "survivor_template_family_counts": {
+          "model:mixed:r12:dense_mixed_support_gcd1": 11,
+          "model:mixed:r12:medium_mixed_support_gcd1": 3
+        },
+        "target_r": 12,
+        "target_r_survivor_count": 14,
+        "valid_records": 21
+      },
+      "16": {
+        "attempted_samples": 3072,
+        "avg_gpu_utilization_percent": 77.64347826086957,
+        "duplicate_decoded_records_skipped": 1816,
+        "gpu_runtime_seconds": 235.93067599396454,
+        "max_gpu_utilization_percent": 87.0,
+        "model_generated_eligible_rows": 5,
+        "model_generated_selected_rows": 3,
+        "proposal_decision": "hold_no_submission",
+        "proposal_filtered_rows": 22,
+        "proposal_reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+        "proposal_selected_rows": 3,
+        "provenance_skip_counts": {
+          "basin_fingerprint_cap": 7,
+          "even_support_like": 1125,
+          "support_gcd_not_one": 1125
+        },
+        "real_root_counts": {
+          "14": 1,
+          "16": 22,
+          "2": 2,
+          "4": 10,
+          "8": 5
+        },
+        "rejected_records": 0,
+        "sample_export_decoded_records": 40,
+        "sample_export_records": 124,
+        "score_records_read": 124,
+        "scored_records": 40,
+        "survivor_basin_fingerprint_count": 8,
+        "survivor_mode_counts": {
+          "dense_mixed_support_gcd1": 6,
+          "medium_mixed_support_gcd1": 16
+        },
+        "survivor_template_family_counts": {
+          "model:mixed:r16:dense_mixed_support_gcd1": 6,
+          "model:mixed:r16:medium_mixed_support_gcd1": 16
+        },
+        "target_r": 16,
+        "target_r_survivor_count": 22,
+        "valid_records": 40
+      },
+      "20": {
+        "attempted_samples": 3072,
+        "avg_gpu_utilization_percent": 76.14529914529915,
+        "duplicate_decoded_records_skipped": 2917,
+        "gpu_runtime_seconds": 241.0674574470031,
+        "max_gpu_utilization_percent": 86.0,
+        "model_generated_eligible_rows": 7,
+        "model_generated_selected_rows": 4,
+        "proposal_decision": "reviewed_packet_ready_for_dry_run",
+        "proposal_filtered_rows": 18,
+        "proposal_reason": "anti-basin gates passed",
+        "proposal_selected_rows": 4,
+        "provenance_skip_counts": {
+          "basin_fingerprint_cap": 33
+        },
+        "real_root_counts": {
+          "10": 1,
+          "16": 1,
+          "2": 1,
+          "20": 18,
+          "4": 12,
+          "6": 1
+        },
+        "rejected_records": 1,
+        "sample_export_decoded_records": 35,
+        "sample_export_records": 122,
+        "score_records_read": 122,
+        "scored_records": 35,
+        "survivor_basin_fingerprint_count": 8,
+        "survivor_mode_counts": {
+          "dense_mixed_support_gcd1": 10,
+          "medium_mixed_support_gcd1": 8
+        },
+        "survivor_template_family_counts": {
+          "model:mixed:r20:dense_mixed_support_gcd1": 10,
+          "model:mixed:r20:medium_mixed_support_gcd1": 8
+        },
+        "target_r": 20,
+        "target_r_survivor_count": 18,
+        "valid_records": 34
+      },
+      "24": {
+        "attempted_samples": 3072,
+        "avg_gpu_utilization_percent": 76.51327433628319,
+        "duplicate_decoded_records_skipped": 2220,
+        "gpu_runtime_seconds": 231.3288710709894,
+        "max_gpu_utilization_percent": 89.0,
+        "model_generated_eligible_rows": 2,
+        "model_generated_selected_rows": 2,
+        "proposal_decision": "hold_no_submission",
+        "proposal_filtered_rows": 28,
+        "proposal_reason": "only_2_eligible_rows_below_min_4; only_2_model_generated_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+        "proposal_selected_rows": 2,
+        "provenance_skip_counts": {
+          "basin_fingerprint_cap": 228,
+          "even_support_like": 484,
+          "support_gcd_not_one": 484
+        },
+        "real_root_counts": {
+          "12": 1,
+          "14": 1,
+          "16": 1,
+          "2": 1,
+          "24": 28,
+          "4": 3,
+          "8": 4
+        },
+        "rejected_records": 0,
+        "sample_export_decoded_records": 39,
+        "sample_export_records": 140,
+        "score_records_read": 140,
+        "scored_records": 39,
+        "survivor_basin_fingerprint_count": 12,
+        "survivor_mode_counts": {
+          "dense_mixed_support_gcd1": 10,
+          "medium_mixed_support_gcd1": 18
+        },
+        "survivor_template_family_counts": {
+          "model:mixed:r24:dense_mixed_support_gcd1": 10,
+          "model:mixed:r24:medium_mixed_support_gcd1": 18
+        },
+        "target_r": 24,
+        "target_r_survivor_count": 28,
+        "valid_records": 39
+      }
+    },
+    "status": "provenance_sampling_succeeded_one_local_packet_ready_sync_blocked",
+    "success_metrics": [
+      "model-generated target-r survivor count",
+      "survivor template-family and perturbation-mode distribution",
+      "survivor basin-fingerprint diversity",
+      "proposal selected rows under strict provenance gates",
+      "fresh read-only SAIR sync completeness before submission"
+    ]
+  }
+}

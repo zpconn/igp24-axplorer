@@ -1,0 +1,273 @@
+INFO - 07/07/26 22:49:47 - 0:00:00 - ============ Initialized logger ============
+INFO - 07/07/26 22:49:47 - 0:00:00 - N: 24
+                                     always_search: False
+                                     batch_size: 128
+                                     coeff_bound: 1000000000000000
+                                     command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r16_conditioned --dump_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump' --exp_id axg14_target_r16_provenance_20260708_0350 --seed 33016 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl '/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl' --igp24_training_jsonl_target_rs '12,16,20,24' --coeff_bound 1000000000000000 --target_r 16 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 7200 --num_eval_steps 300 --num_samples_from_model 3072 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature '1.15' --top_k '-1' --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl' --sample_export_dedup true --sample_export_unique_target 384 --sample_export_max_attempts 3072 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --sample_export_avoid_even_support_like true --sample_export_require_support_gcd_one true --sample_export_family_cap 0 --sample_export_basin_fingerprint_cap 8 --igp24_generation_strategy mixed --igp24_ledger_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl' --exp_id "axg14_target_r16_provenance_20260708_0350"
+                                     cpu: False
+                                     cycle_diversity_weight: 5.0
+                                     data_generation_only: False
+                                     device: cuda
+                                     discriminant_weight: 1.0
+                                     dump_path: /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump/igp24_gpu_sample_export_target_r16_conditioned/axg14_target_r16_provenance_20260708_0350
+                                     encoding_tokens: decimal_coefficients
+                                     env_name: igp24
+                                     exact_score_timeout: 0.0
+                                     exp_id: axg14_target_r16_provenance_20260708_0350
+                                     exp_name: igp24_gpu_sample_export_target_r16_conditioned
+                                     gen_batch_size: 64
+                                     gensize: 0
+                                     height_weight: 1.0
+                                     igp24_generation_preset: none
+                                     igp24_generation_strategy: mixed
+                                     igp24_ledger_path: /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl
+                                     igp24_low_height_bound: 3
+                                     igp24_mixed_strategy_weights: uniform:0.1000,low_height:0.2000,sparse:0.2500,lower_degree:0.2000,structured:0.2500,four_real_seed:0.0000,quartic_lift:0.0000,r8_quartic_lift:0.0000,r8_quartic_lift_perturbed:0.0000,r16_quadratic_lift:0.0000,fixed_sparse_template:0.0000
+                                     igp24_sparse_terms: 4
+                                     igp24_target_r_conditioning_mode: control_token
+                                     igp24_training_jsonl: ['/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl']
+                                     igp24_training_jsonl_max_abs_coeff: 0
+                                     igp24_training_jsonl_max_rows: 0
+                                     igp24_training_jsonl_target_rs: 12,16,20,24
+                                     igp24_translation_radius: 2
+                                     igp24_write_ledger: True
+                                     inc_temp: 0.0
+                                     keep_only_unique: True
+                                     learning_rate: 0.0005
+                                     max_epochs: 1
+                                     max_len: 640
+                                     max_local_search_steps: 0
+                                     max_steps: 7200
+                                     n_embd: 256
+                                     n_head: 4
+                                     n_layer: 4
+                                     new_proportion: 0.0
+                                     no_positional: False
+                                     ntest: 64
+                                     num_eval_steps: 300
+                                     num_samples_from_model: 3072
+                                     num_workers: 1
+                                     pop_size: 512
+                                     prime_limit: 7
+                                     process_pool: False
+                                     redeem_only: False
+                                     sample_export_avoid_even_support_like: True
+                                     sample_export_basin_fingerprint_cap: 8
+                                     sample_export_dedup: True
+                                     sample_export_family_cap: 0
+                                     sample_export_max_attempts: 3072
+                                     sample_export_only: True
+                                     sample_export_path: /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl
+                                     sample_export_progress_interval: 128
+                                     sample_export_require_support_gcd_one: True
+                                     sample_export_seed_bank_jsonl:
+                                     sample_export_seed_bank_limit: 0
+                                     sample_export_seed_bank_target_r: None
+                                     sample_export_target_r_conditioning_mode: control_token
+                                     sample_export_target_rs:
+                                     sample_export_unique_target: 384
+                                     save_best: False
+                                     seed: 33016
+                                     target_r: 16
+                                     target_t: None
+                                     temp_span: 0
+                                     temperature: 1.15
+                                     top_k: -1
+                                     train_only: False
+                                     weight_decay: 0.01
+INFO - 07/07/26 22:49:47 - 0:00:00 - The experiment will be stored in /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump/igp24_gpu_sample_export_target_r16_conditioned/axg14_target_r16_provenance_20260708_0350
+
+INFO - 07/07/26 22:49:47 - 0:00:00 - Running command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r16_conditioned --dump_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_dump' --exp_id axg14_target_r16_provenance_20260708_0350 --seed 33016 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl '/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl' --igp24_training_jsonl_target_rs '12,16,20,24' --coeff_bound 1000000000000000 --target_r 16 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 7200 --num_eval_steps 300 --num_samples_from_model 3072 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature '1.15' --top_k '-1' --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl' --sample_export_dedup true --sample_export_unique_target 384 --sample_export_max_attempts 3072 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --sample_export_avoid_even_support_like true --sample_export_require_support_gcd_one true --sample_export_family_cap 0 --sample_export_basin_fingerprint_cap 8 --igp24_generation_strategy mixed --igp24_ledger_path '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_sample_export_target_r16_conditioned_initial_candidates.jsonl'
+
+INFO - 07/07/26 22:49:47 - 0:00:00 - seed: 33016
+INFO - 07/07/26 22:49:47 - 0:00:00 - Number of parameters: 3.32M
+INFO - 07/07/26 22:49:48 - 0:00:01 - Loaded IGP24 JSONL training data: train=217 test=45 paths=['/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl'] target_rs=[12, 16, 20, 24] skipped={'missing_coefficients': 64, 'target_r_filtered': 823, 'missing_r': 0, 'coefficient_bound_filtered': 0, 'invalid_datapoint': 0}
+INFO - 07/07/26 22:49:48 - 0:00:01 - ### Score distribution ###
+INFO - 07/07/26 22:49:48 - 0:00:01 - Valid examples: 217
+INFO - 07/07/26 22:49:48 - 0:00:01 - Mean score: 1.055299539170507
+INFO - 07/07/26 22:49:48 - 0:00:01 - Median score: 1.0
+INFO - 07/07/26 22:49:48 - 0:00:01 - Stdev score: 0.4044681322997931
+INFO - 07/07/26 22:49:48 - 0:00:01 - Max score: 4.0
+INFO - 07/07/26 22:49:48 - 0:00:01 - Top 1 percentile score: 4.0
+INFO - 07/07/26 22:49:48 - 0:00:01 - Distribution of scores:
+INFO - 07/07/26 22:49:48 - 0:00:01 - Score 1.0: Count: 213
+INFO - 07/07/26 22:49:48 - 0:00:01 - Score 4.0: Count: 4
+INFO - 07/07/26 22:49:48 - 0:00:01 - --------------------------------
+INFO - 07/07/26 22:49:48 - 0:00:01 - ==== Starting Epoch 0 =====
+INFO - 07/07/26 22:49:48 - 0:00:01 - [Epoch 0 START] CPU: 0.0% | RAM: 805.9MB
+INFO - 07/07/26 22:49:48 - 0:00:01 - Max encoded sequence length: 307 / block_size 643
+INFO - 07/07/26 22:49:48 - 0:00:01 - Memory allocated: 18.98MB, reserved: 34.00MB
+INFO - 07/07/26 22:49:51 - 0:00:04 - step 100 | loss 1.2205 | steps time 3321.58ms
+INFO - 07/07/26 22:49:54 - 0:00:07 - step 200 | loss 0.2194 | steps time 3028.06ms
+INFO - 07/07/26 22:49:57 - 0:00:10 - step 300 | loss 0.0562 | steps time 3090.26ms
+INFO - 07/07/26 22:49:57 - 0:00:10 - step 300 train loss: 0.7992141020173827 test loss: 3.449328660964966
+INFO - 07/07/26 22:50:01 - 0:00:13 - step 400 | loss 1.1274 | steps time 3051.38ms
+INFO - 07/07/26 22:50:04 - 0:00:16 - step 500 | loss 0.0463 | steps time 3064.20ms
+INFO - 07/07/26 22:50:07 - 0:00:19 - step 600 | loss 0.0398 | steps time 3020.12ms
+INFO - 07/07/26 22:50:07 - 0:00:19 - step 600 train loss: 0.10429086089134217 test loss: 3.8925812244415283
+INFO - 07/07/26 22:50:10 - 0:00:22 - step 700 | loss 0.0358 | steps time 3038.22ms
+INFO - 07/07/26 22:50:13 - 0:00:25 - step 800 | loss 0.1265 | steps time 3046.82ms
+INFO - 07/07/26 22:50:16 - 0:00:28 - step 900 | loss 0.0380 | steps time 3046.05ms
+INFO - 07/07/26 22:50:16 - 0:00:28 - step 900 train loss: 0.0781771628682812 test loss: 4.20072078704834
+INFO - 07/07/26 22:50:19 - 0:00:32 - step 1000 | loss 0.0382 | steps time 3041.80ms
+INFO - 07/07/26 22:50:22 - 0:00:35 - step 1100 | loss 0.0349 | steps time 3044.66ms
+INFO - 07/07/26 22:50:25 - 0:00:38 - step 1200 | loss 0.0369 | steps time 3088.59ms
+INFO - 07/07/26 22:50:25 - 0:00:38 - step 1200 train loss: 0.04023827244838079 test loss: 4.433396816253662
+INFO - 07/07/26 22:50:28 - 0:00:41 - step 1300 | loss 0.0364 | steps time 3082.33ms
+INFO - 07/07/26 22:50:31 - 0:00:44 - step 1400 | loss 0.0354 | steps time 3055.45ms
+INFO - 07/07/26 22:50:34 - 0:00:47 - step 1500 | loss 0.1167 | steps time 3052.81ms
+INFO - 07/07/26 22:50:34 - 0:00:47 - step 1500 train loss: 0.05554046499232451 test loss: 3.4691622257232666
+INFO - 07/07/26 22:50:37 - 0:00:50 - step 1600 | loss 0.0340 | steps time 3069.15ms
+INFO - 07/07/26 22:50:40 - 0:00:53 - step 1700 | loss 0.0345 | steps time 3106.48ms
+INFO - 07/07/26 22:50:43 - 0:00:56 - step 1800 | loss 0.0330 | steps time 3072.98ms
+INFO - 07/07/26 22:50:43 - 0:00:56 - step 1800 train loss: 0.03624313222244382 test loss: 4.599125385284424
+INFO - 07/07/26 22:50:46 - 0:00:59 - step 1900 | loss 0.0332 | steps time 3062.07ms
+INFO - 07/07/26 22:50:50 - 0:01:02 - step 2000 | loss 0.0339 | steps time 3072.89ms
+INFO - 07/07/26 22:50:53 - 0:01:05 - step 2100 | loss 0.0342 | steps time 3034.45ms
+INFO - 07/07/26 22:50:53 - 0:01:05 - step 2100 train loss: 0.03723051813741525 test loss: 4.876023769378662
+INFO - 07/07/26 22:50:56 - 0:01:08 - step 2200 | loss 0.0475 | steps time 3107.77ms
+INFO - 07/07/26 22:50:59 - 0:01:11 - step 2300 | loss 0.0348 | steps time 3077.89ms
+INFO - 07/07/26 22:51:02 - 0:01:15 - step 2400 | loss 0.0349 | steps time 3114.25ms
+INFO - 07/07/26 22:51:02 - 0:01:15 - step 2400 train loss: 0.03691893239195148 test loss: 4.94803524017334
+INFO - 07/07/26 22:51:05 - 0:01:18 - step 2500 | loss 0.0326 | steps time 3027.98ms
+INFO - 07/07/26 22:51:08 - 0:01:21 - step 2600 | loss 0.0330 | steps time 3059.01ms
+INFO - 07/07/26 22:51:11 - 0:01:24 - step 2700 | loss 0.0316 | steps time 3069.70ms
+INFO - 07/07/26 22:51:11 - 0:01:24 - step 2700 train loss: 0.04192822665597002 test loss: 5.1442975997924805
+INFO - 07/07/26 22:51:14 - 0:01:27 - step 2800 | loss 0.0331 | steps time 3083.44ms
+INFO - 07/07/26 22:51:17 - 0:01:30 - step 2900 | loss 0.0314 | steps time 3061.92ms
+INFO - 07/07/26 22:51:20 - 0:01:33 - step 3000 | loss 0.0343 | steps time 3103.06ms
+INFO - 07/07/26 22:51:20 - 0:01:33 - step 3000 train loss: 0.04035676289970676 test loss: 4.932815074920654
+INFO - 07/07/26 22:51:23 - 0:01:36 - step 3100 | loss 0.0320 | steps time 3091.19ms
+INFO - 07/07/26 22:51:26 - 0:01:39 - step 3200 | loss 0.0313 | steps time 3040.66ms
+INFO - 07/07/26 22:51:30 - 0:01:42 - step 3300 | loss 0.0313 | steps time 3116.62ms
+INFO - 07/07/26 22:51:30 - 0:01:42 - step 3300 train loss: 0.032871419973671434 test loss: 5.118749141693115
+INFO - 07/07/26 22:51:33 - 0:01:45 - step 3400 | loss 0.0591 | steps time 3049.88ms
+INFO - 07/07/26 22:51:36 - 0:01:48 - step 3500 | loss 0.0340 | steps time 3074.02ms
+INFO - 07/07/26 22:51:39 - 0:01:51 - step 3600 | loss 0.0350 | steps time 3068.82ms
+INFO - 07/07/26 22:51:39 - 0:01:51 - step 3600 train loss: 0.03695695328215758 test loss: 5.2829084396362305
+INFO - 07/07/26 22:51:42 - 0:01:54 - step 3700 | loss 0.0329 | steps time 3036.89ms
+INFO - 07/07/26 22:51:45 - 0:01:58 - step 3800 | loss 0.0315 | steps time 3053.11ms
+INFO - 07/07/26 22:51:48 - 0:02:00 - step 3900 | loss 0.0343 | steps time 2977.70ms
+INFO - 07/07/26 22:51:48 - 0:02:01 - step 3900 train loss: 0.03277753300964832 test loss: 5.340371131896973
+INFO - 07/07/26 22:51:51 - 0:02:04 - step 4000 | loss 0.0317 | steps time 3040.10ms
+INFO - 07/07/26 22:51:54 - 0:02:07 - step 4100 | loss 0.0326 | steps time 3041.77ms
+INFO - 07/07/26 22:51:57 - 0:02:10 - step 4200 | loss 0.0315 | steps time 3035.71ms
+INFO - 07/07/26 22:51:57 - 0:02:10 - step 4200 train loss: 0.037655155311028164 test loss: 5.188497543334961
+INFO - 07/07/26 22:52:00 - 0:02:13 - step 4300 | loss 0.0325 | steps time 3083.15ms
+INFO - 07/07/26 22:52:03 - 0:02:16 - step 4400 | loss 0.0329 | steps time 3049.91ms
+INFO - 07/07/26 22:52:06 - 0:02:19 - step 4500 | loss 0.0370 | steps time 3038.44ms
+INFO - 07/07/26 22:52:06 - 0:02:19 - step 4500 train loss: 0.032627104707062246 test loss: 5.27165412902832
+INFO - 07/07/26 22:52:09 - 0:02:22 - step 4600 | loss 0.0335 | steps time 3095.46ms
+INFO - 07/07/26 22:52:12 - 0:02:25 - step 4700 | loss 0.0313 | steps time 3070.17ms
+INFO - 07/07/26 22:52:15 - 0:02:28 - step 4800 | loss 0.0327 | steps time 3015.56ms
+INFO - 07/07/26 22:52:15 - 0:02:28 - step 4800 train loss: 0.034615649990737435 test loss: 5.504122257232666
+INFO - 07/07/26 22:52:18 - 0:02:31 - step 4900 | loss 0.0382 | steps time 3069.09ms
+INFO - 07/07/26 22:52:21 - 0:02:34 - step 5000 | loss 0.0354 | steps time 3093.74ms
+INFO - 07/07/26 22:52:25 - 0:02:37 - step 5100 | loss 0.0305 | steps time 3128.26ms
+INFO - 07/07/26 22:52:25 - 0:02:37 - step 5100 train loss: 0.03610434723397096 test loss: 5.509789943695068
+INFO - 07/07/26 22:52:28 - 0:02:40 - step 5200 | loss 0.0327 | steps time 3105.16ms
+INFO - 07/07/26 22:52:31 - 0:02:43 - step 5300 | loss 0.0324 | steps time 3060.36ms
+INFO - 07/07/26 22:52:34 - 0:02:47 - step 5400 | loss 0.0331 | steps time 3062.18ms
+INFO - 07/07/26 22:52:34 - 0:02:47 - step 5400 train loss: 0.03249669019753734 test loss: 5.488646507263184
+INFO - 07/07/26 22:52:37 - 0:02:50 - step 5500 | loss 0.0330 | steps time 3045.09ms
+INFO - 07/07/26 22:52:40 - 0:02:53 - step 5600 | loss 0.0323 | steps time 3122.39ms
+INFO - 07/07/26 22:52:43 - 0:02:56 - step 5700 | loss 0.0307 | steps time 3144.57ms
+INFO - 07/07/26 22:52:43 - 0:02:56 - step 5700 train loss: 0.03488712264845768 test loss: 5.564743518829346
+INFO - 07/07/26 22:52:46 - 0:02:59 - step 5800 | loss 0.0322 | steps time 3032.54ms
+INFO - 07/07/26 22:52:49 - 0:03:02 - step 5900 | loss 0.0334 | steps time 3083.67ms
+INFO - 07/07/26 22:52:52 - 0:03:05 - step 6000 | loss 0.0332 | steps time 3084.58ms
+INFO - 07/07/26 22:52:52 - 0:03:05 - step 6000 train loss: 0.03470525762066245 test loss: 5.358232021331787
+INFO - 07/07/26 22:52:55 - 0:03:08 - step 6100 | loss 0.0305 | steps time 3065.50ms
+INFO - 07/07/26 22:52:58 - 0:03:11 - step 6200 | loss 0.0346 | steps time 3092.29ms
+INFO - 07/07/26 22:53:02 - 0:03:14 - step 6300 | loss 0.0335 | steps time 3061.09ms
+INFO - 07/07/26 22:53:02 - 0:03:14 - step 6300 train loss: 0.03229845943550269 test loss: 5.5391645431518555
+INFO - 07/07/26 22:53:05 - 0:03:17 - step 6400 | loss 0.0474 | steps time 3089.25ms
+INFO - 07/07/26 22:53:08 - 0:03:20 - step 6500 | loss 0.0327 | steps time 3073.20ms
+INFO - 07/07/26 22:53:11 - 0:03:24 - step 6600 | loss 0.0326 | steps time 3118.12ms
+INFO - 07/07/26 22:53:11 - 0:03:24 - step 6600 train loss: 0.03521028376494845 test loss: 5.640211582183838
+INFO - 07/07/26 22:53:14 - 0:03:27 - step 6700 | loss 0.0312 | steps time 3045.20ms
+INFO - 07/07/26 22:53:17 - 0:03:30 - step 6800 | loss 0.0342 | steps time 3106.74ms
+INFO - 07/07/26 22:53:20 - 0:03:33 - step 6900 | loss 0.0336 | steps time 3077.62ms
+INFO - 07/07/26 22:53:20 - 0:03:33 - step 6900 train loss: 0.032154302410781384 test loss: 5.667344570159912
+INFO - 07/07/26 22:53:23 - 0:03:36 - step 7000 | loss 0.0328 | steps time 3080.83ms
+INFO - 07/07/26 22:53:26 - 0:03:39 - step 7100 | loss 0.0331 | steps time 3034.45ms
+INFO - 07/07/26 22:53:29 - 0:03:42 - step 7200 | loss 0.0322 | steps time 3057.07ms
+INFO - 07/07/26 22:53:29 - 0:03:42 - step 7200 train loss: 0.03448908507823944 test loss: 5.706857204437256
+INFO - 07/07/26 22:53:29 - 0:03:42 - [Epoch 0 AFTER_TRAIN] CPU: 0.0% | RAM: 1189.2MB
+INFO - 07/07/26 22:53:30 - 0:03:42 - Export-only model sampling to /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl
+INFO - 07/07/26 22:53:30 - 0:03:42 - Export-only controls: dedup_enabled=True unique_target=384 attempt_budget=3072 progress_interval=128 seed_bank_requested=False provenance_controls=True
+INFO - 07/07/26 22:53:30 - 0:03:42 - 0 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:30 - 0:03:43 - 64 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:30 - 0:03:43 - Export-only dedup progress: attempts=128/3072 records_written=20 unique_decoded=18 duplicate_skipped=63 invalid_decode=2
+INFO - 07/07/26 22:53:30 - 0:03:43 - 128 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:31 - 0:03:43 - 192 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:31 - 0:03:44 - Export-only dedup progress: attempts=256/3072 records_written=24 unique_decoded=21 duplicate_skipped=134 invalid_decode=3
+INFO - 07/07/26 22:53:31 - 0:03:44 - 256 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:31 - 0:03:44 - 320 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:31 - 0:03:44 - Export-only dedup progress: attempts=384/3072 records_written=30 unique_decoded=23 duplicate_skipped=210 invalid_decode=7
+INFO - 07/07/26 22:53:31 - 0:03:44 - 384 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:32 - 0:03:44 - 448 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:32 - 0:03:45 - Export-only dedup progress: attempts=512/3072 records_written=33 unique_decoded=24 duplicate_skipped=286 invalid_decode=9
+INFO - 07/07/26 22:53:32 - 0:03:45 - 512 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:32 - 0:03:45 - 576 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:32 - 0:03:45 - Export-only dedup progress: attempts=640/3072 records_written=36 unique_decoded=24 duplicate_skipped=365 invalid_decode=12
+INFO - 07/07/26 22:53:32 - 0:03:45 - 640 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:33 - 0:03:46 - 704 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:33 - 0:03:46 - Export-only dedup progress: attempts=768/3072 records_written=42 unique_decoded=25 duplicate_skipped=425 invalid_decode=17
+INFO - 07/07/26 22:53:33 - 0:03:46 - 768 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:33 - 0:03:46 - 832 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:34 - 0:03:46 - Export-only dedup progress: attempts=896/3072 records_written=44 unique_decoded=25 duplicate_skipped=494 invalid_decode=19
+INFO - 07/07/26 22:53:34 - 0:03:46 - 896 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:34 - 0:03:47 - 960 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:34 - 0:03:47 - Export-only provenance skip: attempts=1024/3072 reasons=even_support_like,support_gcd_not_one written=48 unique_decoded=27
+INFO - 07/07/26 22:53:34 - 0:03:47 - 1024 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:34 - 0:03:47 - 1088 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:35 - 0:03:47 - Export-only dedup progress: attempts=1152/3072 records_written=52 unique_decoded=28 duplicate_skipped=635 invalid_decode=24
+INFO - 07/07/26 22:53:35 - 0:03:47 - 1152 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:35 - 0:03:47 - 1216 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:35 - 0:03:48 - Export-only provenance skip: attempts=1280/3072 reasons=even_support_like,support_gcd_not_one written=54 unique_decoded=29
+INFO - 07/07/26 22:53:35 - 0:03:48 - 1280 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:35 - 0:03:48 - 1344 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:36 - 0:03:48 - Export-only dedup progress: attempts=1408/3072 records_written=61 unique_decoded=31 duplicate_skipped=796 invalid_decode=30
+INFO - 07/07/26 22:53:36 - 0:03:48 - 1408 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:36 - 0:03:49 - 1472 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:36 - 0:03:49 - Export-only dedup progress: attempts=1536/3072 records_written=67 unique_decoded=32 duplicate_skipped=867 invalid_decode=35
+INFO - 07/07/26 22:53:36 - 0:03:49 - 1536 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:36 - 0:03:49 - 1600 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:37 - 0:03:49 - Export-only dedup progress: attempts=1664/3072 records_written=74 unique_decoded=34 duplicate_skipped=945 invalid_decode=40
+INFO - 07/07/26 22:53:37 - 0:03:49 - 1664 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:37 - 0:03:50 - 1728 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:37 - 0:03:50 - Export-only dedup progress: attempts=1792/3072 records_written=77 unique_decoded=34 duplicate_skipped=1015 invalid_decode=43
+INFO - 07/07/26 22:53:37 - 0:03:50 - 1792 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:37 - 0:03:50 - 1856 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:38 - 0:03:50 - Export-only provenance skip: attempts=1920/3072 reasons=even_support_like,support_gcd_not_one written=82 unique_decoded=34
+INFO - 07/07/26 22:53:38 - 0:03:50 - 1920 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:38 - 0:03:51 - 1984 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:38 - 0:03:51 - Export-only dedup progress: attempts=2048/3072 records_written=90 unique_decoded=36 duplicate_skipped=1170 invalid_decode=54
+INFO - 07/07/26 22:53:38 - 0:03:51 - 2048 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:38 - 0:03:51 - 2112 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:39 - 0:03:51 - Export-only dedup progress: attempts=2176/3072 records_written=92 unique_decoded=36 duplicate_skipped=1248 invalid_decode=56
+INFO - 07/07/26 22:53:39 - 0:03:51 - 2176 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:39 - 0:03:51 - 2240 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:39 - 0:03:52 - Export-only dedup progress: attempts=2304/3072 records_written=96 unique_decoded=37 duplicate_skipped=1331 invalid_decode=59
+INFO - 07/07/26 22:53:39 - 0:03:52 - 2304 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:39 - 0:03:52 - 2368 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:39 - 0:03:52 - Export-only provenance skip: attempts=2432/3072 reasons=even_support_like,support_gcd_not_one written=100 unique_decoded=37
+INFO - 07/07/26 22:53:39 - 0:03:52 - 2432 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:40 - 0:03:52 - 2496 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:40 - 0:03:53 - Export-only dedup progress: attempts=2560/3072 records_written=104 unique_decoded=37 duplicate_skipped=1487 invalid_decode=67
+INFO - 07/07/26 22:53:40 - 0:03:53 - 2560 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:40 - 0:03:53 - 2624 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:40 - 0:03:53 - Export-only dedup progress: attempts=2688/3072 records_written=111 unique_decoded=38 duplicate_skipped=1562 invalid_decode=73
+INFO - 07/07/26 22:53:40 - 0:03:53 - 2688 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:41 - 0:03:53 - 2752 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:41 - 0:03:54 - Export-only provenance skip: attempts=2816/3072 reasons=even_support_like,support_gcd_not_one written=113 unique_decoded=38
+INFO - 07/07/26 22:53:41 - 0:03:54 - 2816 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:41 - 0:03:54 - 2880 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:41 - 0:03:54 - Export-only dedup progress: attempts=2944/3072 records_written=120 unique_decoded=39 duplicate_skipped=1731 invalid_decode=81
+INFO - 07/07/26 22:53:41 - 0:03:54 - 2944 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:42 - 0:03:54 - 3008 / 3072 samples attempted for export
+INFO - 07/07/26 22:53:42 - 0:03:55 - Export-only dedup progress: attempts=3072/3072 records_written=124 unique_decoded=40 duplicate_skipped=1816 invalid_decode=84
+INFO - 07/07/26 22:53:42 - 0:03:55 - Export-only model sampling wrote 124 records to /tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl; attempts=3072 decoded=40 invalid_decode=84 unique_decoded=40 duplicate_skipped=1816 stop_reason=attempt_budget_exhausted
+INFO - 07/07/26 22:53:42 - 0:03:55 - Sample export summary: {'export_path': '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl', 'summary_path': '/tmp/igp24_axg14_provenance_20260708/r16_corrected/gpu_model_sample_export_target_r16_conditioned.jsonl.summary.json', 'target_r': 16, 'encoding_tokens': 'decimal_coefficients', 'model_target_r_conditioning_mode': 'control_token', 'sample_export_target_r_conditioning_mode': 'control_token', 'records_written': 124, 'requested_samples': 3072, 'attempt_budget': 3072, 'attempted_samples': 3072, 'decoded_attempts': 2988, 'invalid_decode_attempts': 84, 'decoded_records': 40, 'invalid_decode_records': 84, 'deduplication_enabled': True, 'deduplication_key_type': 'decoded_coefficients', 'unique_target': 384, 'unique_decoded_coefficients': 40, 'duplicate_decoded_records_skipped': 1816, 'provenance_controls_enabled': True, 'avoid_even_support_like': True, 'require_support_gcd_one': True, 'family_cap': 0, 'basin_fingerprint_cap': 8, 'provenance_skip_counts': {'even_support_like': 1125, 'support_gcd_not_one': 1125, 'basin_fingerprint_cap': 7}, 'exported_template_family_counts': {'model:mixed:r16:dense_mixed_support_gcd1': 10, 'model:mixed:r16:medium_mixed_support_gcd1': 30}, 'exported_basin_fingerprint_counts': {'61f79676ed982c87d1ce4973': 8, '2f422da111c7a8834d653c53': 8, '0c64d09ca8a889c6cee1540d': 8, '210d2d77a1c941582da80776': 2, '7ad797632b96042402547322': 1, 'f1baba7af5e7a2cfad301e62': 3, '79c6dfeed8fdbb34d3cce557': 1, '8c83f5b2d7a9079da4f55404': 1, 'd30c0ee16d9d81f579a61fad': 1, 'be349757b8a4c7c5a2659bf7': 1, '9c47ba3ae097b48843b6b417': 1, 'bd809053b55508b00df7d50c': 1, '192d68aa7338d183b31b1271': 1, '55c4c98d6a3a4e682c3f5c44': 1, 'b78182d3817fd655081a7172': 1, '298e539340debeddf0bdcb13': 1}, 'stop_reason': 'attempt_budget_exhausted', 'progress_interval': 128, 'scoring_avoided': True, 'local_search_avoided': True, 'dataset_update_avoided': True, 'seed_bank_enabled': False, 'seed_bank_path': None, 'seed_bank_target_r': 16, 'seed_bank_limit': 0, 'seed_bank_source_rows_read': 0, 'seed_bank_rows_matching_target_r': 0, 'seed_bank_records_written': 0, 'seed_bank_duplicate_decoded_records_skipped': 0, 'seed_bank_invalid_rows_skipped': 0, 'seed_bank_max_coefficient_height': None}
+INFO - 07/07/26 22:53:42 - 0:03:55 - [Epoch 0 AFTER_SAMPLE_EXPORT] CPU: 0.0% | RAM: 1677.4MB

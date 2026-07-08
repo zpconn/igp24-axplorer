@@ -46,6 +46,12 @@ Current status:
   survivors across 371 scored rows. Source-aware proposal gates selected 13
   rows total but held all targets because selected rows lacked perturbation-mode
   diversity, and `r=24` had only one eligible model-generated row.
+- `AXG-1.4` exists as a provenance-aware target-r-conditioned probe. Four
+  bounded CUDA runs used support-gcd/even-support avoidance plus
+  basin-fingerprint caps and produced 82 target-r survivors across 136 scored
+  decoded rows. Strict provenance gates produced one locally ready r20 packet
+  and held `r=12`, `r=16`, and `r=24`; no SAIR submission was made because the
+  fresh sync was partial at `submissions/{id}`.
 
 Useful commands:
 

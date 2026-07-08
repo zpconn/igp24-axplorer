@@ -52,10 +52,11 @@ and [TODO_IGP24.md](TODO_IGP24.md).
 Recent AXG work adds GPU sample-export probes plus target-r control-token
 training over decimal coefficient streams. These model samples are still
 proposal candidates only: CPU filters, basin-risk gates, and explicit review
-remain required before any submission. AXG-1.3 adds source-aware anti-basin
-proposal gates and broader target-r-conditioned sampling controls; its first
-run improved target-r survivor counts but still held all packets pending better
-model-generated diversity metadata.
+remain required before any submission. AXG-1.4 adds provenance-aware export
+metadata and stricter diversity gates for support shape, template family,
+perturbation mode, and basin fingerprint. Its first bounded run produced one
+locally clean r20 packet, but no live submission was made from incomplete SAIR
+sync state.
 
 ## Capabilities
 
@@ -67,7 +68,8 @@ model-generated diversity metadata.
 - CPU benchmark helpers for generation strategy comparisons.
 - GPU training/sample-export probes with CPU scoring handoff.
 - Target-r control-token training for GPU proposal generation.
-- Source-aware anti-basin packet gates for model-generated candidates.
+- Source/provenance-aware anti-basin packet gates for model-generated
+  candidates.
 - Shortlist, review, and offline verification handoff tools.
 - PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
   credential-safe SAIR API helpers that are explicit and opt-in.
