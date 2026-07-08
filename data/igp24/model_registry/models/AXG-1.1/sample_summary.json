@@ -1,0 +1,77 @@
+{
+  "aggregate": {
+    "decisions": [
+      "hold_no_submission"
+    ],
+    "raw_model_target_r_survivors_total": 0,
+    "run_count": 4,
+    "sample_export_records": 2064,
+    "scored_records": 524,
+    "seed_bank_target_r_survivors_total": 16,
+    "selected_rows_total": 0,
+    "target_r_survivors_total": 16,
+    "valid_records": 477
+  },
+  "model_version": "AXG-1.1",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "conditioning_mode": "seed_bank_prefix",
+      "probe_mode": "sample_export_target_r_seeded",
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r12_seeded_20260707_2054",
+      "sample_export_path": "data/igp24/axg11_target_r_seeded_20260707/r12/gpu_probe/gpu_model_sample_export_target_r12_seeded.jsonl",
+      "sample_export_records": 516,
+      "scored_records": 130,
+      "seed_bank_target_r_survivors": 4,
+      "target_r": 12,
+      "target_r_survivor_count": 4,
+      "valid_records": 115
+    },
+    {
+      "conditioning_mode": "seed_bank_prefix",
+      "probe_mode": "sample_export_target_r_seeded",
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r16_seeded_20260707_2055",
+      "sample_export_path": "data/igp24/axg11_target_r_seeded_20260707/r16/gpu_probe/gpu_model_sample_export_target_r16_seeded.jsonl",
+      "sample_export_records": 516,
+      "scored_records": 131,
+      "seed_bank_target_r_survivors": 4,
+      "target_r": 16,
+      "target_r_survivor_count": 4,
+      "valid_records": 120
+    },
+    {
+      "conditioning_mode": "seed_bank_prefix",
+      "probe_mode": "sample_export_target_r_seeded",
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r20_seeded_20260707_2056",
+      "sample_export_path": "data/igp24/axg11_target_r_seeded_20260707/r20/gpu_probe/gpu_model_sample_export_target_r20_seeded.jsonl",
+      "sample_export_records": 516,
+      "scored_records": 131,
+      "seed_bank_target_r_survivors": 4,
+      "target_r": 20,
+      "target_r_survivor_count": 4,
+      "valid_records": 118
+    },
+    {
+      "conditioning_mode": "seed_bank_prefix",
+      "probe_mode": "sample_export_target_r_seeded",
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r24_seeded_20260707_2057",
+      "sample_export_path": "data/igp24/axg11_target_r_seeded_20260707/r24/gpu_probe/gpu_model_sample_export_target_r24_seeded.jsonl",
+      "sample_export_records": 516,
+      "scored_records": 132,
+      "seed_bank_target_r_survivors": 4,
+      "target_r": 24,
+      "target_r_survivor_count": 4,
+      "valid_records": 124
+    }
+  ],
+  "schema_version": 1,
+  "status": "four_target_r_seeded_probes_completed"
+}

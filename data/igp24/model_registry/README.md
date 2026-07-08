@@ -30,6 +30,11 @@ Current status:
   train/export smoke. It exported 1,024 model samples, CPU-scored 256 rows,
   found 0 valid survivors in target `r=8,12,16,20,24`, selected 0 rows, and
   returned `hold_no_submission`.
+- `AXG-1.1` exists as a target-r seeded export probe. Four tiny CUDA probes
+  for `r=12,16,20,24` exported 2,064 rows and CPU-scored 524 rows. The
+  seed-bank prefix produced 16 target-r control survivors, but raw
+  `model_generate` rows produced 0 target-r survivors, and every proposal loop
+  returned `hold_no_submission`.
 
 Useful commands:
 

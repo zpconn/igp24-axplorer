@@ -1,0 +1,110 @@
+{
+  "conditioning": {
+    "full_control_token_conditioning": false,
+    "mode": "seed_bank_prefix",
+    "note": "Seed-bank rows are explicit target-r control rows; model_generate rows are measured separately.",
+    "seed_bank_jsonl": "data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl",
+    "seed_bank_limit": 4
+  },
+  "cpu_scoring_phase": {
+    "best_score": 9968.526478914788,
+    "command_text": "/usr/bin/python3 scripts/igp24_score_sample_export.py data/igp24/axg11_target_r_seeded_20260707/r24/gpu_probe/gpu_model_sample_export_target_r24_seeded.jsonl --output_dir data/igp24/axg11_target_r_seeded_20260707/r24/cpu_scored_samples --max_records 132 --gpu_probe_summary data/igp24/axg11_target_r_seeded_20260707/r24/gpu_probe/gpu_sampler_probe_summary.json --target_r 24 --coeff_bound 800000 --local_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --exp_name axg11_target_r24_seeded_score_20260707",
+    "decoded_input_records": 132,
+    "mean_score": 9028.966955456597,
+    "real_root_counts": {
+      "0": 13,
+      "2": 77,
+      "24": 4,
+      "4": 26,
+      "6": 4
+    },
+    "records_read": 516,
+    "records_selected": 132,
+    "rejected_records": 8,
+    "sample_export_source_counts": {
+      "model_generate": 128,
+      "target_r_seed_bank": 4
+    },
+    "sample_export_source_target_r_survivors": {
+      "target_r_seed_bank": 4
+    },
+    "scored_records": 132,
+    "summary_path": "data/igp24/axg11_target_r_seeded_20260707/r24/cpu_scored_samples/score_summary.json",
+    "target_r_survivor_count": 4,
+    "unique_canonical_hashes": 132,
+    "valid_records": 124
+  },
+  "created_at": "2026-07-08T02:02:21.356165+00:00",
+  "gpu_phase": {
+    "avg_gpu_utilization_percent": 7.384615384615385,
+    "checkpoint_binaries_committed": false,
+    "checkpoint_paths_referenced_only": [
+      "/tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_sample_export_target_r24_seeded_dump/igp24_gpu_sample_export_target_r24_seeded/axg11_target_r24_seeded_20260707_2057/model.pt",
+      "/tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_sample_export_target_r24_seeded_dump/igp24_gpu_sample_export_target_r24_seeded/axg11_target_r24_seeded_20260707_2057/optimizer.pt"
+    ],
+    "command_text": "/usr/bin/python3 train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r24_seeded --dump_path /tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_sample_export_target_r24_seeded_dump --exp_id axg11_target_r24_seeded_20260707_2057 --seed 31024 --coeff_bound 4 --target_r 24 --gensize 512 --pop_size 384 --ntest 16 --gen_batch_size 64 --max_epochs 1 --max_steps 160 --num_eval_steps 60 --num_samples_from_model 512 --batch_size 256 --n_layer 4 --n_head 4 --n_embd 256 --max_len 24 --temperature 0.9 --top_k 9 --always_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_model_sample_export_target_r24_seeded.jsonl --sample_export_dedup true --sample_export_max_attempts 512 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode seed_bank_prefix --sample_export_seed_bank_jsonl data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl --sample_export_seed_bank_target_r 24 --sample_export_seed_bank_limit 4 --igp24_generation_strategy fixed_sparse_template --igp24_ledger_path /tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_sample_export_target_r24_seeded_initial_candidates.jsonl",
+    "cuda_device_name": "NVIDIA GeForce RTX 5090",
+    "device": "cuda",
+    "max_cuda_reserved_mb": 14.0,
+    "max_gpu_utilization_percent": 83.0,
+    "post_train_cpu_sampling_scoring_avoided": true,
+    "runtime_seconds": 27.4067535159993,
+    "sample_export_decoded_records": 513,
+    "sample_export_path": "/tmp/igp24_axg11_target_r_seeded_20260707/r24/gpu_model_sample_export_target_r24_seeded.jsonl",
+    "sample_export_records": 516,
+    "sample_export_source_counts": {
+      "model_generate": 512,
+      "target_r_seed_bank": 4
+    },
+    "seed_bank_records": 4,
+    "summary_path": "data/igp24/axg11_target_r_seeded_20260707/r24/gpu_probe/gpu_sampler_probe_summary.json"
+  },
+  "model_version": "AXG-1.1",
+  "proposal_loop_phase": {
+    "candidate_rows": 132,
+    "command_text": null,
+    "decision": "hold_no_submission",
+    "filtered_rows": 4,
+    "recommendation": {
+      "reason": "only_0_eligible_rows_below_min_4; selected_rows_do_not_have_multiple_perturbation_modes; selected_rows_do_not_have_enough_mod_p_diversity",
+      "recommended_for_sair_packet": false,
+      "risk_count": 0,
+      "selected_mod_p_signature_counts": {},
+      "selected_mode_counts": {},
+      "selected_rows": 0,
+      "status": "hold_no_submission"
+    },
+    "rejection_reason_counts": {
+      "local_valid_false": 8,
+      "missing_real_root_count": 8,
+      "real_root_count_not_target": 120
+    },
+    "risk_reason_counts": {
+      "accepted_hash_duplicate": 4,
+      "even_support_g_x_squared_like": 2,
+      "support_gcd_not_one": 2
+    },
+    "selected_rows": 0,
+    "summary_path": "data/igp24/axg11_target_r_seeded_20260707/r24/proposal_loop/axg11_target_r24_seeded_20260707_2057/proposal_loop_summary.json"
+  },
+  "record_type": "igp24_axg11_target_r_seeded_run_manifest",
+  "registry": "data/igp24/model_registry",
+  "run_id": "axg11_target_r24_seeded_20260707_2057",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "checkpoint_binaries_committed": false,
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "schema_version": 1,
+  "source_commit": "fa9fc9c9bd9623e1372e490ec5cea2820be0c8e9",
+  "target_r": 24,
+  "validation_metrics": {
+    "information_value": "target-r seed prefix works as a control path, but raw model_generate stream still produced zero target-r survivors in scored records",
+    "proposal_decision": "hold_no_submission",
+    "raw_model_target_r_survivors": 0,
+    "seed_bank_target_r_survivors": 4
+  }
+}

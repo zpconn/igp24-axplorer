@@ -1,0 +1,60 @@
+{
+  "accepted_feedback_paths": [
+    "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg11_target_r_seeded_20260707/r16/cpu_scored_samples/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-08T02:01:09.810164+00:00",
+  "decision": "hold_no_submission",
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.1",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/rejected_candidates.jsonl",
+    "report": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg11_target_r_seeded_20260707/r16/proposal_loop/axg11_target_r16_seeded_20260707_2055/proposal_loop_summary.json"
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "data/igp24/model_registry",
+  "run_id": "axg11_target_r16_seeded_20260707_2055",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/sair_sync_basin_gate_20260707",
+  "schema_version": 1,
+  "source_commit": "fa9fc9c9bd9623e1372e490ec5cea2820be0c8e9",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

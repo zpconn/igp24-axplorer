@@ -2527,6 +2527,17 @@ conditioned toward the high-value real-root strata. The next model step should
 add target-r conditioning or a target-r-biased training/export objective before
 scaling AXG beyond short probes.
 
+AXG-1.1 tested the least invasive target-r-biased export objective. Instead of
+changing the coefficient tokenizer, it prefixes target-r-labelled seed-bank
+rows into the unscored export stream and records `sample_export_source` so
+seed-bank rows and raw `model_generate` rows are scored separately. Four short
+CUDA probes covered `r=12,16,20,24`: 2,064 exported rows, 524 CPU-scored rows,
+477 proxy-valid rows, 16 target-r survivors, and 0 proposal-loop selected
+rows. All 16 target-r survivors came from the seed-bank prefix; raw
+`model_generate` rows produced 0 target-r survivors. This improves the
+supervision/measurement path, but it does not justify a larger GPU training
+run yet.
+
 ## GPU And Split Export Findings
 
 GPU training and sample export are useful only when decoupled from CPU-heavy

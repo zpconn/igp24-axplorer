@@ -1,0 +1,127 @@
+{
+  "candidate_source_count": 9,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 336,
+    "accepted_globally_covered_high_team_basin": 8,
+    "accepted_useful_score_positive": 8,
+    "locally_invalid": 73,
+    "wrong_real_root_count": 724
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-08T02:03:04.925701+00:00",
+  "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+  "feedback_source_count": 16,
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "unknown",
+      764
+    ],
+    [
+      "24T25000",
+      169
+    ],
+    [
+      "24T24979",
+      65
+    ],
+    [
+      "24T24932",
+      40
+    ],
+    [
+      "24T24651",
+      38
+    ],
+    [
+      "24T24984",
+      36
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      8
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ],
+    [
+      "24T24648",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 1149,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/sair_sync_basin_gate_20260707",
+  "schema_version": 1,
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "fa9fc9c9bd9623e1372e490ec5cea2820be0c8e9",
+  "source_role_counts": {
+    "accepted_feedback": 152,
+    "artifact_row": 780,
+    "candidate_queue": 32,
+    "sair_submission_row": 185
+  },
+  "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260707_axg11_target_r_seeded.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 223,
+    "train": 926
+  }
+}

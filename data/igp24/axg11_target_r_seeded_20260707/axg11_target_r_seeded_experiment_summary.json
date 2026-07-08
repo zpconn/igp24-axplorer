@@ -1,0 +1,158 @@
+{
+  "aggregate": {
+    "decisions": [
+      "hold_no_submission"
+    ],
+    "raw_model_target_r_survivors_total": 0,
+    "run_count": 4,
+    "sample_export_records": 2064,
+    "scored_records": 524,
+    "seed_bank_target_r_survivors_total": 16,
+    "selected_rows_total": 0,
+    "target_r_survivors_total": 16,
+    "valid_records": 477
+  },
+  "baseline_comparison": {
+    "axg1_gpu_tiny_target_r_survivors_8_12_16_20_24": 0,
+    "axg1_gpu_tiny_valid_records": 230
+  },
+  "created_at": "2026-07-08T02:02:21.354822+00:00",
+  "model_version": "AXG-1.1",
+  "record_type": "igp24_axg11_target_r_seeded_experiment_summary",
+  "runs": [
+    {
+      "gpu_runtime_seconds": 27.852784546965268,
+      "manifest_path": "data/igp24/axg11_target_r_seeded_20260707/r12/axg11_target_r12_seeded_20260707_2054_run_manifest.json",
+      "max_gpu_utilization_percent": 82.0,
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r12_seeded_20260707_2054",
+      "sample_export_records": 516,
+      "scored_records": 130,
+      "seed_bank_target_r_survivors": 4,
+      "selected_rows": 0,
+      "target_r": 12,
+      "target_r_survivor_count": 4,
+      "valid_records": 115
+    },
+    {
+      "gpu_runtime_seconds": 27.797531165007968,
+      "manifest_path": "data/igp24/axg11_target_r_seeded_20260707/r16/axg11_target_r16_seeded_20260707_2055_run_manifest.json",
+      "max_gpu_utilization_percent": 83.0,
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r16_seeded_20260707_2055",
+      "sample_export_records": 516,
+      "scored_records": 131,
+      "seed_bank_target_r_survivors": 4,
+      "selected_rows": 0,
+      "target_r": 16,
+      "target_r_survivor_count": 4,
+      "valid_records": 120
+    },
+    {
+      "gpu_runtime_seconds": 27.4026933570276,
+      "manifest_path": "data/igp24/axg11_target_r_seeded_20260707/r20/axg11_target_r20_seeded_20260707_2056_run_manifest.json",
+      "max_gpu_utilization_percent": 84.0,
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r20_seeded_20260707_2056",
+      "sample_export_records": 516,
+      "scored_records": 131,
+      "seed_bank_target_r_survivors": 4,
+      "selected_rows": 0,
+      "target_r": 20,
+      "target_r_survivor_count": 4,
+      "valid_records": 118
+    },
+    {
+      "gpu_runtime_seconds": 27.4067535159993,
+      "manifest_path": "data/igp24/axg11_target_r_seeded_20260707/r24/axg11_target_r24_seeded_20260707_2057_run_manifest.json",
+      "max_gpu_utilization_percent": 83.0,
+      "proposal_decision": "hold_no_submission",
+      "raw_model_target_r_survivors": 0,
+      "run_id": "axg11_target_r24_seeded_20260707_2057",
+      "sample_export_records": 516,
+      "scored_records": 132,
+      "seed_bank_target_r_survivors": 4,
+      "selected_rows": 0,
+      "target_r": 24,
+      "target_r_survivor_count": 4,
+      "valid_records": 124
+    }
+  ],
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "checkpoint_binaries_committed": false,
+    "submitted_to_sair": false
+  },
+  "schema_version": 1,
+  "seed_bank_summary": {
+    "class_counts": {
+      "accepted_duplicate_collapsed_basin": 8,
+      "unknown": 24
+    },
+    "coefficient_height_by_r": {
+      "12": {
+        "max": 899592,
+        "min": 120884
+      },
+      "16": {
+        "max": 703,
+        "min": 703
+      },
+      "20": {
+        "max": 22700672,
+        "min": 10813088
+      },
+      "24": {
+        "max": 725998,
+        "min": 327726
+      }
+    },
+    "created_at": "2026-07-08T01:53:05.670181+00:00",
+    "jsonl_path": "data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl",
+    "label_counts": {
+      "24T24979": 8,
+      "unknown": 24
+    },
+    "limit_per_r": 8,
+    "record_type": "igp24_axg_target_r_seed_bank_summary",
+    "row_count": 32,
+    "rows_by_r": {
+      "12": 8,
+      "16": 8,
+      "20": 8,
+      "24": 8
+    },
+    "safety": {
+      "api_key_recorded": false,
+      "auto_submits": false,
+      "calls_sair": false,
+      "uses_network": false
+    },
+    "schema_version": 1,
+    "seed_bank": "axg_target_r_seed_bank_20260707",
+    "source_paths_scanned": 95,
+    "source_role_counts": {
+      "candidate_queue": 24,
+      "sair_submission_row": 8
+    },
+    "source_rows_scanned": 83733,
+    "target_rs": [
+      12,
+      16,
+      20,
+      24
+    ]
+  },
+  "source_commit": "fa9fc9c9bd9623e1372e490ec5cea2820be0c8e9",
+  "target_rs": [
+    12,
+    16,
+    20,
+    24
+  ]
+}

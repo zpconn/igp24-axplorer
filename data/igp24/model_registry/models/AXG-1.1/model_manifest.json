@@ -1,0 +1,129 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "full_control_token_conditioning": false,
+    "status": "target_r_seeded_export_probe_completed"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "target_r_conditioning_mode",
+    "sample_export_source",
+    "seed_bank_label",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-08T01:51:45.465998+00:00",
+  "description": "Target-r seeded export probe for AXG active learning",
+  "device_gpu_info": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent_by_target_r": {
+      "12": 82.0,
+      "16": 83.0,
+      "20": 84.0,
+      "24": 83.0
+    },
+    "status": "cuda_used_in_four_tiny_probes"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "fa9fc9c9bd9623e1372e490ec5cea2820be0c8e9",
+  "known_limitations": [
+    "AXG-1.1 is a target-r seeded export probe, not full control-token conditioning.",
+    "Target-r survivors came only from target_r_seed_bank rows; raw model_generate rows still had zero target-r survivors in scored samples.",
+    "Seed-bank survivors were accepted duplicates/basin-risk rows, so no SAIR submission was prepared.",
+    "GPU samples must pass CPU filters and basin gates before any submission review."
+  ],
+  "model_version": "AXG-1.1",
+  "objective_loss_configuration": {
+    "loss": "baseline transformer loss; target-r control is seed-bank export prefix, not full control-token conditioning",
+    "primary": "measure target-r seeded export as a steering/control path",
+    "secondary": "separate raw model_generate target-r yield from seed-bank target-r yield"
+  },
+  "parent_version": "AXG-1",
+  "purpose": "Target-r seeded export probe for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-08T02:02:33.832170+00:00",
+      "run_id": "axg11_target_r12_seeded_20260707_2054",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.1/axg11_target_r12_seeded_20260707_2054/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:02:45.734048+00:00",
+      "run_id": "axg11_target_r16_seeded_20260707_2055",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.1/axg11_target_r16_seeded_20260707_2055/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:02:45.743267+00:00",
+      "run_id": "axg11_target_r20_seeded_20260707_2056",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.1/axg11_target_r20_seeded_20260707_2056/run_manifest.json"
+    },
+    {
+      "recorded_at": "2026-07-08T02:02:45.768980+00:00",
+      "run_id": "axg11_target_r24_seeded_20260707_2057",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.1/axg11_target_r24_seeded_20260707_2057/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Submission is explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg11_target_r_seeded_20260707/r12/gpu_probe/gpu_model_sample_export_target_r12_seeded.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r16/gpu_probe/gpu_model_sample_export_target_r16_seeded.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r20/gpu_probe/gpu_model_sample_export_target_r20_seeded.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r24/gpu_probe/gpu_model_sample_export_target_r24_seeded.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_seeded --target_r <12|16|20|24> --target_r_seed_bank_jsonl data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl",
+    "recommended_template": [
+      "python3",
+      "scripts/igp24_gpu_sampler_probe.py",
+      "--probe_mode",
+      "sample_export_target_r_seeded",
+      "--target_r",
+      "<target>"
+    ],
+    "status": "tiny_probe_completed_no_long_run"
+  },
+  "training_data_inputs": [
+    "data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl",
+    "data/igp24/active_learning/axg_training_dataset_20260707_axg_gpu_tiny.jsonl",
+    "data/igp24/sair_sync_basin_gate_20260707/",
+    "data/igp24/**/*candidate_queue.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 110.45976258500014,
+    "status": "four_tiny_gpu_probes_completed_no_long_run"
+  },
+  "validation_metrics": {
+    "aggregate": {
+      "decisions": [
+        "hold_no_submission"
+      ],
+      "raw_model_target_r_survivors_total": 0,
+      "run_count": 4,
+      "sample_export_records": 2064,
+      "scored_records": 524,
+      "seed_bank_target_r_survivors_total": 16,
+      "selected_rows_total": 0,
+      "target_r_survivors_total": 16,
+      "valid_records": 477
+    },
+    "interpretation": "Seed-bank prefix produced target-r control rows, but raw model_generate rows still produced zero target-r survivors; do not scale GPU training until model-side target-r conditioning improves.",
+    "status": "tiny_probe_completed_hold_no_submission",
+    "success_metrics": [
+      "target-r survivor count by sample_export_source",
+      "proposal-loop selected rows",
+      "basin-risk distribution",
+      "raw model target-r yield compared with AXG-1 baseline"
+    ]
+  }
+}

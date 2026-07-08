@@ -1229,6 +1229,11 @@ def summarize_sampler_run(command_config: dict[str, Any], command_result: dict[s
         **sample_export,
         **summarize_records(records),
         **summarize_model_sample_records(records),
+        "target_r": command_config.get("target_r"),
+        "target_r_conditioning_mode": command_config.get("target_r_conditioning_mode"),
+        "target_r_seed_bank_jsonl": command_config.get("target_r_seed_bank_jsonl"),
+        "target_r_seed_bank_limit": command_config.get("target_r_seed_bank_limit"),
+        "target_r_seed": command_config.get("target_r_seed"),
     }
 
 

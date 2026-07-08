@@ -1,0 +1,396 @@
+INFO - 07/07/26 20:56:26 - 0:00:00 - ============ Initialized logger ============
+INFO - 07/07/26 20:56:26 - 0:00:00 - N: 24
+                                     always_search: False
+                                     batch_size: 256
+                                     coeff_bound: 4
+                                     command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r20_seeded --dump_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_dump' --exp_id axg11_target_r20_seeded_20260707_2056 --seed 31020 --coeff_bound 4 --target_r 20 --gensize 512 --pop_size 384 --ntest 16 --gen_batch_size 64 --max_epochs 1 --max_steps 160 --num_eval_steps 60 --num_samples_from_model 512 --batch_size 256 --n_layer 4 --n_head 4 --n_embd 256 --max_len 24 --temperature '0.9' --top_k 9 --always_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl' --sample_export_dedup true --sample_export_max_attempts 512 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode seed_bank_prefix --sample_export_seed_bank_jsonl 'data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl' --sample_export_seed_bank_target_r 20 --sample_export_seed_bank_limit 4 --igp24_generation_strategy fixed_sparse_template --igp24_ledger_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_initial_candidates.jsonl' --exp_id "axg11_target_r20_seeded_20260707_2056"
+                                     cpu: False
+                                     cycle_diversity_weight: 5.0
+                                     data_generation_only: False
+                                     device: cuda
+                                     discriminant_weight: 1.0
+                                     dump_path: /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_dump/igp24_gpu_sample_export_target_r20_seeded/axg11_target_r20_seeded_20260707_2056
+                                     encoding_tokens: coefficients
+                                     env_name: igp24
+                                     exact_score_timeout: 2.0
+                                     exp_id: axg11_target_r20_seeded_20260707_2056
+                                     exp_name: igp24_gpu_sample_export_target_r20_seeded
+                                     gen_batch_size: 64
+                                     gensize: 512
+                                     height_weight: 1.0
+                                     igp24_generation_preset: none
+                                     igp24_generation_strategy: fixed_sparse_template
+                                     igp24_ledger_path: /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_initial_candidates.jsonl
+                                     igp24_low_height_bound: 3
+                                     igp24_mixed_strategy_weights: uniform:0.1000,low_height:0.2000,sparse:0.2500,lower_degree:0.2000,structured:0.2500,four_real_seed:0.0000,quartic_lift:0.0000,r8_quartic_lift:0.0000,r8_quartic_lift_perturbed:0.0000,r16_quadratic_lift:0.0000,fixed_sparse_template:0.0000
+                                     igp24_sparse_terms: 4
+                                     igp24_translation_radius: 2
+                                     igp24_write_ledger: True
+                                     inc_temp: 0.0
+                                     keep_only_unique: True
+                                     learning_rate: 0.0005
+                                     max_epochs: 1
+                                     max_len: 24
+                                     max_local_search_steps: 0
+                                     max_steps: 160
+                                     n_embd: 256
+                                     n_head: 4
+                                     n_layer: 4
+                                     new_proportion: 0.0
+                                     no_positional: False
+                                     ntest: 16
+                                     num_eval_steps: 60
+                                     num_samples_from_model: 512
+                                     num_workers: 1
+                                     pop_size: 384
+                                     prime_limit: 11
+                                     process_pool: False
+                                     redeem_only: False
+                                     sample_export_dedup: True
+                                     sample_export_max_attempts: 512
+                                     sample_export_only: True
+                                     sample_export_path: /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl
+                                     sample_export_progress_interval: 128
+                                     sample_export_seed_bank_jsonl: data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl
+                                     sample_export_seed_bank_limit: 4
+                                     sample_export_seed_bank_target_r: 20
+                                     sample_export_target_r_conditioning_mode: seed_bank_prefix
+                                     sample_export_unique_target: 0
+                                     save_best: False
+                                     seed: 31020
+                                     target_r: 20
+                                     target_t: None
+                                     temp_span: 0
+                                     temperature: 0.9
+                                     top_k: 9
+                                     train_only: False
+                                     weight_decay: 0.01
+INFO - 07/07/26 20:56:26 - 0:00:00 - The experiment will be stored in /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_dump/igp24_gpu_sample_export_target_r20_seeded/axg11_target_r20_seeded_20260707_2056
+                                     
+INFO - 07/07/26 20:56:26 - 0:00:00 - Running command: python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r20_seeded --dump_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_dump' --exp_id axg11_target_r20_seeded_20260707_2056 --seed 31020 --coeff_bound 4 --target_r 20 --gensize 512 --pop_size 384 --ntest 16 --gen_batch_size 64 --max_epochs 1 --max_steps 160 --num_eval_steps 60 --num_samples_from_model 512 --batch_size 256 --n_layer 4 --n_head 4 --n_embd 256 --max_len 24 --temperature '0.9' --top_k 9 --always_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl' --sample_export_dedup true --sample_export_max_attempts 512 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode seed_bank_prefix --sample_export_seed_bank_jsonl 'data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl' --sample_export_seed_bank_target_r 20 --sample_export_seed_bank_limit 4 --igp24_generation_strategy fixed_sparse_template --igp24_ledger_path '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_sample_export_target_r20_seeded_initial_candidates.jsonl'
+
+INFO - 07/07/26 20:56:26 - 0:00:00 - seed: 31020
+INFO - 07/07/26 20:56:26 - 0:00:00 - Number of parameters: 3.16M
+INFO - 07/07/26 20:56:49 - 0:00:24 - Unique processing: 459 examples left, 0 duplicates
+INFO - 07/07/26 20:56:49 - 0:00:24 - ### Score distribution ###
+INFO - 07/07/26 20:56:49 - 0:00:24 - Valid examples: 459
+INFO - 07/07/26 20:56:49 - 0:00:24 - Mean score: 9932.441010747347
+INFO - 07/07/26 20:56:49 - 0:00:24 - Median score: 9931.89856921734
+INFO - 07/07/26 20:56:49 - 0:00:24 - Stdev score: 10.754034431204506
+INFO - 07/07/26 20:56:49 - 0:00:24 - Max score: 9964.11910600468
+INFO - 07/07/26 20:56:49 - 0:00:24 - Top 1 percentile score: 9959.163639120998
+INFO - 07/07/26 20:56:49 - 0:00:24 - Distribution of scores:
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9903.75, 9904.05): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9905.56, 9905.86): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9906.47, 9906.77): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9908.28, 9908.58): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9911.00, 9911.30): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9911.60, 9911.90): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9911.90, 9912.20): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9912.50, 9912.81): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9913.11, 9913.41): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9914.32, 9914.62): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9914.92, 9915.22): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9915.22, 9915.52): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9915.52, 9915.82): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9915.82, 9916.13): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9916.13, 9916.43): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9916.43, 9916.73): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9916.73, 9917.03): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9917.03, 9917.33): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9917.94, 9918.24): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9918.24, 9918.54): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9918.84, 9919.14): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9919.14, 9919.45): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9919.45, 9919.75): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9919.75, 9920.05): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9920.05, 9920.35): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9920.35, 9920.65): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9920.65, 9920.96): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9920.96, 9921.26): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9921.26, 9921.56): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9921.56, 9921.86): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9921.86, 9922.16): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.16, 9922.47): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.47, 9922.77): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.77, 9923.07): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.07, 9923.37): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.37, 9923.67): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.67, 9923.97): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.97, 9924.28): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.28, 9924.58): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.58, 9924.88): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.88, 9925.18): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.18, 9925.48): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.48, 9925.79): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.79, 9926.09): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.09, 9926.39): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.39, 9926.69): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.69, 9926.99): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.99, 9927.29): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.29, 9927.60): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.60, 9927.90): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.90, 9928.20): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.20, 9928.50): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.80, 9929.11): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.11, 9929.41): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.41, 9929.71): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.71, 9930.01): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.01, 9930.31): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.31, 9930.61): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.61, 9930.92): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.92, 9931.22): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.22, 9931.52): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.52, 9931.82): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.82, 9932.12): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.12, 9932.43): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.43, 9932.73): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.73, 9933.03): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.03, 9933.33): Count: 10
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.33, 9933.63): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.63, 9933.94): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.94, 9934.24): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.24, 9934.54): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.54, 9934.84): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.84, 9935.14): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.14, 9935.44): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.44, 9935.75): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.75, 9936.05): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.05, 9936.35): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.35, 9936.65): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.65, 9936.95): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.95, 9937.26): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.26, 9937.56): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.56, 9937.86): Count: 12
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.86, 9938.16): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.16, 9938.46): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.46, 9938.76): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.76, 9939.07): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.07, 9939.37): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.37, 9939.67): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.67, 9939.97): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.97, 9940.27): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.27, 9940.58): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.58, 9940.88): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.88, 9941.18): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.18, 9941.48): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.48, 9941.78): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.78, 9942.08): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.08, 9942.39): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.39, 9942.69): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.69, 9942.99): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.99, 9943.29): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.29, 9943.59): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.59, 9943.90): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.90, 9944.20): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.20, 9944.50): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.50, 9944.80): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.80, 9945.10): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9945.10, 9945.41): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9945.41, 9945.71): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9945.71, 9946.01): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.01, 9946.31): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.31, 9946.61): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.61, 9946.91): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.91, 9947.22): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.22, 9947.52): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.52, 9947.82): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.82, 9948.12): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9948.12, 9948.42): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9948.73, 9949.03): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9949.03, 9949.33): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9949.63, 9949.93): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9949.93, 9950.23): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.23, 9950.54): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.54, 9950.84): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.84, 9951.14): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9952.05, 9952.35): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9952.65, 9952.95): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9953.25, 9953.55): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9953.55, 9953.86): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9953.86, 9954.16): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9954.46, 9954.76): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9955.67, 9955.97): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9955.97, 9956.27): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9956.57, 9956.87): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9958.08, 9958.38): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9958.69, 9958.99): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9959.59, 9959.89): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9961.70, 9962.01): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9963.82, 9964.12): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - --------------------------------
+INFO - 07/07/26 20:56:49 - 0:00:24 - New train and test generated. Size are train: 368, test 16
+INFO - 07/07/26 20:56:49 - 0:00:24 - Unique data computed for original train set: 0, generated train set: 368
+INFO - 07/07/26 20:56:49 - 0:00:24 - Final train and test generated. Size are train: 368, test 16
+INFO - 07/07/26 20:56:49 - 0:00:24 - ### Score distribution ###
+INFO - 07/07/26 20:56:49 - 0:00:24 - Valid examples: 368
+INFO - 07/07/26 20:56:49 - 0:00:24 - Mean score: 9935.440860431172
+INFO - 07/07/26 20:56:49 - 0:00:24 - Median score: 9934.66193146635
+INFO - 07/07/26 20:56:49 - 0:00:24 - Stdev score: 8.967723546323242
+INFO - 07/07/26 20:56:49 - 0:00:24 - Max score: 9964.11910600468
+INFO - 07/07/26 20:56:49 - 0:00:24 - Top 1 percentile score: 9959.09332768101
+INFO - 07/07/26 20:56:49 - 0:00:24 - Distribution of scores:
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.01, 9922.22): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.22, 9922.43): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.43, 9922.64): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.64, 9922.85): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9922.85, 9923.06): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.06, 9923.28): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.28, 9923.49): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.49, 9923.70): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.70, 9923.91): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9923.91, 9924.12): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.12, 9924.33): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.33, 9924.54): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.54, 9924.75): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.75, 9924.96): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9924.96, 9925.17): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.17, 9925.38): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.38, 9925.59): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.59, 9925.80): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9925.80, 9926.01): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.01, 9926.22): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.22, 9926.43): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.43, 9926.64): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.64, 9926.85): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9926.85, 9927.06): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.06, 9927.28): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.28, 9927.49): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.49, 9927.70): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.70, 9927.91): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9927.91, 9928.12): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.12, 9928.33): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.33, 9928.54): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.75, 9928.96): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9928.96, 9929.17): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.17, 9929.38): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.38, 9929.59): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.59, 9929.80): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9929.80, 9930.01): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.01, 9930.22): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.22, 9930.43): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.43, 9930.64): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9930.64, 9930.85): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.06, 9931.28): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.28, 9931.49): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.49, 9931.70): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.70, 9931.91): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9931.91, 9932.12): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.12, 9932.33): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.33, 9932.54): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.54, 9932.75): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.75, 9932.96): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9932.96, 9933.17): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.17, 9933.38): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.38, 9933.59): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.59, 9933.80): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9933.80, 9934.01): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.01, 9934.22): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.22, 9934.43): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.43, 9934.64): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.64, 9934.85): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9934.85, 9935.07): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.07, 9935.28): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.28, 9935.49): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.49, 9935.70): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.70, 9935.91): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9935.91, 9936.12): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.12, 9936.33): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.33, 9936.54): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.54, 9936.75): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.75, 9936.96): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9936.96, 9937.17): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.17, 9937.38): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.38, 9937.59): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.59, 9937.80): Count: 8
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9937.80, 9938.01): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.01, 9938.22): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.22, 9938.43): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.43, 9938.64): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9938.85, 9939.07): Count: 7
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.07, 9939.28): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.28, 9939.49): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.49, 9939.70): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.70, 9939.91): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9939.91, 9940.12): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.12, 9940.33): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.33, 9940.54): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.54, 9940.75): Count: 5
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.75, 9940.96): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9940.96, 9941.17): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.17, 9941.38): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.38, 9941.59): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.59, 9941.80): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9941.80, 9942.01): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.01, 9942.22): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.22, 9942.43): Count: 6
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.64, 9942.85): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9942.85, 9943.07): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.28, 9943.49): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.49, 9943.70): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.70, 9943.91): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9943.91, 9944.12): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.12, 9944.33): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.33, 9944.54): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.54, 9944.75): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9944.75, 9944.96): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9945.17, 9945.38): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9945.80, 9946.01): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.01, 9946.22): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.22, 9946.43): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.43, 9946.64): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.64, 9946.86): Count: 4
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9946.86, 9947.07): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.07, 9947.28): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.28, 9947.49): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.49, 9947.70): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9947.91, 9948.12): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9948.12, 9948.33): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9948.96, 9949.17): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9949.17, 9949.38): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9949.59, 9949.80): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.01, 9950.22): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.22, 9950.43): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.64, 9950.86): Count: 3
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9950.86, 9951.07): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9952.12, 9952.33): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9952.54, 9952.75): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9953.17, 9953.38): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9953.59, 9953.80): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9954.01, 9954.22): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9954.64, 9954.86): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9955.70, 9955.91): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9955.91, 9956.12): Count: 2
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9956.12, 9956.33): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9956.54, 9956.75): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9958.22, 9958.43): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9958.65, 9958.86): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9959.49, 9959.70): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9959.70, 9959.91): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - Score [9963.91, 9964.12): Count: 1
+INFO - 07/07/26 20:56:49 - 0:00:24 - --------------------------------
+INFO - 07/07/26 20:56:49 - 0:00:24 - ==== Starting Epoch 0 =====
+INFO - 07/07/26 20:56:50 - 0:00:24 - [Epoch 0 START] CPU: 0.0% | RAM: 820.9MB
+INFO - 07/07/26 20:56:50 - 0:00:24 - Memory allocated: 12.07MB, reserved: 14.00MB
+INFO - 07/07/26 20:56:50 - 0:00:24 - step 60 train loss: 1.2990046640237172 test loss: 0.9806208610534668
+INFO - 07/07/26 20:56:50 - 0:00:25 - step 100 | loss 0.7287 | steps time 783.06ms
+INFO - 07/07/26 20:56:51 - 0:00:25 - step 120 train loss: 0.797743930419286 test loss: 0.7057931423187256
+INFO - 07/07/26 20:56:51 - 0:00:25 - [Epoch 0 AFTER_TRAIN] CPU: 0.0% | RAM: 1208.4MB
+INFO - 07/07/26 20:56:51 - 0:00:25 - Export-only model sampling to /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl
+INFO - 07/07/26 20:56:51 - 0:00:25 - Export-only controls: dedup_enabled=True unique_target=0 attempt_budget=512 progress_interval=128 seed_bank_requested=True
+INFO - 07/07/26 20:56:51 - 0:00:25 - Export-only target-r seed bank wrote 4 records from data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl for r=20
+INFO - 07/07/26 20:56:51 - 0:00:25 - 0 / 512 samples attempted for export
+INFO - 07/07/26 20:56:51 - 0:00:26 - 64 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - Export-only dedup progress: attempts=128/512 records_written=132 unique_decoded=131 duplicate_skipped=0 invalid_decode=1
+INFO - 07/07/26 20:56:52 - 0:00:26 - 128 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - 192 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - Export-only dedup progress: attempts=256/512 records_written=260 unique_decoded=257 duplicate_skipped=0 invalid_decode=3
+INFO - 07/07/26 20:56:52 - 0:00:26 - 256 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - 320 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - Export-only dedup progress: attempts=384/512 records_written=388 unique_decoded=383 duplicate_skipped=0 invalid_decode=5
+INFO - 07/07/26 20:56:52 - 0:00:26 - 384 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - 448 / 512 samples attempted for export
+INFO - 07/07/26 20:56:52 - 0:00:26 - Export-only dedup progress: attempts=512/512 records_written=516 unique_decoded=511 duplicate_skipped=0 invalid_decode=5
+INFO - 07/07/26 20:56:52 - 0:00:26 - Export-only model sampling wrote 516 records to /tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl; attempts=512 decoded=507 invalid_decode=5 unique_decoded=511 duplicate_skipped=0 stop_reason=attempt_budget_exhausted
+INFO - 07/07/26 20:56:52 - 0:00:26 - Sample export summary: {'export_path': '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl', 'summary_path': '/tmp/igp24_axg11_target_r_seeded_20260707/r20/gpu_model_sample_export_target_r20_seeded.jsonl.summary.json', 'records_written': 516, 'requested_samples': 512, 'attempt_budget': 512, 'attempted_samples': 512, 'decoded_attempts': 507, 'invalid_decode_attempts': 5, 'decoded_records': 507, 'invalid_decode_records': 5, 'deduplication_enabled': True, 'deduplication_key_type': 'decoded_coefficients', 'unique_target': 0, 'unique_decoded_coefficients': 511, 'duplicate_decoded_records_skipped': 0, 'stop_reason': 'attempt_budget_exhausted', 'progress_interval': 128, 'scoring_avoided': True, 'local_search_avoided': True, 'dataset_update_avoided': True, 'seed_bank_enabled': True, 'seed_bank_path': 'data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl', 'seed_bank_target_r': 20, 'seed_bank_limit': 4, 'seed_bank_source_rows_read': 20, 'seed_bank_rows_matching_target_r': 4, 'seed_bank_records_written': 4, 'seed_bank_duplicate_decoded_records_skipped': 0, 'seed_bank_invalid_rows_skipped': 0, 'seed_bank_max_coefficient_height': 11857252}
+INFO - 07/07/26 20:56:52 - 0:00:26 - [Epoch 0 AFTER_SAMPLE_EXPORT] CPU: 0.0% | RAM: 1750.2MB

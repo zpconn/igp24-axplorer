@@ -1,0 +1,32 @@
+{
+  "active_learning_datasets": [
+    {
+      "class_counts": {
+        "accepted_duplicate_collapsed_basin": 336,
+        "accepted_globally_covered_high_team_basin": 8,
+        "accepted_useful_score_positive": 8,
+        "locally_invalid": 73,
+        "wrong_real_root_count": 724
+      },
+      "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+      "row_count": 1149,
+      "source_role_counts": {
+        "accepted_feedback": 152,
+        "artifact_row": 780,
+        "candidate_queue": 32,
+        "sair_submission_row": 185
+      },
+      "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260707_axg11_target_r_seeded.json"
+    }
+  ],
+  "model_version": "AXG-1.1",
+  "notes": [
+    "AXG-1.1 added scored target-r seeded export rows for r=12,16,20,24.",
+    "Raw model_generate rows produced zero target-r survivors; seed-bank prefix rows produced 16 target-r survivor controls.",
+    "Proposal loops held all targets with zero selected rows because survivors were accepted duplicates and/or basin-risk rows."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "schema_version": 1,
+  "status": "target_r_seeded_feedback_recorded"
+}

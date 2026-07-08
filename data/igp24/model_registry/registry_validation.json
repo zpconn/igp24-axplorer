@@ -1,14 +1,15 @@
 {
-  "created_at": "2026-07-08T00:19:09.071338+00:00",
+  "created_at": "2026-07-08T02:04:53.749943+00:00",
   "issue_count": 0,
   "issues": [],
-  "model_count": 1,
+  "model_count": 2,
   "models": [
-    "AXG-1"
+    "AXG-1",
+    "AXG-1.1"
   ],
   "record_type": "igp24_axg_registry_validation",
   "registry": "data/igp24/model_registry",
-  "run_count": 2,
+  "run_count": 6,
   "schema_version": 1,
   "valid": true
 }

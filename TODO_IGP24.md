@@ -208,6 +208,48 @@ results change.
   `r=20: 10,813,088..22,700,672`, and `r=24: 327,726..725,998`.
   Safety flags on the seed-bank summary record no SAIR calls, no network, no
   auto-submit, and no API-key recording.
+  GPU probe results: four bounded
+  `scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_seeded`
+  runs completed for `r=12,16,20,24` with CUDA logged on the RTX 5090. Each
+  run prefixed 4 seed-bank rows and attempted 512 model samples, exporting 516
+  rows. Max monitored GPU utilization was 82%, 83%, 84%, and 83% respectively.
+  CPU scoring used the repo-copied exports and scored the first 132 rows per
+  target. Results:
+  `r=12`: 130 scored, 115 valid, target-r survivors 4, raw model survivors 0,
+  seed-bank survivors 4;
+  `r=16`: 131 scored, 120 valid, target-r survivors 4, raw model survivors 0,
+  seed-bank survivors 4;
+  `r=20`: 131 scored, 118 valid, target-r survivors 4, raw model survivors 0,
+  seed-bank survivors 4;
+  `r=24`: 132 scored, 124 valid, target-r survivors 4, raw model survivors 0,
+  seed-bank survivors 4. Aggregate: 2,064 exported rows, 524 scored rows, 477
+  proxy-valid rows, 16 target-r survivors, 0 raw-model target-r survivors, 16
+  seed-bank target-r survivors.
+  Proposal-loop dry-runs under `AXG-1.1` returned `hold_no_submission` for all
+  four targets: each had 4 filtered rows, 0 selected rows, and the survivors
+  were accepted duplicates and/or basin-risk rows (`accepted_hash_duplicate`
+  for every filtered seed row; even/support-gcd risks for several composed
+  r12/r16/r24 rows). Rebuilt active-learning dataset
+  `data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl`
+  with 1,149 rows and class counts `accepted_duplicate_collapsed_basin=336`,
+  `accepted_globally_covered_high_team_basin=8`,
+  `accepted_useful_score_positive=8`, `locally_invalid=73`, and
+  `wrong_real_root_count=724`.
+  Decision: AXG-1.1 improved the measurement/control path, but not raw model
+  steering. Do not start a larger GPU training run yet; next model work needs
+  genuine model-side target-r conditioning or a different representation for
+  high-coefficient high-real-root families.
+  Final validation for this AXG-1.1 pass: focused tests passed (`76 passed`
+  across model registry, active-learning dataset, proposal loop, GPU sampler
+  probe, sample export, and core IGP24 tests); `py_compile` passed for
+  `train.py`, `src/evaluator.py`, and the relevant AXG/GPU/scoring scripts;
+  registry validation passed with 2 models, 6 runs, and 0 issues; JSON parsing
+  passed for 45 new/updated AXG-1.1/registry artifacts; JSONL parsing passed
+  for 30 files / 6,126 rows; repo-wide SAIR-key-shaped scan found 0 matches;
+  checkpoint/pickle scan found no `.pt`, `.pth`, `.ckpt`, `.bin`,
+  `.safetensors`, or `.pkl` files under the committed AXG-1.1/registry
+  artifact roots; `git diff --check` passed; and Stage 4 remains present at
+  line 8384.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.

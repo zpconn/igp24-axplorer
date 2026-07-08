@@ -47,6 +47,26 @@ or an export objective that biases toward the high-value real-root strata.
 Checkpoint binaries from this smoke remain referenced only under `/tmp`; the
 repository stores manifests, logs, summaries, and sample/scoring JSONL only.
 
+## AXG-1.1 Target-r Seeded Probe
+
+AXG-1.1 adds a target-r-biased export path rather than full control-token
+conditioning. This is deliberate: known `r=20` rows have coefficient heights
+around 10 million or higher, so raw coefficient-token training on those rows
+would make the vocabulary/logit layer too large for a tiny probe.
+
+The 2026-07-07 AXG-1.1 run used a balanced seed bank with 8 rows each for
+`r=12,16,20,24`, then ran four bounded CUDA train/export probes. Aggregate
+result: 2,064 exported rows, 524 CPU-scored rows, 477 proxy-valid rows, 16
+target-r survivors, and 0 selected proposal rows. All 16 target-r survivors
+came from the explicit seed-bank prefix; raw `model_generate` rows produced 0
+target-r survivors. Every proposal loop returned `hold_no_submission` because
+the survivors were accepted duplicates and/or basin-risk rows.
+
+The practical lesson is sharper now: seed-bank control rows are useful for
+testing and supervision, but they do not justify scaling GPU training. The next
+AXG step needs real model-side target-r conditioning or a different tokenizer /
+representation for high-coefficient target-r families.
+
 ## Axplorer Architecture
 
 Axplorer exposes each math search task as an environment under `src/envs/`. The

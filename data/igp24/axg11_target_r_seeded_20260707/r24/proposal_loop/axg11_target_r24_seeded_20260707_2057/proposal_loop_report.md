@@ -1,0 +1,13 @@
+# AXG Proposal Loop
+
+- Model version: `AXG-1.1`
+- Run id: `axg11_target_r24_seeded_20260707_2057`
+- Candidate rows: 132
+- Filtered rows: 4
+- Rejected rows: 128
+- Selected rows: 0
+- Decision: `hold_no_submission`
+- SAIR live submission: `false`
+
+This run is a proposal-selection dry run. It does not submit raw GPU
+samples or reviewed packets to SAIR.
