@@ -305,6 +305,22 @@ results change.
   --query-compute-apps=pid,process_name,used_memory --format=csv,noheader`
   reported no active compute apps. Stage 4 remains present at line 8681 after
   the documentation updates.
+- AXG-1.4 post-push SAIR sync retry:
+  `PYTHONPATH=.:/tmp/igp24_pydeps python3 scripts/igp24_sair_sync.py
+  --output_dir /tmp/igp24_axg14_resync_20260708 --fetch_live
+  --allow_partial --progress_limit 5000 --submission_limit 25`. Sandboxed
+  attempt failed with temporary DNS resolution failure; approved network retry
+  reached SAIR and wrote `/tmp/igp24_axg14_resync_20260708`. Result:
+  endpoint_count 4, label_count 25000, remaining_signature_count 50860,
+  submission_count 0, submission_row_count 0, pending_rows 0, scoreable_rows
+  0, unmatched_rows 0, `partial_sync=true`,
+  `submission_state_complete=false`, failing endpoint `submissions/me`.
+  Safety fields: `api_key_recorded=false`, `sair_submission=false`,
+  `network_calls=true`, `live_fetch=true`. Decision remains no submission:
+  `submission_recommended_now=false`, reason `partial sync only;
+  submission/scoring state is incomplete`. The locally ready r20 packet should
+  wait for a complete SAIR sync before any live submission attempt. Stage 4
+  remains present at line 8697 after this resync TODO update.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,
