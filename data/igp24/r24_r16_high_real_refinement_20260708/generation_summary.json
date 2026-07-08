@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_r24_r16_high_real_refinement_generation_summary",
+  "created_at": "2026-07-08",
+  "objective": "Short bounded r24/r16 high-real refinement pass after the r8 basin stop.",
+  "refresh_state": {
+    "git_pull": "already_up_to_date",
+    "sair_api_key_env": "missing",
+    "sair_sync_used": "data/igp24/sair_sync_20260708_r8_followup_after_submit",
+    "sair_sync_partial": false,
+    "pending_pair_counts": {
+      "24T25000|r=8": 4,
+      "24T25000|r=20": 4
+    }
+  },
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": true,
+    "sair_dry_run_execute": false,
+    "api_key_recorded": false,
+    "large_training_run": false,
+    "bounded_cuda_sample_export_training": true,
+    "r20_used": false,
+    "r8_used": false
+  },
+  "strategy": {
+    "primary_lane": "r24",
+    "backup_lane": "r16",
+    "held_lanes": [
+      "r8",
+      "r20"
+    ],
+    "generation_strategy": "mixed",
+    "target_r_training_jsonl": "data/igp24/active_learning/axg_training_dataset_20260707_axg11_target_r_seeded.jsonl",
+    "target_r_training_target_rs": "12,16,20,24",
+    "max_steps_per_lane": 2400,
+    "sample_attempts_per_lane": 2048,
+    "temperature": 1.25,
+    "top_k": -1,
+    "unique_target": 256,
+    "avoid_even_support_like": true,
+    "require_support_gcd_one": true,
+    "family_cap": 24,
+    "basin_fingerprint_cap": 1
+  },
+  "lanes": {
+    "r24": {
+      "target_r": 24,
+      "gpu_runtime_seconds": 89.14977109500069,
+      "avg_gpu_utilization_percent": 73.37209302325581,
+      "max_gpu_utilization_percent": 87.0,
+      "export_records": 568,
+      "decoded_records": 44,
+      "scored_records": 44,
+      "valid_records": 36,
+      "target_r_survivors": 13,
+      "real_root_counts": {
+        "2": 5,
+        "4": 9,
+        "6": 1,
+        "8": 2,
+        "10": 3,
+        "12": 2,
+        "14": 1,
+        "24": 13
+      },
+      "artifacts": {
+        "gpu_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r24/gpu_sampler_probe_summary.json",
+        "export_jsonl": "data/igp24/r24_r16_high_real_refinement_20260708/r24/gpu_model_sample_export_target_r24_conditioned.jsonl",
+        "score_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r24/cpu_scored_samples/score_summary.json",
+        "scored_jsonl": "data/igp24/r24_r16_high_real_refinement_20260708/r24/cpu_scored_samples/scored_samples.jsonl"
+      }
+    },
+    "r16": {
+      "target_r": 16,
+      "gpu_runtime_seconds": 85.88285916799941,
+      "avg_gpu_utilization_percent": 75.30952380952381,
+      "max_gpu_utilization_percent": 86.0,
+      "export_records": 422,
+      "decoded_records": 32,
+      "scored_records": 32,
+      "valid_records": 30,
+      "target_r_survivors": 12,
+      "real_root_counts": {
+        "0": 4,
+        "2": 2,
+        "4": 11,
+        "8": 1,
+        "16": 12
+      },
+      "artifacts": {
+        "gpu_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r16/gpu_sampler_probe_summary.json",
+        "export_jsonl": "data/igp24/r24_r16_high_real_refinement_20260708/r16/gpu_model_sample_export_target_r16_conditioned.jsonl",
+        "score_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r16/cpu_scored_samples/score_summary.json",
+        "scored_jsonl": "data/igp24/r24_r16_high_real_refinement_20260708/r16/cpu_scored_samples/scored_samples.jsonl"
+      }
+    }
+  }
+}

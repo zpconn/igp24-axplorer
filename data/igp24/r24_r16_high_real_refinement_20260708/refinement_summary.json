@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_r24_r16_high_real_refinement_decision_summary",
+  "created_at": "2026-07-08",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": true,
+    "sair_dry_run_execute": false,
+    "api_key_recorded": false,
+    "r20_held": true,
+    "r8_stopped": true
+  },
+  "gate_results": {
+    "r24": {
+      "candidate_count": 44,
+      "eligible_candidate_count": 3,
+      "selected_rows": 3,
+      "recommended_for_sair_packet": false,
+      "local_recommended_for_sair_packet": false,
+      "reason": "only_3_eligible_rows_below_min_4; only_3_model_generated_rows_below_min_4; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+      "selected_mode_counts": {
+        "dense_mixed_support_gcd1": 2,
+        "medium_mixed_support_gcd1": 1
+      },
+      "selected_template_family_counts": {
+        "model:mixed:r24:dense_mixed_support_gcd1": 2,
+        "model:mixed:r24:medium_mixed_support_gcd1": 1
+      },
+      "selected_basin_fingerprint_count": 3,
+      "risk_count": 0
+    },
+    "r16": {
+      "candidate_count": 32,
+      "eligible_candidate_count": 5,
+      "selected_rows": 4,
+      "recommended_for_sair_packet": true,
+      "local_recommended_for_sair_packet": true,
+      "reason": "anti-basin gates passed",
+      "selected_mode_counts": {
+        "medium_mixed_support_gcd1": 2,
+        "dense_mixed_support_gcd1": 2
+      },
+      "selected_template_family_counts": {
+        "model:mixed:r16:medium_mixed_support_gcd1": 2,
+        "model:mixed:r16:dense_mixed_support_gcd1": 2
+      },
+      "selected_basin_fingerprint_count": 4,
+      "selected_mod_p_signature_count": 4,
+      "selected_source_counts": {
+        "model_generate": 4
+      },
+      "risk_count": 0,
+      "dry_run": {
+        "path": "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_dry_run.json",
+        "ok": true,
+        "dry_run": true,
+        "polynomial_count": 4,
+        "execute": false
+      }
+    }
+  },
+  "decision": {
+    "status": "dry_run_packet_ready_awaiting_explicit_live_submit_approval",
+    "submission_recommended_now_without_user_approval": false,
+    "dry_run_packet_ready": true,
+    "packet_lane": "r16",
+    "packet_coefficients": "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/anti_basin_candidate_coefficients.txt",
+    "decision_report": "data/igp24/r24_r16_high_real_refinement_20260708/refinement_report.md",
+    "next_refinement": "If the r16 packet is submitted and verifies into crowded labels, keep r24 as the next refinement target and loosen the basin cap slightly while adding more low-height high-real rows. If the r16 packet verifies into useful labels, sync first and then continue high-real targeting from fresh API state."
+  },
+  "artifacts": {
+    "generation_summary": "data/igp24/r24_r16_high_real_refinement_20260708/generation_summary.json",
+    "generation_report": "data/igp24/r24_r16_high_real_refinement_20260708/generation_report.md",
+    "local_exact_filter_summary": "data/igp24/r24_r16_high_real_refinement_20260708/local_exact_filter_summary.json",
+    "r24_gate_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r24_gate/anti_basin_planner_summary.json",
+    "r16_gate_summary": "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/anti_basin_planner_summary.json",
+    "r16_dry_run": "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_dry_run.json"
+  }
+}

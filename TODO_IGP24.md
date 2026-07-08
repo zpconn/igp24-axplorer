@@ -8,6 +8,44 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active r24/r16 high-real refinement pass started 2026-07-08. Refresh:
+  `git pull --ff-only` reported already up to date, and the worktree was
+  clean before changes. `SAIR_API_KEY` is not present in the environment, so
+  this pass uses the latest complete local sync
+  `data/igp24/sair_sync_20260708_r8_followup_after_submit/` and will not run
+  a live SAIR submission. Pending high-risk pairs remain
+  `24T25000|r=8` = 4 and `24T25000|r=20` = 4; r20 remains held. Strategy:
+  run bounded AXG target-r CUDA exports for r24 first and r16 second under
+  `data/igp24/r24_r16_high_real_refinement_20260708/`, with mixed generation,
+  support-gcd/non-even support filters, stricter basin/family provenance caps,
+  local exact scoring, anti-basin gating, and dry-run only if a local packet
+  clears all gates. Setup note: the session temp dependency target
+  `/tmp/igp24_pydeps` was missing `numpy` and `psutil`; they were installed
+  there for runtime use. `src.envs.__init__` was updated to lazy-load
+  environment classes so IGP24-only scripts no longer import unrelated
+  `numba`-backed environments. Bounded CUDA exports used the existing
+  `/home/zpconn/code/axplorer/.venv/bin/python` torch environment because the
+  session `/usr/bin/python3` has no `torch`. r24 ran 2400 steps / 2048 attempts
+  in 89.150s with avg GPU 73.372%, producing 568 export records, 44 decoded,
+  44 scored, 36 valid, and 13 exact r24 survivors. r16 ran 2400 steps / 2048
+  attempts in 85.883s with avg GPU 75.310%, producing 422 export records,
+  32 decoded, 32 scored, 30 valid, and 12 exact r16 survivors. Anti-basin
+  gating with the complete local sync selected 3/3 eligible r24 rows and held
+  r24 below the 4-row / 4-model-row / 4-basin gate. r16 selected 4 rows from 5
+  eligible candidates and cleared the packet gate with 4 model-generated rows,
+  2 perturbation modes, 2 template families, 4 basin fingerprints, 4 mod-p
+  signatures, risk count 0, and no pending collision. Dry-run validation for
+  the r16 coefficient file passed with `ok=true`, `dry_run=true`, and
+  `polynomial_count=4`; no live SAIR submission was made. Reports:
+  `data/igp24/r24_r16_high_real_refinement_20260708/generation_report.md` and
+  `data/igp24/r24_r16_high_real_refinement_20260708/refinement_report.md`.
+  Validation: compile check passed for `src/envs/__init__.py`, `train.py`,
+  and the score/GPU/planner/SAIR helpers; import check passed for `train`,
+  `ENVS`, score helper, GPU helper, and anti-basin planner; focused tests
+  passed with `80 passed in 1.85s`; JSON/JSONL parse checks passed for
+  14 JSON files and 8 JSONL files / 1,149 rows; `git diff --check` passed;
+  scratch progress caches were removed from the artifact set; and the refined
+  key-shaped secret scan found no matches. Next: commit and push.
 - Active AXG-1.2 target-r conditioning pass started 2026-07-08. Preflight:
   `git pull --ff-only zpconn igp24-dev` reported already up to date, and
   `git status --short --branch` was clean on `igp24-dev`. AXG-1.1 manifest
