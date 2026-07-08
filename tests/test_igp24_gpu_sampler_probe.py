@@ -365,6 +365,10 @@ def test_build_sample_export_target_r_conditioned_command_uses_control_tokens_an
     assert config["caps"]["encoding_tokens"] == "decimal_coefficients"
     assert config["caps"]["model_target_r_conditioning_mode"] == "control_token"
     assert config["caps"]["max_steps_per_epoch"] == 900
+    assert config["caps"]["temperature"] == 0.9
+    assert config["caps"]["top_k"] == 12
+    assert config["caps"]["sample_export_unique_target"] == 0
+    assert config["caps"]["conditioned_diversity_sampling"] is False
     assert command[command.index("--encoding_tokens") + 1] == "decimal_coefficients"
     assert command[command.index("--igp24_target_r_conditioning_mode") + 1] == "control_token"
     assert command[command.index("--igp24_training_jsonl") + 1] == str(training_jsonl)
@@ -373,9 +377,39 @@ def test_build_sample_export_target_r_conditioned_command_uses_control_tokens_an
     assert command[command.index("--sample_export_target_r_conditioning_mode") + 1] == "control_token"
     assert command[command.index("--num_samples_from_model") + 1] == "384"
     assert command[command.index("--sample_export_max_attempts") + 1] == "384"
+    assert command[command.index("--sample_export_unique_target") + 1] == "0"
     assert all("sair" not in str(part).lower() for part in command)
     assert all("magma" not in str(part).lower() for part in command)
     assert all("pari" not in str(part).lower() for part in command)
+
+
+def test_build_sample_export_target_r_conditioned_command_accepts_diversity_sampling_knobs(tmp_path):
+    training_jsonl = tmp_path / "active.jsonl"
+    config = build_sample_export_target_r_conditioned_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        target_r=16,
+        training_jsonl=training_jsonl,
+        model_sample_attempts=1024,
+        max_steps=1200,
+        temperature=1.15,
+        top_k=-1,
+        unique_target=256,
+        generation_strategy="mixed",
+    )
+    command = config["command"]
+
+    assert config["caps"]["temperature"] == 1.15
+    assert config["caps"]["top_k"] == -1
+    assert config["caps"]["sample_export_unique_target"] == 256
+    assert config["caps"]["generation_strategy"] == "mixed"
+    assert config["caps"]["conditioned_diversity_sampling"] is True
+    assert command[command.index("--temperature") + 1] == "1.15"
+    assert command[command.index("--top_k") + 1] == "-1"
+    assert command[command.index("--sample_export_unique_target") + 1] == "256"
+    assert command[command.index("--sample_export_max_attempts") + 1] == "1024"
+    assert command[command.index("--igp24_generation_strategy") + 1] == "mixed"
 
 
 def test_summarize_sample_export_reads_safety_flags(tmp_path):

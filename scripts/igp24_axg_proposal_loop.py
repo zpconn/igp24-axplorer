@@ -35,6 +35,7 @@ from scripts.igp24_active_learning_dataset import (
 from scripts.igp24_anti_basin_planner import (
     build_basin_profile,
     build_submission_recommendation,
+    is_model_generated_source,
     normalize_progress_cache,
     score_candidate_row,
     select_diverse_scores,
@@ -262,6 +263,60 @@ def selected_sample_export_source(row: dict[str, Any]) -> str:
     return sample_export_source(row)
 
 
+def _counter_map(counter_by_key: dict[str, Counter[str]]) -> dict[str, dict[str, int]]:
+    return {key: dict(counter) for key, counter in sorted(counter_by_key.items())}
+
+
+def build_source_basin_summary(
+    *,
+    candidates: list[dict[str, Any]],
+    filtered_rows: list[dict[str, Any]],
+    scores: list[dict[str, Any]],
+    selected: list[dict[str, Any]],
+) -> dict[str, Any]:
+    classification_by_source: dict[str, Counter[str]] = {}
+    risk_by_source: dict[str, Counter[str]] = {}
+    eligible_by_source: Counter[str] = Counter()
+    rejected_basin_by_source: Counter[str] = Counter()
+
+    for row in scores:
+        source = selected_sample_export_source(row)
+        classification_by_source.setdefault(source, Counter())[str(row.get("anti_basin_classification") or "unknown")] += 1
+        if row.get("eligible_for_packet"):
+            eligible_by_source[source] += 1
+        else:
+            rejected_basin_by_source[source] += 1
+        for reason in row.get("risk_reasons") or []:
+            risk_by_source.setdefault(source, Counter())[str(reason)] += 1
+
+    survivor_source_counts = Counter(sample_export_source(row) for row in filtered_rows)
+    selected_source_counts = Counter(selected_sample_export_source(row) for row in selected)
+    model_generated_survivors = sum(
+        count for source, count in survivor_source_counts.items() if is_model_generated_source(source)
+    )
+    seed_bank_survivors = sum(
+        count for source, count in survivor_source_counts.items() if "seed_bank" in source
+    )
+    return {
+        "candidate_rows_by_source": dict(Counter(sample_export_source(row) for row in candidates)),
+        "target_r_survivor_rows_by_source": dict(survivor_source_counts),
+        "scored_rows_by_source": dict(Counter(selected_sample_export_source(row) for row in scores)),
+        "eligible_rows_by_source": dict(eligible_by_source),
+        "rejected_basin_rows_by_source": dict(rejected_basin_by_source),
+        "selected_rows_by_source": dict(selected_source_counts),
+        "classification_counts_by_source": _counter_map(classification_by_source),
+        "risk_reason_counts_by_source": _counter_map(risk_by_source),
+        "model_generated_target_r_survivor_rows": model_generated_survivors,
+        "seed_bank_target_r_survivor_rows": seed_bank_survivors,
+        "model_generated_eligible_rows": sum(
+            count for source, count in eligible_by_source.items() if is_model_generated_source(source)
+        ),
+        "model_generated_selected_rows": sum(
+            count for source, count in selected_source_counts.items() if is_model_generated_source(source)
+        ),
+    }
+
+
 def run_proposal_loop(
     *,
     version: str,
@@ -279,6 +334,7 @@ def run_proposal_loop(
     per_pattern_cap: int,
     crowded_team_threshold: int,
     dry_run: bool,
+    min_model_generated_rows: int = 0,
 ) -> dict[str, Any]:
     manifest = load_model_manifest(registry, version)
     candidates = load_candidate_rows(candidate_paths)
@@ -312,7 +368,11 @@ def run_proposal_loop(
         per_mode_cap=per_mode_cap,
         per_pattern_cap=per_pattern_cap,
     )
-    recommendation = build_submission_recommendation(selected, min_packet_rows=min_packet_rows)
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=min_packet_rows,
+        min_model_generated_rows=min_model_generated_rows,
+    )
     decision = "reviewed_packet_ready_for_dry_run" if recommendation["recommended_for_sair_packet"] else "hold_no_submission"
 
     run_output = output_dir / run_id
@@ -336,6 +396,12 @@ def run_proposal_loop(
     rejection_counts = Counter(reason for row in rejected for reason in row["reasons"])
     score_class_counts = Counter(row["anti_basin_classification"] for row in scores)
     risk_counts = Counter(reason for row in scores for reason in row.get("risk_reasons") or [])
+    source_basin_summary = build_source_basin_summary(
+        candidates=candidates,
+        filtered_rows=filtered_rows,
+        scores=scores,
+        selected=selected,
+    )
     summary = {
         "schema_version": 1,
         "record_type": "igp24_axg_proposal_loop_summary",
@@ -361,6 +427,15 @@ def run_proposal_loop(
         "candidate_sample_export_source_counts": dict(Counter(sample_export_source(row) for row in candidates)),
         "filtered_sample_export_source_counts": dict(Counter(sample_export_source(row) for row in filtered_rows)),
         "selected_sample_export_source_counts": dict(Counter(selected_sample_export_source(row) for row in selected)),
+        "source_basin_summary": source_basin_summary,
+        "diversity_gates": {
+            "packet_limit": int(packet_limit),
+            "min_packet_rows": int(min_packet_rows),
+            "min_model_generated_rows": int(min_model_generated_rows),
+            "per_mode_cap": int(per_mode_cap),
+            "per_pattern_cap": int(per_pattern_cap),
+            "crowded_team_threshold": int(crowded_team_threshold),
+        },
         "artifacts": {
             "filtered_candidates": str(filtered_path),
             "rejected_candidates": str(rejected_path),
@@ -393,6 +468,9 @@ def run_proposal_loop(
                 f"- Rejected rows: {len(rejected)}",
                 f"- Selected rows: {len(selected)}",
                 f"- Decision: `{decision}`",
+                f"- Model-generated target-r survivors: `{source_basin_summary['model_generated_target_r_survivor_rows']}`",
+                f"- Model-generated eligible rows: `{source_basin_summary['model_generated_eligible_rows']}`",
+                f"- Source basin summary: `{json.dumps(source_basin_summary, sort_keys=True)}`",
                 f"- SAIR live submission: `false`",
                 "",
                 "This run is a proposal-selection dry run. It does not submit raw GPU",
@@ -428,6 +506,8 @@ def run_proposal_loop(
             },
             "outputs": summary["artifacts"],
             "decision": decision,
+            "diversity_gates": summary["diversity_gates"],
+            "source_basin_summary": source_basin_summary,
             "safety": summary["safety"],
         },
     )
@@ -448,6 +528,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--collapsed_labels", default=",".join(sorted(DEFAULT_COLLAPSED_LABELS)))
     parser.add_argument("--packet_limit", type=int, default=12)
     parser.add_argument("--min_packet_rows", type=int, default=8)
+    parser.add_argument(
+        "--min_model_generated_rows",
+        type=int,
+        default=0,
+        help="minimum selected rows that must come from model-generated sample export sources before recommending a packet",
+    )
     parser.add_argument("--per_mode_cap", type=int, default=4)
     parser.add_argument("--per_pattern_cap", type=int, default=4)
     parser.add_argument("--crowded_team_threshold", type=int, default=20)
@@ -476,6 +562,7 @@ def main(argv: list[str] | None = None) -> int:
         per_pattern_cap=args.per_pattern_cap,
         crowded_team_threshold=args.crowded_team_threshold,
         dry_run=bool(args.dry_run),
+        min_model_generated_rows=args.min_model_generated_rows,
     )
     print(f"summary\t{summary['artifacts']['summary']}")
     print(f"run_manifest\t{summary['artifacts']['run_manifest']}")

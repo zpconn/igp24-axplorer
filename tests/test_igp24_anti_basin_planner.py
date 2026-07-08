@@ -204,6 +204,45 @@ def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signat
     )
 
 
+def test_submission_recommendation_can_require_model_generated_rows():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
+    basin_profile = build_basin_profile([], {}, avoid_labels=set(), crowded_team_threshold=20)
+    selected = []
+    for index in range(4):
+        mode = "odd_single_off_core" if index % 2 else "odd_triple_off_core"
+        candidate = _r8_perturbed_candidate(f"clean-{index}", mode=mode, mod_sig=f"p{index + 3}:1-23")
+        candidate["sample_export_source"] = "target_r_seed_bank"
+        selected.append(
+            score_candidate_row(
+                candidate,
+                target_rs={8},
+                progress_cache=progress,
+                basin_profile=basin_profile,
+            )
+        )
+
+    seed_bank_recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+    )
+    assert seed_bank_recommendation["recommended_for_sair_packet"] is False
+    assert "model_generated" in seed_bank_recommendation["reason"]
+    assert seed_bank_recommendation["model_generated_selected_rows"] == 0
+
+    for row in selected:
+        row["candidate"]["sample_export_source"] = "model_generate"
+    model_recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+    )
+
+    assert model_recommendation["recommended_for_sair_packet"] is True
+    assert model_recommendation["model_generated_selected_rows"] == 4
+    assert model_recommendation["selected_source_counts"] == {"model_generate": 4}
+
+
 def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant():
     progress = normalize_progress_cache(_progress_snapshot(), target_rs=[24, 20])
     basin_profile = build_basin_profile(

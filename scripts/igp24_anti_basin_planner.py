@@ -185,6 +185,35 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def sample_export_source(row: dict[str, Any] | None) -> str:
+    """Return the sampler source in a form shared by proposal summaries."""
+    if not isinstance(row, dict):
+        return "unknown"
+    source = row.get("sample_export_source")
+    if source:
+        return str(source)
+    source_sample_export = row.get("source_sample_export")
+    if isinstance(source_sample_export, dict):
+        source = source_sample_export.get("sample_export_source")
+        if source:
+            return str(source)
+    generation_metadata = row.get("generation_metadata")
+    if isinstance(generation_metadata, dict):
+        source = generation_metadata.get("sample_export_source") or generation_metadata.get("source")
+        if source:
+            return str(source)
+    return "unknown"
+
+
+def scored_sample_export_source(row: dict[str, Any]) -> str:
+    candidate = row.get("candidate")
+    return sample_export_source(candidate if isinstance(candidate, dict) else row)
+
+
+def is_model_generated_source(source: str) -> bool:
+    return source == "model_generate" or "model_generate" in source or "model_sample" in source
+
+
 def observation_features(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "label": str(row.get("label") or ""),
@@ -546,12 +575,20 @@ def validated_coefficients(row: dict[str, Any]) -> str:
     return format_polynomial_line(exported)
 
 
-def build_submission_recommendation(selected: list[dict[str, Any]], *, min_packet_rows: int) -> dict[str, Any]:
+def build_submission_recommendation(
+    selected: list[dict[str, Any]],
+    *,
+    min_packet_rows: int,
+    min_model_generated_rows: int = 0,
+) -> dict[str, Any]:
     mode_counts = Counter(str((row.get("features") or {}).get("perturbation_mode") or "unknown") for row in selected)
     mod_counts = Counter(str((row.get("features") or {}).get("mod_p_pattern_signature") or "none") for row in selected)
+    source_counts = Counter(scored_sample_export_source(row) for row in selected)
+    model_generated_rows = sum(count for source, count in source_counts.items() if is_model_generated_source(source))
     risk_count = sum(1 for row in selected if row.get("risk_reasons"))
     recommended = (
         len(selected) >= min_packet_rows
+        and model_generated_rows >= int(min_model_generated_rows)
         and risk_count == 0
         and "outer_constant_shift" not in mode_counts
         and len(mode_counts) >= 2
@@ -560,6 +597,8 @@ def build_submission_recommendation(selected: list[dict[str, Any]], *, min_packe
     reasons: list[str] = []
     if len(selected) < min_packet_rows:
         reasons.append(f"only_{len(selected)}_eligible_rows_below_min_{min_packet_rows}")
+    if model_generated_rows < int(min_model_generated_rows):
+        reasons.append(f"only_{model_generated_rows}_model_generated_rows_below_min_{int(min_model_generated_rows)}")
     if risk_count:
         reasons.append(f"{risk_count}_selected_rows_have_risk_reasons")
     if "outer_constant_shift" in mode_counts:
@@ -575,6 +614,9 @@ def build_submission_recommendation(selected: list[dict[str, Any]], *, min_packe
         "selected_rows": len(selected),
         "selected_mode_counts": dict(mode_counts),
         "selected_mod_p_signature_counts": dict(mod_counts),
+        "selected_source_counts": dict(source_counts),
+        "model_generated_selected_rows": model_generated_rows,
+        "min_model_generated_rows": int(min_model_generated_rows),
         "risk_count": risk_count,
     }
 
@@ -813,6 +855,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--crowded_team_threshold", type=int, default=20)
     parser.add_argument("--packet_limit", type=int, default=12)
     parser.add_argument("--min_packet_rows", type=int, default=8)
+    parser.add_argument(
+        "--min_model_generated_rows",
+        type=int,
+        default=0,
+        help="minimum selected rows that must come from model-generated sample export sources before recommending a packet",
+    )
     parser.add_argument("--per_mode_cap", type=int, default=4)
     parser.add_argument("--per_pattern_cap", type=int, default=12)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
@@ -853,7 +901,11 @@ def main(argv: list[str] | None = None) -> int:
         per_mode_cap=int(args.per_mode_cap),
         per_pattern_cap=int(args.per_pattern_cap),
     )
-    recommendation = build_submission_recommendation(selected, min_packet_rows=int(args.min_packet_rows))
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=int(args.min_packet_rows),
+        min_model_generated_rows=int(args.min_model_generated_rows),
+    )
     placeholder_outputs = {
         "progress_cache_json": str(args.output_dir / PROGRESS_CACHE_JSON),
         "scores_jsonl": str(args.output_dir / SCORES_JSONL),

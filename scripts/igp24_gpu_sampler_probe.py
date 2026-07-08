@@ -1170,6 +1170,10 @@ def build_sample_export_target_r_conditioned_command(
     model_sample_attempts: int = 512,
     max_steps: int = 1800,
     max_len: int = 640,
+    temperature: float = 0.9,
+    top_k: int = 12,
+    unique_target: int = 0,
+    generation_strategy: str = "fixed_sparse_template",
 ) -> dict[str, Any]:
     seed_text = str(seed if seed is not None else 33000 + int(target_r))
     exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
@@ -1229,9 +1233,9 @@ def build_sample_export_target_r_conditioned_command(
         "--max_len",
         str(int(max_len)),
         "--temperature",
-        "0.9",
+        str(float(temperature)),
         "--top_k",
-        "12",
+        str(int(top_k)),
         "--always_search",
         "false",
         "--max_local_search_steps",
@@ -1252,6 +1256,8 @@ def build_sample_export_target_r_conditioned_command(
         str(sample_export_path),
         "--sample_export_dedup",
         "true",
+        "--sample_export_unique_target",
+        str(int(unique_target)),
         "--sample_export_max_attempts",
         str(int(model_sample_attempts)),
         "--sample_export_progress_interval",
@@ -1259,7 +1265,7 @@ def build_sample_export_target_r_conditioned_command(
         "--sample_export_target_r_conditioning_mode",
         "control_token",
         "--igp24_generation_strategy",
-        "fixed_sparse_template",
+        str(generation_strategy),
         "--igp24_ledger_path",
         str(ledger_path),
     ]
@@ -1288,13 +1294,15 @@ def build_sample_export_target_r_conditioned_command(
             "n_layer": 4,
             "n_head": 4,
             "n_embd": 256,
-            "temperature": 0.9,
-            "top_k": 12,
+            "temperature": float(temperature),
+            "top_k": int(top_k),
+            "sample_export_unique_target": int(unique_target),
             "encoding_tokens": "decimal_coefficients",
             "model_target_r_conditioning_mode": "control_token",
             "training_jsonl": str(training_jsonl),
             "training_target_rs": str(target_rs),
-            "generation_strategy": "fixed_sparse_template",
+            "generation_strategy": str(generation_strategy),
+            "conditioned_diversity_sampling": bool(float(temperature) > 0.9 or int(top_k) < 0 or int(unique_target) > 0),
             "seed": int(seed_text),
             "target_r": int(target_r),
             "max_len": int(max_len),
@@ -1733,6 +1741,29 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--target_r_conditioned_max_steps", type=int, default=1800, help="training steps for sample_export_target_r_conditioned")
     parser.add_argument("--target_r_conditioned_max_len", type=int, default=640, help="max token payload for decimal conditioned training")
+    parser.add_argument(
+        "--target_r_conditioned_temperature",
+        type=float,
+        default=0.9,
+        help="sampling temperature for sample_export_target_r_conditioned; values above 0.9 are AXG-1.3 diversity probes",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_top_k",
+        type=int,
+        default=12,
+        help="top-k for sample_export_target_r_conditioned; -1 opens the sampler",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_unique_target",
+        type=int,
+        default=0,
+        help="optional unique decoded coefficient target for sample_export_target_r_conditioned",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_generation_strategy",
+        default="fixed_sparse_template",
+        help="IGP24 generation strategy metadata for sample_export_target_r_conditioned",
+    )
     parser.add_argument("--strict", action="store_true", help="Exit nonzero unless the recommendation advances the GPU plan")
     return parser
 
@@ -1854,6 +1885,10 @@ def main() -> int:
                 model_sample_attempts=args.target_r_model_sample_attempts,
                 max_steps=args.target_r_conditioned_max_steps,
                 max_len=args.target_r_conditioned_max_len,
+                temperature=args.target_r_conditioned_temperature,
+                top_k=args.target_r_conditioned_top_k,
+                unique_target=args.target_r_conditioned_unique_target,
+                generation_strategy=args.target_r_conditioned_generation_strategy,
             )
         else:
             command_config = build_sampler_command(

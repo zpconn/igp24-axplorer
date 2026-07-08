@@ -89,6 +89,29 @@ results change.
   `.safetensors`, or `.pkl` files. Secret-shaped `sair_...` scan found no
   matches. `git diff --check` passed. Registry validation is valid with
   3 models, 10 runs, and 0 issues. Stage 4 remains present at line 8455.
+- Active AXG-1.3 diversity-aware target-r phase started 2026-07-08. Preflight:
+  `git pull` reported already up to date and `git status --short --branch`
+  was clean on `igp24-dev`. AXG-1.2 artifacts show 128 model-generated
+  target-r survivors but proposal dry-runs held all packets because selected
+  rows were below packet gates and most target-r survivors had
+  accepted-hash-duplicate, even-support / `g(x^2)`-like, support-gcd, or
+  crowded mod-p-signature risks. Implementation task: keep AXG-1.2 control
+  tokens backward-compatible, add AXG-1.3 source-aware diversity/basin-risk
+  proposal summaries and gates, expose broader conditioned sampling knobs for
+  short CUDA runs, then run bounded r16/r20/r24 evaluation before any SAIR
+  submission decision.
+- AXG-1.3 implementation checkpoint: added source-aware anti-basin
+  recommendation support, optional `--min_model_generated_rows` proposal gate,
+  source/basin summaries that separate model-generated, seed-bank, eligible,
+  rejected-risk, and selected rows, plus target-r-conditioned GPU sampling
+  knobs for temperature, top-k, unique decoded target, and generation strategy.
+  Focused validation:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_anti_basin_planner.py tests/test_igp24_axg_proposal_loop.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24_model_registry.py`
+  -> `46 passed in 0.25s`. Compile check passed for
+  `scripts/igp24_anti_basin_planner.py`,
+  `scripts/igp24_axg_proposal_loop.py`, and
+  `scripts/igp24_gpu_sampler_probe.py`. GPU probe `--help` shows the new
+  AXG-1.3 conditioned sampling knobs. Stage 4 remains present at line 8476.
 - Last pull: 2026-07-06, `git pull --ff-only` -> already up to date before
   the r12 follow-up feedback import and tower-probe work.
 - Active focus: local accepted-pair coverage now spans `r=4`, `r=8`, `r=12`,
