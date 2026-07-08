@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_negative_basin_memory_summary",
+  "created_at": "2026-07-08",
+  "source_sync_dir": "data/igp24/sair_sync_20260708_r8_followup_after_submit",
+  "source_submission_id": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "gpu_training": false,
+    "model_training": false,
+    "api_key_recorded": false
+  },
+  "sync_state": {
+    "partial_sync": false,
+    "submission_state_complete": true,
+    "label_count": 25000,
+    "submission_count": 22,
+    "submission_row_count": 193,
+    "scoreable_rows": 185,
+    "pending_rows": 8,
+    "unmatched_rows": 0,
+    "remaining_signature_count": 49462,
+    "pending_pair_counts": {
+      "24T25000|r=8": 4,
+      "24T25000|r=20": 4
+    }
+  },
+  "negative_constraints": [
+    {
+      "name": "stop_r8_score_followup_quartic_x6_24T25000_lane",
+      "severity": "high",
+      "resulting_pair": "24T25000|r=8",
+      "observed_rows": 4,
+      "construction_family": "r8_quartic_lift_score_followup",
+      "decomposition_pattern": "quartic_in_x6",
+      "source_templates": [
+        "four_positive_fibers_e",
+        "four_positive_fibers_f"
+      ],
+      "perturbation_mode": "odd_pair_off_core",
+      "support_gcd": 1,
+      "template_family_counts": {
+        "r8_score_followup:four_positive_fibers_e:odd_pair_off_core": 3,
+        "r8_score_followup:four_positive_fibers_f:odd_pair_off_core": 1
+      },
+      "basin_fingerprints": [
+        "2a6951bcf67e969d4c75ca90",
+        "21c013281e9b30402d91f1b5",
+        "2f549efd5a79b1ba5cf422ef",
+        "836c81d12ffe0df2b8d42188"
+      ],
+      "rule": "Reject or heavily penalize nearby r8 quartic-in-x^6 odd off-core rows unless the construction family, decomposition pattern, or label discriminator changes materially."
+    },
+    {
+      "name": "hold_24T25000_r20_pending_basin",
+      "severity": "high_pending",
+      "resulting_pair": "24T25000|r=20",
+      "pending_rows": 4,
+      "rule": "Do not widen the r20 AXG/high-real 24T25000 basin until pending discriminants resolve and any follow-up lane clears anti-24T25000 gates."
+    }
+  ],
+  "replay_gate": {
+    "candidate_count": 32,
+    "eligible_candidate_count": 0,
+    "selected_rows": 0,
+    "recommended_for_sair_packet": false,
+    "status": "hold_no_submission",
+    "output_dir": "data/igp24/negative_basin_memory_20260708/r8_replay_gate"
+  },
+  "score_aware_recommendation": {
+    "recommended_next_lane": "materially_different_high_real_lane_after_basin_stop",
+    "target_r_buckets": [
+      24,
+      16,
+      20
+    ],
+    "source_pair": "24T19906|r=24",
+    "stopped_lanes": [
+      "r8_quartic_lift_score_followup"
+    ],
+    "submission_recommended_now": false,
+    "gpu_training_recommended_now": false,
+    "big_model_training_recommended_now": false
+  },
+  "top_remaining_r_buckets": [
+    {
+      "r": 24,
+      "remaining": 11817
+    },
+    {
+      "r": 16,
+      "remaining": 10159
+    },
+    {
+      "r": 8,
+      "remaining": 6313
+    },
+    {
+      "r": 12,
+      "remaining": 6300
+    },
+    {
+      "r": 20,
+      "remaining": 5408
+    }
+  ],
+  "artifacts": {
+    "label_basin_summary": "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_summary.json",
+    "label_basin_report": "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_report.md",
+    "score_aware_summary": "data/igp24/negative_basin_memory_20260708/score_aware_target_plan/score_aware_target_summary.json",
+    "score_aware_report": "data/igp24/negative_basin_memory_20260708/score_aware_target_plan/score_aware_target_report.md",
+    "r8_replay_summary": "data/igp24/negative_basin_memory_20260708/r8_replay_gate/anti_basin_planner_summary.json",
+    "r8_replay_report": "data/igp24/negative_basin_memory_20260708/r8_replay_gate/anti_basin_planner_report.md"
+  }
+}

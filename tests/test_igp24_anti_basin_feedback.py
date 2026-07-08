@@ -20,6 +20,8 @@ def _selected_row(candidate_hash, score=123.0):
             "decomposition_pattern": "8x3",
             "perturbation_mode": "outer_two_coefficient_shift",
             "family_key": f"family:{candidate_hash}",
+            "template_family_id": f"template:{candidate_hash}",
+            "basin_fingerprint": f"basin:{candidate_hash}",
             "support_gcd": 1,
             "even_support": False,
             "odd_support_exponents": [1],
@@ -94,6 +96,8 @@ def test_anti_basin_feedback_joins_rows_and_updates_pairs(tmp_path):
     assert feedback["summary"]["label_counts"] == {"24T24932": 2}
     assert feedback["summary"]["escaped_known_basins"] is False
     assert feedback["accepted_rows"][0]["anti_basin_classification"] == "strong_packet_candidate"
+    assert feedback["accepted_rows"][0]["template_family_id"] == "template:hash-a"
+    assert feedback["accepted_rows"][0]["basin_fingerprint"] == "basin:hash-a"
 
     pair_status, update = update_pair_status(
         {"record_type": "igp24_pair_status_ledger", "pairs": [{"pair_key": "24T24932|r=24", "canonical_hash": "old"}]},
@@ -106,4 +110,51 @@ def test_anti_basin_feedback_joins_rows_and_updates_pairs(tmp_path):
     pairs = {pair["pair_key"]: pair for pair in pair_status["pairs"]}
     assert pairs["24T24932|r=24"]["canonical_hash"] == "old"
     assert pairs["24T24932|r=24"]["accepted_alternates"][0]["canonical_hash"] == "hash-a"
+    assert pairs["24T24932|r=24"]["accepted_alternates"][0]["template_family_id"] == "template:hash-a"
+    assert pairs["24T24932|r=24"]["accepted_alternates"][0]["basin_fingerprint"] == "basin:hash-a"
     assert pairs["24T24932|r=12"]["anti_basin_score"] == 99.0
+    assert pairs["24T24932|r=12"]["template_family_id"] == "template:hash-b"
+    assert pairs["24T24932|r=12"]["basin_fingerprint"] == "basin:hash-b"
+
+
+def test_update_pair_status_enriches_existing_alternate_metadata(tmp_path):
+    feedback = {
+        "accepted_rows": [
+            {
+                "pair_key": "24T25000|r=8",
+                "label": "24T25000",
+                "r": 8,
+                "canonical_hash": "known-alt",
+                "short_hash": "known-alt",
+                "row_number": 1,
+                "family_key": "four_positive_fibers_e:odd_pair_off_core:11:1,13:-1",
+                "template_family_id": "r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+                "basin_fingerprint": "basin-score-followup-a",
+                "perturbation_mode": "odd_pair_off_core",
+                "scoring_status": "pending",
+            }
+        ]
+    }
+
+    pair_status, update = update_pair_status(
+        {
+            "record_type": "igp24_pair_status_ledger",
+            "pairs": [
+                {
+                    "pair_key": "24T25000|r=8",
+                    "canonical_hash": "primary",
+                    "accepted_alternates": [{"canonical_hash": "known-alt"}],
+                }
+            ],
+        },
+        feedback,
+        feedback_path=tmp_path / "feedback.json",
+    )
+
+    alternate = pair_status["pairs"][0]["accepted_alternates"][0]
+    assert update["already_present"] == 1
+    assert update["alternates_added"] == 0
+    assert update["metadata_updates"] == 4
+    assert update["pair_status_updated"] is True
+    assert alternate["template_family_id"] == "r8_score_followup:four_positive_fibers_e:odd_pair_off_core"
+    assert alternate["basin_fingerprint"] == "basin-score-followup-a"

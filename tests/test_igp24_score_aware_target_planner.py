@@ -111,6 +111,26 @@ def _basin_summary():
     }
 
 
+def _basin_summary_with_stopped_r8_followup():
+    summary = _basin_summary()
+    summary["anti_basin_constraints"] = [
+        *summary["anti_basin_constraints"],
+        {
+            "name": "stop_r8_score_followup_quartic_x6_24T25000_lane",
+            "severity": "high",
+            "labels": ["24T25000"],
+            "r_values": [8],
+            "observed_rows": 4,
+            "template_family_counts": {
+                "r8_score_followup:four_positive_fibers_e:odd_pair_off_core": 3,
+                "r8_score_followup:four_positive_fibers_f:odd_pair_off_core": 1,
+            },
+            "rule": "reject nearby r8 quartic-in-x^6 odd off-core rows",
+        },
+    ]
+    return summary
+
+
 def test_score_aware_target_plan_joins_scores_progress_and_basins():
     plan = build_plan(
         snapshot=_snapshot(),
@@ -131,6 +151,26 @@ def test_score_aware_target_plan_joins_scores_progress_and_basins():
     assert collapsed["target_score"] < plan["top_score_followup_targets"][0]["target_score"]
     assert plan["decision"]["gpu_training_recommended_now"] is False
     assert plan["decision"]["submission_recommended_now"] is False
+
+
+def test_score_aware_target_plan_stops_r8_score_followup_lane_after_collapse():
+    plan = build_plan(
+        snapshot=_snapshot(),
+        pair_status=_pair_status(),
+        score_snapshot=_score_snapshot(),
+        basin_summary=_basin_summary_with_stopped_r8_followup(),
+        top_limit=10,
+    )
+
+    r8_lane = next(row for row in plan["lane_recommendations"] if row["lane"] == "r8_quartic_lift_score_followup")
+    assert r8_lane["recommended_for_generation_now"] is False
+    assert r8_lane["recommended_for_submission_now"] is False
+    assert r8_lane["stopped_by_constraint"] == "stop_r8_score_followup_quartic_x6_24T25000_lane"
+    assert "reject nearby r8 quartic-in-x^6" in r8_lane["rank_reason"]
+    assert plan["avoidance_constraints"]["stopped_lanes"] == ["r8_quartic_lift_score_followup"]
+    assert plan["decision"]["recommended_next_lane"]["lane"] == "materially_different_high_real_lane_after_basin_stop"
+    assert plan["decision"]["recommended_next_lane"]["target_r_buckets"] == "24"
+    assert plan["decision"]["clear_bounded_generation_lane"] is True
 
 
 def test_score_aware_target_plan_prefers_api_sync_state_over_manual_scores():

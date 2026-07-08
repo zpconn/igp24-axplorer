@@ -141,7 +141,7 @@ def _first_value(metadata: dict[str, Any], keys: Iterable[str]) -> Any:
 
 
 def construction_family(metadata: dict[str, Any], row: dict[str, Any], feedback_path: Path) -> str:
-    value = metadata.get("construction_family")
+    value = metadata.get("construction_family") or row.get("construction_family")
     if value:
         return str(value)
     source_mode = row.get("source_mode")
@@ -149,8 +149,8 @@ def construction_family(metadata: dict[str, Any], row: dict[str, Any], feedback_
     return str(source_mode or record_hint)
 
 
-def decomposition_pattern(metadata: dict[str, Any]) -> str | None:
-    degree_pattern = metadata.get("decomposition_degree_pattern")
+def decomposition_pattern(metadata: dict[str, Any], row: dict[str, Any]) -> str | None:
+    degree_pattern = metadata.get("decomposition_degree_pattern") or row.get("decomposition_pattern")
     if degree_pattern:
         return str(degree_pattern)
     decomposition_type = metadata.get("decomposition_type")
@@ -183,7 +183,7 @@ def perturbation_mode(metadata: dict[str, Any], row: dict[str, Any]) -> str | No
             "r12_structured_mode",
             "r24_high_real_perturbation_mode",
         ],
-    ) or row.get("source_mode")
+    ) or row.get("perturbation_mode") or row.get("source_mode")
 
 
 def perturbation_terms(metadata: dict[str, Any], row: dict[str, Any]) -> list[dict[str, int]]:
@@ -259,7 +259,7 @@ def normalize_observation(
             "r16_diversity_family_key",
             "r12_structured_family_key",
         ],
-    ) or row.get("source_family_key")
+    ) or row.get("family_key") or row.get("source_family_key")
     outer_levels = _first_value(
         metadata,
         [
@@ -288,7 +288,7 @@ def normalize_observation(
         "status": str(row.get("status") or "accepted"),
         "score_status": row.get("score_status") or row.get("scoring_status"),
         "construction_family": construction_family(metadata, row, feedback_path),
-        "decomposition_pattern": decomposition_pattern(metadata),
+        "decomposition_pattern": decomposition_pattern(metadata, row),
         "exact_support_divisor": _first_value(
             metadata,
             [
@@ -315,7 +315,9 @@ def normalize_observation(
         "irreducible": row.get("irreducible") or (queue_row or {}).get("irreducible"),
         "squarefree": row.get("squarefree") or (queue_row or {}).get("squarefree"),
         "family_key": str(family_key or ""),
-        "mod_p_pattern_signature": mod_pattern_signature(queue_row),
+        "template_family_id": str(row.get("template_family_id") or metadata.get("template_family_id") or ""),
+        "basin_fingerprint": str(row.get("basin_fingerprint") or metadata.get("basin_fingerprint") or ""),
+        "mod_p_pattern_signature": row.get("mod_p_pattern_signature") or mod_pattern_signature(queue_row),
         "queue_joined": bool(queue_row),
     }
 
@@ -476,9 +478,10 @@ def build_summary(
                 "globally covered 24T24932 across constant and nonconstant outer "
                 "perturbations. The first 4x6 anti-basin lane escaped those labels but "
                 "collapsed to globally covered 24T24984|r=12 across three perturbation "
-                "modes. Next generated queue must use a materially different inner "
-                "family, composition pattern, real-root bucket, or stronger "
-                "label-steering signal before any SAIR submission."
+                "modes. The latest r8 score-followup quartic-in-x^6 lane also "
+                "collapsed to crowded 24T25000|r=8. Next generated queue must use "
+                "a materially different inner family, composition pattern, real-root "
+                "bucket, or stronger label-steering signal before any SAIR submission."
             ),
             "gpu_training_recommended_now": False,
             "submission_without_new_structure_recommended": False,
@@ -529,6 +532,36 @@ def derive_anti_basin_constraints(
                 "r_values": sorted(set(int(row["r"]) for row in generic_rows)),
                 "construction_family_counts": _counter_values(generic_rows, "construction_family"),
                 "rule": "Do not widen product/composed seed plus low odd perturbation lanes that already collapsed to 24T25000.",
+            }
+        )
+    r8_score_followup_rows = [
+        row
+        for row in observations
+        if row.get("construction_family") == "r8_quartic_lift_score_followup"
+        and row.get("decomposition_pattern") == "quartic_in_x6"
+        and row.get("perturbation_mode") == "odd_pair_off_core"
+        and row.get("support_gcd") == 1
+        and row.get("label") == "24T25000"
+        and int(row.get("r") or -1) == 8
+    ]
+    if r8_score_followup_rows:
+        constraints.append(
+            {
+                "name": "stop_r8_score_followup_quartic_x6_24T25000_lane",
+                "severity": "high",
+                "labels": ["24T25000"],
+                "r_values": [8],
+                "observed_rows": len(r8_score_followup_rows),
+                "template_family_counts": _counter_values(r8_score_followup_rows, "template_family_id"),
+                "family_key_counts": _counter_values(r8_score_followup_rows, "family_key"),
+                "basin_fingerprint_counts": _counter_values(r8_score_followup_rows, "basin_fingerprint"),
+                "mod_p_pattern_counts": _counter_values(r8_score_followup_rows, "mod_p_pattern_signature"),
+                "rule": (
+                    "The 24T9993-sourced r8 quartic-in-x^6 score-followup lane using "
+                    "templates e/f and odd_pair_off_core perturbations collapsed to "
+                    "crowded 24T25000|r=8; reject nearby rows unless the construction "
+                    "family, decomposition pattern, or label discriminator changes materially."
+                ),
             }
         )
     odd_escaped_tower_rows = [

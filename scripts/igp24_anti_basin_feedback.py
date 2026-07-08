@@ -103,6 +103,8 @@ def build_feedback(
                 "squarefree": selected.get("squarefree"),
                 "construction_family": metadata.get("construction_family") or features.get("construction_family"),
                 "decomposition_pattern": metadata.get("decomposition_degree_pattern") or features.get("decomposition_pattern"),
+                "template_family_id": metadata.get("template_family_id") or features.get("template_family_id"),
+                "basin_fingerprint": metadata.get("basin_fingerprint") or features.get("basin_fingerprint"),
                 "family_key": metadata.get("alt_composition_family_key") or features.get("family_key"),
                 "perturbation_mode": metadata.get("alt_perturbation_mode") or features.get("perturbation_mode"),
                 "support_gcd": metadata.get("alt_support_gcd") or features.get("support_gcd"),
@@ -190,6 +192,28 @@ def _existing_hashes(pair: dict[str, Any]) -> set[str]:
     return hashes
 
 
+def _existing_record_for_hash(pair: dict[str, Any], canonical_hash: Any) -> dict[str, Any] | None:
+    if not canonical_hash:
+        return None
+    hash_text = str(canonical_hash)
+    if str(pair.get("canonical_hash") or "") == hash_text:
+        return pair
+    for alternate in pair.get("accepted_alternates") or []:
+        if isinstance(alternate, dict) and str(alternate.get("canonical_hash") or "") == hash_text:
+            return alternate
+    return None
+
+
+def _merge_missing_metadata(target: dict[str, Any], row: dict[str, Any]) -> int:
+    updates = 0
+    for key in ("template_family_id", "basin_fingerprint", "source_family_key", "perturbation_mode"):
+        value = row.get("family_key") if key == "source_family_key" else row.get(key)
+        if value is not None and not target.get(key):
+            target[key] = value
+            updates += 1
+    return updates
+
+
 def update_pair_status(
     pair_status: dict[str, Any],
     feedback: dict[str, Any],
@@ -201,6 +225,7 @@ def update_pair_status(
     added_pairs = 0
     alternates_added = 0
     already_present = 0
+    metadata_updates = 0
     source = repo_relative(feedback_path)
     for row in feedback.get("accepted_rows") or []:
         pair_key = row["pair_key"]
@@ -219,6 +244,8 @@ def update_pair_status(
                 "source_row_number": row.get("row_number"),
                 "construction_family": row.get("construction_family"),
                 "decomposition_pattern": row.get("decomposition_pattern"),
+                "template_family_id": row.get("template_family_id"),
+                "basin_fingerprint": row.get("basin_fingerprint"),
                 "family_key": row.get("family_key"),
                 "anti_basin_score": row.get("anti_basin_score"),
                 "anti_basin_classification": row.get("anti_basin_classification"),
@@ -239,7 +266,9 @@ def update_pair_status(
             added_pairs += 1
             continue
 
-        if row.get("canonical_hash") in _existing_hashes(pair):
+        existing_record = _existing_record_for_hash(pair, row.get("canonical_hash"))
+        if existing_record is not None:
+            metadata_updates += _merge_missing_metadata(existing_record, row)
             already_present += 1
             continue
         pair.setdefault("accepted_alternates", []).append(
@@ -251,6 +280,8 @@ def update_pair_status(
                 "source": source,
                 "source_row_number": row.get("row_number"),
                 "source_family_key": row.get("family_key"),
+                "template_family_id": row.get("template_family_id"),
+                "basin_fingerprint": row.get("basin_fingerprint"),
                 "perturbation_mode": row.get("perturbation_mode"),
                 "anti_basin_score": row.get("anti_basin_score"),
                 "anti_basin_classification": row.get("anti_basin_classification"),
@@ -267,10 +298,11 @@ def update_pair_status(
         "The anti-basin planner packet was ingested conservatively: new pair keys were added, repeated pair keys were appended only as alternates, and no representative was replaced."
     )
     return pair_status, {
-        "pair_status_updated": added_pairs > 0 or alternates_added > 0,
+        "pair_status_updated": added_pairs > 0 or alternates_added > 0 or metadata_updates > 0,
         "new_pairs_added": added_pairs,
         "alternates_added": alternates_added,
         "already_present": already_present,
+        "metadata_updates": metadata_updates,
     }
 
 

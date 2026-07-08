@@ -76,6 +76,37 @@ results change.
   focused tests passed with `17 passed in 0.41s`; JSON/JSONL parse checks
   passed for 16 JSON files and 19 JSONL files / 25,786 rows; `git diff --check`
   passed; and the secret-shaped scan found no matches.
+- Negative-basin memory pass for the r8 follow-up collapse is in progress on
+  2026-07-08. The 4 newly accepted rows from
+  `sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7` are now recorded as hard
+  anti-basin evidence for the `24T9993`-sourced
+  `r8_quartic_lift_score_followup` lane: construction family
+  `r8_quartic_lift_score_followup`, decomposition pattern `quartic_in_x6`,
+  source templates `four_positive_fibers_e` / `four_positive_fibers_f`,
+  perturbation mode `odd_pair_off_core`, support gcd 1, and the four basin
+  fingerprints `2a6951bcf67e969d4c75ca90`,
+  `21c013281e9b30402d91f1b5`, `2f549efd5a79b1ba5cf422ef`, and
+  `836c81d12ffe0df2b8d42188`. The post-submit sync remains complete with
+  49,462 remaining signatures, 185 scoreable rows, 8 pending rows, and 0
+  unmatched rows. Pending rows are 4 at `24T25000|r=8` and 4 at
+  `24T25000|r=20`; the r20 basin is a separate high-risk pending overlay, not
+  a new hard scored failure. Replaying the old 32-row r8 candidate pool through
+  the updated anti-basin gate produced 0 eligible candidates, 0 selected rows,
+  and `recommended_for_sair_packet=false`. The score-aware planner now stops
+  `r8_quartic_lift_score_followup` and recommends
+  `materially_different_high_real_lane_after_basin_stop`, targeting
+  `r=24,16,20` with explicit anti-`24T25000` gates. Reports:
+  `data/igp24/negative_basin_memory_20260708/negative_basin_memory_report.md`
+  and
+  `data/igp24/negative_basin_memory_20260708/score_aware_target_plan/score_aware_target_report.md`.
+  No live SAIR submission was made in this pass. Validation: compile check
+  passed for `scripts/igp24_anti_basin_planner.py`,
+  `scripts/igp24_anti_basin_feedback.py`,
+  `scripts/igp24_label_basin_analysis.py`, and
+  `scripts/igp24_score_aware_target_planner.py`; focused tests passed with
+  `22 passed in 0.22s`; JSON/JSONL parse checks passed for 8 JSON files and
+  4 JSONL files / 488 rows; `git diff --check` passed; and the secret-shaped
+  scan found no matches. Next: commit and push.
 - AXG-1.2 implementation status: in progress. Added optional model-side
   `--igp24_target_r_conditioning_mode control_token`, a decimal coefficient
   tokenizer (`--encoding_tokens decimal_coefficients`) for high-coefficient

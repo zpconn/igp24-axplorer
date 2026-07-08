@@ -57,6 +57,9 @@ ROOT_BUCKET_WEIGHTS = {
     0: 28.0,
 }
 COLLAPSED_LABELS = {"24T24932", "24T24984", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
+STOPPED_LANE_BY_CONSTRAINT = {
+    "stop_r8_score_followup_quartic_x6_24T25000_lane": "r8_quartic_lift_score_followup",
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -127,6 +130,16 @@ def constraints_by_name(basin_summary: dict[str, Any]) -> dict[str, dict[str, An
         for row in basin_summary.get("anti_basin_constraints") or []
         if isinstance(row, dict) and row.get("name")
     }
+
+
+def stopped_lanes(basin_summary: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    constraints = constraints_by_name(basin_summary)
+    stopped: dict[str, dict[str, Any]] = {}
+    for constraint_name, lane_name in STOPPED_LANE_BY_CONSTRAINT.items():
+        constraint = constraints.get(constraint_name)
+        if constraint and constraint.get("severity") == "high":
+            stopped[lane_name] = constraint
+    return stopped
 
 
 def avoided_labels(basin_summary: dict[str, Any]) -> set[str]:
@@ -362,6 +375,7 @@ def build_lane_recommendations(
     bucket_priorities: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     pair_summary = basin_summary.get("pair_summary") or {}
+    lane_stops = stopped_lanes(basin_summary)
     lanes: list[dict[str, Any]] = []
     seen: set[str] = set()
     for score_row in sorted(
@@ -380,18 +394,29 @@ def build_lane_recommendations(
         if lane_name in seen:
             continue
         seen.add(lane_name)
+        stop_constraint = lane_stops.get(lane_name)
+        stopped = bool(stop_constraint)
         lanes.append(
             {
                 "lane": lane_name,
-                "rank_reason": f"visible score outlier {key} at {score_row['points']} with {score_row['solved_teams']} solved teams",
+                "rank_reason": (
+                    f"stopped by {stop_constraint['name']}: {stop_constraint.get('rule', 'high-severity anti-basin constraint')}"
+                    if stopped
+                    else f"visible score outlier {key} at {score_row['points']} with {score_row['solved_teams']} solved teams"
+                ),
                 "source_pair": key,
                 "source_points": score_row["points"],
                 "source_solved_teams": score_row["solved_teams"],
                 "source_family": primary_family,
                 "construction_family_counts": family_counts,
-                "recommended_for_generation_now": True,
+                "stopped_by_constraint": stop_constraint["name"] if stopped else None,
+                "recommended_for_generation_now": not stopped,
                 "recommended_for_submission_now": False,
-                "submission_gate": "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first",
+                "submission_gate": (
+                    "do not generate or submit nearby rows until construction/decomposition/label discriminator changes materially"
+                    if stopped
+                    else "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first"
+                ),
             }
         )
     api_rows = [
@@ -431,6 +456,21 @@ def build_lane_recommendations(
                 "recommended_for_generation_now": False,
                 "recommended_for_submission_now": False,
                 "submission_gate": "requires a stronger exact-label steering mechanism before spending a packet",
+            }
+        )
+    if lane_stops:
+        high_real_buckets = [row for row in bucket_priorities if int(row["r"]) >= 16][:3]
+        high_real_uncovered = [row for row in top_remaining if int(row["r"]) >= 16]
+        lanes.append(
+            {
+                "lane": "materially_different_high_real_lane_after_basin_stop",
+                "rank_reason": "highest-score r8 follow-up lane is stopped; pivot to r24/r16/r20 or a genuinely different r8 construction with explicit anti-24T25000 gates",
+                "stopped_lanes": sorted(lane_stops),
+                "source_pair": (high_real_uncovered or top_remaining or [{}])[0].get("pair_key"),
+                "target_r_buckets": ",".join(str(row["r"]) for row in high_real_buckets),
+                "recommended_for_generation_now": True,
+                "recommended_for_submission_now": False,
+                "submission_gate": "new packet must avoid stopped template/decomposition/mode/basin fingerprints and pass anti-basin replay before SAIR submission",
             }
         )
     lanes.append(
@@ -490,7 +530,17 @@ def build_plan(
         bucket_priorities=bucket_priorities,
     )
     constraints = constraints_by_name(basin_summary)
-    best_lane = next((lane for lane in lanes if lane.get("recommended_for_generation_now")), lanes[0] if lanes else None)
+    best_lane = next(
+        (
+            lane
+            for lane in lanes
+            if lane.get("lane") == "materially_different_high_real_lane_after_basin_stop"
+            and lane.get("recommended_for_generation_now")
+        ),
+        None,
+    )
+    if best_lane is None:
+        best_lane = next((lane for lane in lanes if lane.get("recommended_for_generation_now")), lanes[0] if lanes else None)
     return {
         "schema_version": 1,
         "record_type": "igp24_score_aware_target_plan",
@@ -542,6 +592,7 @@ def build_plan(
             "high_severity_names": [
                 name for name, row in constraints.items() if row.get("severity") == "high"
             ],
+            "stopped_lanes": sorted(stopped_lanes(basin_summary)),
         },
         "decision": {
             "recommended_next_lane": best_lane,

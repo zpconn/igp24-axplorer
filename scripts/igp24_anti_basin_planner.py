@@ -40,10 +40,16 @@ DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/label_basin_analysis_20260
 DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_observations.jsonl"
 DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     REPO_ROOT / "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    REPO_ROOT
+    / "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
 HIGH_VALUE_R_WEIGHTS = {24: 40.0, 16: 32.0, 20: 30.0, 12: 24.0, 8: 22.0}
+R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES = {
+    "r8_quartic_lift_perturbed",
+    "r8_quartic_lift_score_followup",
+}
 
 PROGRESS_CACHE_JSON = "anti_basin_live_progress_cache.json"
 SCORES_JSONL = "anti_basin_candidate_scores.jsonl"
@@ -184,9 +190,10 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     pattern = str(
         metadata.get("decomposition_degree_pattern")
         or metadata.get("decomposition_pattern")
+        or row.get("decomposition_pattern")
         or metadata.get("support_pattern")
         or row.get("support_pattern")
-        or ("quartic_in_x6" if metadata.get("source_family") == "r8_quartic_lift_perturbed" else "")
+        or ("quartic_in_x6" if metadata.get("source_family") in R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES else "")
     )
     construction = str(
         metadata.get("construction_family")
@@ -537,6 +544,8 @@ def build_basin_profile(
     mode_by_family_pattern = Counter()
     collapsed_family_pattern_labels: dict[tuple[str, str, int], set[str]] = defaultdict(set)
     collapsed_pair_counts: Counter[str] = Counter()
+    collapsed_template_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
+    collapsed_basin_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
     collapsed_model_template_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
     collapsed_model_basin_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
     accepted_hashes = set()
@@ -562,6 +571,10 @@ def build_basin_profile(
         collapsed_family_pattern_labels[(row["construction_family"], row["decomposition_pattern"], row["r"])].add(row["label"])
         if row.get("pair_key"):
             collapsed_pair_counts[str(row["pair_key"])] += 1
+        if row.get("template_family_id"):
+            collapsed_template_r_labels[(str(row["template_family_id"]), row["r"])].add(row["label"])
+        if row.get("basin_fingerprint"):
+            collapsed_basin_r_labels[(str(row["basin_fingerprint"]), row["r"])].add(row["label"])
         if row["construction_family"] == "model_sample_export":
             if row.get("template_family_id"):
                 collapsed_model_template_r_labels[(str(row["template_family_id"]), row["r"])].add(row["label"])
@@ -582,6 +595,12 @@ def build_basin_profile(
             key: sorted(labels) for key, labels in collapsed_family_pattern_labels.items()
         },
         "collapsed_pair_counts": collapsed_pair_counts,
+        "collapsed_template_r_labels": {
+            key: sorted(labels) for key, labels in collapsed_template_r_labels.items()
+        },
+        "collapsed_basin_r_labels": {
+            key: sorted(labels) for key, labels in collapsed_basin_r_labels.items()
+        },
         "collapsed_model_template_r_labels": {
             key: sorted(labels) for key, labels in collapsed_model_template_r_labels.items()
         },
@@ -671,7 +690,7 @@ def score_candidate_row(
         risk_reasons.append(f"known_repeated_pair_collision:{features['pair_key']}={hits}")
         score -= 180.0
     if (
-        features["construction_family"] == "r8_quartic_lift_perturbed"
+        features["construction_family"] in R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES
         and features["decomposition_pattern"] == "quartic_in_x6"
         and r_value == 8
         and collapsed_labels
@@ -679,14 +698,24 @@ def score_candidate_row(
         labels = ",".join(str(label) for label in collapsed_labels)
         risk_reasons.append(f"r8_quartic_in_x6_known_label_collapse={labels}")
         score -= 140.0
+    template_key = (features.get("template_family_id") or "", r_value)
+    template_labels = basin_profile.get("collapsed_template_r_labels", {}).get(template_key, [])
+    if template_labels:
+        labels = ",".join(str(label) for label in template_labels)
+        risk_reasons.append(f"template_family_known_high_label_collapse={labels}")
+        score -= 120.0
+    basin_key = (features.get("basin_fingerprint") or "", r_value)
+    basin_labels = basin_profile.get("collapsed_basin_r_labels", {}).get(basin_key, [])
+    if basin_labels:
+        labels = ",".join(str(label) for label in basin_labels)
+        risk_reasons.append(f"basin_fingerprint_known_high_label_collapse={labels}")
+        score -= 140.0
     if features["construction_family"] == "model_sample_export":
-        template_key = (features.get("template_family_id") or "", r_value)
         template_labels = basin_profile.get("collapsed_model_template_r_labels", {}).get(template_key, [])
         if template_labels:
             labels = ",".join(str(label) for label in template_labels)
             risk_reasons.append(f"model_template_family_known_high_label_collapse={labels}")
             score -= 160.0
-        basin_key = (features.get("basin_fingerprint") or "", r_value)
         basin_labels = basin_profile.get("collapsed_model_basin_r_labels", {}).get(basin_key, [])
         if basin_labels:
             labels = ",".join(str(label) for label in basin_labels)
@@ -732,6 +761,8 @@ def score_candidate_row(
             "known_repeated_pair_collision",
             "outer_constant_shift",
             "r8_quartic_in_x6_known_label_collapse",
+            "template_family_known_high_label_collapse",
+            "basin_fingerprint_known_high_label_collapse",
             "model_template_family_known_high_label_collapse",
             "model_basin_fingerprint_known_high_label_collapse",
             "exact_crowded_basin_fingerprint",
@@ -946,6 +977,8 @@ def build_summary(
             "mod_p_signature_count": len(basin_profile["mod_signatures"]),
             "collapsed_family_pattern_count": len(basin_profile.get("collapsed_family_pattern_labels") or {}),
             "collapsed_pair_count": len(basin_profile.get("collapsed_pair_counts") or {}),
+            "collapsed_template_r_count": len(basin_profile.get("collapsed_template_r_labels") or {}),
+            "collapsed_basin_r_count": len(basin_profile.get("collapsed_basin_r_labels") or {}),
             "collapsed_model_template_r_count": len(basin_profile.get("collapsed_model_template_r_labels") or {}),
             "collapsed_model_basin_r_count": len(basin_profile.get("collapsed_model_basin_r_labels") or {}),
         },

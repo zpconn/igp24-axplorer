@@ -126,6 +126,97 @@ def _r8_perturbed_candidate(candidate_hash, mode="odd_single_off_core", *, mod_s
     }
 
 
+def _r8_score_followup_observation(
+    *,
+    label="24T25000",
+    template="r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+    basin="basin-score-followup-a",
+    mod_sig="p2:2-4-18;p3:3-4-17;p5:24;p7:3-5-16",
+):
+    return {
+        "label": label,
+        "pair_key": f"{label}|r=8",
+        "r": 8,
+        "canonical_hash": f"accepted-{label}-{basin}",
+        "status": "accepted",
+        "scoreable": False,
+        "scoring_status": "pending",
+        "construction_family": "r8_quartic_lift_score_followup",
+        "decomposition_pattern": "quartic_in_x6",
+        "family_key": "four_positive_fibers_e:odd_pair_off_core:11:1,13:-1",
+        "template_family_id": template,
+        "basin_fingerprint": basin,
+        "perturbation_mode": "odd_pair_off_core",
+        "support_gcd": 1,
+        "even_support": False,
+        "odd_support_exponents": [11, 13],
+        "mod_p_pattern_signature": mod_sig,
+    }
+
+
+def _r8_score_followup_candidate(
+    candidate_hash,
+    *,
+    template="r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+    basin="basin-score-followup-a",
+    mod_sig="p2:2-4-18;p3:3-4-17;p5:24;p7:3-5-16",
+):
+    prime_patterns = []
+    for part in mod_sig.split(";"):
+        prime_text, degree_text = part.split(":", 1)
+        prime_patterns.append(
+            {"prime": int(prime_text.removeprefix("p")), "degrees": [int(value) for value in degree_text.split("-")]}
+        )
+    return {
+        "canonical_hash": candidate_hash,
+        "real_root_count": 8,
+        "coefficient_height": 16,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [1, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, 1, 16, -1, 0, 0, 0, 0, -9, 0, 0, 0, 0, 0, 1],
+        "mod_p_factorization_degree_patterns": prime_patterns,
+        "sample_export_source": "lane_generate:r8_score_followup",
+        "generation_metadata": {
+            "construction_family": "r8_quartic_lift_score_followup",
+            "decomposition_pattern": "quartic_in_x6",
+            "generation_strategy": "r8_score_followup_24T9993",
+            "family_key": "four_positive_fibers_e:odd_pair_off_core:11:1,13:-1",
+            "template_family_id": template,
+            "basin_fingerprint": basin,
+            "perturbation_mode": "odd_pair_off_core",
+            "support_pattern": "quartic_in_x6_odd_pair_off_core_support_gcd1",
+            "support_gcd": 1,
+            "even_support_like": False,
+            "odd_support_exponents": [11, 13],
+        },
+    }
+
+
+def _alt_r8_candidate(candidate_hash):
+    return {
+        "canonical_hash": candidate_hash,
+        "real_root_count": 8,
+        "coefficient_height": 32,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 5, "degrees": [5, 19]}],
+        "sample_export_source": "lane_generate:r8_alt_composition",
+        "generation_metadata": {
+            "construction_family": "alt_composition_r8_3x8",
+            "decomposition_pattern": "3x8",
+            "template_family_id": "alt:r8:3x8:new",
+            "family_key": "alt:r8:3x8:new:family",
+            "basin_fingerprint": "alt-r8-basin-new",
+            "perturbation_mode": "inner_level_shift",
+            "support_pattern": "non_quartic_in_x6_support_gcd1",
+            "support_gcd": 1,
+            "even_support_like": False,
+            "odd_support_exponents": [1],
+        },
+    }
+
+
 def _axg_model_candidate(candidate_hash, *, template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"):
     return {
         "canonical_hash": candidate_hash,
@@ -286,6 +377,50 @@ def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signat
         any(reason.startswith("r8_quartic_in_x6_known_label_collapse=24T24979,24T25000") for reason in row["risk_reasons"])
         for row in scored
     )
+
+
+def test_r8_score_followup_24t25000_collapse_holds_same_template_and_basin():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
+    basin_profile = build_basin_profile(
+        [_r8_score_followup_observation()],
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 58}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+
+    repeat = score_candidate_row(
+        _r8_score_followup_candidate("repeat-score-followup"),
+        target_rs={8},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert repeat["eligible_for_packet"] is False
+    assert "r8_quartic_in_x6_known_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "template_family_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "exact_crowded_basin_fingerprint_hits=1" in repeat["risk_reasons"]
+
+
+def test_r8_score_followup_collapse_does_not_block_materially_different_r8_construction():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
+    basin_profile = build_basin_profile(
+        [_r8_score_followup_observation()],
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 58}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+
+    novel = score_candidate_row(
+        _alt_r8_candidate("novel-alt-r8"),
+        target_rs={8},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert novel["eligible_for_packet"] is True
+    assert novel["risk_reasons"] == []
+    assert novel["anti_basin_classification"] == "strong_packet_candidate"
 
 
 def test_model_template_and_basin_feedback_hold_24t25000_repeat():

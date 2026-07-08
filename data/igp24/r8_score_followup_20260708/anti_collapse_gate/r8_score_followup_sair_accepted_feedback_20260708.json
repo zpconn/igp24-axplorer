@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "record_type": "igp24_sair_accepted_label_feedback",
-  "created_at": "2026-07-08T22:22:54.245972+00:00",
+  "created_at": "2026-07-08T22:33:57.121225+00:00",
   "description": "Verified SAIR feedback for the anti-basin nonconstant alternate-composition packet.",
   "tool": "scripts/igp24_anti_basin_feedback.py",
-  "source_commit": "4f227d842db75ec0ecdc627d2f63594ff440ccdb",
+  "source_commit": "cc860d615340361c6aeb66b5ed6dd41d06915858",
   "submission_id": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
   "submitted_at": "2026-07-08T22:20:42Z",
   "updated_at": "2026-07-08T22:20:42Z",
@@ -72,6 +72,8 @@
       "squarefree": true,
       "construction_family": "r8_quartic_lift_score_followup",
       "decomposition_pattern": "quartic_in_x6",
+      "template_family_id": "r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+      "basin_fingerprint": "2a6951bcf67e969d4c75ca90",
       "family_key": "four_positive_fibers_e:odd_pair_off_core:11:1,13:-1",
       "perturbation_mode": "odd_pair_off_core",
       "support_gcd": 1,
@@ -152,6 +154,8 @@
       "squarefree": true,
       "construction_family": "r8_quartic_lift_score_followup",
       "decomposition_pattern": "quartic_in_x6",
+      "template_family_id": "r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+      "basin_fingerprint": "21c013281e9b30402d91f1b5",
       "family_key": "four_positive_fibers_e:odd_pair_off_core:9:1,19:-1",
       "perturbation_mode": "odd_pair_off_core",
       "support_gcd": 1,
@@ -232,6 +236,8 @@
       "squarefree": true,
       "construction_family": "r8_quartic_lift_score_followup",
       "decomposition_pattern": "quartic_in_x6",
+      "template_family_id": "r8_score_followup:four_positive_fibers_f:odd_pair_off_core",
+      "basin_fingerprint": "2f549efd5a79b1ba5cf422ef",
       "family_key": "four_positive_fibers_f:odd_pair_off_core:5:1,9:-1",
       "perturbation_mode": "odd_pair_off_core",
       "support_gcd": 1,
@@ -312,6 +318,8 @@
       "squarefree": true,
       "construction_family": "r8_quartic_lift_score_followup",
       "decomposition_pattern": "quartic_in_x6",
+      "template_family_id": "r8_score_followup:four_positive_fibers_e:odd_pair_off_core",
+      "basin_fingerprint": "836c81d12ffe0df2b8d42188",
       "family_key": "four_positive_fibers_e:odd_pair_off_core:11:-1,15:1",
       "perturbation_mode": "odd_pair_off_core",
       "support_gcd": 1,
@@ -374,7 +382,8 @@
   "pair_status_update": {
     "pair_status_updated": true,
     "new_pairs_added": 0,
-    "alternates_added": 4,
-    "already_present": 0
+    "alternates_added": 0,
+    "already_present": 4,
+    "metadata_updates": 8
   }
 }
