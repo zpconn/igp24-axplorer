@@ -126,6 +126,202 @@ def sample_and_score(model, args, stoi, itos, env, temp, temp_span=0):
     return results
 
 
+def _int_or_none(value):
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _record_r_value(record):
+    for key in ("real_root_count", "r", "target_r"):
+        value = _int_or_none(record.get(key))
+        if value is not None:
+            return value
+    feedback = record.get("sair_feedback")
+    if isinstance(feedback, dict):
+        value = _int_or_none(feedback.get("r"))
+        if value is not None:
+            return value
+        pair_key = feedback.get("pair_key")
+        if isinstance(pair_key, str) and "|r=" in pair_key:
+            return _int_or_none(pair_key.rsplit("|r=", 1)[-1])
+    source = record.get("source_sample_export")
+    if isinstance(source, dict):
+        metadata = source.get("generation_metadata")
+        if isinstance(metadata, dict):
+            value = _int_or_none(metadata.get("target_r") or metadata.get("target_r_intent"))
+            if value is not None:
+                return value
+    return None
+
+
+def _decoded_coefficients_from_record(record):
+    decoded = record.get("decoded_coefficients")
+    if isinstance(decoded, list) and len(decoded) == 24:
+        try:
+            return [int(value) for value in decoded]
+        except (TypeError, ValueError):
+            return None
+
+    exported = record.get("exported_coefficients")
+    if isinstance(exported, list) and len(exported) == 25 and _int_or_none(exported[-1]) == 1:
+        try:
+            return [int(value) for value in exported[:-1]]
+        except (TypeError, ValueError):
+            return None
+
+    coefficients = record.get("coefficients")
+    if isinstance(coefficients, list):
+        try:
+            values = [int(value) for value in coefficients]
+        except (TypeError, ValueError):
+            return None
+        if len(values) == 24:
+            return values
+        if len(values) == 25 and values[-1] == 1:
+            return values[:-1]
+
+    polynomial = record.get("polynomial")
+    if isinstance(polynomial, str):
+        parts = [part.strip() for part in polynomial.split(",") if part.strip()]
+        if len(parts) == 25:
+            try:
+                values = [int(part) for part in parts]
+            except ValueError:
+                return None
+            if values[-1] == 1:
+                return values[:-1]
+    return None
+
+
+def _seed_label(record):
+    feedback = record.get("sair_feedback")
+    if isinstance(feedback, dict) and feedback.get("label"):
+        return feedback.get("label")
+    return record.get("label") or record.get("verified_group_label")
+
+
+def _write_seed_bank_export_records(
+    *,
+    handle,
+    args,
+    export_path: Path,
+    temperature: float,
+    top_k: int | None,
+    seen_decoded_coefficients: dict[tuple[int, ...], int],
+    records_written: int,
+    dedup_enabled: bool,
+) -> tuple[int, dict[str, Any]]:
+    seed_bank_path_text = str(getattr(args, "sample_export_seed_bank_jsonl", "") or "").strip()
+    seed_limit = int(getattr(args, "sample_export_seed_bank_limit", 0) or 0)
+    target_r = getattr(args, "sample_export_seed_bank_target_r", None)
+    if target_r is None:
+        target_r = getattr(args, "target_r", None)
+    target_r = _int_or_none(target_r)
+    stats: dict[str, Any] = {
+        "seed_bank_enabled": bool(seed_bank_path_text and seed_limit > 0),
+        "seed_bank_path": seed_bank_path_text or None,
+        "seed_bank_target_r": target_r,
+        "seed_bank_limit": seed_limit,
+        "seed_bank_source_rows_read": 0,
+        "seed_bank_rows_matching_target_r": 0,
+        "seed_bank_records_written": 0,
+        "seed_bank_duplicate_decoded_records_skipped": 0,
+        "seed_bank_invalid_rows_skipped": 0,
+        "seed_bank_max_coefficient_height": None,
+    }
+    if not stats["seed_bank_enabled"]:
+        return records_written, stats
+
+    seed_bank_path = Path(seed_bank_path_text)
+    if not seed_bank_path.exists():
+        raise FileNotFoundError(f"sample export seed bank does not exist: {seed_bank_path}")
+
+    conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "seed_bank_prefix") or "seed_bank_prefix")
+    max_height = 0
+    with seed_bank_path.open("r", encoding="utf-8") as source:
+        for source_index, line in enumerate(source):
+            if stats["seed_bank_records_written"] >= seed_limit:
+                break
+            if not line.strip():
+                continue
+            stats["seed_bank_source_rows_read"] += 1
+            try:
+                source_record = json.loads(line)
+            except json.JSONDecodeError:
+                stats["seed_bank_invalid_rows_skipped"] += 1
+                continue
+
+            r_value = _record_r_value(source_record)
+            if target_r is not None and r_value != target_r:
+                continue
+            stats["seed_bank_rows_matching_target_r"] += 1
+
+            decoded_coefficients = _decoded_coefficients_from_record(source_record)
+            if decoded_coefficients is None:
+                stats["seed_bank_invalid_rows_skipped"] += 1
+                continue
+            decoded_key = tuple(decoded_coefficients)
+            if decoded_key in seen_decoded_coefficients:
+                if dedup_enabled:
+                    stats["seed_bank_duplicate_decoded_records_skipped"] += 1
+                    continue
+            else:
+                seen_decoded_coefficients[decoded_key] = records_written
+
+            max_height = max(max_height, max(abs(value) for value in decoded_coefficients))
+            record = build_sample_export_record(
+                sample_index=records_written,
+                export_index=records_written,
+                batch_index=-1,
+                batch_row=source_index,
+                token_ids=[],
+                decoded_coefficients=decoded_coefficients,
+                args=args,
+                temperature=temperature,
+                top_k=top_k,
+                dedup_enabled=dedup_enabled,
+                unique_decoded_index=seen_decoded_coefficients.get(decoded_key),
+            )
+            record["sample_export_source"] = "target_r_seed_bank"
+            record["seed_bank"] = {
+                "path": str(seed_bank_path),
+                "source_index": int(source_index),
+                "source_record_type": source_record.get("record_type"),
+                "source_role": source_record.get("source_role"),
+                "target_r": target_r,
+                "source_r": r_value,
+                "label": _seed_label(source_record),
+                "canonical_hash": source_record.get("canonical_hash"),
+            }
+            record["generation_metadata"].update(
+                {
+                    "strategy": "target_r_seed_bank_export",
+                    "source": "target_r_seed_bank_prefix",
+                    "target_r": target_r,
+                    "target_r_intent": target_r,
+                    "target_r_conditioning_mode": conditioning_mode,
+                    "seed_bank_path": str(seed_bank_path),
+                    "seed_bank_source_index": int(source_index),
+                    "seed_bank_label": _seed_label(source_record),
+                    "sample_export_only": True,
+                }
+            )
+            handle.write(json.dumps(record, sort_keys=True) + "\n")
+            records_written += 1
+            stats["seed_bank_records_written"] += 1
+
+    stats["seed_bank_max_coefficient_height"] = max_height if stats["seed_bank_records_written"] else None
+    logger.info(
+        "Export-only target-r seed bank wrote %s records from %s for r=%s",
+        stats["seed_bank_records_written"],
+        seed_bank_path,
+        target_r,
+    )
+    return records_written, stats
+
+
 def build_sample_export_record(
     *,
     sample_index: int,
@@ -141,6 +337,8 @@ def build_sample_export_record(
     unique_decoded_index: int | None = None,
 ) -> dict[str, Any]:
     exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
+    target_r = _int_or_none(getattr(args, "target_r", None))
+    conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none")
     return {
         "schema_version": 1,
         "record_type": "igp24_model_sample_export",
@@ -165,11 +363,15 @@ def build_sample_export_record(
         "local_search_status": "not_run",
         "verification_status": "not_run",
         "verified_group_label": None,
+        "sample_export_source": "model_generate",
         "generation_metadata": {
             "strategy": "model_sample_export",
             "source": "gpu_or_device_model_generate",
             "resolved_generation_strategy": getattr(args, "igp24_generation_strategy", None),
             "generation_preset": getattr(args, "igp24_generation_preset", None),
+            "target_r": target_r,
+            "target_r_intent": target_r,
+            "target_r_conditioning_mode": conditioning_mode,
             "sample_export_only": True,
         },
         "deduplication": {
@@ -208,7 +410,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     unique_target = int(getattr(args, "sample_export_unique_target", 0) or 0)
     dedup_enabled = bool(getattr(args, "sample_export_dedup", False) or unique_target > 0)
     progress_interval = int(getattr(args, "sample_export_progress_interval", 0) or 0)
-    controlled_export = dedup_enabled or unique_target > 0 or max_attempts_arg > 0
+    seed_bank_requested = bool(getattr(args, "sample_export_seed_bank_jsonl", "") and int(getattr(args, "sample_export_seed_bank_limit", 0) or 0) > 0)
+    controlled_export = dedup_enabled or unique_target > 0 or max_attempts_arg > 0 or seed_bank_requested
 
     top_k = args.top_k if args.top_k != -1 else None
     attempted_samples = 0
@@ -220,17 +423,29 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     duplicate_decoded_records_skipped = 0
     seen_decoded_coefficients: dict[tuple[int, ...], int] = {}
     stop_reason = "no_attempts_requested" if attempt_budget <= 0 else None
+    seed_bank_stats: dict[str, Any] = {}
 
     logger.info(f"Export-only model sampling to {export_path}")
     if controlled_export:
         logger.info(
-            "Export-only dedup controls: enabled=%s unique_target=%s attempt_budget=%s progress_interval=%s",
+            "Export-only controls: dedup_enabled=%s unique_target=%s attempt_budget=%s progress_interval=%s seed_bank_requested=%s",
             dedup_enabled,
             unique_target,
             attempt_budget,
             progress_interval,
+            seed_bank_requested,
         )
     with export_path.open("w", encoding="utf-8") as handle:
+        records_written, seed_bank_stats = _write_seed_bank_export_records(
+            handle=handle,
+            args=args,
+            export_path=export_path,
+            temperature=temp,
+            top_k=top_k,
+            seen_decoded_coefficients=seen_decoded_coefficients,
+            records_written=records_written,
+            dedup_enabled=dedup_enabled,
+        )
         batch_index = 0
         while attempted_samples < attempt_budget:
             if unique_target > 0 and len(seen_decoded_coefficients) >= unique_target:
@@ -353,6 +568,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "scoring_avoided": True,
         "local_search_avoided": True,
         "dataset_update_avoided": True,
+        **seed_bank_stats,
     }
     if summary_path is not None:
         summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")

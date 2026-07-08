@@ -1,0 +1,59 @@
+{
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 8,
+    "unknown": 24
+  },
+  "coefficient_height_by_r": {
+    "12": {
+      "max": 899592,
+      "min": 120884
+    },
+    "16": {
+      "max": 703,
+      "min": 703
+    },
+    "20": {
+      "max": 22700672,
+      "min": 10813088
+    },
+    "24": {
+      "max": 725998,
+      "min": 327726
+    }
+  },
+  "created_at": "2026-07-08T01:53:05.670181+00:00",
+  "jsonl_path": "data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl",
+  "label_counts": {
+    "24T24979": 8,
+    "unknown": 24
+  },
+  "limit_per_r": 8,
+  "record_type": "igp24_axg_target_r_seed_bank_summary",
+  "row_count": 32,
+  "rows_by_r": {
+    "12": 8,
+    "16": 8,
+    "20": 8,
+    "24": 8
+  },
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "seed_bank": "axg_target_r_seed_bank_20260707",
+  "source_paths_scanned": 95,
+  "source_role_counts": {
+    "candidate_queue": 24,
+    "sair_submission_row": 8
+  },
+  "source_rows_scanned": 83733,
+  "target_rs": [
+    12,
+    16,
+    20,
+    24
+  ]
+}

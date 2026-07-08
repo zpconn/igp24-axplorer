@@ -8,6 +8,7 @@ from scripts.igp24_gpu_sampler_probe import (
     build_sample_export_diversity_command,
     build_sample_export_split_command,
     build_sample_export_split_medium_command,
+    build_sample_export_target_r_seeded_command,
     build_train_only_utilization_command,
     load_baseline_summary,
     parse_gpu_utilization_sample,
@@ -300,6 +301,42 @@ def test_build_sample_export_dedup_command_is_opt_in_and_bounded(tmp_path):
     assert config["caps"]["sample_export_unique_target"] == 512
     assert config["caps"]["sample_export_max_attempts"] == 2048
     assert "dedup" in config["sample_export_path"]
+    assert all("sair" not in str(part).lower() for part in command)
+    assert all("magma" not in str(part).lower() for part in command)
+    assert all("pari" not in str(part).lower() for part in command)
+
+
+def test_build_sample_export_target_r_seeded_command_records_target_intent(tmp_path):
+    seed_bank = tmp_path / "seed_bank.jsonl"
+    config = build_sample_export_target_r_seeded_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        target_r=20,
+        seed_bank_jsonl=seed_bank,
+        seed_bank_limit=3,
+        seed=32020,
+        model_sample_attempts=256,
+    )
+    command = config["command"]
+
+    assert config["probe_mode"] == "sample_export_target_r_seeded"
+    assert config["target_r"] == 20
+    assert config["target_r_conditioning_mode"] == "seed_bank_prefix"
+    assert config["target_r_seed_bank_jsonl"] == str(seed_bank)
+    assert config["target_r_seed_bank_limit"] == 3
+    assert config["post_train_cpu_sampling_scoring_avoided"]
+    assert command[command.index("--cpu") + 1] == "false"
+    assert command[command.index("--target_r") + 1] == "20"
+    assert command[command.index("--sample_export_only") + 1] == "true"
+    assert command[command.index("--sample_export_target_r_conditioning_mode") + 1] == "seed_bank_prefix"
+    assert command[command.index("--sample_export_seed_bank_jsonl") + 1] == str(seed_bank)
+    assert command[command.index("--sample_export_seed_bank_target_r") + 1] == "20"
+    assert command[command.index("--sample_export_seed_bank_limit") + 1] == "3"
+    assert command[command.index("--num_samples_from_model") + 1] == "256"
+    assert command[command.index("--sample_export_max_attempts") + 1] == "256"
+    assert command[command.index("--always_search") + 1] == "false"
+    assert command[command.index("--max_local_search_steps") + 1] == "0"
     assert all("sair" not in str(part).lower() for part in command)
     assert all("magma" not in str(part).lower() for part in command)
     assert all("pari" not in str(part).lower() for part in command)

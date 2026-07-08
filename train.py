@@ -106,6 +106,30 @@ def get_parser():
         default=256,
         help="progress-log interval for opt-in dedup-aware sample export controls",
     )
+    parser.add_argument(
+        "--sample_export_target_r_conditioning_mode",
+        type=str,
+        default="none",
+        help="metadata label for target-r export steering, e.g. seed_bank_prefix",
+    )
+    parser.add_argument(
+        "--sample_export_seed_bank_jsonl",
+        type=str,
+        default="",
+        help="optional JSONL seed bank to prefix into --sample_export_only output before model samples",
+    )
+    parser.add_argument(
+        "--sample_export_seed_bank_target_r",
+        type=int,
+        default=None,
+        help="optional r filter for --sample_export_seed_bank_jsonl; defaults to --target_r",
+    )
+    parser.add_argument(
+        "--sample_export_seed_bank_limit",
+        type=int,
+        default=0,
+        help="maximum seed-bank rows to prefix; 0 disables seed-bank prefixing",
+    )
 
     return parser
 

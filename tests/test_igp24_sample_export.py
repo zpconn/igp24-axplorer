@@ -25,6 +25,8 @@ def test_build_sample_export_record_marks_unscored_and_safe():
         coeff_bound=4,
         igp24_generation_strategy="fixed_sparse_template",
         igp24_generation_preset="none",
+        target_r=16,
+        sample_export_target_r_conditioning_mode="seed_bank_prefix",
     )
 
     record = build_sample_export_record(
@@ -44,6 +46,10 @@ def test_build_sample_export_record_marks_unscored_and_safe():
     assert record["score"] is None
     assert record["scoring_status"] == "unscored"
     assert record["local_search_status"] == "not_run"
+    assert record["sample_export_source"] == "model_generate"
+    assert record["generation_metadata"]["target_r"] == 16
+    assert record["generation_metadata"]["target_r_intent"] == 16
+    assert record["generation_metadata"]["target_r_conditioning_mode"] == "seed_bank_prefix"
     assert not record["safety"]["scored"]
     assert not record["safety"]["local_search_run"]
     assert not record["safety"]["runs_exact_verifiers"]
@@ -93,6 +99,11 @@ def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
         top_k=-1,
         igp24_generation_strategy="fixed_sparse_template",
         igp24_generation_preset="none",
+        target_r=None,
+        sample_export_target_r_conditioning_mode="none",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
     )
     export_path = tmp_path / "samples.jsonl"
 
@@ -119,6 +130,88 @@ def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
     assert [record["deduplication"]["unique_decoded_index"] for record in records] == [0, 1]
     assert all(record["deduplication"]["enabled"] for record in records)
     assert all(not record["safety"]["scored"] for record in records)
+
+
+def test_sample_and_export_prefixes_target_r_seed_bank(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coefficient):
+            self.coefficients = [coefficient] + [0] * 23
+
+    class DummyTokenizer:
+        def decode(self, row):
+            return DummyDecoded(int(row[0]))
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            rows = []
+            for index in range(batch_size):
+                rows.append([9 + self.offset + index] + [0] * (length - 1))
+            self.offset += batch_size
+            return torch.tensor(rows, dtype=torch.long)
+
+    seed_bank = tmp_path / "seed_bank.jsonl"
+    seed_bank.write_text(
+        "\n".join(
+            [
+                json.dumps({"r": 12, "label": "24Tseed", "exported_coefficients": [5] + [0] * 23 + [1]}),
+                json.dumps({"r": 16, "label": "24Tother", "exported_coefficients": [7] + [0] * 23 + [1]}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="seeded_export_test",
+        exp_id="run",
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=2,
+        num_samples_from_model=2,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=2,
+        sample_export_progress_interval=1,
+        top_k=-1,
+        igp24_generation_strategy="fixed_sparse_template",
+        igp24_generation_preset="none",
+        target_r=12,
+        sample_export_target_r_conditioning_mode="seed_bank_prefix",
+        sample_export_seed_bank_jsonl=str(seed_bank),
+        sample_export_seed_bank_target_r=12,
+        sample_export_seed_bank_limit=1,
+    )
+    export_path = tmp_path / "seeded_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=0.9,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+    sidecar = json.loads((tmp_path / "seeded_samples.jsonl.summary.json").read_text(encoding="utf-8"))
+
+    assert summary["seed_bank_records_written"] == 1
+    assert summary["records_written"] == 3
+    assert sidecar["seed_bank_target_r"] == 12
+    assert records[0]["sample_export_source"] == "target_r_seed_bank"
+    assert records[0]["generation_metadata"]["strategy"] == "target_r_seed_bank_export"
+    assert records[0]["generation_metadata"]["target_r_conditioning_mode"] == "seed_bank_prefix"
+    assert records[0]["seed_bank"]["label"] == "24Tseed"
+    assert records[1]["sample_export_source"] == "model_generate"
+    assert records[1]["generation_metadata"]["target_r_intent"] == 12
 
 
 def test_extract_decoded_coefficients_accepts_decoded_or_exported():
@@ -150,7 +243,18 @@ def test_score_export_records_consumes_decoded_samples_without_local_search():
         local_search=False,
     )
     records = [
-        {"sample_index": 0, "decoded_coefficients": [1] + [0] * 23, "temperature": 0.9, "top_k": 9, "device": "cuda"},
+        {
+            "sample_index": 0,
+            "decoded_coefficients": [1] + [0] * 23,
+            "temperature": 0.9,
+            "top_k": 9,
+            "device": "cuda",
+            "sample_export_source": "target_r_seed_bank",
+            "generation_metadata": {
+                "strategy": "target_r_seed_bank_export",
+                "target_r_conditioning_mode": "seed_bank_prefix",
+            },
+        },
         {"sample_index": 1, "decoded_coefficients": None},
     ]
 
@@ -167,6 +271,8 @@ def test_score_export_records_consumes_decoded_samples_without_local_search():
     assert not summary["safety"]["calls_sair"]
     assert not summary["safety"]["auto_submits"]
     assert all(record["generation_metadata"]["strategy"] == "model_sample_export" for record in scored)
+    assert scored[0]["source_sample_export"]["sample_export_source"] == "target_r_seed_bank"
+    assert summary["sample_export_source_counts"] == {"target_r_seed_bank": 1}
 
 
 def test_score_all_mode_selects_every_exported_record_and_manifest_records_mode():

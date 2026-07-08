@@ -145,6 +145,13 @@ def score_export_records(
         else:
             rejected_records += 1
 
+        source_generation_metadata = record.get("generation_metadata") or {}
+        sample_export_source = (
+            record.get("sample_export_source")
+            or source_generation_metadata.get("source")
+            or source_generation_metadata.get("strategy")
+            or "unknown"
+        )
         generation_metadata = {
             "strategy": "model_sample_export",
             "source": "sample_export_import_score",
@@ -154,6 +161,10 @@ def score_export_records(
             "source_temperature": record.get("temperature"),
             "source_top_k": record.get("top_k"),
             "source_device": record.get("device"),
+            "sample_export_source": sample_export_source,
+            "source_generation_strategy": source_generation_metadata.get("strategy"),
+            "target_r_conditioning_mode": source_generation_metadata.get("target_r_conditioning_mode"),
+            "target_r_intent": source_generation_metadata.get("target_r_intent"),
             "local_search_enabled": bool(args.local_search),
         }
         scored_record = analysis_to_record(
@@ -170,6 +181,9 @@ def score_export_records(
             "sample_index": record.get("sample_index"),
             "record_type": record.get("record_type"),
             "schema_version": record.get("schema_version"),
+            "sample_export_source": sample_export_source,
+            "generation_metadata": source_generation_metadata,
+            "seed_bank": record.get("seed_bank"),
         }
         scored_record["safety"] = {
             "proxy_only": True,
@@ -195,6 +209,28 @@ def score_export_records(
         "max_records": args.max_records,
         "score_all": score_all,
         "scored_record_summary": summarize_scored_records(scored),
+        "real_root_counts": dict(
+            Counter(str(record.get("real_root_count")) for record in scored if record.get("real_root_count") is not None)
+        ),
+        "target_r_survivor_count": (
+            sum(1 for record in scored if record.get("verification_status") == "proxy_scored" and record.get("real_root_count") == args.target_r)
+            if args.target_r is not None
+            else None
+        ),
+        "sample_export_source_counts": dict(
+            Counter((record.get("source_sample_export") or {}).get("sample_export_source") or "unknown" for record in scored)
+        ),
+        "sample_export_source_target_r_survivors": (
+            dict(
+                Counter(
+                    (record.get("source_sample_export") or {}).get("sample_export_source") or "unknown"
+                    for record in scored
+                    if record.get("verification_status") == "proxy_scored" and record.get("real_root_count") == args.target_r
+                )
+            )
+            if args.target_r is not None
+            else {}
+        ),
         "safety": {
             "proxy_only": True,
             "runs_exact_verifiers": False,

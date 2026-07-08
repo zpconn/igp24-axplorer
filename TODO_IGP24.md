@@ -176,6 +176,38 @@ results change.
   `.pt`, `.pth`, `.ckpt`, `.bin`, or `.safetensors` files under the committed
   AXG GPU/registry artifact roots; `git diff --check` passed; and Stage 4
   remains present at line 8310.
+- Active AXG-1.1 target-r steering probe: started from clean
+  `igp24-dev` after commit `57c5d0b`. Preflight results:
+  `python3 scripts/igp24_model_registry.py --registry data/igp24/model_registry validate`
+  passed with 1 model, 2 runs, and 0 issues; Stage 4 remains present at line
+  8310; `nvidia-smi` sees the RTX 5090 with CUDA 13.2, about 3,182 MiB used,
+  7% utilization, and no running compute processes. Sandboxed Torch still
+  cannot initialize CUDA, but the approved non-sandbox Torch probe reports
+  `torch 2.12.1+cu130`, CUDA available, 1 device, and
+  `NVIDIA GeForce RTX 5090`. Safety posture for AXG-1.1: no SAIR submission,
+  no API-key serialization, no long training run, no checkpoint binaries in
+  git, and all GPU probe outputs start under `/tmp` before safe text/JSON/JSONL
+  artifacts are copied into the repo.
+  Implementation checkpoint: direct control-token conditioning would require a
+  tokenizer/model change, and raw coefficient-token training on known `r=20`
+  seeds is impractical because local accepted `r=20` rows have coefficient
+  height around 10,813,088. The AXG-1.1 probe therefore uses the explicitly
+  allowed target-r-biased export path: `train.py --sample_export_only` can now
+  prefix rows from a target-r-labelled seed-bank JSONL, stamp
+  `target_r_conditioning_mode=seed_bank_prefix`, and then append unscored GPU
+  model samples. CPU scoring now preserves `sample_export_source` and reports
+  per-source target-r survivor counts, so seed-bank rows and raw model rows are
+  not conflated. Focused implementation tests passed:
+  `PYTHONPATH=.:/tmp/igp24_pydeps /tmp/igp24_pydeps/bin/pytest -q tests/test_igp24_sample_export.py tests/test_igp24_gpu_sampler_probe.py tests/test_igp24.py`
+  -> `59 passed`.
+  Balanced seed-bank input created at
+  `data/igp24/axg_target_r_seed_bank_20260707/target_r_seed_bank.jsonl` with
+  32 rows: 8 each for `r=12,16,20,24`. Height-aware extraction scanned local
+  JSONL artifacts and selected the lowest-height unique rows per target; height
+  ranges are `r=12: 120,884..899,592`, `r=16: 703..703`,
+  `r=20: 10,813,088..22,700,672`, and `r=24: 327,726..725,998`.
+  Safety flags on the seed-bank summary record no SAIR calls, no network, no
+  auto-submit, and no API-key recording.
 - README cleanup: public-facing README now stays concise; benchmark and
   verification result detail moved to `docs/EXPERIMENTS.md`, with the full
   working log still in this TODO and design notes in `NOTES_IGP24.md`.
