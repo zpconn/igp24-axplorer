@@ -8,6 +8,28 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- r16 high-real refinement live submission completed 2026-07-09 after explicit
+  user approval. Submitted
+  `data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/anti_basin_candidate_coefficients.txt`
+  as `sub_997ed4ad0f75476b888b42bea2e3a3d0`; SAIR queued 4 rows and rejected
+  0. Immediate poll verified all 4 rows as accepted `24T25000|r=16`,
+  `scoreable=false`, `scoringStatus=pending`, and
+  `scoringReason=discriminant_pending`. Feedback ingest wrote
+  `data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json`
+  and appended 4 alternates to the existing `24T25000|r=16` pair-status entry;
+  no new pair was added and no representative was replaced. Sync retry
+  artifacts are under
+  `data/igp24/sair_sync_20260709_r16_refinement_after_submit_retry/`; the
+  sync is partial because SAIR returned transient 503s for 3 old submission
+  detail reads, but global progress and the submission index completed. The
+  partial sync captured 23 submissions, 174 recovered rows, 162 scoreable rows,
+  12 pending rows, and 0 unmatched rows. Lesson: the r16 refinement packet
+  verified cleanly but collapsed to the already-known/crowded
+  `24T25000|r=16` basin. Do not widen this r16 model:mixed dense/medium support
+  basin without a materially different construction or label discriminator.
+  Validation: JSON/JSONL parse checks passed for 7 JSON files and 7 JSONL files
+  / 25,351 rows; `git diff --check` passed; and the key-shaped secret scan
+  found no matches. Next: commit and push.
 - Active r24/r16 high-real refinement pass started 2026-07-08. Refresh:
   `git pull --ff-only` reported already up to date, and the worktree was
   clean before changes. `SAIR_API_KEY` is not present in the environment, so
