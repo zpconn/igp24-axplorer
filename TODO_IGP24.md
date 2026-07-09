@@ -33,6 +33,27 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 4 checkpoint: added explicit official IGP24
+  score-economics support under `src/igp24/scoring.py` and wired it into
+  `scripts/igp24_score_aware_target_planner.py`. Planner rows now expose
+  `maximum_possible_points`, `estimated_expected_points`,
+  `estimated_points_basis`, `score_multiplier`, prospective/current team
+  counts, discriminant log ratio, baseline flag, and score-ceiling class. The
+  bucket planner now gives official score ceiling real ranking weight, so a
+  plausible uncovered first-team signature is treated as a one-point
+  opportunity rather than being drowned out by accepted-row heuristics or
+  tiny crowded follow-up scores. Generated read-only Phase 4 artifacts from
+  the complete AXG-1.13 SAIR sync under
+  `data/igp24/remediation_20260709/score_economics_phase4/`. Key result:
+  46,998 uncovered one-point signatures remain; r-bucket official opportunity
+  ranking is r24, r16, r8, r12, r20; top target remains `24T19906|r=24`;
+  9,428 scanned pairs are already in the crowded-near-zero score class. The
+  recommended lane remains `materially_different_high_real_lane_after_basin_stop`
+  with target buckets r24/r16/r20. No live submission was made or recommended.
+  Validation so far: py-compile passed for the new scoring module and planner;
+  focused planner/scoring/anti-basin/group-compatibility tests passed
+  (`43 passed`); Phase 4 JSON/JSONL artifacts parse cleanly with 500 ranked
+  target rows.
 - 2026-07-09 remediation Phase 3 checkpoint: added the first sound
   group-cycle compatibility layer. New files:
   `src/igp24/group_compatibility.py`,
@@ -49,13 +70,11 @@ results change.
   or apply an ambiguity penalty. Local dependency probe found GAP is not on
   `PATH`, so the real all-25,000-label group-cycle index is blocked; report:
   `data/igp24/remediation_20260709/group_compatibility_phase3/gap_dependency_report.md`.
-  A tiny synthetic SQLite index under
-  `data/igp24/remediation_20260709/group_compatibility_phase3/synthetic_demo/`
-  validates the CLI/report shape only and is explicitly not real GAP data.
-  Synthetic containment check: 1/1 true labels retained, compatible label
-  count 2. No live submission is recommended until GAP is installed and the
-  historical containment check passes on real SAIR-verified rows with 100%
-  true-label retention.
+  A tiny synthetic SQLite index was used only as a local throwaway CLI smoke
+  check and was removed before commit; no fake group index is tracked. No live
+  submission is recommended until GAP is installed and the historical
+  containment check passes on real SAIR-verified rows with 100% true-label
+  retention.
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints

@@ -33,6 +33,7 @@ from scripts.igp24_sair_sync import (  # noqa: E402
     load_sync_submission_rows,
 )
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
+from src.igp24.scoring import official_score_economics  # noqa: E402
 
 
 DEFAULT_PAIR_STATUS = REPO_ROOT / "data/igp24/pair_status_20260706.json"
@@ -252,9 +253,25 @@ def iter_progress_pairs(
                 category = "moderately_solved_signature"
 
             points = _score_points(score_row)
+            baseline_pair = bool(
+                signature.get("inBaseline")
+                or signature.get("baseline")
+                or label_row.get("inBaseline")
+                or label_row.get("baseline")
+                or (sync_row or {}).get("in_baseline")
+            )
+            official = official_score_economics(
+                current_team_count=signature_team_count,
+                uncovered=progress_state == "remaining",
+                baseline_pair=baseline_pair,
+                current_best_disc_abs=global_minimum_disc_abs,
+                candidate_disc_abs=api_field_disc_abs,
+                observed_points=points,
+            )
             score = ROOT_BUCKET_WEIGHTS.get(r_value, 10.0)
             score += min(remaining_by_r.get(r_value, 0) / 85.0, 135.0)
             score += min(len(remaining), 12) * 3.0
+            score += min(float(official["maximum_possible_points"] or 0.0) * 260.0, 320.0)
             if progress_state == "remaining":
                 score += 520.0
             elif progress_state != "discovered":
@@ -284,6 +301,12 @@ def iter_progress_pairs(
                 score -= 210.0 if points is None else 85.0
             if not remaining and points is None and category == "covered_or_crowded":
                 score -= 80.0
+            if (
+                official.get("score_ceiling_class") == "crowded_near_zero_ceiling"
+                and progress_state != "remaining"
+                and points is None
+            ):
+                score -= 120.0
 
             yield {
                 "pair_key": key,
@@ -316,6 +339,16 @@ def iter_progress_pairs(
                 "api_local_match_status": (sync_row or {}).get("local_match_status"),
                 "api_global_minimum_disc_abs": global_minimum_disc_abs,
                 "api_field_vs_global_min_log10_delta": api_disc_log10_delta,
+                "official_current_team_count": official["official_current_team_count"],
+                "official_prospective_team_count": official["official_prospective_team_count"],
+                "maximum_possible_points": official["maximum_possible_points"],
+                "estimated_expected_points": official["estimated_expected_points"],
+                "estimated_points_basis": official["estimated_points_basis"],
+                "score_multiplier": official["score_multiplier"],
+                "score_ceiling_class": official["score_ceiling_class"],
+                "discriminant_log_ratio": official["discriminant_log_ratio"],
+                "candidate_improves_current_best": official["candidate_improves_current_best"],
+                "baseline_pair": baseline_pair,
                 "label_in_avoid_basin": label in avoid_labels,
                 "minimum_disc_abs": global_minimum_disc_abs,
             }
@@ -325,11 +358,15 @@ def rank_r_buckets(target_rows: list[dict[str, Any]], coverage_rows: list[dict[s
     by_r: dict[int, dict[str, Any]] = {int(row["r"]): dict(row) for row in coverage_rows}
     counts: dict[int, Counter[str]] = defaultdict(Counter)
     point_sum: Counter[int] = Counter()
+    maximum_points_sum: Counter[int] = Counter()
+    expected_points_sum: Counter[int] = Counter()
     top_target: dict[int, dict[str, Any]] = {}
     for row in target_rows:
         r_value = int(row["r"])
         counts[r_value][str(row["category"])] += 1
         point_sum[r_value] += float(row.get("score_snapshot_points_numeric") or 0.0)
+        maximum_points_sum[r_value] += float(row.get("maximum_possible_points") or 0.0)
+        expected_points_sum[r_value] += float(row.get("estimated_expected_points") or 0.0)
         if r_value not in top_target or row["target_score"] > top_target[r_value]["target_score"]:
             top_target[r_value] = row
     ranked: list[dict[str, Any]] = []
@@ -340,6 +377,7 @@ def rank_r_buckets(target_rows: list[dict[str, Any]], coverage_rows: list[dict[s
         score += counts[r_value]["lightly_solved_signature"] * 0.008
         score += counts[r_value]["moderately_solved_signature"] * 0.004
         score += point_sum[r_value] * 100000.0
+        score += min(maximum_points_sum[r_value] * 300.0, 900.0)
         ranked.append(
             {
                 "r": r_value,
@@ -350,8 +388,12 @@ def rank_r_buckets(target_rows: list[dict[str, Any]], coverage_rows: list[dict[s
                 "discovered_pct": coverage.get("discovered_pct"),
                 "category_counts": dict(counts[r_value]),
                 "score_snapshot_points_total": round(float(point_sum[r_value]), 6),
+                "official_maximum_possible_points_total": round(float(maximum_points_sum[r_value]), 6),
+                "official_estimated_expected_points_total": round(float(expected_points_sum[r_value]), 6),
                 "top_pair": top_target.get(r_value, {}).get("pair_key"),
                 "top_pair_score": top_target.get(r_value, {}).get("target_score"),
+                "top_pair_maximum_possible_points": top_target.get(r_value, {}).get("maximum_possible_points"),
+                "top_pair_score_ceiling_class": top_target.get(r_value, {}).get("score_ceiling_class"),
             }
         )
     return sorted(ranked, key=lambda row: row["priority_score"], reverse=True)
@@ -523,6 +565,25 @@ def build_plan(
     )
     ranked_targets = sorted(target_rows, key=lambda row: (row["target_score"], -int(row["t"])), reverse=True)
     bucket_priorities = rank_r_buckets(target_rows, coverage_rows)
+    score_economics_summary = {
+        "maximum_possible_points_total": round(
+            sum(float(row.get("maximum_possible_points") or 0.0) for row in target_rows),
+            6,
+        ),
+        "estimated_expected_points_total": round(
+            sum(float(row.get("estimated_expected_points") or 0.0) for row in target_rows),
+            6,
+        ),
+        "ceiling_class_counts": dict(
+            Counter(str(row.get("score_ceiling_class") or "unknown") for row in target_rows)
+        ),
+        "uncovered_one_point_pair_count": sum(
+            1 for row in target_rows if row.get("score_ceiling_class") == "uncovered_first_team_one_point"
+        ),
+        "crowded_near_zero_pair_count": sum(
+            1 for row in target_rows if row.get("score_ceiling_class") == "crowded_near_zero_ceiling"
+        ),
+    }
     lanes = build_lane_recommendations(
         score_snapshot=score_snapshot,
         basin_summary=basin_summary,
@@ -579,6 +640,7 @@ def build_plan(
             "api_key_recorded": False,
         },
         "coverage_by_r": coverage_rows,
+        "score_economics_summary": score_economics_summary,
         "r_bucket_priorities": bucket_priorities,
         "ranked_targets": ranked_targets[:top_limit],
         "top_uncovered_targets": [row for row in ranked_targets if row["category"] == "uncovered_signature"][:50],
@@ -626,11 +688,14 @@ def build_markdown(plan: dict[str, Any]) -> str:
         f"- Submission state complete: `{plan['inputs'].get('sync_submission_state_complete')}`",
         f"- Sync failing endpoint: `{plan['inputs'].get('sync_failing_endpoint')}`",
         f"- Basin constraints: {plan['inputs'].get('anti_basin_constraint_count')}",
+        f"- Official score ceiling total over scanned pairs: {plan['score_economics_summary'].get('maximum_possible_points_total')}",
+        f"- Uncovered one-point pairs: {plan['score_economics_summary'].get('uncovered_one_point_pair_count')}",
+        f"- Crowded near-zero pairs: {plan['score_economics_summary'].get('crowded_near_zero_pair_count')}",
         "",
         "## Priority r Buckets",
         "",
-        "| rank | r | priority | remaining | category counts | top pair |",
-        "| ---: | ---: | ---: | ---: | --- | --- |",
+        "| rank | r | priority | remaining | max points total | est points total | category counts | top pair |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for rank, row in enumerate(plan["r_bucket_priorities"][:10], start=1):
         lines.append(
@@ -641,6 +706,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
                     str(row["r"]),
                     f"{float(row['priority_score']):.2f}",
                     str(row["remaining"]),
+                    str(row.get("official_maximum_possible_points_total")),
+                    str(row.get("official_estimated_expected_points_total")),
                     json.dumps(row["category_counts"], sort_keys=True),
                     str(row.get("top_pair")),
                 ]
@@ -652,8 +719,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
             "",
             "## Top Uncovered Targets",
             "",
-            "| rank | pair | score | label teams | signature teams | remaining on label |",
-            "| ---: | --- | ---: | ---: | ---: | ---: |",
+            "| rank | pair | score | max points | est points | label teams | signature teams | remaining on label |",
+            "| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     for rank, row in enumerate(plan["top_uncovered_targets"][:15], start=1):
@@ -664,6 +731,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
                     str(rank),
                     row["pair_key"],
                     f"{float(row['target_score']):.2f}",
+                    str(row.get("maximum_possible_points")),
+                    str(row.get("estimated_expected_points")),
                     str(row["label_team_count"]),
                     str(row["signature_team_count"]),
                     str(row["label_remaining_signature_count"]),
@@ -676,8 +745,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
             "",
             "## Score Follow-Up Targets",
             "",
-            "| rank | pair | points | solved teams | source score | category |",
-            "| ---: | --- | ---: | ---: | ---: | --- |",
+            "| rank | pair | points | solved teams | max points | est points | basis | source score | category |",
+            "| ---: | --- | ---: | ---: | ---: | ---: | --- | ---: | --- |",
         ]
     )
     for rank, row in enumerate(plan["top_score_followup_targets"][:10], start=1):
@@ -689,6 +758,9 @@ def build_markdown(plan: dict[str, Any]) -> str:
                     row["pair_key"],
                     str(row.get("score_snapshot_points")),
                     str(row.get("score_snapshot_solved_teams")),
+                    str(row.get("maximum_possible_points")),
+                    str(row.get("estimated_expected_points")),
+                    str(row.get("estimated_points_basis")),
                     f"{float(row['target_score']):.2f}",
                     row["category"],
                 ]
@@ -700,8 +772,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
             "",
             "## API Scoreable Targets",
             "",
-            "| rank | pair | status | field disc | global min | log10 delta | submission |",
-            "| ---: | --- | --- | ---: | ---: | ---: | --- |",
+            "| rank | pair | status | field disc | global min | score est | log ratio | submission |",
+            "| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for rank, row in enumerate(plan["top_api_scoreable_targets"][:10], start=1):
@@ -714,7 +786,8 @@ def build_markdown(plan: dict[str, Any]) -> str:
                     str(row.get("api_scoring_status")),
                     str(row.get("api_field_disc_abs")),
                     str(row.get("api_global_minimum_disc_abs")),
-                    str(row.get("api_field_vs_global_min_log10_delta")),
+                    str(row.get("estimated_expected_points")),
+                    str(row.get("discriminant_log_ratio")),
                     str(row.get("api_submission_id")),
                 ]
             )
@@ -801,6 +874,7 @@ def write_outputs(plan: dict[str, Any], output_dir: Path) -> dict[str, Path]:
         "created_at": plan["created_at"],
         "input_snapshot": plan["input_snapshot"],
         "inputs": plan["inputs"],
+        "score_economics_summary": plan["score_economics_summary"],
         "top_r_buckets": plan["r_bucket_priorities"][:8],
         "top_uncovered_targets": plan["top_uncovered_targets"][:12],
         "top_score_followup_targets": plan["top_score_followup_targets"][:8],

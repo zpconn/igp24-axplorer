@@ -19,6 +19,13 @@ from src.igp24.group_compatibility import (
     cycle_type_key,
     validate_historical_containment,
 )
+from src.igp24.scoring import (
+    discriminant_log_ratio,
+    maximum_possible_points,
+    official_score_economics,
+    prospective_team_count,
+    team_score_multiplier,
+)
 
 __all__ = [
     "DEGREE",
@@ -30,9 +37,14 @@ __all__ = [
     "canonicalize_under_translations",
     "construct_polynomial",
     "cycle_type_key",
+    "discriminant_log_ratio",
     "export_coefficients",
+    "maximum_possible_points",
+    "official_score_economics",
+    "prospective_team_count",
     "score_candidate",
     "stable_canonical_hash",
+    "team_score_multiplier",
     "translate_coefficients",
     "validate_coefficients",
     "validate_historical_containment",

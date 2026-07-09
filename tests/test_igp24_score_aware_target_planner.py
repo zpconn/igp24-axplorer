@@ -141,14 +141,25 @@ def test_score_aware_target_plan_joins_scores_progress_and_basins():
     )
 
     assert plan["top_uncovered_targets"][0]["pair_key"] == "24T1|r=24"
+    assert plan["top_uncovered_targets"][0]["maximum_possible_points"] == 1.0
+    assert plan["top_uncovered_targets"][0]["estimated_expected_points"] == 1.0
+    assert plan["top_uncovered_targets"][0]["score_ceiling_class"] == "uncovered_first_team_one_point"
     assert plan["top_score_followup_targets"][0]["pair_key"] == "24T9993|r=8"
     assert plan["top_score_followup_targets"][0]["category"] == "scored_pair_followup"
-    assert plan["r_bucket_priorities"][0]["r"] == 8
+    assert plan["top_score_followup_targets"][0]["maximum_possible_points"] == 0.001953125
+    assert plan["top_score_followup_targets"][0]["estimated_expected_points"] == 0.0019
+    assert plan["top_score_followup_targets"][0]["estimated_points_basis"] == "observed_score_snapshot_points"
+    assert plan["r_bucket_priorities"][0]["r"] == 24
+    assert plan["r_bucket_priorities"][0]["official_maximum_possible_points_total"] == 1.0
     assert plan["lane_recommendations"][0]["lane"] == "r8_quartic_lift_score_followup"
     assert plan["lane_recommendations"][0]["recommended_for_submission_now"] is False
     collapsed = next(row for row in plan["ranked_targets"] if row["pair_key"] == "24T24932|r=24")
     assert collapsed["label_in_avoid_basin"] is True
+    assert collapsed["score_ceiling_class"] == "crowded_near_zero_ceiling"
+    assert collapsed["maximum_possible_points"] < 0.000001
     assert collapsed["target_score"] < plan["top_score_followup_targets"][0]["target_score"]
+    assert plan["score_economics_summary"]["uncovered_one_point_pair_count"] == 2
+    assert plan["score_economics_summary"]["crowded_near_zero_pair_count"] == 1
     assert plan["decision"]["gpu_training_recommended_now"] is False
     assert plan["decision"]["submission_recommended_now"] is False
 
@@ -204,6 +215,8 @@ def test_score_aware_target_plan_prefers_api_sync_state_over_manual_scores():
     assert plan["top_api_scoreable_targets"][0]["score_snapshot_points"] == "0.0019"
     assert plan["top_api_scoreable_targets"][0]["api_field_disc_abs"] == "900"
     assert plan["top_api_scoreable_targets"][0]["api_field_vs_global_min_log10_delta"] is not None
+    assert plan["top_api_scoreable_targets"][0]["estimated_points_basis"] == "candidate_vs_current_best_discriminant"
+    assert plan["top_api_scoreable_targets"][0]["estimated_expected_points"] < plan["top_api_scoreable_targets"][0]["maximum_possible_points"]
     assert not plan["top_score_followup_targets"]
     assert any(lane["lane"] == "api_scoreable_discriminant_review" for lane in plan["lane_recommendations"])
 
@@ -233,7 +246,9 @@ def test_score_aware_target_outputs_round_trip(tmp_path):
     lanes = json.loads(paths["lanes_json"].read_text(encoding="utf-8"))
 
     assert summary["decision"]["recommended_next_lane"]["lane"] == "r8_quartic_lift_score_followup"
+    assert "score_economics_summary" in summary
     assert ranked_rows[0]["category"] in {"uncovered_signature", "scored_pair_followup"}
+    assert "maximum_possible_points" in ranked_rows[0]
     assert lanes[0]["source_pair"] == "24T9993|r=8"
     assert "IGP24 Score-Aware Target Plan" in paths["report_md"].read_text(encoding="utf-8")
 
