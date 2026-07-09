@@ -1,0 +1,23 @@
+{
+  "excluded_hash_records_skipped": {
+    "r12": 10313,
+    "r8": 11360
+  },
+  "hash_exclusion_jsonl": "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
+  "model_version": "AXG-1.10",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl.summary.json",
+    "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl.summary.json"
+  ],
+  "schema_version": 1,
+  "score_summaries": [
+    "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+    "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json"
+  ],
+  "status": "held_no_submission",
+  "target_survivors": {
+    "r12": 0,
+    "r8": 1
+  }
+}

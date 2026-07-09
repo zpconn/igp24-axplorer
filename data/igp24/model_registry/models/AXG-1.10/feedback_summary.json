@@ -1,0 +1,10 @@
+{
+  "model_version": "AXG-1.10",
+  "notes": [
+    "No AXG-1.10 rows submitted. Hash exclusion worked, but sparse-mode diversity and target-r yield remain too low."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "schema_version": 1,
+  "status": "needs_generator_diversity_before_submission"
+}

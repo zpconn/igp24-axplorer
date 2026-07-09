@@ -232,6 +232,10 @@ def summarize_sample_export(path: Path) -> dict[str, Any]:
         "sample_export_require_support_gcd_one": bool(dedup.get("require_support_gcd_one", False)),
         "sample_export_required_support_patterns": dedup.get("required_support_patterns", []),
         "sample_export_excluded_support_patterns": dedup.get("excluded_support_patterns", []),
+        "sample_export_excluded_hashes_path": dedup.get("excluded_hashes_path"),
+        "sample_export_excluded_hashes_loaded": dedup.get("excluded_hashes_loaded", 0),
+        "sample_export_excluded_hash_records_skipped": dedup.get("excluded_hash_records_skipped", 0),
+        "sample_export_seed_bank_excluded_hash_skipped": dedup.get("seed_bank_excluded_hash_records_skipped", 0),
         "sample_export_family_cap": dedup.get("family_cap"),
         "sample_export_basin_fingerprint_cap": dedup.get("basin_fingerprint_cap"),
         "sample_export_dedup_enabled": bool(dedup.get("deduplication_enabled", False)),
@@ -1188,6 +1192,7 @@ def build_sample_export_target_r_conditioned_command(
     require_support_gcd_one: bool = False,
     required_support_patterns: str = "",
     excluded_support_patterns: str = "",
+    excluded_hashes_jsonl: str = "",
     family_cap: int = 0,
     basin_fingerprint_cap: int = 0,
 ) -> dict[str, Any]:
@@ -1288,6 +1293,8 @@ def build_sample_export_target_r_conditioned_command(
         str(required_support_patterns),
         "--sample_export_excluded_support_patterns",
         str(excluded_support_patterns),
+        "--sample_export_excluded_hashes_jsonl",
+        str(excluded_hashes_jsonl),
         "--sample_export_family_cap",
         str(int(family_cap)),
         "--sample_export_basin_fingerprint_cap",
@@ -1336,6 +1343,7 @@ def build_sample_export_target_r_conditioned_command(
                 or require_support_gcd_one
                 or bool(str(required_support_patterns))
                 or bool(str(excluded_support_patterns))
+                or bool(str(excluded_hashes_jsonl))
                 or int(family_cap) > 0
                 or int(basin_fingerprint_cap) > 0
             ),
@@ -1343,6 +1351,7 @@ def build_sample_export_target_r_conditioned_command(
             "sample_export_require_support_gcd_one": bool(require_support_gcd_one),
             "sample_export_required_support_patterns": str(required_support_patterns),
             "sample_export_excluded_support_patterns": str(excluded_support_patterns),
+            "sample_export_excluded_hashes_jsonl": str(excluded_hashes_jsonl),
             "sample_export_family_cap": int(family_cap),
             "sample_export_basin_fingerprint_cap": int(basin_fingerprint_cap),
             "seed": int(seed_text),
@@ -1829,6 +1838,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="comma-separated support_pattern block-list for sample_export_target_r_conditioned",
     )
     parser.add_argument(
+        "--target_r_conditioned_excluded_hashes_jsonl",
+        default="",
+        help="optional JSONL/text file of accepted/canonical hashes to skip in sample_export_target_r_conditioned",
+    )
+    parser.add_argument(
         "--target_r_conditioned_family_cap",
         type=int,
         default=0,
@@ -1886,6 +1900,9 @@ def main() -> int:
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_excluded_support_patterns": args.target_r_conditioned_excluded_support_patterns
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_excluded_hashes_jsonl": args.target_r_conditioned_excluded_hashes_jsonl
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_family_cap": args.target_r_conditioned_family_cap
@@ -1987,6 +2004,7 @@ def main() -> int:
                 require_support_gcd_one=bool(args.target_r_conditioned_require_support_gcd_one),
                 required_support_patterns=str(args.target_r_conditioned_required_support_patterns),
                 excluded_support_patterns=str(args.target_r_conditioned_excluded_support_patterns),
+                excluded_hashes_jsonl=str(args.target_r_conditioned_excluded_hashes_jsonl),
                 family_cap=int(args.target_r_conditioned_family_cap),
                 basin_fingerprint_cap=int(args.target_r_conditioned_basin_fingerprint_cap),
             )

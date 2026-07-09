@@ -1,0 +1,62 @@
+{
+  "attempt_budget": 8192,
+  "attempted_samples": 8192,
+  "avoid_even_support_like": true,
+  "basin_fingerprint_cap": 3,
+  "dataset_update_avoided": true,
+  "decoded_attempts": 3219,
+  "decoded_records": 3,
+  "deduplication_enabled": true,
+  "deduplication_key_type": "decoded_coefficients",
+  "duplicate_decoded_records_skipped": 0,
+  "encoding_tokens": "decimal_coefficients",
+  "excluded_support_patterns": [
+    "dense_mixed_support_gcd1",
+    "medium_mixed_support_gcd1"
+  ],
+  "export_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg19_sparse_escape_20260709/r16_sparse_cuda/gpu_model_sample_export_target_r16_conditioned.jsonl",
+  "exported_basin_fingerprint_counts": {
+    "25659c37471648e8ae0d0664": 1,
+    "9d96d2a84887086324c7ac4b": 1,
+    "eb4016212231777077160bbe": 1
+  },
+  "exported_template_family_counts": {
+    "model:sparse:r16:sparse_mixed_support_gcd1": 3
+  },
+  "family_cap": 8,
+  "invalid_decode_attempts": 4973,
+  "invalid_decode_records": 4973,
+  "local_search_avoided": true,
+  "model_target_r_conditioning_mode": "control_token",
+  "progress_interval": 128,
+  "provenance_controls_enabled": true,
+  "provenance_skip_counts": {
+    "even_support_like": 333,
+    "excluded_support_pattern": 2883,
+    "required_support_pattern_mismatch": 3216,
+    "support_gcd_not_one": 333
+  },
+  "records_written": 4976,
+  "requested_samples": 8192,
+  "require_support_gcd_one": true,
+  "required_support_patterns": [
+    "sparse_mixed_support_gcd1"
+  ],
+  "sample_export_target_r_conditioning_mode": "control_token",
+  "scoring_avoided": true,
+  "seed_bank_duplicate_decoded_records_skipped": 0,
+  "seed_bank_enabled": false,
+  "seed_bank_invalid_rows_skipped": 0,
+  "seed_bank_limit": 0,
+  "seed_bank_max_coefficient_height": null,
+  "seed_bank_path": null,
+  "seed_bank_records_written": 0,
+  "seed_bank_rows_matching_target_r": 0,
+  "seed_bank_source_rows_read": 0,
+  "seed_bank_target_r": 16,
+  "stop_reason": "attempt_budget_exhausted",
+  "summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg19_sparse_escape_20260709/r16_sparse_cuda/gpu_model_sample_export_target_r16_conditioned.jsonl.summary.json",
+  "target_r": 16,
+  "unique_decoded_coefficients": 3,
+  "unique_target": 128
+}

@@ -1,0 +1,100 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T19:15:18.600175+00:00",
+  "description": "Hash-exclusion active-learning iteration after AXG-1.9 rediscovered accepted sparse rows",
+  "device_gpu_info": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 88.0,
+    "status": "used"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "bdeb14cdea7a77b446597a92952489f32e54ea3d",
+  "known_limitations": [
+    "AXG-1 is initially a registry and dry-run scaffold, not a completed long training run.",
+    "GPU samples must pass CPU filters and basin gates before any submission review."
+  ],
+  "model_version": "AXG-1.10",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.9",
+  "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "gpu_summary": "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/gpu_sampler_probe_summary.json",
+      "run_id": "axg110_r8_sparse_hash_exclusion_20260709",
+      "score_summary": "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+      "target_r": 8
+    },
+    {
+      "gpu_summary": "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/gpu_sampler_probe_summary.json",
+      "run_id": "axg110_r12_sparse_hash_exclusion_20260709",
+      "score_summary": "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+      "target_r": 12
+    },
+    {
+      "proposal_summary": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_20260709/proposal_loop_summary.json",
+      "run_id": "axg110_hash_exclusion_spillover_gate_20260709"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "No AXG-1.10 packet passed gates; no live submission was made.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl.summary.json",
+    "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl.summary.json"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": null,
+    "recommended_template": [
+      "python3",
+      "scripts/igp24_gpu_sampler_probe.py",
+      "--probe_mode",
+      "sample_export_split_dedup"
+    ],
+    "status": "not_started"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl",
+    "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 667.737,
+    "status": "completed_bounded"
+  },
+  "updated_at": "2026-07-09T19:31:54.313208+00:00",
+  "validation_metrics": {
+    "r12_excluded_hash_records_skipped": 10313,
+    "r12_gate_decision": "hold_no_submission",
+    "r12_target_survivors": 0,
+    "r8_excluded_hash_records_skipped": 11360,
+    "r8_gate_decision": "hold_no_submission",
+    "r8_target_survivors": 1,
+    "spillover_gate_decision": "hold_no_submission",
+    "spillover_gate_reason": "selected_rows_do_not_have_min_perturbation_mode_count_2",
+    "status": "held_no_submission"
+  }
+}

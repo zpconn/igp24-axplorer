@@ -254,6 +254,45 @@ results change.
   AXG-1.8 feedback and run sparse-support model export for high-real targets,
   requiring `sparse_mixed_support_gcd1` and excluding dense/medium mixed
   support rows before CPU scoring.
+- AXG-1.9 dataset/registry checkpoint: rebuilt
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl`
+  from recent AXG14-18 scored exports, 187 accepted-feedback rows, and the
+  post-submit SAIR sync with 224 resolved submission rows. Dataset has 708
+  rows: 567 `accepted_duplicate_collapsed_basin`, 8
+  `accepted_useful_score_positive`, 8 `accepted_useful_or_unknown`, 36
+  `exact_local_valid`, 4 `locally_invalid`, and 85 wrong-r rows. Registered
+  `AXG-1.9` as child of `AXG-1.8` with description "Sparse-support escape
+  iteration after AXG-1.8 fixed-sparse 24T25000 collapse". Next in progress:
+  bounded CUDA sparse-support target-r export, starting with r16 and requiring
+  `sparse_mixed_support_gcd1` before CPU scoring or proposal gating.
+- AXG-1.9/AXG-1.10 sparse hash-memory checkpoint: AXG-1.9 sparse-support
+  CUDA runs proved the dense/medium fixed-sparse hard stop was working, but
+  r16 produced only r4 spillover and the r8 sparse target-r survivors were all
+  accepted-hash duplicates. Added export-time external hash exclusion via
+  `--sample_export_excluded_hashes_jsonl` and the GPU-probe wrapper flag
+  `--target_r_conditioned_excluded_hashes_jsonl`; focused validation passed
+  with `python3 -m py_compile train.py src/evaluator.py
+  scripts/igp24_gpu_sampler_probe.py` and
+  `/home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_sample_export.py tests/test_igp24_gpu_sampler_probe.py`
+  (`40 passed`). Built
+  `data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl` with
+  1,515 known canonical/coefficient hashes from active-learning rows,
+  accepted feedback, synced SAIR submission rows, and scored exports.
+  Registered `AXG-1.10` as child of `AXG-1.9` for the hash-exclusion
+  iteration. Escalated CUDA was required because sandboxed runs cannot access
+  NVML/PyTorch CUDA; host GPU runs on the RTX 5090 succeeded. AXG-1.10 r8
+  hash-exclusion run used 16,384 attempts, skipped 11,360 excluded hashes,
+  decoded 12 unique rows, scored 5 valid rows, and found one fresh r8 survivor;
+  normal gate held with one selected row and advisory loose-basin/mod-p hits.
+  AXG-1.10 r12 hash-exclusion run used 16,384 attempts, skipped 10,313
+  excluded hashes, decoded 3 unique rows, scored 3 valid rows, but found no
+  r12 survivors. Combined r0/r4/r6/r8 spillover gate selected 4 rows with no
+  fatal risk but held because all selected rows were still the same
+  `sparse_mixed_support_gcd1` perturbation mode. No SAIR submission was made;
+  the active score-improvement goal remains incomplete. Next move: add a
+  genuinely different sparse submode/support generator or perturbation-mode
+  discriminator before spending another submission packet.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

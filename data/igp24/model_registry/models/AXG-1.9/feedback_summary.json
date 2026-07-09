@@ -1,0 +1,10 @@
+{
+  "model_version": "AXG-1.9",
+  "notes": [
+    "No AXG-1.9 rows submitted; failure mode was rediscovery of known accepted hashes and off-target spillover."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "schema_version": 1,
+  "status": "negative_feedback_ingested_for_next_iteration"
+}

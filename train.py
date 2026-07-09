@@ -173,6 +173,12 @@ def get_parser():
         help="optional comma-separated support_pattern block-list for decoded export rows",
     )
     parser.add_argument(
+        "--sample_export_excluded_hashes_jsonl",
+        type=str,
+        default="",
+        help="optional JSONL/text file of canonical/coefficient hashes to skip during sample export",
+    )
+    parser.add_argument(
         "--sample_export_family_cap",
         type=int,
         default=0,

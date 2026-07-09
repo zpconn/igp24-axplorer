@@ -1,0 +1,194 @@
+{
+  "created_for": "AXG-2.0",
+  "field_counts": {
+    "canonical_hash": 6760,
+    "coefficient_hash": 433,
+    "decoded_hash": 433,
+    "features.canonical_hash": 708,
+    "features.coefficient_hash": 297,
+    "features.decoded_hash": 297,
+    "generation_metadata.coefficient_hash": 433,
+    "generation_metadata.decoded_hash": 433
+  },
+  "output_jsonl": "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
+  "record_type": "igp24_axg_hash_exclusion_summary",
+  "schema_version": 1,
+  "source_file_count": 85,
+  "source_files": [
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl",
+    "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+    "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+    "data/igp24/axg13_diversity_20260708/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg14_provenance_20260708/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg15_fullstack_20260709/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg16_conditioned_20260709/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg16_conditioned_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+    "data/igp24/axg16_conditioned_20260709/sair_sync_after_submit_poll2/sair_submission_rows.jsonl",
+    "data/igp24/axg17_score_aware_20260709/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+    "data/igp24/axg18_escape_20260709/post_submit_sync/sair_submission_rows.jsonl",
+    "data/igp24/axg18_escape_20260709/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/escape_lane_scout_20260709/sair_sync/sair_submission_rows.jsonl",
+    "data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry/sair_submission_rows.jsonl",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_retry/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_20260707/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_20260708_r8_followup/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_20260708_r8_followup_after_submit/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_20260708_retry_partial/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_20260709_r16_refinement_after_submit_retry/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_basin_gate_20260707/sair_submission_rows.jsonl",
+    "data/igp24/sair_sync_partial_20260707/sair_submission_rows.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r12/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r16/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r20/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg11_target_r_seeded_20260707/r24/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r12/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r16/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r20/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg12_target_r_conditioned_20260707/r24/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg13_diversity_20260708/r12/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg13_diversity_20260708/r16/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg13_diversity_20260708/r20/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg13_diversity_20260708/r24/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg14_provenance_20260708/r12/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg14_provenance_20260708/r16_corrected/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg14_provenance_20260708/r20/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg14_provenance_20260708/r24/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r16_cuda_v2/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r16_cuda_v2/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r20_cuda/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r20_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r24_cuda/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r24_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg16_conditioned_20260709/r12_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg16_conditioned_20260709/r16_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg16_conditioned_20260709/r20_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg16_conditioned_20260709/r24_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg17_score_aware_20260709/r12_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg17_score_aware_20260709/r16_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg17_score_aware_20260709/r20_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg17_score_aware_20260709/r24_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg18_escape_20260709/r16_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg18_escape_20260709/r20_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg18_escape_20260709/r24_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg19_sparse_escape_20260709/r16_sparse_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg19_sparse_escape_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg_gpu_tiny_20260707/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/r24_r16_high_real_refinement_20260708/r16/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/r24_r16_high_real_refinement_20260708/r24/cpu_scored_samples/scored_samples.jsonl",
+    "data/igp24/pair_status_20260706.json"
+  ],
+  "source_patterns": [
+    "active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl",
+    "**/*accepted_feedback*.json",
+    "**/sair_submission_rows.jsonl",
+    "**/scored_samples.jsonl",
+    "pair_status_20260706.json"
+  ],
+  "top_source_counts": [
+    [
+      "data/igp24/active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl",
+      2010
+    ],
+    [
+      "data/igp24/axg_gpu_tiny_20260707/cpu_scored_samples/scored_samples.jsonl",
+      256
+    ],
+    [
+      "data/igp24/axg18_escape_20260709/post_submit_sync/sair_submission_rows.jsonl",
+      224
+    ],
+    [
+      "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+      221
+    ],
+    [
+      "data/igp24/axg18_escape_20260709/sair_sync/sair_submission_rows.jsonl",
+      221
+    ],
+    [
+      "data/igp24/r24_r16_high_real_refinement_20260708/r24/cpu_scored_samples/scored_samples.jsonl",
+      220
+    ],
+    [
+      "data/igp24/axg16_conditioned_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+      215
+    ],
+    [
+      "data/igp24/axg16_conditioned_20260709/sair_sync_after_submit_poll2/sair_submission_rows.jsonl",
+      215
+    ],
+    [
+      "data/igp24/axg17_score_aware_20260709/sair_sync/sair_submission_rows.jsonl",
+      215
+    ],
+    [
+      "data/igp24/axg15_fullstack_20260709/sair_sync/sair_submission_rows.jsonl",
+      208
+    ],
+    [
+      "data/igp24/axg16_conditioned_20260709/sair_sync/sair_submission_rows.jsonl",
+      208
+    ],
+    [
+      "data/igp24/escape_lane_scout_20260709/sair_sync/sair_submission_rows.jsonl",
+      208
+    ],
+    [
+      "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+      208
+    ],
+    [
+      "data/igp24/axg14_provenance_20260708/r16_corrected/cpu_scored_samples/scored_samples.jsonl",
+      200
+    ],
+    [
+      "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_retry/sair_submission_rows.jsonl",
+      197
+    ],
+    [
+      "data/igp24/axg14_provenance_20260708/r24/cpu_scored_samples/scored_samples.jsonl",
+      195
+    ],
+    [
+      "data/igp24/sair_sync_20260708_r8_followup_after_submit/sair_submission_rows.jsonl",
+      193
+    ],
+    [
+      "data/igp24/sair_sync_20260708_r8_followup/sair_submission_rows.jsonl",
+      189
+    ],
+    [
+      "data/igp24/pair_status_20260706.json",
+      188
+    ],
+    [
+      "data/igp24/axg13_diversity_20260708/sair_sync/sair_submission_rows.jsonl",
+      185
+    ]
+  ],
+  "unique_hashes": 1515
+}

@@ -238,6 +238,78 @@ def _parse_csv_set(value: Any) -> set[str]:
     return {item.strip() for item in str(value or "").split(",") if item.strip()}
 
 
+def _record_hash_values(record: dict[str, Any]) -> set[str]:
+    hashes: set[str] = set()
+    for container in (
+        record,
+        record.get("generation_metadata") if isinstance(record.get("generation_metadata"), dict) else {},
+        record.get("sample_provenance") if isinstance(record.get("sample_provenance"), dict) else {},
+        record.get("source_sample_export") if isinstance(record.get("source_sample_export"), dict) else {},
+    ):
+        if not isinstance(container, dict):
+            continue
+        for key in ("canonical_hash", "coefficient_hash", "decoded_hash", "exported_coefficient_hash"):
+            value = container.get(key)
+            if isinstance(value, str) and value.strip():
+                hashes.add(value.strip())
+    return hashes
+
+
+def _decoded_hash_values(decoded_coefficients: list[int] | None, provenance: dict[str, Any] | None = None) -> set[str]:
+    hashes: set[str] = set()
+    if decoded_coefficients is None:
+        return hashes
+    if isinstance(provenance, dict):
+        hashes.update(_record_hash_values(provenance))
+    hashes.add(_json_hash({"degree": 24, "coefficients": decoded_coefficients}))
+    try:
+        from src.igp24.polynomial import stable_canonical_hash
+
+        hashes.add(stable_canonical_hash(decoded_coefficients))
+    except Exception:
+        pass
+    return {value for value in hashes if value}
+
+
+def _load_excluded_hashes(path_text: str | None) -> tuple[set[str], dict[str, Any]]:
+    path_text = str(path_text or "").strip()
+    stats: dict[str, Any] = {
+        "excluded_hashes_enabled": bool(path_text),
+        "excluded_hashes_path": path_text or None,
+        "excluded_hashes_source_rows_read": 0,
+        "excluded_hashes_loaded": 0,
+        "excluded_hashes_invalid_rows_skipped": 0,
+    }
+    if not path_text:
+        return set(), stats
+
+    path = Path(path_text)
+    if not path.exists():
+        raise FileNotFoundError(f"sample export excluded hashes file does not exist: {path}")
+
+    hashes: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        stats["excluded_hashes_source_rows_read"] += 1
+        if line.startswith("{"):
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                stats["excluded_hashes_invalid_rows_skipped"] += 1
+                continue
+            if isinstance(record, dict):
+                hashes.update(_record_hash_values(record))
+                decoded = _decoded_coefficients_from_record(record)
+                if decoded is not None:
+                    hashes.update(_decoded_hash_values(decoded))
+        else:
+            hashes.add(line)
+    stats["excluded_hashes_loaded"] = len(hashes)
+    return hashes, stats
+
+
 def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, Any]:
     if decoded_coefficients is None:
         return {
@@ -391,6 +463,7 @@ def _write_seed_bank_export_records(
     seen_decoded_coefficients: dict[tuple[int, ...], int],
     records_written: int,
     dedup_enabled: bool,
+    excluded_hashes: set[str] | None = None,
 ) -> tuple[int, dict[str, Any]]:
     seed_bank_path_text = str(getattr(args, "sample_export_seed_bank_jsonl", "") or "").strip()
     seed_limit = int(getattr(args, "sample_export_seed_bank_limit", 0) or 0)
@@ -407,6 +480,7 @@ def _write_seed_bank_export_records(
         "seed_bank_rows_matching_target_r": 0,
         "seed_bank_records_written": 0,
         "seed_bank_duplicate_decoded_records_skipped": 0,
+        "seed_bank_excluded_hash_records_skipped": 0,
         "seed_bank_invalid_rows_skipped": 0,
         "seed_bank_max_coefficient_height": None,
     }
@@ -440,6 +514,10 @@ def _write_seed_bank_export_records(
             decoded_coefficients = _decoded_coefficients_from_record(source_record)
             if decoded_coefficients is None:
                 stats["seed_bank_invalid_rows_skipped"] += 1
+                continue
+            row_hashes = _record_hash_values(source_record) | _decoded_hash_values(decoded_coefficients)
+            if excluded_hashes and row_hashes.intersection(excluded_hashes):
+                stats["seed_bank_excluded_hash_records_skipped"] += 1
                 continue
             decoded_key = tuple(decoded_coefficients)
             if decoded_key in seen_decoded_coefficients:
@@ -638,6 +716,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
     required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
     excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
+    excluded_hashes, excluded_hash_stats = _load_excluded_hashes(getattr(args, "sample_export_excluded_hashes_jsonl", ""))
     family_cap = int(getattr(args, "sample_export_family_cap", 0) or 0)
     basin_fingerprint_cap = int(getattr(args, "sample_export_basin_fingerprint_cap", 0) or 0)
     provenance_controls_enabled = (
@@ -645,6 +724,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         or require_support_gcd_one
         or bool(required_support_patterns)
         or bool(excluded_support_patterns)
+        or bool(excluded_hashes)
         or family_cap > 0
         or basin_fingerprint_cap > 0
     )
@@ -664,6 +744,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     decoded_attempts = 0
     invalid_decode_attempts = 0
     duplicate_decoded_records_skipped = 0
+    excluded_hash_records_skipped = 0
     seen_decoded_coefficients: dict[tuple[int, ...], int] = {}
     exported_family_counts: Counter[str] = Counter()
     exported_basin_fingerprint_counts: Counter[str] = Counter()
@@ -692,6 +773,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
             seen_decoded_coefficients=seen_decoded_coefficients,
             records_written=records_written,
             dedup_enabled=dedup_enabled,
+            excluded_hashes=excluded_hashes,
         )
         batch_index = 0
         while attempted_samples < attempt_budget:
@@ -769,6 +851,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                         skip_reasons.append("required_support_pattern_mismatch")
                     if excluded_support_patterns and support_pattern in excluded_support_patterns:
                         skip_reasons.append("excluded_support_pattern")
+                    if excluded_hashes and _decoded_hash_values(decoded_coefficients, sample_provenance).intersection(excluded_hashes):
+                        skip_reasons.append("excluded_hash")
                     family_id = str(sample_provenance.get("template_family_id") or "unknown")
                     basin_fingerprint = str(sample_provenance.get("basin_fingerprint") or "unknown")
                     if family_cap > 0 and exported_family_counts[family_id] >= family_cap:
@@ -778,6 +862,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     if skip_reasons:
                         for reason in skip_reasons:
                             provenance_skip_counts[reason] += 1
+                        if "excluded_hash" in skip_reasons:
+                            excluded_hash_records_skipped += 1
                         if progress_interval > 0 and attempted_samples % progress_interval == 0:
                             logger.info(
                                 "Export-only provenance skip: attempts=%s/%s reasons=%s written=%s unique_decoded=%s",
@@ -860,11 +946,14 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "unique_target": unique_target,
         "unique_decoded_coefficients": len(seen_decoded_coefficients),
         "duplicate_decoded_records_skipped": duplicate_decoded_records_skipped,
+        "excluded_hash_records_skipped": excluded_hash_records_skipped,
         "provenance_controls_enabled": provenance_controls_enabled,
         "avoid_even_support_like": avoid_even_support_like,
         "require_support_gcd_one": require_support_gcd_one,
         "required_support_patterns": sorted(required_support_patterns),
         "excluded_support_patterns": sorted(excluded_support_patterns),
+        "excluded_hashes_path": excluded_hash_stats.get("excluded_hashes_path"),
+        "excluded_hashes_loaded": excluded_hash_stats.get("excluded_hashes_loaded", 0),
         "family_cap": family_cap,
         "basin_fingerprint_cap": basin_fingerprint_cap,
         "provenance_skip_counts": dict(provenance_skip_counts),
@@ -876,6 +965,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "local_search_avoided": True,
         "dataset_update_avoided": True,
         **seed_bank_stats,
+        **excluded_hash_stats,
     }
     if summary_path is not None:
         summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")

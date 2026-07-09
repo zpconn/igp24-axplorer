@@ -1,0 +1,152 @@
+{
+  "artifacts": {
+    "basin_risk_scores": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/rejected_candidates.jsonl",
+    "report": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r16_sparse_escape_gate_20260709/proposal_loop_summary.json"
+  },
+  "candidate_rows": 3,
+  "candidate_sample_export_source_counts": {
+    "model_generate": 3
+  },
+  "candidate_source_count": 1,
+  "coefficient_lines": 0,
+  "created_at": "2026-07-09T19:02:08.886350+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 3,
+    "min_model_generated_rows": 3,
+    "min_packet_rows": 3,
+    "min_template_family_count": 1,
+    "packet_limit": 6,
+    "per_mode_cap": 3,
+    "per_pattern_cap": 3,
+    "reject_unknown_provenance": true
+  },
+  "dry_run": true,
+  "filtered_rows": 0,
+  "filtered_sample_export_source_counts": {},
+  "model_manifest_description": "Sparse-support escape iteration after AXG-1.8 fixed-sparse 24T25000 collapse",
+  "model_version": "AXG-1.9",
+  "recommendation": {
+    "advisory_risk_count": 0,
+    "fatal_risk_count": 0,
+    "local_recommended_for_sair_packet": false,
+    "min_basin_fingerprint_count": 3,
+    "min_model_generated_rows": 3,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 1,
+    "model_generated_selected_rows": 0,
+    "reason": "only_0_eligible_rows_below_min_3; only_0_model_generated_rows_below_min_3; selected_rows_do_not_have_min_perturbation_mode_count_2; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {},
+    "selected_mod_p_signature_counts": {},
+    "selected_mode_counts": {},
+    "selected_rows": 0,
+    "selected_source_counts": {},
+    "selected_template_family_counts": {},
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_loop_summary",
+  "rejected_rows": 3,
+  "rejection_reason_counts": {
+    "real_root_count_not_target": 3
+  },
+  "risk_reason_counts": {},
+  "run_id": "axg19_r16_sparse_escape_gate_20260709",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync": {
+    "extra_submission_rows_loaded": 0,
+    "extra_submission_status_paths": [],
+    "submission_rows_loaded": 224,
+    "sync_dir": "data/igp24/axg18_escape_20260709/post_submit_sync",
+    "sync_gate": {
+      "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [],
+      "submission_detail_complete": true
+    },
+    "sync_status": {
+      "degraded_mode": false,
+      "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+      "download_complete": true,
+      "error_code": null,
+      "error_message": null,
+      "failed_submission_reads": [],
+      "failing_endpoint": null,
+      "full_submission_state_complete": true,
+      "global_progress_complete": true,
+      "partial_sync": false,
+      "retry_after": null,
+      "submission_detail_complete": true,
+      "submission_detail_failed_count": 0,
+      "submission_detail_success_count": 27,
+      "submission_download_failed_count": 0,
+      "submission_download_success_count": 27,
+      "submission_index_complete": true,
+      "submission_state_complete": true,
+      "submissions_requested": 27
+    }
+  },
+  "schema_version": 1,
+  "score_classification_counts": {},
+  "scored_rows": 0,
+  "selected_rows": 0,
+  "selected_sample_export_source_counts": {},
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {},
+    "candidate_rows_by_source": {
+      "model_generate": 3
+    },
+    "classification_counts_by_source": {},
+    "eligible_rows_by_source": {},
+    "model_generated_eligible_rows": 0,
+    "model_generated_selected_rows": 0,
+    "model_generated_target_r_survivor_rows": 0,
+    "perturbation_mode_counts_by_source": {},
+    "rejected_basin_rows_by_source": {},
+    "risk_reason_counts_by_source": {},
+    "scored_rows_by_source": {},
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {},
+    "target_r_survivor_rows_by_source": {},
+    "template_family_counts_by_source": {}
+  },
+  "source_commit": "bdeb14cdea7a77b446597a92952489f32e54ea3d",
+  "target_rs": [
+    16
+  ]
+}

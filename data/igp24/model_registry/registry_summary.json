@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-07-09T15:24:18.513663+00:00",
-  "model_count": 6,
+  "created_at": "2026-07-09T19:32:30.687525+00:00",
+  "model_count": 11,
   "models": [
     {
       "description": "Baseline GPU proposal generator for IGP24 active learning",
@@ -46,9 +46,49 @@
       "description": "Full-stack SAIR-synced active-learning iteration with fresh AXG GPU training",
       "model_version": "AXG-1.5",
       "parent_version": "AXG-1.4",
-      "run_count": 1,
+      "run_count": 2,
       "submitted_to_sair": false,
       "training_status": "completed"
+    },
+    {
+      "description": "SAIR-refreshed anti-collapse conditioned AXG iteration with stricter diversity caps",
+      "model_version": "AXG-1.6",
+      "parent_version": "AXG-1.5",
+      "run_count": 1,
+      "submitted_to_sair": true,
+      "training_status": "completed"
+    },
+    {
+      "description": "Score-aware anti-collapse iteration trained against AXG-1.6 24T25000 failure",
+      "model_version": "AXG-1.7",
+      "parent_version": "AXG-1.6",
+      "run_count": 1,
+      "submitted_to_sair": false,
+      "training_status": "not_started"
+    },
+    {
+      "description": "High-real escape iteration after AXG-1.7 r8 24T25000 collapse",
+      "model_version": "AXG-1.8",
+      "parent_version": "AXG-1.7",
+      "run_count": 1,
+      "submitted_to_sair": false,
+      "training_status": "not_started"
+    },
+    {
+      "description": "Sparse-support escape iteration after AXG-1.8 fixed-sparse 24T25000 collapse",
+      "model_version": "AXG-1.9",
+      "parent_version": "AXG-1.8",
+      "run_count": 0,
+      "submitted_to_sair": false,
+      "training_status": "completed_bounded"
+    },
+    {
+      "description": "Hash-exclusion active-learning iteration after AXG-1.9 rediscovered accepted sparse rows",
+      "model_version": "AXG-1.10",
+      "parent_version": "AXG-1.9",
+      "run_count": 0,
+      "submitted_to_sair": false,
+      "training_status": "completed_bounded"
     }
   ],
   "record_type": "igp24_axg_registry_summary",

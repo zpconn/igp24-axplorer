@@ -153,6 +153,76 @@ def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
     assert all(not record["safety"]["scored"] for record in records)
 
 
+def test_sample_and_export_skips_external_excluded_hashes(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coefficient):
+            self.coefficients = [coefficient] + [0] * 23
+
+    class DummyTokenizer:
+        def decode(self, row):
+            return DummyDecoded(int(row[0]))
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.values = [1, 2, 3]
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            values = self.values[self.offset : self.offset + batch_size]
+            self.offset += batch_size
+            return torch.tensor([[value] + [0] * (length - 1) for value in values], dtype=torch.long)
+
+    excluded = tmp_path / "excluded_hashes.jsonl"
+    excluded.write_text(json.dumps({"decoded_coefficients": [1] + [0] * 23}) + "\n", encoding="utf-8")
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="excluded_hash_export_test",
+        exp_id="run",
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=3,
+        num_samples_from_model=3,
+        sample_export_dedup=True,
+        sample_export_unique_target=2,
+        sample_export_max_attempts=3,
+        sample_export_progress_interval=1,
+        sample_export_excluded_hashes_jsonl=str(excluded),
+        top_k=-1,
+        igp24_generation_strategy="fixed_sparse_template",
+        igp24_generation_preset="none",
+        target_r=None,
+        sample_export_target_r_conditioning_mode="none",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.1,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["stop_reason"] == "unique_target_reached"
+    assert summary["attempted_samples"] == 3
+    assert summary["records_written"] == 2
+    assert summary["excluded_hashes_loaded"] >= 1
+    assert summary["excluded_hash_records_skipped"] == 1
+    assert summary["provenance_skip_counts"] == {"excluded_hash": 1}
+    assert [record["decoded_coefficients"][0] for record in records] == [2, 3]
+
+
 def test_sample_and_export_axg14_provenance_controls_skip_bad_basins(tmp_path):
     class DummyDecoded:
         def __init__(self, a0, a1):

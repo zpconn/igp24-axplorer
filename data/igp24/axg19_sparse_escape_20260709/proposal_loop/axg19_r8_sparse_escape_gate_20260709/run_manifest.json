@@ -1,0 +1,176 @@
+{
+  "accepted_feedback_paths": [
+    "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+    "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg19_sparse_escape_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-09T19:06:29.682375+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "min_template_family_count": 1,
+    "packet_limit": 6,
+    "per_mode_cap": 6,
+    "per_pattern_cap": 6,
+    "reject_unknown_provenance": true
+  },
+  "extra_submission_status_paths": [],
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.9",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/rejected_candidates.jsonl",
+    "report": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg19_sparse_escape_20260709/proposal_loop/axg19_r8_sparse_escape_gate_20260709/proposal_loop_summary.json"
+  },
+  "recommendation": {
+    "advisory_risk_count": 0,
+    "fatal_risk_count": 0,
+    "local_recommended_for_sair_packet": false,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 1,
+    "model_generated_selected_rows": 0,
+    "reason": "only_0_eligible_rows_below_min_4; only_0_model_generated_rows_below_min_4; selected_rows_do_not_have_min_perturbation_mode_count_2; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {},
+    "selected_mod_p_signature_counts": {},
+    "selected_mode_counts": {},
+    "selected_rows": 0,
+    "selected_source_counts": {},
+    "selected_template_family_counts": {},
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "data/igp24/model_registry",
+  "run_id": "axg19_r8_sparse_escape_gate_20260709",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/axg18_escape_20260709/post_submit_sync",
+  "sair_sync_gate": {
+    "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "hold_reasons": [],
+    "partial_sync": false,
+    "pending_high_label_basin_collisions": {},
+    "pending_pair_counts": {},
+    "selected_exact_pair_pending_collisions": {},
+    "selected_pair_keys": [],
+    "selected_r_values": [],
+    "submission_detail_complete": true
+  },
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "30339275e4ef10237355407c": 2,
+        "32f4cdb4e4b8f532eaca81ea": 1,
+        "5216e5713960bf2b7b9d9e7c": 1,
+        "6b6e9df34420768b37ef5b9c": 1,
+        "bbbf85148f934725cfd759cd": 1
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 8
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 6
+      }
+    },
+    "eligible_rows_by_source": {},
+    "model_generated_eligible_rows": 0,
+    "model_generated_selected_rows": 0,
+    "model_generated_target_r_survivor_rows": 6,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "sparse_mixed_support_gcd1": 6
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 6
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 6,
+        "crowded_mod_p_signature_hits=1": 1,
+        "loose_crowded_basin_fingerprint_hits=1": 6
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 6
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {},
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 6
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:sparse:r8:sparse_mixed_support_gcd1": 6
+      }
+    }
+  },
+  "source_commit": "bdeb14cdea7a77b446597a92952489f32e54ea3d",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}
