@@ -4,6 +4,7 @@ from scripts.igp24_active_learning_dataset import (
     DEFAULT_COLLAPSED_LABELS,
     build_dataset,
     derive_class_label,
+    derive_score_aware_label,
 )
 
 
@@ -83,6 +84,92 @@ def test_derive_class_label_marks_wrong_target_r_before_exact_valid():
     )
 
 
+def test_derive_score_aware_label_prefers_real_score_signal():
+    assert (
+        derive_score_aware_label(
+            label="24T9993",
+            pair="24T9993|r=8",
+            r_value=8,
+            local_exact_valid=True,
+            target_rs={8},
+            known_status="accepted",
+            scoreable=True,
+            points_numeric=0.0019,
+            progress_label={"fully_covered": False},
+            progress_pair={"discovered": True, "remaining": False},
+            signature_team_count=10,
+            label_team_count=10,
+            collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+            score_positive_pairs={"24T9993|r=8"},
+            high_team_threshold=20,
+        )
+        == "score_positive"
+    )
+
+
+def test_derive_score_aware_label_marks_crowded_collapse_before_duplicate():
+    assert (
+        derive_score_aware_label(
+            label="24T25000",
+            pair="24T25000|r=24",
+            r_value=24,
+            local_exact_valid=True,
+            target_rs={24},
+            known_status="accepted",
+            scoreable=True,
+            points_numeric=None,
+            progress_label={"fully_covered": False},
+            progress_pair={"discovered": True, "remaining": False},
+            signature_team_count=2,
+            label_team_count=2,
+            collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+            score_positive_pairs=set(),
+            high_team_threshold=20,
+        )
+        == "accepted_but_crowded_collapse"
+    )
+
+
+def test_derive_score_aware_label_separates_low_team_scoreable_from_duplicate():
+    low_team = derive_score_aware_label(
+        label="24T4242",
+        pair="24T4242|r=16",
+        r_value=16,
+        local_exact_valid=True,
+        target_rs={16},
+        known_status="accepted",
+        scoreable=True,
+        points_numeric=None,
+        progress_label={"fully_covered": False},
+        progress_pair={"discovered": True, "remaining": False},
+        signature_team_count=1,
+        label_team_count=1,
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+    crowded_duplicate = derive_score_aware_label(
+        label="24T4242",
+        pair="24T4242|r=16",
+        r_value=16,
+        local_exact_valid=True,
+        target_rs={16},
+        known_status="accepted",
+        scoreable=True,
+        points_numeric=None,
+        progress_label={"fully_covered": False},
+        progress_pair={"discovered": True, "remaining": False},
+        signature_team_count=8,
+        label_team_count=8,
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+
+    assert low_team == "low_team_scoreable"
+    assert crowded_duplicate == "accepted_duplicate"
+
+
 def test_build_dataset_joins_candidate_to_sync_and_pair_status(tmp_path):
     candidate_path = tmp_path / "candidate_queue.jsonl"
     coeffs = [2, 1] + [0] * 22 + [1]
@@ -158,8 +245,11 @@ def test_build_dataset_joins_candidate_to_sync_and_pair_status(tmp_path):
     assert len(rows) == 2
     candidate = next(row for row in rows if row["source_role"] == "candidate_queue")
     assert candidate["derived_class_label"] == "accepted_useful_score_positive"
+    assert candidate["score_aware_supervision"]["label"] == "score_positive"
+    assert candidate["score_aware_supervision"]["reward"] > 0
     assert candidate["sair_feedback"]["label"] == "24T9993"
     assert summary["class_counts"]["accepted_useful_score_positive"] == 2
+    assert summary["score_aware_class_counts"]["score_positive"] == 2
 
 
 def test_build_dataset_loads_feedback_rows_and_marks_collapsed(tmp_path):
@@ -195,4 +285,6 @@ def test_build_dataset_loads_feedback_rows_and_marks_collapsed(tmp_path):
 
     assert rows[0]["source_role"] == "accepted_feedback"
     assert rows[0]["derived_class_label"] == "accepted_duplicate_collapsed_basin"
+    assert rows[0]["score_aware_supervision"]["label"] == "accepted_but_crowded_collapse"
+    assert rows[0]["score_aware_supervision"]["avoid_for_generation"] is True
     assert summary["class_counts"] == {"accepted_duplicate_collapsed_basin": 1}

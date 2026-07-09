@@ -292,6 +292,7 @@ def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
     paths = [str(path) for path in DEFAULT_ACCEPTED_FEEDBACK_JSONS]
 
     assert any("r16_high_real_refinement_sair_accepted_feedback_20260709.json" in path for path in paths)
+    assert any("axg16_sair_accepted_feedback_20260709.json" in path for path in paths)
 
     observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
     r16_observations = [
@@ -672,6 +673,45 @@ def test_model_template_and_basin_feedback_hold_24t25000_repeat():
     assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
     assert novel["eligible_for_packet"] is True
     assert novel["score"] > repeat["score"]
+
+
+def test_axg16_model_mixed_high_real_pattern_is_fatal_even_without_exact_feedback():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[12, 20, 24])
+    basin_profile = build_basin_profile([], {}, avoid_labels={"24T25000"}, crowded_team_threshold=20)
+
+    for r_value in (12, 20, 24):
+        blocked = score_candidate_row(
+            _axg_model_candidate(
+                f"axg16-pattern-r{r_value}",
+                r=r_value,
+                template=f"model:mixed:r{r_value}:medium_mixed_support_gcd1",
+                basin=f"fresh-basin-r{r_value}",
+            ),
+            target_rs={12, 20, 24},
+            progress_cache=progress,
+            basin_profile=basin_profile,
+        )
+        reason_prefix = f"model_mixed_high_real_24T25000_collapse_pattern:r{r_value}:medium_mixed_support_gcd1"
+
+        assert blocked["eligible_for_packet"] is False
+        assert reason_prefix in blocked["fatal_risk_reasons"]
+
+    r16_candidate = score_candidate_row(
+        _axg_model_candidate(
+            "axg16-pattern-r16-not-global-fatal",
+            r=16,
+            template="model:mixed:r16:medium_mixed_support_gcd1",
+            basin="fresh-basin-r16",
+        ),
+        target_rs={16},
+        progress_cache=normalize_progress_cache(_progress_snapshot(), target_rs=[16]),
+        basin_profile=basin_profile,
+    )
+    assert r16_candidate["eligible_for_packet"] is True
+    assert not any(
+        str(reason).startswith("model_mixed_high_real_24T25000_collapse_pattern")
+        for reason in r16_candidate["risk_reasons"]
+    )
 
 
 def test_r16_model_mixed_dense_medium_feedback_holds_24t25000_repeats():

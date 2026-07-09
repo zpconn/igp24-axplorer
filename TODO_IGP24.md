@@ -25,6 +25,46 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active AXG-1.7 score-aware anti-collapse goal started 2026-07-09 from clean
+  commit `b07ec73`. Objective: build/train AXG-1.7 and do not mark complete
+  until SAIR verifies actual score improvement, not merely accepted/scoreable
+  rows. Preflight: `git pull --ff-only` reported already up to date;
+  `SAIR_API_KEY` is present in the environment but was not printed or
+  recorded; `nvidia-smi` sees an NVIDIA GeForce RTX 5090 with driver 596.49,
+  32,607 MiB memory, and low idle utilization at startup. Fresh read-only SAIR
+  sync completed fully under
+  `data/igp24/axg17_score_aware_20260709/sair_sync/`: 25,000 labels, 47,588
+  remaining signatures, 25/25 submission details recovered, 25/25 downloads
+  recovered, 215 scoreable rows, 0 pending rows, 0 unmatched rows, and
+  `partial_sync=false`. Largest remaining buckets: r24 = 11,465, r16 = 9,799,
+  r8 = 6,083, r12 = 6,034, r20 = 5,191, r0 = 3,929, r4 = 3,424. Our
+  scoreable rows remain dominated by crowded collapse labels: `24T25000` has
+  113 scoreable rows, followed by `24T24979` (32), `24T24932` (20),
+  `24T24651` (17), and `24T24984` (12). Top scoreable pair counts are
+  `24T25000|r=24` (29), `24T25000|r=20` (24), `24T25000|r=4` (23),
+  `24T25000|r=16` (21), `24T24932|r=24` (16), `24T24979|r=12` (15),
+  `24T25000|r=8` (13), and `24T24979|r=16` (13). Fresh zero-team target
+  labels with many remaining signatures include `24T24093`, `24T23413`,
+  `24T22667`, `24T22631`, `24T22306`, and `24T19906` with all 12 non-r22
+  allowed r values still remaining. Score lesson being encoded: AXG-1.6's
+  user-authorized submission `sub_11fc452b521044619796f738cc4b22c3` was 7/7
+  accepted and scoreable but all rows collapsed to already crowded `24T25000`
+  (`r=12` x3, `r=20` x2, `r=24` x2) and did not meaningfully improve score.
+  Implementation checkpoint: added parallel AXG-1.7 score-aware supervision
+  labels to active-learning rows (`score_positive`, `low_team_scoreable`,
+  `accepted_but_crowded_collapse`, `accepted_duplicate`, `wrong_r`, `invalid`,
+  and `pending_or_unknown`) with reward/weight fields while preserving the
+  older `derived_class_label` vocabulary. Also promoted the AXG-1.6
+  `model:mixed` high-real dense/medium r12/r20/r24 pattern to a fatal planner
+  risk (`model_mixed_high_real_24T25000_collapse_pattern`) and added the
+  AXG-1.6 accepted-feedback artifact to the default basin history. Validation:
+  `python3 -m py_compile scripts/igp24_active_learning_dataset.py
+  scripts/igp24_anti_basin_planner.py` passed, and `PYTHONPATH=.:/tmp/igp24_pydeps
+  /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_active_learning_dataset.py tests/test_igp24_anti_basin_planner.py`
+  passed with 31 tests. Next in progress: rebuild the AXG-1.7 training dataset
+  from fresh SAIR sync plus recent scored exports, then register/train AXG-1.7
+  on GPU.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

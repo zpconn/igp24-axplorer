@@ -51,6 +51,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     / "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
     REPO_ROOT
     / "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    REPO_ROOT
+    / "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
@@ -73,6 +75,7 @@ FATAL_RISK_REASON_PREFIXES = (
     "basin_fingerprint_known_high_label_collapse",
     "model_template_family_known_high_label_collapse",
     "model_basin_fingerprint_known_high_label_collapse",
+    "model_mixed_high_real_24T25000_collapse_pattern",
     "exact_crowded_basin_fingerprint",
 )
 
@@ -83,6 +86,11 @@ CONSTRUCTION_FAMILY_HARD_STOP_COLLAPSES = {
     "odd_perturbed_r24_6x4_tower_escape",
     "positive_quadratic_product_plus_low_odd_perturbation",
     "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+}
+AXG16_MODEL_MIXED_24T25000_COLLAPSE_RS = {12, 20, 24}
+AXG16_MODEL_MIXED_24T25000_COLLAPSE_MODES = {
+    "dense_mixed_support_gcd1",
+    "medium_mixed_support_gcd1",
 }
 
 PROGRESS_CACHE_JSON = "anti_basin_live_progress_cache.json"
@@ -327,6 +335,28 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "squarefree": bool(row.get("squarefree")),
         "exported_coefficients": exported if isinstance(exported, list) else None,
     }
+
+
+def is_axg16_model_mixed_24t25000_collapse_pattern(features: dict[str, Any]) -> bool:
+    """Detect the proven AXG-1.6 model-export pattern that collapsed to 24T25000.
+
+    Generic loose basin matches stay advisory elsewhere. This helper only flags
+    high-real model samples with the same dense/medium mixed support family that
+    the AXG-1.6 SAIR feedback showed repeatedly landing in 24T25000.
+    """
+    if features.get("construction_family") != "model_sample_export":
+        return False
+    try:
+        r_value = int(features.get("r"))
+    except (TypeError, ValueError):
+        return False
+    if r_value not in AXG16_MODEL_MIXED_24T25000_COLLAPSE_RS:
+        return False
+    mode = str(features.get("perturbation_mode") or features.get("decomposition_pattern") or "")
+    template = str(features.get("template_family_id") or "")
+    if mode not in AXG16_MODEL_MIXED_24T25000_COLLAPSE_MODES:
+        return False
+    return template.startswith(f"model:mixed:r{r_value}:")
 
 
 def sample_export_source(row: dict[str, Any] | None) -> str:
@@ -816,6 +846,11 @@ def score_candidate_row(
         risk_reasons.append(f"basin_fingerprint_known_high_label_collapse={labels}")
         score -= 140.0
     if features["construction_family"] == "model_sample_export":
+        if is_axg16_model_mixed_24t25000_collapse_pattern(features):
+            risk_reasons.append(
+                f"model_mixed_high_real_24T25000_collapse_pattern:r{r_value}:{features.get('perturbation_mode')}"
+            )
+            score -= 220.0
         template_labels = basin_profile.get("collapsed_model_template_r_labels", {}).get(template_key, [])
         if template_labels:
             labels = ",".join(str(label) for label in template_labels)

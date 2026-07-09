@@ -34,6 +34,33 @@ DEFAULT_COLLAPSED_LABELS = {
     "24T25000",
 }
 DEFAULT_SCORE_POSITIVE_PAIRS = {"24T9993|r=8", "24T22770|r=12"}
+SCORE_AWARE_LABELS = {
+    "score_positive",
+    "low_team_scoreable",
+    "accepted_but_crowded_collapse",
+    "accepted_duplicate",
+    "wrong_r",
+    "invalid",
+    "pending_or_unknown",
+}
+SCORE_AWARE_REWARDS = {
+    "score_positive": 3.0,
+    "low_team_scoreable": 2.0,
+    "pending_or_unknown": 0.0,
+    "accepted_duplicate": -1.5,
+    "wrong_r": -2.0,
+    "invalid": -2.5,
+    "accepted_but_crowded_collapse": -4.0,
+}
+SCORE_AWARE_WEIGHTS = {
+    "score_positive": 4.0,
+    "low_team_scoreable": 3.0,
+    "pending_or_unknown": 0.5,
+    "accepted_duplicate": 2.0,
+    "wrong_r": 1.5,
+    "invalid": 1.5,
+    "accepted_but_crowded_collapse": 5.0,
+}
 SAIR_KEY_RE = re.compile(r"sair_[0-9a-f]{12}_[A-Za-z0-9]{20,}")
 
 
@@ -327,6 +354,29 @@ def enrich_row(
         score_positive_pairs=score_positive_pairs,
         high_team_threshold=high_team_threshold,
     )
+    score_label = derive_score_aware_label(
+        label=str(label) if label else None,
+        pair=str(pair) if pair else None,
+        r_value=r_int,
+        local_exact_valid=local_exact_valid,
+        target_rs=target_rs,
+        known_status=str(known_status) if known_status else None,
+        scoreable=scoreable,
+        points_numeric=points,
+        progress_label=progress_label,
+        progress_pair=progress_pair,
+        signature_team_count=signature_team_count,
+        label_team_count=label_team_count,
+        collapsed_labels=collapsed_labels,
+        score_positive_pairs=score_positive_pairs,
+        high_team_threshold=high_team_threshold,
+    )
+    avoid_for_generation = score_label in {
+        "accepted_but_crowded_collapse",
+        "accepted_duplicate",
+        "wrong_r",
+        "invalid",
+    }
 
     split_key = canonical_hash or f"{source_path}:{source_index}"
     split_value = int(hashlib.sha256(split_key.encode("utf-8")).hexdigest()[:8], 16) % 10
@@ -372,6 +422,20 @@ def enrich_row(
             "pair_remaining": progress_pair.get("remaining"),
         },
         "derived_class_label": class_label,
+        "score_aware_supervision": {
+            "label": score_label,
+            "reward": SCORE_AWARE_REWARDS[score_label],
+            "weight": SCORE_AWARE_WEIGHTS[score_label],
+            "avoid_for_generation": avoid_for_generation,
+            "is_score_positive": score_label == "score_positive",
+            "is_low_team_scoreable": score_label == "low_team_scoreable",
+            "is_crowded_collapse": score_label == "accepted_but_crowded_collapse",
+            "is_duplicate": score_label == "accepted_duplicate",
+            "signature_team_count": signature_team_count,
+            "label_team_count": label_team_count,
+            "pair_remaining": progress_pair.get("remaining"),
+            "pair_discovered": progress_pair.get("discovered"),
+        },
         "train_eval_split": train_eval_split,
         "leakage_provenance": {
             "source_role": source_role_from_path(source_path),
@@ -415,6 +479,69 @@ def derive_class_label(
             return "pending_score"
         return "accepted_useful_or_unknown"
     return "exact_local_valid" if local_exact_valid else "locally_invalid"
+
+
+def derive_score_aware_label(
+    *,
+    label: str | None,
+    pair: str | None,
+    r_value: int | None,
+    local_exact_valid: bool,
+    target_rs: set[int],
+    known_status: str | None,
+    scoreable: Any,
+    points_numeric: float | None,
+    progress_label: dict[str, Any],
+    progress_pair: dict[str, Any],
+    signature_team_count: int,
+    label_team_count: int,
+    collapsed_labels: set[str],
+    score_positive_pairs: set[str],
+    high_team_threshold: int,
+) -> str:
+    """Return AXG-1.7 score-aware supervision for training and gating.
+
+    This is intentionally separate from ``derive_class_label`` so older AXG
+    consumers keep their previous class vocabulary while AXG-1.7 can learn from
+    score potential and known collapse failures.
+    """
+    if not local_exact_valid and known_status != "accepted":
+        return "invalid"
+    if target_rs and r_value is not None and r_value not in target_rs:
+        return "wrong_r"
+
+    is_accepted = known_status == "accepted" or bool(label) or bool(pair)
+    positive = pair in score_positive_pairs or (points_numeric is not None and points_numeric > 0)
+    if positive:
+        return "score_positive"
+
+    crowded = (
+        label in collapsed_labels
+        or bool(progress_label.get("fully_covered"))
+        or signature_team_count >= high_team_threshold
+        or label_team_count >= high_team_threshold
+    )
+    if is_accepted and crowded:
+        return "accepted_but_crowded_collapse"
+
+    scoreable_bool = None
+    if scoreable is not None:
+        scoreable_bool = bool(scoreable) if isinstance(scoreable, bool) else str(scoreable).lower() == "true"
+    low_team = (
+        is_accepted
+        and scoreable_bool is True
+        and not progress_pair.get("remaining", False)
+        and 0 < signature_team_count <= 3
+    )
+    if low_team:
+        return "low_team_scoreable"
+
+    if is_accepted and progress_pair.get("discovered") and signature_team_count > 3:
+        return "accepted_duplicate"
+    if is_accepted and scoreable_bool is True and not progress_pair.get("remaining", False):
+        return "accepted_duplicate"
+
+    return "pending_or_unknown"
 
 
 def build_dataset(
@@ -462,6 +589,11 @@ def build_dataset(
             break
 
     class_counts = Counter(row["derived_class_label"] for row in rows)
+    score_aware_counts = Counter(row["score_aware_supervision"]["label"] for row in rows)
+    score_aware_weight_by_class = {
+        label: round(sum(float(row["score_aware_supervision"]["weight"]) for row in rows if row["score_aware_supervision"]["label"] == label), 3)
+        for label in sorted(score_aware_counts)
+    }
     source_counts = Counter(row["source_role"] for row in rows)
     label_counts = Counter((row["sair_feedback"] or {}).get("label") or "unknown" for row in rows)
     split_counts = Counter(row["train_eval_split"] for row in rows)
@@ -480,6 +612,8 @@ def build_dataset(
         "score_positive_pairs": sorted(score_positive_pairs),
         "high_team_threshold": high_team_threshold,
         "class_counts": dict(class_counts),
+        "score_aware_class_counts": dict(score_aware_counts),
+        "score_aware_weight_by_class": score_aware_weight_by_class,
         "source_role_counts": dict(source_counts),
         "label_counts_top": label_counts.most_common(20),
         "train_eval_split_counts": dict(split_counts),
