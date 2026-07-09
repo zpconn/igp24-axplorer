@@ -1,0 +1,53 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783628355"
+  },
+  "data": {
+    "batchId": "igp24_batch_212cf0187e73486b",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-09T20:18:19Z",
+    "description": "AXG-1.12 r12 structured score-followup gated packet",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "AXG-1.12 r12 structured score-followup gated packet"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 6,
+    "rejectedCount": 0,
+    "submissionId": "sub_51983ad56663418187e9adc3142c1162",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-09T20:18:19Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}

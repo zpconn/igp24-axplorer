@@ -90,6 +90,53 @@ def _candidate(candidate_hash, mode, *, mod_sig, family_key=None):
     }
 
 
+def _r12_followup_candidate(candidate_hash="r12-followup-hash"):
+    return {
+        "canonical_hash": candidate_hash,
+        "real_root_count": 12,
+        "coefficient_height": 8796923,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [
+            6350400,
+            0,
+            0,
+            0,
+            -8796923,
+            0,
+            0,
+            0,
+            2700041,
+            0,
+            0,
+            0,
+            -263908,
+            0,
+            5,
+            0,
+            10558,
+            0,
+            0,
+            0,
+            -176,
+            0,
+            0,
+            0,
+            1,
+        ],
+        "generation_metadata": {
+            "construction_family": "degree12_base_six_positive_roots_lifted_by_x2",
+            "r12_followup_lift": "x_squared",
+            "r12_followup_mode": "two_base_wide_perturbation",
+            "r12_followup_base_perturbations": [
+                {"y_exponent": 2, "delta": -7},
+                {"y_exponent": 7, "delta": 5},
+            ],
+            "r12_followup_structural_family_key": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=2,7",
+        },
+    }
+
+
 def _r8_perturbed_observation(label="24T25000", mode="odd_pair_off_core", mod_sig="p3:3-21;p5:5-19;p7:7-8-9"):
     return {
         "label": label,
@@ -1274,6 +1321,27 @@ def test_anti_basin_score_rejects_constant_shift_and_accepts_novel_nonconstant()
     assert novel["eligible_for_packet"] is True
     assert novel["score"] > constant["score"]
     assert novel["anti_basin_classification"] == "strong_packet_candidate"
+
+
+def test_r12_followup_composed_support_is_advisory_when_provenanced():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[12])
+    basin_profile = build_basin_profile([], {}, avoid_labels=set(), crowded_team_threshold=20)
+
+    scored = score_candidate_row(
+        _r12_followup_candidate(),
+        target_rs={12},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert scored["eligible_for_packet"] is True
+    assert scored["fatal_risk_reasons"] == []
+    assert scored["advisory_risk_reasons"] == ["r12_score_followup_composed_support_advisory"]
+    assert "support_gcd_not_one" not in scored["risk_reasons"]
+    assert "even_support_g_x_squared_like" not in scored["risk_reasons"]
+    assert scored["features"]["decomposition_pattern"] == "r12_gx2_feedback_followup"
+    assert scored["features"]["perturbation_mode"] == "two_base_wide_perturbation"
+    assert scored["features"]["family_key"].startswith("pos=1,2,4,5,7,9")
 
 
 def test_anti_basin_selection_and_outputs_round_trip(tmp_path):

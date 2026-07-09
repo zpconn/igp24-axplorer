@@ -1,0 +1,101 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T20:09:00.738708+00:00",
+  "description": "R12 score-followup and high-real pivot after sparse-submode 24T25000 collapse",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent": 31.723,
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 84.0,
+    "status": "used"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "29bd6815ca91d5b574b1a8fc9f18bf222a9be297",
+  "known_limitations": [
+    "The trained model produced 9 valid r12 survivors, but all model-generated r12 rows were blocked by known mixed/even-support basin risks.",
+    "The paired r12 g(x^2) structured scout passed local gates after provenance refinement but collapsed completely to 24T24979|r=12.",
+    "This iteration did not satisfy the active score-improvement goal."
+  ],
+  "model_version": "AXG-1.12",
+  "objective_loss_configuration": {
+    "loss": "score_aware_supervision.reward * bounded(weight) when present, legacy class scoring fallback otherwise",
+    "primary": "score-aware target-r proposal generation for r12 follow-up after r8/sparse collapse",
+    "secondary": "anti-collapse learning from accepted-but-crowded feedback and hash exclusions"
+  },
+  "parent_version": "AXG-1.11",
+  "purpose": "R12 score-followup pivot that trained a fresh score-aware AXG model while testing the feedback-aware g(x^2) structured lane.",
+  "random_seed": 33012,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "feedback_json": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json",
+      "gpu_summary": "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/gpu_sampler_probe_summary.json",
+      "proposal_summary": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/proposal_loop_summary.json",
+      "run_id": "axg112_r12_score_followup_20260709",
+      "score_summary": "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+      "target_r": 12
+    }
+  ],
+  "sair_submission": {
+    "accepted_pair_keys": [
+      "24T24979|r=12"
+    ],
+    "automatic_live_submission": false,
+    "notes": "Small gated r12 structured packet submitted after dry-run; all rows scoreable but crowded 24T24979|r=12.",
+    "raw_gpu_samples_submitted": false,
+    "score_improved": false,
+    "submission_id": "sub_51983ad56663418187e9adc3142c1162",
+    "submitted_rows": 6,
+    "submitted_to_sair": true
+  },
+  "sample_export_paths": [
+    "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl.summary.json",
+    "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_candidate_queue.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command_summary": "scripts/igp24_gpu_sampler_probe.py sample_export_target_r_conditioned r12 mixed, max_steps=2400, attempts=8192, hash exclusions enabled",
+    "status": "completed",
+    "summary": "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/gpu_sampler_probe_summary.json"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg112_pivot.jsonl",
+    "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
+    "data/igp24/axg112_pivot_20260709/sair_sync_full/",
+    "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json"
+  ],
+  "training_duration": {
+    "seconds": 229.916,
+    "status": "completed"
+  },
+  "validation_metrics": {
+    "accepted_pair_keys": [
+      "24T24979|r=12"
+    ],
+    "combined_gate_selected_rows": 6,
+    "decision": "submitted_packet_collapsed_to_24T24979_r12",
+    "decoded_records": 28,
+    "gpu_export_records": 1216,
+    "reason": "All submitted rows were accepted/scoreable but collapsed to crowded 24T24979|r=12; team count and minimum discriminant did not improve.",
+    "scoreable_rows": 6,
+    "status": "completed_no_score_improvement",
+    "submitted_rows": 6,
+    "target_r_survivors": 9,
+    "valid_records": 25
+  }
+}

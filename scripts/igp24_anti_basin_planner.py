@@ -59,6 +59,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     / "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
     REPO_ROOT
     / "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+    REPO_ROOT
+    / "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
@@ -208,6 +210,7 @@ def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
         "r20_high_real_family_key",
         "r20_linear_family_key",
         "r16_diversity_family_key",
+        "r12_followup_structural_family_key",
         "r12_structured_family_key",
         "r8_quartic_lift_family_key",
     ):
@@ -253,6 +256,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("r16_diversity_odd_perturbations")
         or metadata.get("r16_diversity_y_perturbations")
         or metadata.get("r16_diversity_off_block_perturbation_exponents")
+        or metadata.get("r12_followup_base_perturbations")
         or metadata.get("r8_quartic_lift_perturbation_exponents")
         or metadata.get("r24_high_real_odd_perturbations")
         or metadata.get("r24_high_real_odd_support_after_perturbation")
@@ -280,6 +284,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("r24_tower_odd_escape_mode")
         or metadata.get("r20_linear_mode")
         or metadata.get("r16_diversity_mode")
+        or metadata.get("r12_followup_mode")
         or row.get("source_mode")
         or ""
     )
@@ -289,6 +294,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or row.get("decomposition_pattern")
         or metadata.get("support_pattern")
         or row.get("support_pattern")
+        or ("r12_gx2_feedback_followup" if metadata.get("r12_followup_lift") == "x_squared" else "")
         or (
             f"near_composed_quadratic_product_d{metadata.get('r24_high_real_exact_composed_seed_divisor')}"
             if metadata.get("r24_high_real_exact_composed_seed_divisor")
@@ -326,6 +332,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("r24_tower_odd_escape_family_key")
         or metadata.get("r20_linear_family_key")
         or metadata.get("r16_diversity_family_key")
+        or metadata.get("r12_followup_structural_family_key")
         or metadata.get("alt_composition_family_key")
         or inferred_family_key
         or ""
@@ -406,6 +413,35 @@ def is_axg18_model_fixed_sparse_24t25000_collapse_pattern(features: dict[str, An
     if mode not in AXG18_MODEL_FIXED_SPARSE_24T25000_COLLAPSE_MODES:
         return False
     return template.startswith(f"model:fixed_sparse_template:r{r_value}:")
+
+
+def is_r12_score_followup_composed_lane(features: dict[str, Any]) -> bool:
+    """Allow the specific r12 score-followup g(x^2) lane to be judged by basin data.
+
+    Most composed/even-support rows have been a reliable collapse signal, so
+    they remain fatal by default. The r12 structured follow-up is different:
+    the planner explicitly recommends it because it produced the only visible
+    nontrivial r12 score signal, and its rows carry family/mode/distance
+    metadata that the basin layer can compare against accepted feedback.
+    """
+    try:
+        r_value = int(features.get("r"))
+    except (TypeError, ValueError):
+        return False
+    if r_value != 12:
+        return False
+    construction = str(features.get("construction_family") or "")
+    if construction != "degree12_base_six_positive_roots_lifted_by_x2":
+        return False
+    pattern = str(features.get("decomposition_pattern") or "")
+    mode = str(features.get("perturbation_mode") or "")
+    family = str(features.get("family_key") or features.get("basin_fingerprint") or "")
+    return (
+        pattern == "r12_gx2_feedback_followup"
+        and mode
+        and mode != "unknown"
+        and family.startswith("pos=")
+    )
 
 
 def sample_export_source(row: dict[str, Any] | None) -> str:
@@ -826,12 +862,22 @@ def score_candidate_row(
     if not features.get("irreducible") or not features.get("squarefree"):
         risk_reasons.append("missing_local_irreducible_squarefree")
         score -= 120.0
+    r12_score_followup_composed = is_r12_score_followup_composed_lane(features)
     if features.get("support_gcd") != 1:
-        risk_reasons.append("support_gcd_not_one")
-        score -= 120.0
+        if r12_score_followup_composed:
+            risk_reasons.append("r12_score_followup_composed_support_advisory")
+            score -= 20.0
+        else:
+            risk_reasons.append("support_gcd_not_one")
+            score -= 120.0
     if features.get("even_support") is True:
-        risk_reasons.append("even_support_g_x_squared_like")
-        score -= 120.0
+        if r12_score_followup_composed:
+            if "r12_score_followup_composed_support_advisory" not in risk_reasons:
+                risk_reasons.append("r12_score_followup_composed_support_advisory")
+            score -= 20.0
+        else:
+            risk_reasons.append("even_support_g_x_squared_like")
+            score -= 120.0
     if features.get("canonical_hash") in basin_profile["accepted_hashes"]:
         risk_reasons.append("accepted_hash_duplicate")
         score -= 200.0

@@ -1,0 +1,22 @@
+{
+  "model_version": "AXG-1.12",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "decoded_records": 28,
+      "export_records": 1216,
+      "gpu_summary": "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/gpu_sampler_probe_summary.json",
+      "score_summary": "data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+      "target_r": 12,
+      "target_r_survivors": 9,
+      "valid_records": 25
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed_no_score_improvement",
+  "structured_scout": {
+    "combined_gate_selected_rows": 6,
+    "selected_rows": 12,
+    "summary": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_summary.json"
+  }
+}

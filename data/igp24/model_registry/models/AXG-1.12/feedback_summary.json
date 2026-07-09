@@ -1,0 +1,23 @@
+{
+  "disc_source_counts": {
+    "exact_nfdisc": 5,
+    "mixed_disc": 1
+  },
+  "escaped_known_basins": false,
+  "feedback_json": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json",
+  "label_counts": {
+    "24T24979": 6
+  },
+  "model_version": "AXG-1.12",
+  "notes": [
+    "All submitted rows accepted and scoreable, but all collapsed to crowded 24T24979|r=12.",
+    "Goal remains active/incomplete because score did not improve."
+  ],
+  "pair_counts": {
+    "24T24979|r=12": 6
+  },
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 6,
+  "schema_version": 1,
+  "status": "completed_no_score_improvement"
+}

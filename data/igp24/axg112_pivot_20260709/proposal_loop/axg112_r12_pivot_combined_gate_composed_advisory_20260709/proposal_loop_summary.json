@@ -1,0 +1,277 @@
+{
+  "artifacts": {
+    "basin_risk_scores": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/rejected_candidates.jsonl",
+    "report": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/proposal_loop_summary.json"
+  },
+  "candidate_rows": 40,
+  "candidate_sample_export_source_counts": {
+    "model_generate": 28,
+    "unknown": 12
+  },
+  "candidate_source_count": 2,
+  "coefficient_lines": 6,
+  "created_at": "2026-07-09T20:17:21.514779+00:00",
+  "decision": "reviewed_packet_ready_for_dry_run",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 0,
+    "min_packet_rows": 4,
+    "min_template_family_count": 2,
+    "packet_limit": 6,
+    "per_mode_cap": 3,
+    "per_pattern_cap": 6,
+    "reject_unknown_provenance": false
+  },
+  "dry_run": true,
+  "filtered_rows": 21,
+  "filtered_sample_export_source_counts": {
+    "model_generate": 9,
+    "unknown": 12
+  },
+  "model_manifest_description": "R12 score-followup and high-real pivot after sparse-submode 24T25000 collapse",
+  "model_version": "AXG-1.12",
+  "recommendation": {
+    "advisory_risk_count": 6,
+    "fatal_risk_count": 0,
+    "local_recommended_for_sair_packet": true,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 0,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 2,
+    "model_generated_selected_rows": 0,
+    "reason": "anti-basin gates passed",
+    "recommended_for_sair_packet": true,
+    "reject_unknown_provenance": false,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {
+      "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9": 1,
+      "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,4,8": 1,
+      "pos=1,2,4,5,6,8|neg=1,2,4,5,7,9|y=0,3,6,9": 1,
+      "pos=1,2,4,5,7,8|neg=1,2,4,5,7,9|y=0,5": 1,
+      "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,3,6,9": 1,
+      "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,4,8": 1
+    },
+    "selected_mod_p_signature_counts": {
+      "p3:3-3-18;p7:4-10-10": 1,
+      "p3:5-5-7-7": 1,
+      "p3:7-7-10;p7:1-1-22": 1,
+      "p5:2-2-20;p7:2-2-2-2-2-4-5-5": 1,
+      "p5:24;p7:1-1-2-2-2-3-3-4-6": 1,
+      "p5:4-4-16;p7:2-2-2-9-9": 1
+    },
+    "selected_mode_counts": {
+      "four_base_balanced_perturbation": 3,
+      "three_base_balanced_perturbation": 2,
+      "two_base_wide_perturbation": 1
+    },
+    "selected_rows": 6,
+    "selected_source_counts": {
+      "r12_exact_composed_feedback_aware_followup": 6
+    },
+    "selected_template_family_counts": {
+      "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:four_base_balanced_perturbation": 3,
+      "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:three_base_balanced_perturbation": 2,
+      "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:two_base_wide_perturbation": 1
+    },
+    "status": "reviewed_packet_ready_for_dry_run",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "28/28 details recovered; 28/28 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        12
+      ],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_loop_summary",
+  "rejected_rows": 19,
+  "rejection_reason_counts": {
+    "local_valid_false": 3,
+    "missing_real_root_count": 3,
+    "real_root_count_not_target": 16
+  },
+  "risk_reason_counts": {
+    "even_support_g_x_squared_like": 5,
+    "loose_crowded_basin_fingerprint_hits=4": 1,
+    "loose_crowded_basin_fingerprint_hits=5": 3,
+    "model_mixed_high_real_24T25000_collapse_pattern:r12:dense_mixed_support_gcd1": 3,
+    "model_mixed_high_real_24T25000_collapse_pattern:r12:medium_mixed_support_gcd1": 1,
+    "r12_score_followup_composed_support_advisory": 12,
+    "support_gcd_not_one": 5
+  },
+  "run_id": "axg112_r12_pivot_combined_gate_composed_advisory_20260709",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync": {
+    "extra_submission_rows_loaded": 0,
+    "extra_submission_status_paths": [],
+    "submission_rows_loaded": 228,
+    "sync_dir": "data/igp24/axg112_pivot_20260709/sair_sync_full",
+    "sync_gate": {
+      "degraded_mode_summary": "28/28 details recovered; 28/28 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        12
+      ],
+      "submission_detail_complete": true
+    },
+    "sync_status": {
+      "degraded_mode": false,
+      "degraded_mode_summary": "28/28 details recovered; 28/28 downloads recovered",
+      "download_complete": true,
+      "error_code": null,
+      "error_message": null,
+      "failed_submission_reads": [],
+      "failing_endpoint": null,
+      "full_submission_state_complete": true,
+      "global_progress_complete": true,
+      "partial_sync": false,
+      "retry_after": null,
+      "submission_detail_complete": true,
+      "submission_detail_failed_count": 0,
+      "submission_detail_success_count": 28,
+      "submission_download_failed_count": 0,
+      "submission_download_success_count": 28,
+      "submission_index_complete": true,
+      "submission_state_complete": true,
+      "submissions_requested": 28
+    }
+  },
+  "schema_version": 1,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 9,
+    "strong_packet_candidate": 12
+  },
+  "scored_rows": 21,
+  "selected_rows": 6,
+  "selected_sample_export_source_counts": {
+    "unknown": 6
+  },
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "44fb30adf0cde4349f192384": 1,
+        "4740d0179cd141508d41d6f1": 1,
+        "4ba1d20465192461dc3a7380": 1,
+        "4e9c1c354ccb7b59df5cf7e9": 1,
+        "cf60e8782569461cdebebd1d": 2,
+        "e28f0e56856d746182eabafa": 2,
+        "f72dd60091e6003c43527d51": 1
+      },
+      "unknown": {
+        "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9": 1,
+        "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,4,8": 1,
+        "pos=1,2,4,5,6,8|neg=1,2,4,5,7,9|y=0,3,6,9": 1,
+        "pos=1,2,4,5,7,8|neg=1,2,4,5,7,9|y=0,5": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,3,6,9": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,4,8": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=2,7": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=0,4,8": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=2,7": 1,
+        "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=3,8": 1
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 28,
+      "unknown": 12
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 9
+      },
+      "unknown": {
+        "strong_packet_candidate": 12
+      }
+    },
+    "eligible_rows_by_source": {
+      "unknown": 12
+    },
+    "model_generated_eligible_rows": 0,
+    "model_generated_selected_rows": 0,
+    "model_generated_target_r_survivor_rows": 9,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "dense_mixed_support_gcd1": 3,
+        "even_support_g_x2_like": 5,
+        "medium_mixed_support_gcd1": 1
+      },
+      "unknown": {
+        "four_base_balanced_perturbation": 4,
+        "three_base_balanced_perturbation": 4,
+        "two_base_wide_perturbation": 4
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 9
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "even_support_g_x_squared_like": 5,
+        "loose_crowded_basin_fingerprint_hits=4": 1,
+        "loose_crowded_basin_fingerprint_hits=5": 3,
+        "model_mixed_high_real_24T25000_collapse_pattern:r12:dense_mixed_support_gcd1": 3,
+        "model_mixed_high_real_24T25000_collapse_pattern:r12:medium_mixed_support_gcd1": 1,
+        "support_gcd_not_one": 5
+      },
+      "unknown": {
+        "r12_score_followup_composed_support_advisory": 12
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 9,
+      "unknown": 12
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "unknown": 6
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 9,
+      "unknown": 12
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:mixed:r12:dense_mixed_support_gcd1": 3,
+        "model:mixed:r12:even_support_like": 5,
+        "model:mixed:r12:medium_mixed_support_gcd1": 1
+      },
+      "unknown": {
+        "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:four_base_balanced_perturbation": 4,
+        "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:three_base_balanced_perturbation": 4,
+        "degree12_base_six_positive_roots_lifted_by_x2:r12_gx2_feedback_followup:two_base_wide_perturbation": 4
+      }
+    }
+  },
+  "source_commit": "29bd6815ca91d5b574b1a8fc9f18bf222a9be297",
+  "target_rs": [
+    12
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-09T20:18:19Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "AXG-1.12 r12 structured score-followup gated packet"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_51983ad56663418187e9adc3142c1162",
+    "updatedAt": "2026-07-09T20:18:19Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "12209172211548601242256917956141444817505183269748386696367344000262094034235821434753400241384504485692429197546133934537861447693573382544256842236187703334574908005767599663111952595731306075425301594112",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 0,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "233770039460032472783263811480628640941812145957941618174487467149092485130100423133983799497528272218308998354638556435693465335312226797136429930867917231201053327374390946636245366056995323379712000",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 1,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "729157782039540441225552413584699738511554325201929974705213918549330095529013043693670130818149957966106127758246298153115912632545455685861097469050055586651371177508362894564634689875426286462042112",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 2,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "6789527882760936138684157123483609943525073563690236716774993595645788927144713712059821689233130096966148760290928780156620150106624573923444668473234910410953921914495293621915521284526391164928000",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 3,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 4,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "9955684628691874556785086416113070552167666905947474905898530562331707757366025199808451428383686403059848784808362775477016448502977909735674684557641476568600710281589123824279886223602804273971200",
+        "inBaseline": false,
+        "label": "24T24979",
+        "polynomialIndex": 5,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 24979
+      }
+    ]
+  },
+  "ok": true
+}

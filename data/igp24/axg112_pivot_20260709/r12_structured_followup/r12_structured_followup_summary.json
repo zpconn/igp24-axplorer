@@ -1,0 +1,135 @@
+{
+  "accepted_feedback_json": "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+  "accepted_feedback_rows_loaded": 10,
+  "accepted_label_counts": {
+    "24T22770": 2,
+    "24T24970": 1,
+    "24T24979": 7
+  },
+  "accepted_structural_family_keys_loaded": 10,
+  "coefficient_height_max": 8796923,
+  "coefficient_height_min": 6696912,
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_r12_structured_followup.py",
+    "--output_dir",
+    "data/igp24/axg112_pivot_20260709/r12_structured_followup",
+    "--seed",
+    "52112",
+    "--max_trials",
+    "600",
+    "--limit",
+    "12",
+    "--per_family_cap",
+    "1",
+    "--coeff_bound",
+    "20000000",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0",
+    "--min_l1_to_accepted_exported",
+    "4",
+    "--min_l1_to_accepted_base_y",
+    "4"
+  ],
+  "construction_family": "degree12_base_six_positive_roots_lifted_by_x2_feedback_aware",
+  "created_at": "2026-07-09T20:10:05.922534+00:00",
+  "known_hashes_loaded": 188,
+  "min_l1_to_accepted_base_y": 4,
+  "min_l1_to_accepted_exported": 4,
+  "observed_root_count_counts": {
+    "12": 397,
+    "4": 11,
+    "8": 97
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_rejected_trials.jsonl",
+    "report_md": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_report.md",
+    "summary_json": "data/igp24/axg112_pivot_20260709/r12_structured_followup/r12_structured_followup_summary.json"
+  },
+  "queue_status": "manual_queue_ready",
+  "recommendation": "manual_review_then_submit_small_r12_feedback_followup",
+  "rejected_counts": {
+    "known_or_duplicate_hash": 3,
+    "real_root_count_mismatch": 108,
+    "reducible_over_q": 95
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_diversify_away_from_24T24979_intent_count": 12,
+  "selected_family_keys": [
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=2,7",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=0,4,8",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=3,8",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,3,6,9",
+    "pos=1,2,4,5,7,8|neg=1,2,4,5,7,9|y=0,5",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=0,4,8",
+    "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,3,6,9",
+    "pos=1,2,4,5,7,9|neg=1,2,4,5,7,8|y=2,7",
+    "pos=1,2,3,5,7,9|neg=1,2,4,5,7,9|y=0,4,8",
+    "pos=1,2,4,5,6,8|neg=1,2,4,5,7,9|y=0,3,6,9"
+  ],
+  "selected_hashes": [
+    "a429ed3482660de23bdcef8603f4a2408f0b89cc4110ef69e504b5cba8d3e7e5",
+    "87efd4d3d5b17ca529815102342a48835a27996267a91941e38fb0cf7f9f77ce",
+    "4f495a65e7df58d92b82dd09c62a71d0e522d50b40e6af069b22d9a94b7df691",
+    "a47fbc9f4746cf441144aec0dd9603df1bf5e43e780882c615b2252ac7ed6b7e",
+    "7b06316130faf121486b529ee7e235ea785600ce8017d5f6db90cbbef72ee411",
+    "8f6c6077463423ac4718d396ef4a57240908586a57aa8c0874732468b5952fcb",
+    "75db800d94dbbe36afb15e7b8c3048c0237b1d23bf0fc47118980a1a07f2a4d3",
+    "9ffdb88ccdba3c2dd235ca9285ff02dcaa88189d1c2f15ea6d3dca50e03e94ea",
+    "b3e1e9a8b42c70d58f1383ef09e028a5829c9108bde9d4d1a791804a59f2e27b",
+    "4342b94fd43ee8e565efaf340a82dc7d15f30b258433a8efb6adcd7c445ead9c",
+    "395f2427b6b8a8a6c297997c8ccf7ba2752b66d28d1579dd93d3595d11f5470f",
+    "4c74f492540d50407f2893cba04b4573ec0b114c5b5778bc09f7d41c3a3f40ba"
+  ],
+  "selected_mode_counts": {
+    "four_base_balanced_perturbation": 4,
+    "three_base_balanced_perturbation": 4,
+    "two_base_wide_perturbation": 4
+  },
+  "selected_nearest_base_label_counts": {
+    "24T24979": 12
+  },
+  "selected_nearest_non_24T24979_count": 0,
+  "selected_rows": 12,
+  "selected_short_hashes": [
+    "a429ed348266",
+    "87efd4d3d5b1",
+    "4f495a65e7df",
+    "a47fbc9f4746",
+    "7b06316130fa",
+    "8f6c60774634",
+    "75db800d94db",
+    "9ffdb88ccdba",
+    "b3e1e9a8b42c",
+    "4342b94fd43e",
+    "395f2427b6b8",
+    "4c74f492540d"
+  ],
+  "source_commit": "29bd6815ca91d5b574b1a8fc9f18bf222a9be297",
+  "structure_preservation": "exact g(x^2) composed support; no odd x-power perturbations",
+  "target_r": 12,
+  "tool": "scripts/igp24_r12_structured_followup.py",
+  "trials_attempted": 600,
+  "valid_mode_counts": {
+    "four_base_balanced_perturbation": 52,
+    "three_base_balanced_perturbation": 106,
+    "two_base_wide_perturbation": 236
+  },
+  "valid_r12_candidates": 394
+}

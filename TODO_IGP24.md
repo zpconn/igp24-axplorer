@@ -66,6 +66,61 @@ results change.
   `24T25000` basins, leaving only one loose-basin r6 survivor. Goal remains
   active/incomplete because neither AXG-1.10 nor AXG-1.11 produced verified
   score improvement.
+- 2026-07-09 AXG-1.12 pivot cycle started after AXG-1.11 held. Fresh
+  label-basin analysis under `data/igp24/axg112_pivot_20260709/label_basin_analysis/`
+  included 191 accepted observations, 12 labels, 22 pairs, and 9 current
+  anti-basin constraints, including the AXG-1.10 sparse-submode `24T25000`
+  feedback. Fresh live score-aware target planning under
+  `data/igp24/axg112_pivot_20260709/target_plan_live/` still ranks r24, r16,
+  r8, r12, and r20 as the largest opportunity buckets, but marks the
+  `r8_quartic_lift_score_followup` lane stopped and recommends either a
+  materially different high-real lane or the still-open r12 `g(x^2)`
+  structured score-follow-up lane from `24T22770|r=12`. Full read-only SAIR
+  sync then completed under `data/igp24/axg112_pivot_20260709/sair_sync_full/`:
+  25,000 labels, 47,017 remaining signatures, 28 submissions, 228 scoreable
+  rows, 0 pending rows, 0 unmatched rows, and `partial_sync=false`. Rebuilt
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg112_pivot.jsonl`
+  from current scored exports, all accepted-feedback artifacts, and the fresh
+  sync. Dataset size is 2,242 rows: 876 accepted duplicate/collapsed basin
+  negatives, 8 globally covered high-team basin rows, 12 useful score-positive
+  rows, 191 exact-local-valid rows, 144 locally invalid rows, and 1,011
+  wrong-r rows. Registered `AXG-1.12` as a child of `AXG-1.11` for the
+  r12 score-followup/high-real pivot. A paired r12 feedback-aware structured
+  scout completed under `data/igp24/axg112_pivot_20260709/r12_structured_followup/`:
+  600 CPU-only trials, 394 valid local r12 candidates, 12 selected rows, 4
+  selected rows from each of the two-base, three-base, and four-base balanced
+  perturbation modes, and `manual_queue_ready`. All selected rows are still
+  nearest to `24T24979` at the accepted-base level, so they are candidates for
+  strict anti-basin review rather than automatic submission. Fresh bounded
+  AXG-1.12 CUDA training/inference then completed under
+  `data/igp24/axg112_pivot_20260709/r12_score_followup_cuda/`: runtime
+  229.916s on CUDA, max/avg GPU utilization 84.0% / 31.723%, final train/test
+  loss 0.044 / 2.246, 1,216 exported records, 28 unique decoded rows, 25 valid
+  CPU-scored rows, and 9 valid r12 survivors. The first combined gate held all
+  rows because the generic even-support/support-gcd rule rejected the r12
+  `g(x^2)` lane. Added a narrow planner refinement so the specific r12
+  score-followup composed lane carries follow-up family/mode provenance and
+  receives an advisory composed-support warning instead of a generic fatal
+  stop; focused planner validation passed with 27 tests. Replay gate
+  `axg112_r12_pivot_combined_gate_composed_advisory_20260709` selected 6
+  structured r12 rows with 6 basin fingerprints, 6 mod-p signatures, 3
+  perturbation modes, and only the advisory
+  `r12_score_followup_composed_support_advisory` risk. SAIR dry-run passed
+  (`ok=true`, 6 polynomials, 613 bytes). Live submission
+  `sub_51983ad56663418187e9adc3142c1162` completed: 6/6 accepted and
+  scoreable, 5 exact `nfdisc` and 1 mixed-disc row, but all collapsed to
+  `24T24979|r=12`. Final sync under
+  `data/igp24/axg112_pivot_20260709/sair_sync_after_submit_final/` found 29
+  submissions, 234 scoreable rows, 0 pending rows, and full detail/download
+  recovery. `24T24979|r=12` team count stayed 38 and minimum discriminant stayed
+  `4951063041132781157684723287108369`; no score improvement occurred. Wrote
+  `axg112_sair_accepted_feedback_20260709.json`, added 6 alternates to
+  `pair_status_20260706.json`, and wired the feedback into the default
+  anti-basin planner history. Refreshed post-submit basin analysis now has 197
+  observations, and the score-aware planner again recommends a materially
+  different high-real r24/r16/r20 lane led by `24T19906|r=24`. Goal remains
+  active/incomplete because AXG-1.12 produced another accepted/scoreable but
+  score-bad crowded-basin result.
 - Active AXG-1.7 score-aware anti-collapse goal started 2026-07-09 from clean
   commit `b07ec73`. Objective: build/train AXG-1.7 and do not mark complete
   until SAIR verifies actual score improvement, not merely accepted/scoreable
