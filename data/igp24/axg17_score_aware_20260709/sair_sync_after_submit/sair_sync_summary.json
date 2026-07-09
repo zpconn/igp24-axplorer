@@ -1,0 +1,486 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_sair_sync",
+  "created_at": "2026-07-09T18:05:21.900105+00:00",
+  "tool": "scripts/igp24_sair_sync.py",
+  "source_commit": "9b29bbf1352dfc4e2cb6ba7bb60d85b4fe64e6b0",
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_sair_sync.py",
+    "--output_dir",
+    "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit",
+    "--fetch_live",
+    "--allow_partial",
+    "--progress_limit",
+    "5000",
+    "--submission_limit",
+    "100"
+  ],
+  "safety": {
+    "api_key_recorded": false,
+    "sair_submission": false,
+    "network_calls": true,
+    "live_fetch": true
+  },
+  "sync_status": {
+    "partial_sync": false,
+    "global_progress_complete": true,
+    "submission_index_complete": true,
+    "submission_detail_complete": true,
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "submission_state_complete": true,
+    "degraded_mode": false,
+    "degraded_mode_summary": "26/26 details recovered; 26/26 downloads recovered",
+    "submissions_requested": 26,
+    "submission_detail_success_count": 26,
+    "submission_detail_failed_count": 0,
+    "submission_download_success_count": 26,
+    "submission_download_failed_count": 0,
+    "failed_submission_reads": [],
+    "failing_endpoint": null,
+    "error_code": null,
+    "error_message": null,
+    "retry_after": null
+  },
+  "api_endpoints_used": [
+    "GET /api/public/v1/competitions/{competitionId}",
+    "GET /api/public/v1/competitions/{competitionId}/me",
+    "GET /api/public/v1/competitions/igp24/labels/progress",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/me",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}/download"
+  ],
+  "api_endpoints_planned": [
+    "GET /api/public/v1/competitions/{competitionId}",
+    "GET /api/public/v1/competitions/{competitionId}/me",
+    "GET /api/public/v1/competitions/igp24/labels/progress",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/me",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}",
+    "GET /api/public/v1/competitions/{competitionId}/submissions/{submissionId}/download"
+  ],
+  "post_submission_supported_but_not_used": "POST /api/public/v1/competitions/{competitionId}/submissions remains dry-run/explicit only",
+  "competition": {
+    "id": "igp24",
+    "title": "IGP24",
+    "description": "IGP24, the Inverse Galois Problem in Degree 24.\nThis is a mathematical discovery challenge: we are asking participants to help expand the known map of degree-24 equations and their hidden symmetries.",
+    "capabilities": {
+      "playground": false,
+      "contributorNetwork": true,
+      "leaderboard": true
+    },
+    "leaderboardPublished": true,
+    "submissionSpec": {
+      "kind": "igp24-polynomial",
+      "schema": {
+        "type": "object",
+        "required": [
+          "polynomials"
+        ],
+        "properties": {
+          "polynomials": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": "dict[1]"
+          }
+        },
+        "additionalProperties": false
+      },
+      "metaSchema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      },
+      "permission": {
+        "teamRole": "activeMember"
+      },
+      "window": {
+        "opensAt": "2026-06-15T10:00:00Z",
+        "closesAt": "2026-08-15T12:00:00Z"
+      },
+      "limits": {
+        "maxBytes": 1000000,
+        "maxPolynomials": 1000,
+        "maxRequestBytes": 1310720
+      }
+    }
+  },
+  "me": {
+    "competitionId": "igp24",
+    "enrolled": true,
+    "team": {
+      "teamId": "teamv2_d27917b2d1e540ee82e530caa21b84fc",
+      "teamName": "",
+      "teamNumber": "IGP24-T00153",
+      "role": "owner"
+    },
+    "canSubmit": true,
+    "submitBlockedReason": null,
+    "contributorNetwork": {
+      "publishCap": 50,
+      "activeCount": 0,
+      "capRemaining": 50
+    }
+  },
+  "progress": {
+    "label_count": 25000,
+    "remaining_signature_count": 47124,
+    "top_remaining_r_buckets": [
+      {
+        "r": 24,
+        "allowed": 25000,
+        "discovered": 13588,
+        "remaining": 11412,
+        "discovered_pct": 54.35,
+        "remaining_pct": 45.65,
+        "average_signature_team_count": 1.78,
+        "max_signature_team_count": 45
+      },
+      {
+        "r": 16,
+        "allowed": 21421,
+        "discovered": 11679,
+        "remaining": 9742,
+        "discovered_pct": 54.52,
+        "remaining_pct": 45.48,
+        "average_signature_team_count": 2.3,
+        "max_signature_team_count": 42
+      },
+      {
+        "r": 8,
+        "allowed": 23556,
+        "discovered": 17559,
+        "remaining": 5997,
+        "discovered_pct": 74.54,
+        "remaining_pct": 25.46,
+        "average_signature_team_count": 3.65,
+        "max_signature_team_count": 48
+      },
+      {
+        "r": 12,
+        "allowed": 19934,
+        "discovered": 14000,
+        "remaining": 5934,
+        "discovered_pct": 70.23,
+        "remaining_pct": 29.77,
+        "average_signature_team_count": 3.08,
+        "max_signature_team_count": 46
+      },
+      {
+        "r": 20,
+        "allowed": 10852,
+        "discovered": 5668,
+        "remaining": 5184,
+        "discovered_pct": 52.23,
+        "remaining_pct": 47.77,
+        "average_signature_team_count": 2.23,
+        "max_signature_team_count": 42
+      },
+      {
+        "r": 0,
+        "allowed": 24839,
+        "discovered": 20992,
+        "remaining": 3847,
+        "discovered_pct": 84.51,
+        "remaining_pct": 15.49,
+        "average_signature_team_count": 5.32,
+        "max_signature_team_count": 58
+      },
+      {
+        "r": 4,
+        "allowed": 20057,
+        "discovered": 16700,
+        "remaining": 3357,
+        "discovered_pct": 83.26,
+        "remaining_pct": 16.74,
+        "average_signature_team_count": 4.44,
+        "max_signature_team_count": 57
+      },
+      {
+        "r": 6,
+        "allowed": 6004,
+        "discovered": 5533,
+        "remaining": 471,
+        "discovered_pct": 92.16,
+        "remaining_pct": 7.84,
+        "average_signature_team_count": 5.64,
+        "max_signature_team_count": 49
+      }
+    ],
+    "top_zero_team_remaining_labels": [
+      {
+        "label": "24T24093",
+        "t": 24093,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T23413",
+        "t": 23413,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T22667",
+        "t": 22667,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T22631",
+        "t": 22631,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T22306",
+        "t": 22306,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T19906",
+        "t": 19906,
+        "remaining_count": 12,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T24424",
+        "t": 24424,
+        "remaining_count": 11,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T24189",
+        "t": 24189,
+        "remaining_count": 11,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T24089",
+        "t": 24089,
+        "remaining_count": 11,
+        "remaining_r": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          20,
+          24
+        ]
+      },
+      {
+        "label": "24T23742",
+        "t": 23742,
+        "remaining_count": 11,
+        "remaining_r": [
+          0,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18,
+          20,
+          24
+        ]
+      }
+    ]
+  },
+  "submissions": {
+    "submission_count": 26,
+    "row_count": 221,
+    "status_class_counts": {
+      "scoreable": 221
+    },
+    "pair_count": 28,
+    "top_pair_counts": [
+      [
+        "24T25000|r=24",
+        29
+      ],
+      [
+        "24T25000|r=20",
+        24
+      ],
+      [
+        "24T25000|r=4",
+        23
+      ],
+      [
+        "24T25000|r=16",
+        21
+      ],
+      [
+        "24T25000|r=8",
+        19
+      ],
+      [
+        "24T24932|r=24",
+        16
+      ],
+      [
+        "24T24979|r=12",
+        15
+      ],
+      [
+        "24T24979|r=16",
+        13
+      ],
+      [
+        "24T24984|r=12",
+        12
+      ],
+      [
+        "24T24651|r=24",
+        9
+      ],
+      [
+        "24T24651|r=12",
+        8
+      ],
+      [
+        "24T24932|r=12",
+        4
+      ]
+    ],
+    "pending_rows": 0,
+    "scoreable_rows": 221,
+    "failed_rows": 0,
+    "unmatched_rows": 0
+  },
+  "decision": {
+    "submission_recommended_now": false,
+    "submission_reason": "sync only; no generated queue passed score-aware and anti-basin submission gates",
+    "wait_for_scoring_rows": 0,
+    "review_scoreable_rows": 221
+  },
+  "output_files": {
+    "summary_json": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_sync_summary.json",
+    "report_md": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_sync_report.md",
+    "progress_summary_json": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_progress_snapshot_summary.json",
+    "label_progress_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_label_progress.jsonl",
+    "submission_index_json": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_submission_index.json",
+    "submission_rows_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_submission_rows.jsonl",
+    "pending_rows_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_pending_rows.jsonl",
+    "scoreable_rows_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_scoreable_rows.jsonl",
+    "failed_rows_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_failed_rows.jsonl",
+    "unmatched_rows_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_unmatched_rows.jsonl",
+    "failed_submission_reads_jsonl": "data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/sair_failed_submission_reads.jsonl"
+  }
+}

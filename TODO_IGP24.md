@@ -91,6 +91,57 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
   tests/test_igp24.py tests/test_igp24_active_learning_dataset.py
   tests/test_igp24_anti_basin_planner.py` passed with 60 tests.
+- AXG-1.7 r8 CUDA/scoring checkpoint: first sandboxed GPU attempt correctly
+  proved CUDA was unavailable inside the restricted context (`nvidia-smi`
+  return 255, PyTorch CUDA false), so the same command was rerun with approved
+  escalated GPU access. Escalated r8 run completed in 128.059s on CUDA with
+  max/average GPU utilization 91.000% / 75.484%, final train/test loss
+  0.040 / 3.208, 492 exported samples, 12 decoded samples, and stop reason
+  `attempt_budget_exhausted`. CPU proxy scoring at coeff bound `1e15` read
+  492 rows, decoded 12, scored 12, found 11 valid records, and found 10 valid
+  r8 target-r survivors. Next in progress: r12/r16/r24 CUDA lanes, then
+  anti-basin gating across all AXG-1.7 scored exports.
+- AXG-1.7 multi-r CUDA/gate/submission checkpoint: completed additional
+  bounded CUDA target-r lanes for r12, r16, r20, and r24 using the same
+  score-aware dataset and 3600-step/4096-attempt settings. GPU utilization
+  stayed real in each escalated run: r12 runtime 133.720s, max/avg GPU
+  90.000% / 74.000%, 248 exports, 8 decodes, 8 valid r12 survivors; r16
+  runtime 142.858s, max/avg GPU 88.000% / 73.971%, 868 exports, 8 decodes,
+  8 valid r16 survivors; r20 runtime 141.067s, max/avg GPU 89.000% / 74.507%,
+  265 exports, 8 decodes, 8 valid r20 survivors; r24 runtime 136.586s,
+  max/avg GPU 88.000% / 74.788%, 218 exports, 8 decodes, 7 valid r24
+  survivors plus one valid off-target r12. Proposal gate
+  `axg17_score_aware_gate_20260709` scored 44 candidate rows, filtered 42,
+  and selected 6 rows, all from r8. The new fatal rule worked as intended:
+  36 rows were held/rejected for known basin risk, including r12/r20/r24
+  dense/medium `model_mixed_high_real_24T25000_collapse_pattern` hits. The
+  selected 6-row r8 packet passed local dry-run validation and was live
+  submitted to SAIR as `sub_cdd210208d4e4c0b9b692c1389458c2c` at
+  2026-07-09T18:02:40Z. First poll: all 6 accepted as `24T25000|r=8`; 3 rows
+  already scoreable with exact nfdisc, 3 rows still `discriminant_pending`.
+  This is not a completed goal: the submission accepted but has not shown
+  score improvement and still collapsed to the crowded `24T25000` label.
+  Next in progress: poll/sync until pending rows resolve, ingest this as a
+  negative AXG-1.7 basin signal, and tighten r8 model-export gating/training
+  before another submission.
+- AXG-1.7 post-submit feedback checkpoint: second poll resolved all 6 rows as
+  scoreable, still all `24T25000|r=8`. Post-submit full SAIR sync completed
+  under `data/igp24/axg17_score_aware_20260709/sair_sync_after_submit/` with
+  25,000 labels, 47,124 remaining signatures, 26/26 submission details and
+  downloads recovered, 221 scoreable rows, 0 pending rows, 0 unmatched rows,
+  and `partial_sync=false`. Current `24T25000|r=8` progress shows teamCount 35
+  for the signature and teamCount 59 for the fully covered label, so this is
+  high-confidence crowded-basin feedback rather than score improvement. Created
+  `axg17_sair_accepted_feedback_20260709.json` from the submitted packet and
+  wired it into the default anti-basin planner history so future r8
+  `model:mixed` repeats hit fatal `model_template_family_known_high_label`
+  / `model_basin_fingerprint` collapse checks. Validation:
+  `python3 -m py_compile scripts/igp24_anti_basin_planner.py src/datasets.py
+  scripts/igp24_active_learning_dataset.py` passed and `PYTHONPATH=.
+  /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24.py
+  tests/test_igp24_active_learning_dataset.py tests/test_igp24_anti_basin_planner.py`
+  passed with 61 tests. Goal remains active and incomplete until a future
+  AXG iteration produces verified score improvement.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

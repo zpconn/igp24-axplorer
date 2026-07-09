@@ -1,0 +1,66 @@
+{
+  "artifacts": {
+    "cpu_score_report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/score_report.md",
+    "cpu_score_summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+    "gpu_probe_report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sampler_probe_report.md",
+    "gpu_probe_summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sampler_probe_summary.json",
+    "sample_export_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl",
+    "scored_jsonl_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+    "train_log_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sample_export_target_r8_conditioned_dump/igp24_gpu_sample_export_target_r8_conditioned/axg17_r8_score_aware_20260709/train.log"
+  },
+  "commands": {
+    "cpu_score": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_score_sample_export.py data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl --output_dir data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15 --gpu_probe_summary data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sampler_probe_summary.json --local_search false --max_local_search_steps 0 --prime_limit 11 --exact_score_timeout 2 --exp_name axg17_r8_score_aware_score_20260709 --coeff_bound 1000000000000000 --target_r 8",
+    "gpu_probe": "/home/zpconn/code/axplorer/.venv/bin/python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r8_conditioned --dump_path /home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sample_export_target_r8_conditioned_dump --exp_id axg17_r8_score_aware_20260709 --seed 33008 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl data/igp24/active_learning/axg_training_dataset_20260709_axg17_score_aware.jsonl --igp24_training_jsonl_target_rs 8,12,16,20,24 --coeff_bound 1000000000000000 --target_r 8 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 3600 --num_eval_steps 300 --num_samples_from_model 4096 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature 1.12 --top_k -1 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl --sample_export_dedup true --sample_export_unique_target 512 --sample_export_max_attempts 4096 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --sample_export_avoid_even_support_like true --sample_export_require_support_gcd_one true --sample_export_family_cap 4 --sample_export_basin_fingerprint_cap 2 --igp24_generation_strategy mixed --igp24_ledger_path /home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/r8_cuda/gpu_sample_export_target_r8_conditioned_initial_candidates.jsonl"
+  },
+  "cpu_phase": {
+    "decoded_input_records": 12,
+    "local_search_enabled": false,
+    "max_records": null,
+    "records_read": 492,
+    "records_selected": 492,
+    "rejected_records": 1,
+    "runtime_seconds": 0.8588923950010212,
+    "scored_records": 12,
+    "selection_mode": "all_default",
+    "valid_records": 11
+  },
+  "created_at_utc": "2026-07-09T17:48:34.505512+00:00",
+  "dedup": {
+    "best_score": 10190.806663898411,
+    "canonical_hash_records": 12,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 4245.057486228491,
+    "proxy_scored_records": 11,
+    "rejected_records": 1,
+    "scored_records": 12,
+    "unique_canonical_hashes": 12
+  },
+  "gpu_phase": {
+    "avg_gpu_utilization_percent": 75.48387096774194,
+    "device": "cuda",
+    "eval_count": 12,
+    "interrupted": false,
+    "max_cuda_reserved_mb": 34.0,
+    "max_gpu_utilization_percent": 91.0,
+    "max_memory_used_mib": 7118.0,
+    "present": true,
+    "returncode": 0,
+    "runtime_seconds": 128.05913381099526,
+    "sample_export_decoded_records": 12,
+    "sample_export_records": 492,
+    "scoring_local_search_avoided": true,
+    "timed_out": false
+  },
+  "record_type": "igp24_split_workflow_manifest",
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "9b29bbf1352dfc4e2cb6ba7bb60d85b4fe64e6b0"
+}

@@ -293,6 +293,7 @@ def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
 
     assert any("r16_high_real_refinement_sair_accepted_feedback_20260709.json" in path for path in paths)
     assert any("axg16_sair_accepted_feedback_20260709.json" in path for path in paths)
+    assert any("axg17_sair_accepted_feedback_20260709.json" in path for path in paths)
 
     observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
     r16_observations = [
@@ -664,6 +665,46 @@ def test_model_template_and_basin_feedback_hold_24t25000_repeat():
     novel = score_candidate_row(
         _axg_model_candidate("novel-model", template="model:mixed:r20:new_support_gcd1", basin="basin-b"),
         target_rs={20},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert repeat["eligible_for_packet"] is False
+    assert "model_template_family_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert novel["eligible_for_packet"] is True
+    assert novel["score"] > repeat["score"]
+
+
+def test_axg17_r8_model_mixed_feedback_holds_24t25000_repeats():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[8])
+    observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    basin_profile = build_basin_profile(
+        observations,
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 59}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+
+    repeat = score_candidate_row(
+        _axg_model_candidate(
+            "r8-repeat-axg17",
+            r=8,
+            template="model:mixed:r8:dense_mixed_support_gcd1",
+            basin="62e1fe77acd58f753d31e517",
+        ),
+        target_rs={8},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+    novel = score_candidate_row(
+        _axg_model_candidate(
+            "r8-novel-axg17",
+            r=8,
+            template="model:mixed:r8:novel_support_gcd1",
+            basin="fresh-r8-basin",
+        ),
+        target_rs={8},
         progress_cache=progress,
         basin_profile=basin_profile,
     )

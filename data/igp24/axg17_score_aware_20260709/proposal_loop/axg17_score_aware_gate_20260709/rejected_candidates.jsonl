@@ -1,0 +1,2 @@
+{"canonical_hash":"02dc82c9c42fedd52bc273a5ba12179c7d92a430edaa0886865c440960b23d43","reasons":["missing_real_root_count","local_valid_false"],"source_index":4,"source_path":"data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"}
+{"canonical_hash":"87284d6e3ddb2e0773dbd8f591a9794a4700db5dc83ccf85508d911644101509","reasons":["real_root_count_not_target"],"source_index":9,"source_path":"data/igp24/axg17_score_aware_20260709/r8_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"}
