@@ -203,6 +203,28 @@ results change.
   least one generation-ready route. Validation so far: py-compile passed for
   the gate; focused readiness/compatibility/router tests passed (`17 passed`);
   real readiness JSON/JSONL artifacts parse cleanly.
+- 2026-07-09 remediation Phase 3 historical-validation-input checkpoint:
+  added `scripts/igp24_historical_group_validation_rows.py`, a read-only
+  extractor that joins SAIR accepted-feedback files to their source selected
+  packets and emits only rows with both verified labels and local modular
+  factorization evidence. Generated artifacts under
+  `data/igp24/remediation_20260709/historical_group_validation_phase3/default_replay_feedbacks/`.
+  Result: 7 feedback files scanned, 41 accepted rows seen, 35 historical
+  containment-ready rows emitted, and 6 rows skipped because the selected
+  packets lacked `mod_p_factorization_degree_patterns`. Reran the readiness
+  gate with this input under
+  `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/no_local_index_with_historical_rows/`.
+  Result: 35 historical rows supplied, but historical containment still cannot
+  run because no local GAP-backed group-cycle index exists; blockers are now
+  `missing_group_index`, `target_label_coverage_incomplete`,
+  `historical_validation_not_run`, and `no_generation_ready_routes`, with all
+  125 routes blocked by `missing_group_invariants`. This removes the
+  `missing_historical_validation_input` blocker and sharpens the next exact
+  requirement: import real GAP rows for the target labels, then rerun the gate
+  until historical true-label containment is 100%. No live submission was made
+  or recommended. Validation: py-compile passed; focused extractor/readiness/
+  compatibility tests passed (`17 passed`); full test suite passed
+  (`352 passed`).
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints

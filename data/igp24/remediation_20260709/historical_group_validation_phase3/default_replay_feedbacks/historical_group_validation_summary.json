@@ -1,0 +1,101 @@
+{
+  "accepted_rows_seen": 41,
+  "created_at": "2026-07-09T22:36:00.828499+00:00",
+  "feedback_file_count": 7,
+  "input_feedback_paths": [
+    "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json"
+  ],
+  "label_counts": {
+    "24T24979": 6,
+    "24T25000": 29
+  },
+  "output_files": {
+    "report_md": "data/igp24/remediation_20260709/historical_group_validation_phase3/default_replay_feedbacks/historical_group_validation_report.md",
+    "rows_jsonl": "data/igp24/remediation_20260709/historical_group_validation_phase3/default_replay_feedbacks/historical_group_validation_rows.jsonl",
+    "skipped_jsonl": "data/igp24/remediation_20260709/historical_group_validation_phase3/default_replay_feedbacks/historical_group_validation_skipped.jsonl",
+    "summary_json": "data/igp24/remediation_20260709/historical_group_validation_phase3/default_replay_feedbacks/historical_group_validation_summary.json"
+  },
+  "pair_counts": {
+    "24T24979|r=12": 6,
+    "24T25000|r=12": 3,
+    "24T25000|r=16": 2,
+    "24T25000|r=20": 2,
+    "24T25000|r=24": 8,
+    "24T25000|r=4": 3,
+    "24T25000|r=8": 11
+  },
+  "per_feedback": [
+    {
+      "accepted_rows": 4,
+      "feedback_path": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+      "selected_path": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/anti_basin_selected_queue.jsonl",
+      "selected_rows": 4,
+      "skipped_rows": 0,
+      "validation_rows": 4
+    },
+    {
+      "accepted_rows": 11,
+      "feedback_path": "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_selected_queue.jsonl",
+      "selected_rows": 11,
+      "skipped_rows": 5,
+      "validation_rows": 6
+    },
+    {
+      "accepted_rows": 7,
+      "feedback_path": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/selected_review_packet.jsonl",
+      "selected_rows": 7,
+      "skipped_rows": 0,
+      "validation_rows": 7
+    },
+    {
+      "accepted_rows": 6,
+      "feedback_path": "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/selected_review_packet.jsonl",
+      "selected_rows": 6,
+      "skipped_rows": 0,
+      "validation_rows": 6
+    },
+    {
+      "accepted_rows": 3,
+      "feedback_path": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/selected_review_packet.jsonl",
+      "selected_rows": 3,
+      "skipped_rows": 1,
+      "validation_rows": 2
+    },
+    {
+      "accepted_rows": 4,
+      "feedback_path": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/selected_review_packet.jsonl",
+      "selected_rows": 4,
+      "skipped_rows": 0,
+      "validation_rows": 4
+    },
+    {
+      "accepted_rows": 6,
+      "feedback_path": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json",
+      "selected_path": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/selected_review_packet.jsonl",
+      "selected_rows": 6,
+      "skipped_rows": 0,
+      "validation_rows": 6
+    }
+  ],
+  "record_type": "igp24_historical_group_validation_extract",
+  "safety_note": "Read-only historical group-validation row extractor. It does not call SAIR/network APIs, run GAP/Magma/PARI, generate candidates, or submit anything.",
+  "schema_version": 1,
+  "skip_reason_counts": {
+    "missing_modular_factorization_evidence": 6
+  },
+  "skipped_row_count": 6,
+  "source_commit": "c312dc9dd5bf0c5187f7567be7c07f15fc2c4cbe",
+  "tool": "scripts/igp24_historical_group_validation_rows.py",
+  "validation_row_count": 35
+}
