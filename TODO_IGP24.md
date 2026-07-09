@@ -33,6 +33,26 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 6 submission-gate checkpoint: added
+  `scripts/igp24_group_compatible_submission_gate.py`, a local/file-only
+  review gate for packet-optimizer rows that have group-compatibility evidence
+  but not exact verified labels. The gate joins selected JSONL rows to their
+  coefficient-only packet, reruns exact local validity with the real scorer,
+  checks optimizer eligibility, hash agreement, r-count, irreducibility,
+  squarefreeness, valuable compatible pairs, and crowded-only status, then
+  runs the SAIR helper in local dry-run mode without reading `SAIR_API_KEY` or
+  making network calls. Real artifacts:
+  `data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/`.
+  Result: 2 selected r24 rows passed local review; both hashes matched the
+  optimizer rows, both were valid/irreducible/squarefree with exact r=24, the
+  local SAIR dry-run accepted 2 normalized coefficient lines (`body_bytes=280`),
+  and the packet covers 18 possible uncovered r24 pairs plus crowded
+  `24T24979|r=24`/`24T25000|r=24`. Live submission remains recommended
+  `false` because evidence is compatibility-only, exact labels remain unknown,
+  a fresh sync should be repeated immediately before any live packet, and
+  explicit user approval is still required. Validation: py-compile passed and
+  focused submission-gate/SAIR dry-run/packet-optimizer tests passed
+  (`11 passed`).
 - 2026-07-09 remediation Phase 5 checkpoint: added a conservative
   construction-family registry under `src/igp24/constructions/` plus
   `scripts/igp24_construction_registry_report.py`. The registry formalizes 8

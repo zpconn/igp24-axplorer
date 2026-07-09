@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_group_compatible_submission_gate",
+  "created_at": "2026-07-09T23:08:43.968691+00:00",
+  "tool": "scripts/igp24_group_compatible_submission_gate.py",
+  "source_commit": "3f59c932cef0c807785c9382dbe37805a0beeafb",
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_group_compatible_submission_gate.py",
+    "--selected_jsonl",
+    "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_selected.jsonl",
+    "--coefficients_txt",
+    "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
+    "--sair_sync_summary_json",
+    "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_sync_summary.json",
+    "--output_dir",
+    "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress"
+  ],
+  "inputs": {
+    "selected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_selected.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
+    "sair_sync_summary_json": "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_sync_summary.json",
+    "target_r": null,
+    "coeff_bound": 1000000000000000000,
+    "prime_limit": 11,
+    "exact_score_timeout": 10.0
+  },
+  "selected_rows": 2,
+  "selected_hashes": [
+    "c814e1de3e8d4f15fb70c19201b27ff9bdc4a10425494cb712e9383eab5a92b9",
+    "2c8838b3f843551218164f9e8581fc372987931042f36e5acb16d8585c6c0098"
+  ],
+  "duplicate_hashes": [],
+  "selected_possible_uncovered_pair_count": 18,
+  "selected_possible_low_team_pair_count": 0,
+  "selected_possible_crowded_pair_count": 2,
+  "selected_possible_uncovered_pairs": [
+    "24T12889|r=24",
+    "24T12891|r=24",
+    "24T19906|r=24",
+    "24T21404|r=24",
+    "24T21405|r=24",
+    "24T22306|r=24",
+    "24T22567|r=24",
+    "24T22631|r=24",
+    "24T22667|r=24",
+    "24T22736|r=24",
+    "24T23412|r=24",
+    "24T23413|r=24",
+    "24T23718|r=24",
+    "24T23722|r=24",
+    "24T23741|r=24",
+    "24T23742|r=24",
+    "24T24089|r=24",
+    "24T24093|r=24"
+  ],
+  "selected_possible_low_team_pairs": [],
+  "selected_possible_crowded_pairs": [
+    "24T24979|r=24",
+    "24T25000|r=24"
+  ],
+  "compatible_label_count_distribution": {
+    "19": 1,
+    "4": 1
+  },
+  "check_failures": [],
+  "local_sair_dry_run": {
+    "ok": true,
+    "dry_run": true,
+    "polynomial_count": 2,
+    "body_bytes": 280,
+    "would_post": "/api/public/v1/competitions/igp24/submissions",
+    "local_only": true,
+    "api_key_required": false,
+    "network_calls": false,
+    "live_submission": false
+  },
+  "sair_sync": {
+    "provided": true,
+    "created_at": "2026-07-09T20:30:31.861280+00:00",
+    "partial_sync": false,
+    "submissions_requested": 29
+  },
+  "local_gate_passed": true,
+  "local_packet_ready_for_human_review": true,
+  "exact_label_verified": false,
+  "dry_run_validation_passed": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "local gate passed, but compatibility is necessary evidence only; exact labels remain unknown and live SAIR submission requires explicit user approval",
+  "remaining_submission_gates": [
+    "compatibility_only_exact_label_unknown",
+    "fresh_sair_sync_present_but_should_refresh_immediately_before_live_submission",
+    "explicit_user_approval_required_for_exact_live_packet"
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/group_compatible_submission_gate_summary.json",
+    "report_md": "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/group_compatible_submission_gate_report.md",
+    "rows_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/group_compatible_submission_gate_rows.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/group_compatible_submission_gate_coefficients.txt",
+    "sair_local_dry_run_json": "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/group_compatible_submission_gate_sair_local_dry_run.json"
+  },
+  "safety": {
+    "local_file_only": true,
+    "sair_submission": false,
+    "sair_api_calls": false,
+    "network_calls": false,
+    "api_key_recorded": false,
+    "api_key_required": false,
+    "manual_review_package_only": true,
+    "compatibility_not_exact_label_claim": true
+  }
+}
