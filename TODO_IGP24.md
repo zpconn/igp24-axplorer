@@ -184,6 +184,25 @@ results change.
   far: py-compile passed for the builder; focused group-compatibility/router
   tests passed (`14 passed`), including JSON-array, JSONL, wrapped-row import,
   block-size preservation, and chunked export manifest tests.
+- 2026-07-09 remediation Phase 3 readiness-gate checkpoint: added
+  `scripts/igp24_group_index_readiness_gate.py`, a read-only gate that checks
+  whether a group-cycle index is ready to unblock group-directed search. It
+  validates target-label coverage from the score-aware plan, optionally runs
+  historical true-label containment, reruns construction target routing with
+  `require_group_invariants=true`, and emits blocking reasons instead of
+  silently using proxy family/r-count evidence. Generated current artifacts
+  under
+  `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/no_local_index_top25/`.
+  Result: top 25 uncovered r24 targets, 0/25 target labels covered by a local
+  index, 125 route rows, 0 generation-ready routes, and gate blockers:
+  `missing_group_index`, `target_label_coverage_incomplete`,
+  `missing_historical_validation_input`, and `no_generation_ready_routes`.
+  This confirms the next exact requirement before AXG-1.7 group-directed
+  search can proceed: import real GAP rows for the target labels, supply
+  historical validation rows, and rerun this gate to 100% containment with at
+  least one generation-ready route. Validation so far: py-compile passed for
+  the gate; focused readiness/compatibility/router tests passed (`17 passed`);
+  real readiness JSON/JSONL artifacts parse cleanly.
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints
