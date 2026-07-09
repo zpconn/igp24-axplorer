@@ -53,8 +53,21 @@ results change.
   and `2c8838b3f843` is already scoreable as `24T24932|r=24` from
   `sub_25c17affdf3c4505a8f10cfda2d94217`. This packet is therefore not viable
   for live submission despite compatibility with uncovered labels in the
-  limited 27-label GAP index. Next required fix: move the same known-hash
-  rejection upstream into the packet optimizer and regenerate the r24 pool.
+  limited 27-label GAP index.
+- 2026-07-09 remediation Phase 6 packet-optimizer duplicate-hash checkpoint:
+  moved the synced-submission duplicate-hash blocker upstream into
+  `scripts/igp24_packet_optimizer.py` via `--known_submission_rows_jsonl`.
+  Reran the optimizer on the existing group-compatible r24 pools using the
+  fresh sync submission rows under
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_fresh_sync_known_hash_blocked_20260709T231426Z/`.
+  Result: 14 candidates considered, 0 eligible, 0 selected, 14 rejected for
+  `known_submission_hash`, 6 also crowded-only, and 5 also missing
+  pair/compatibility evidence. The previous two "selected" rows plus the
+  remaining latent row are all old submitted hashes, so the existing r24
+  group-compatible pools are exhausted and should not be submitted. Next
+  useful work is to generate or search for genuinely new candidates using the
+  corrected generator-training contract, known-hash exclusion, and exact GAP
+  compatibility index.
 - 2026-07-09 remediation Phase 6 submission-gate checkpoint: added
   `scripts/igp24_group_compatible_submission_gate.py`, a local/file-only
   review gate for packet-optimizer rows that have group-compatibility evidence

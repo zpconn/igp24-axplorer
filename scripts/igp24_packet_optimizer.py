@@ -67,6 +67,18 @@ def load_score_plan(path: Path | None) -> dict[str, dict[str, Any]]:
     return by_pair
 
 
+def load_known_submission_hashes(paths: Iterable[Path] | None) -> set[str]:
+    hashes: set[str] = set()
+    for path in paths or []:
+        if not path.exists():
+            continue
+        for row in read_jsonl(path):
+            candidate_hash = str(row.get("canonical_hash") or "")
+            if candidate_hash:
+                hashes.add(candidate_hash)
+    return hashes
+
+
 def nested_dict(row: dict[str, Any], key: str) -> dict[str, Any]:
     value = row.get(key)
     return value if isinstance(value, dict) else {}
@@ -162,7 +174,13 @@ def add_pairs(
             out[str(pair)] = pair_economics(str(pair), score_plan, fallback_kind)
 
 
-def normalize_candidate(row: dict[str, Any], *, score_plan: dict[str, dict[str, Any]], require_eligible: bool) -> dict[str, Any]:
+def normalize_candidate(
+    row: dict[str, Any],
+    *,
+    score_plan: dict[str, dict[str, Any]],
+    require_eligible: bool,
+    known_submission_hashes: set[str] | None = None,
+) -> dict[str, Any]:
     features = candidate_features(row)
     compat = group_compatibility(row)
     coeffs = exported_coefficients(row)
@@ -201,6 +219,9 @@ def normalize_candidate(row: dict[str, Any], *, score_plan: dict[str, dict[str, 
         reject_reasons.append("missing_pair_or_compatibility_evidence")
     if crowded_only:
         reject_reasons.append("crowded_only")
+    known_submission_hash = bool(canonical_hash and canonical_hash in (known_submission_hashes or set()))
+    if known_submission_hash:
+        reject_reasons.append("known_submission_hash")
 
     cluster_parts = sorted(pair_values)[:24]
     cluster = "|".join(cluster_parts) if cluster_parts else f"unknown_r{features.get('r')}"
@@ -222,6 +243,7 @@ def normalize_candidate(row: dict[str, Any], *, score_plan: dict[str, dict[str, 
         "anti_basin_score": anti_basin_score,
         "eligible_for_optimization": not reject_reasons,
         "reject_reasons": reject_reasons,
+        "known_submission_hash": known_submission_hash,
         "has_coefficients": coeffs is not None,
         "exported_coefficients": coeffs,
         "source_row": row,
@@ -351,6 +373,9 @@ def summarize(
         "rejected_rows": len(rejected),
         "reject_reason_counts": dict(Counter(reason for row in rejected for reason in row.get("reject_reasons", []))),
         "crowded_only_candidates_rejected": sum(1 for row in rejected if "crowded_only" in row.get("reject_reasons", [])),
+        "known_submission_hash_candidates_rejected": sum(
+            1 for row in rejected if "known_submission_hash" in row.get("reject_reasons", [])
+        ),
         "pair_evidence_missing_candidates": sum(
             1 for row in candidates if "missing_pair_or_compatibility_evidence" in row.get("reject_reasons", [])
         ),
@@ -404,6 +429,7 @@ def report_markdown(summary: dict[str, Any]) -> str:
         f"- Possible uncovered pairs covered: {summary['selected_possible_uncovered_pair_count']}",
         f"- Possible low-team pairs covered: {summary['selected_possible_low_team_pair_count']}",
         f"- Crowded-only rejected: {summary['crowded_only_candidates_rejected']}",
+        f"- Known submitted hashes rejected: {summary.get('known_submission_hash_candidates_rejected', 0)}",
         f"- Missing pair evidence: {summary['pair_evidence_missing_candidates']}",
         f"- Expected score ceiling: {summary['expected_score_ceiling']}",
         f"- Expected score estimate: {summary['expected_score_estimate']}",
@@ -473,6 +499,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate_jsonl", type=Path, action="append", required=True)
     parser.add_argument("--score_plan_json", type=Path, default=DEFAULT_SCORE_PLAN)
+    parser.add_argument("--known_submission_rows_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--packet_limit", type=int, default=100)
     parser.add_argument("--allow_ineligible", action="store_true")
@@ -492,8 +519,14 @@ def main(argv: list[str] | None = None) -> int:
     for path in args.candidate_jsonl:
         rows.extend(read_jsonl(path))
     score_plan = load_score_plan(args.score_plan_json)
+    known_submission_hashes = load_known_submission_hashes(args.known_submission_rows_jsonl)
     candidates = [
-        normalize_candidate(row, score_plan=score_plan, require_eligible=not args.allow_ineligible)
+        normalize_candidate(
+            row,
+            score_plan=score_plan,
+            require_eligible=not args.allow_ineligible,
+            known_submission_hashes=known_submission_hashes,
+        )
         for row in rows
     ]
     caps = {

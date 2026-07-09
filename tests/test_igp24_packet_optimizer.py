@@ -106,6 +106,18 @@ def _normalized(rows, score_plan):
     return [normalize_candidate(row, score_plan=score_plan, require_eligible=True) for row in rows]
 
 
+def _normalized_with_known(rows, score_plan, known_hashes):
+    return [
+        normalize_candidate(
+            row,
+            score_plan=score_plan,
+            require_eligible=True,
+            known_submission_hashes=set(known_hashes),
+        )
+        for row in rows
+    ]
+
+
 def test_packet_optimizer_selects_union_of_valuable_pairs_and_rejects_crowded_only(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     candidates = _normalized(
@@ -139,6 +151,38 @@ def test_packet_optimizer_selects_union_of_valuable_pairs_and_rejects_crowded_on
     assert sum(1 for row in selected if "24T1|r=24" in row["pair_values"]) == 1
     assert any("crowded_only" in row["reject_reasons"] for row in rejected)
     assert any("missing_pair_or_compatibility_evidence" in row["reject_reasons"] for row in rejected)
+
+
+def test_packet_optimizer_rejects_known_submission_hashes_before_selection(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    known_hash = "aaa" + "0" * 61
+    candidates = _normalized_with_known(
+        [
+            _row("aaa", uncovered=["24T1|r=24"], label_count=1, family="fam1", mode="m1"),
+            _row("bbb", uncovered=["24T1|r=24"], label_count=1, family="fam2", mode="m2"),
+        ],
+        score_plan,
+        {known_hash},
+    )
+
+    selected, rejected = greedy_select(
+        candidates,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+    )
+
+    assert [row["short_hash"] for row in selected] == ["bbb"]
+    known_rejected = [row for row in rejected if row["short_hash"] == "aaa"][0]
+    assert known_rejected["known_submission_hash"] is True
+    assert "known_submission_hash" in known_rejected["reject_reasons"]
 
 
 def test_packet_optimizer_enforces_diversity_caps(tmp_path):
