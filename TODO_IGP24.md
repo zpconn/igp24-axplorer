@@ -164,6 +164,26 @@ results change.
   submission is recommended until GAP is installed and the historical
   containment check passes on real SAIR-verified rows with 100% true-label
   retention.
+- 2026-07-09 remediation Phase 3 offline-index checkpoint: extended
+  `scripts/igp24_build_group_cycle_index.py` so the missing local GAP
+  dependency no longer leaves us with only a hand-written blocker. The builder
+  can now write chunked standalone GAP export programs, import GAP JSON/JSONL
+  rows into the SQLite `GroupCycleIndex`, preserve block sizes from `AllBlocks`,
+  and emit import/export manifests. Generated read-only artifacts under
+  `data/igp24/remediation_20260709/group_index_offline_export_phase3/`:
+  3 GAP programs covering the current top 25 uncovered r24 target labels from
+  the Phase 4 score plan, a `gap_export_manifest.json` with source commit
+  `5d72bb1a4961a3aa967c804b03b72008b621510e`, and a fresh local dependency
+  report confirming `blocked_missing_gap` with `no_approximation_written=true`.
+  The export scripts run GAP only, call no network/SAIR APIs, and are intended
+  to be redirected to JSON and imported with
+  `scripts/igp24_build_group_cycle_index.py --import_rows ...`. This still
+  does not create a real group index here, so Phase 5 router rows remain
+  blocked by `missing_group_invariants`, but it gives an exact path from
+  external GAP output to the local compatibility/router stack. Validation so
+  far: py-compile passed for the builder; focused group-compatibility/router
+  tests passed (`14 passed`), including JSON-array, JSONL, wrapped-row import,
+  block-size preservation, and chunked export manifest tests.
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints

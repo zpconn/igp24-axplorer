@@ -1,6 +1,12 @@
 import json
 
-from scripts.igp24_build_group_cycle_index import write_dependency_report
+from scripts.igp24_build_group_cycle_index import (
+    gap_program,
+    load_import_rows,
+    main as build_index_main,
+    write_dependency_report,
+    write_gap_export_programs,
+)
 from scripts.igp24_candidate_group_compatibility import main as compatibility_main
 from src.igp24.group_compatibility import (
     DEGREE,
@@ -169,3 +175,114 @@ def test_gap_dependency_report_never_claims_approximation(tmp_path):
     assert report["status"] == "blocked_missing_gap"
     assert report["no_approximation_written"] is True
     assert (tmp_path / "gap_dependency_report.md").exists()
+
+
+def test_gap_program_exports_block_sizes_and_cycle_types():
+    program = gap_program(["24T1", "24T2"])
+
+    assert "AllBlocks" in program
+    assert '\\"block_sizes\\":[' in program
+    assert '\\"cycle_types\\":[' in program
+    assert "TransitiveGroup(24, t)" in program
+
+
+def test_write_gap_export_programs_is_chunked_and_read_only(tmp_path):
+    manifest = write_gap_export_programs(
+        tmp_path,
+        ["24T1", "24T2", "24T3"],
+        chunk_size=2,
+        source_commit="test-commit",
+    )
+
+    assert manifest["record_type"] == "igp24_gap_group_cycle_export_manifest"
+    assert manifest["program_count"] == 2
+    assert manifest["safety"]["calls_sair"] is False
+    assert manifest["safety"]["writes_repo_index"] is False
+    assert (tmp_path / "degree24_group_cycle_export_0001_1_2.g").exists()
+    assert (tmp_path / "degree24_group_cycle_export_0002_3_3.g").exists()
+    saved = json.loads((tmp_path / "gap_export_manifest.json").read_text(encoding="utf-8"))
+    assert saved["labels"] == ["24T1", "24T2", "24T3"]
+
+
+def test_load_import_rows_accepts_json_array_jsonl_and_wrapped_rows(tmp_path):
+    row = {
+        "label": "24T1",
+        "t": 1,
+        "group_order": "24",
+        "primitive": False,
+        "solvable": True,
+        "parity": "mixed",
+        "block_sizes": [2, 12],
+        "cycle_types": ["1.23", "24"],
+    }
+    array_path = tmp_path / "rows.json"
+    array_path.write_text(json.dumps([row]), encoding="utf-8")
+    jsonl_path = tmp_path / "rows.jsonl"
+    jsonl_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    wrapped_path = tmp_path / "wrapped.json"
+    wrapped_path.write_text(json.dumps({"groups": [row]}), encoding="utf-8")
+
+    assert load_import_rows(array_path) == [row]
+    assert load_import_rows(jsonl_path) == [row]
+    assert load_import_rows(wrapped_path) == [row]
+
+
+def test_group_cycle_index_builder_imports_gap_rows_without_running_gap(tmp_path):
+    rows_path = tmp_path / "gap_rows.jsonl"
+    rows_path.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "label": "24T1",
+                        "t": 1,
+                        "group_order": "24",
+                        "primitive": False,
+                        "solvable": True,
+                        "parity": "mixed",
+                        "block_sizes": [2, 12],
+                        "cycle_types": ["1.23", "24"],
+                    }
+                ),
+                json.dumps(
+                    {
+                        "label": "24T2",
+                        "t": 2,
+                        "group_order": "48",
+                        "primitive": True,
+                        "solvable": False,
+                        "parity": "mixed",
+                        "block_sizes": [],
+                        "cycle_types": ["1.23", "3.21"],
+                    }
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    index_path = tmp_path / "degree24.sqlite"
+    output_dir = tmp_path / "out"
+
+    assert (
+        build_index_main(
+            [
+                "--import_rows",
+                str(rows_path),
+                "--index",
+                str(index_path),
+                "--output_dir",
+                str(output_dir),
+            ]
+        )
+        == 0
+    )
+
+    index = GroupCycleIndex(index_path)
+    records = index.records_for_labels(["24T1", "24T2"])
+    assert records["24T1"].block_sizes == (2, 12)
+    assert records["24T2"].primitive is True
+    assert index.labels_for_cycle_type("1.23") == {"24T1", "24T2"}
+    summary = json.loads((output_dir / "group_cycle_index_import_summary.json").read_text(encoding="utf-8"))
+    assert summary["rows_imported"] == 2
+    assert summary["group_count"] == 2
