@@ -9,7 +9,7 @@ import pytest
 sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
-from src.datasets import CharDataset, InfiniteDataLoader, load_initial_data
+from src.datasets import CharDataset, InfiniteDataLoader, load_initial_data, make_grouped_train_test
 from src.envs.igp24 import (
     DEFAULT_MIXED_STRATEGY_WEIGHTS,
     IGP24DataPoint,
@@ -18,6 +18,7 @@ from src.envs.igp24 import (
     parse_mixed_strategy_weights,
     resolve_generation_preset,
 )
+from src.models.model import evaluate
 from src.igp24.ledger import CandidateLedger
 from src.igp24.polynomial import (
     DEGREE,
@@ -321,6 +322,26 @@ def test_igp24_generator_training_rejects_family_split_leakage(tmp_path):
 
     with pytest.raises(ValueError, match="grouped train/eval split leakage"):
         load_initial_data(params, IGP24DataPoint)
+
+
+def test_grouped_train_test_keeps_single_family_in_train():
+    rows = [
+        SimpleNamespace(generator_training_split_group="construction_family:single", generator_training_role="exact_local_exploration")
+        for _ in range(3)
+    ]
+
+    train_set, test_set = make_grouped_train_test(rows, ntest=1)
+
+    assert train_set == rows
+    assert test_set == []
+
+
+def test_evaluate_empty_dataset_returns_nan():
+    dataset = CharDataset([], max_len=4, stoi={"PAD": 0})
+
+    loss = evaluate(model=None, dataset=dataset, device="cpu")
+
+    assert math.isnan(loss)
 
 
 def test_igp24_generator_training_caps_by_label(tmp_path):

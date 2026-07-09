@@ -179,6 +179,8 @@ class Transformer(nn.Module):
 
 @torch.inference_mode()
 def evaluate(model, dataset, device, batch_size=50, max_batches=None):
+    if len(dataset) == 0:
+        return float("nan")
     model.eval()
     loader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=0, collate_fn=dataset.collate_fn)
     losses = []

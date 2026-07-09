@@ -447,7 +447,13 @@ def make_grouped_train_test(data, ntest):
         key = getattr(row, "generator_training_split_group", None) or getattr(row, "features", None) or id(row)
         groups.setdefault(str(key), []).append(row)
     if len(groups) <= 1:
-        return make_train_test(data, ntest)
+        if int(ntest) > 0:
+            logger.warning(
+                "Grouped train/eval split has only %s family group; keeping all %s rows in train to avoid family leakage",
+                len(groups),
+                len(data),
+            )
+        return list(data), []
     group_items = []
     for key, rows in groups.items():
         roles = Counter(getattr(row, "generator_training_role", "unknown") for row in rows)

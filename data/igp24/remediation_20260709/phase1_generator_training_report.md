@@ -34,6 +34,8 @@ Generator roles are policy-defined in `scripts/igp24_active_learning_dataset.py`
 - caps eligible rows by pair, label, construction family, and basin fingerprint
 - stores generator role, weight, and grouped split key on each datapoint
 - uses grouped train/eval splitting and fails if a group appears in both splits
+- keeps a single-family corpus entirely in train rather than creating a leaky
+  random eval split; empty eval loss is reported as `nan`
 
 `train.py` now passes those weights and metadata into `CharDataset`, and `InfiniteDataLoader` uses a weighted replacement sampler with role/label/family sampling telemetry.
 
@@ -61,6 +63,12 @@ Full test suite after remediation:
 `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
 
 Result: 312 passed.
+
+Focused hardening rerun after the single-family split fix:
+
+`PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24.py tests/test_igp24_active_learning_dataset.py`
+
+Result: 42 passed.
 
 ## Remaining Gate
 

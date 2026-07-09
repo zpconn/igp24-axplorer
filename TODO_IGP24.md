@@ -33,6 +33,16 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
+  generator train/eval splitting so a corpus with only one available
+  construction/split family now keeps all rows in train and leaves eval empty
+  instead of falling back to a random row split that leaks the same family into
+  both sides. `src/models/model.evaluate()` now returns `nan` for an empty eval
+  dataset, making the "no leak-free eval exists" state explicit. Focused
+  validation passed:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24.py tests/test_igp24_active_learning_dataset.py`
+  -> 42 passed. This strengthens the Phase 1 gate before any future AXG-1.7+
+  model run can count as remediation-aligned.
 - 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
   read-only SAIR API sync after the group-compatible packet gate, with
   `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:
