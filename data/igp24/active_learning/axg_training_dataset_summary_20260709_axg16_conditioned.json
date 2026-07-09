@@ -1,0 +1,128 @@
+{
+  "candidate_source_count": 11,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 435,
+    "accepted_globally_covered_high_team_basin": 8,
+    "accepted_useful_score_positive": 8,
+    "exact_local_valid": 97,
+    "locally_invalid": 30,
+    "wrong_real_root_count": 76
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-09T15:38:55.362738+00:00",
+  "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260709_axg16_conditioned.jsonl",
+  "feedback_source_count": 19,
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "24T25000",
+      263
+    ],
+    [
+      "unknown",
+      170
+    ],
+    [
+      "24T24979",
+      61
+    ],
+    [
+      "24T24932",
+      59
+    ],
+    [
+      "24T24651",
+      34
+    ],
+    [
+      "24T24984",
+      32
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      6
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ],
+    [
+      "24T24648",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 654,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/axg16_conditioned_20260709/sair_sync",
+  "schema_version": 1,
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "b6f832e7addbd679feb5a1f37de8eecbfad546ac",
+  "source_role_counts": {
+    "accepted_feedback": 171,
+    "artifact_row": 217,
+    "candidate_queue": 58,
+    "sair_submission_row": 208
+  },
+  "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260709_axg16_conditioned.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 92,
+    "train": 562
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "record_type": "igp24_axg_sample_summary",
+  "schema_version": 1,
+  "model_version": "AXG-1.6",
+  "status": "completed_bounded_cuda_exports",
+  "sample_exports": [
+    {
+      "target_r": 12,
+      "path": "data/igp24/axg16_conditioned_20260709/r12_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl",
+      "export_rows": 369,
+      "decoded_rows": 6,
+      "valid_rows": 5,
+      "target_r_survivors": 5
+    },
+    {
+      "target_r": 16,
+      "path": "data/igp24/axg16_conditioned_20260709/r16_cuda/gpu_model_sample_export_target_r16_conditioned.jsonl",
+      "export_rows": 276,
+      "decoded_rows": 10,
+      "valid_rows": 10,
+      "target_r_survivors": 8
+    },
+    {
+      "target_r": 20,
+      "path": "data/igp24/axg16_conditioned_20260709/r20_cuda/gpu_model_sample_export_target_r20_conditioned.jsonl",
+      "export_rows": 310,
+      "decoded_rows": 8,
+      "valid_rows": 8,
+      "target_r_survivors": 8
+    },
+    {
+      "target_r": 24,
+      "path": "data/igp24/axg16_conditioned_20260709/r24_cuda/gpu_model_sample_export_target_r24_conditioned.jsonl",
+      "export_rows": 245,
+      "decoded_rows": 8,
+      "valid_rows": 8,
+      "target_r_survivors": 7
+    }
+  ],
+  "proposal_packet": {
+    "path": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/selected_review_coefficients.txt",
+    "rows": 7,
+    "dry_run_ok": true,
+    "dry_run_body_bytes": 929
+  }
+}

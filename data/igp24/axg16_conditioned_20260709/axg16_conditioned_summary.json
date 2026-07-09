@@ -1,0 +1,101 @@
+{
+  "record_type": "igp24_axg16_conditioned_cycle_summary",
+  "schema_version": 1,
+  "created_at": "2026-07-09T15:56:00Z",
+  "model_version": "AXG-1.6",
+  "sair_sync": {
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "download_complete": true,
+    "remaining_signature_count": 47811,
+    "scoreable_rows": 208,
+    "pending_rows": 0,
+    "unmatched_rows": 0
+  },
+  "training_dataset": {
+    "path": "data/igp24/active_learning/axg_training_dataset_20260709_axg16_conditioned.jsonl",
+    "rows": 654,
+    "class_counts": {
+      "accepted_duplicate_collapsed_basin": 435,
+      "accepted_globally_covered_high_team_basin": 8,
+      "accepted_useful_score_positive": 8,
+      "exact_local_valid": 97,
+      "locally_invalid": 30,
+      "wrong_real_root_count": 76
+    }
+  },
+  "target_runs": [
+    {
+      "target_r": 12,
+      "runtime_seconds": 192.0,
+      "max_gpu_utilization_percent": 89.0,
+      "avg_gpu_utilization_percent": 77.479,
+      "export_rows": 369,
+      "decoded_rows": 6,
+      "scored_rows": 6,
+      "valid_rows": 5,
+      "target_r_survivors": 5
+    },
+    {
+      "target_r": 16,
+      "runtime_seconds": 194.571,
+      "max_gpu_utilization_percent": 89.0,
+      "avg_gpu_utilization_percent": 77.4,
+      "export_rows": 276,
+      "decoded_rows": 10,
+      "scored_rows": 10,
+      "valid_rows": 10,
+      "target_r_survivors": 8
+    },
+    {
+      "target_r": 20,
+      "runtime_seconds": 192.771,
+      "max_gpu_utilization_percent": 89.0,
+      "avg_gpu_utilization_percent": 78.021,
+      "export_rows": 310,
+      "decoded_rows": 8,
+      "scored_rows": 8,
+      "valid_rows": 8,
+      "target_r_survivors": 8
+    },
+    {
+      "target_r": 24,
+      "runtime_seconds": 192.646,
+      "max_gpu_utilization_percent": 89.0,
+      "avg_gpu_utilization_percent": 78.128,
+      "export_rows": 245,
+      "decoded_rows": 8,
+      "scored_rows": 8,
+      "valid_rows": 8,
+      "target_r_survivors": 7
+    }
+  ],
+  "aggregate": {
+    "gpu_runtime_seconds": 771.988,
+    "export_rows": 1200,
+    "scored_decoded_rows": 32,
+    "valid_scored_rows": 31,
+    "target_r_survivors": 28,
+    "proposal_candidate_rows": 32,
+    "proposal_filtered_rows": 29,
+    "eligible_model_generated_rows": 8,
+    "selected_rows": 7
+  },
+  "proposal_packet": {
+    "coefficient_file": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/selected_review_coefficients.txt",
+    "planner_decision": "reviewed_packet_ready_for_dry_run",
+    "fatal_risk_count": 0,
+    "advisory_risk_count": 7,
+    "selected_r_values": [
+      12,
+      20,
+      24
+    ],
+    "dry_run_ok": true,
+    "polynomial_count": 7,
+    "dry_run_body_bytes": 929,
+    "live_submission_made": false,
+    "significant_verifiable_score_progress": false
+  },
+  "registry_run": "data/igp24/model_registry/runs/AXG-1.6/axg16_anti_collapse_multir_gate_20260709/run_manifest.json"
+}

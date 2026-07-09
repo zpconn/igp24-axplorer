@@ -1,0 +1,106 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T15:39:01.234598+00:00",
+  "description": "SAIR-refreshed anti-collapse conditioned AXG iteration with stricter diversity caps",
+    "device_gpu_info": {
+        "expected": "CUDA GPU when --cpu false",
+        "gpu_name": "NVIDIA GeForce RTX 5090",
+        "torch_version": "2.12.0+cu130",
+        "status": "cuda_verified",
+        "max_gpu_utilization_percent": 89.0,
+        "avg_gpu_utilization_percent_range": [
+            77.4,
+            78.128
+        ]
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "b6f832e7addbd679feb5a1f37de8eecbfad546ac",
+    "known_limitations": [
+        "AXG-1.6 is a bounded iteration, not a long full-scale training run.",
+        "Decoded yield was lower than AXG-1.5 under stricter anti-collapse caps.",
+        "The selected packet is locally dry-run-ready, but no live submission was authorized.",
+        "GPU samples must pass CPU filters and basin gates before any submission review."
+  ],
+  "model_version": "AXG-1.6",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.5",
+  "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-09T15:55:36.798621+00:00",
+      "run_id": "axg16_anti_collapse_multir_gate_20260709",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.6/axg16_anti_collapse_multir_gate_20260709/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Submission is explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+    "sample_export_paths": [
+        "data/igp24/axg16_conditioned_20260709/r12_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl",
+        "data/igp24/axg16_conditioned_20260709/r16_cuda/gpu_model_sample_export_target_r16_conditioned.jsonl",
+        "data/igp24/axg16_conditioned_20260709/r20_cuda/gpu_model_sample_export_target_r20_conditioned.jsonl",
+        "data/igp24/axg16_conditioned_20260709/r24_cuda/gpu_model_sample_export_target_r24_conditioned.jsonl"
+    ],
+  "schema_version": 1,
+    "training_command": {
+        "command": "PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r <12|16|20|24> --target_r_training_jsonl data/igp24/active_learning/axg_training_dataset_20260709_axg16_conditioned.jsonl --target_r_training_target_rs 8,12,16,20,24 --target_r_conditioned_generation_strategy mixed --target_r_conditioned_avoid_even_support_like --target_r_conditioned_require_support_gcd_one",
+        "recommended_template": [
+            "/home/zpconn/code/axplorer/.venv/bin/python",
+            "scripts/igp24_gpu_sampler_probe.py",
+            "--probe_mode",
+            "sample_export_target_r_conditioned"
+        ],
+        "status": "completed_bounded_cuda_target_r_exports"
+  },
+    "training_data_inputs": [
+        "data/igp24/pair_status_20260706.json",
+        "data/igp24/axg16_conditioned_20260709/sair_sync/",
+        "data/igp24/active_learning/axg_training_dataset_20260709_axg16_conditioned.jsonl",
+        "data/igp24/*accepted_feedback*.json",
+        "data/igp24/**/*candidate_queue.jsonl"
+    ],
+    "training_duration": {
+        "seconds": 771.988,
+        "status": "completed"
+    },
+    "validation_metrics": {
+        "status": "completed_bounded_cycle",
+        "scored_records": 32,
+        "valid_records": 31,
+        "target_r_survivors": 28,
+        "selected_rows": 7,
+        "advisory_packet_rows": 7,
+        "local_sair_dry_run_ok": true,
+        "success_metrics": [
+      "valid exact-r yield after CPU filters",
+      "diversity by family/mod-p/support",
+      "basin-risk distribution",
+      "reviewed candidates surviving strict gate",
+      "information value per SAIR row if later submitted"
+    ]
+  }
+}

@@ -25,6 +25,47 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
+  `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
+  continue the standing operating rule toward significant verifiable score
+  progress by refreshing SAIR, rebuilding the active-learning corpus with
+  AXG-1.5 scored exports, registering a new model version, and running a
+  bounded CUDA target-r pass with stricter diversity caps before CPU scoring
+  and proposal gating. Fresh read-only SAIR sync completed fully under
+  `data/igp24/axg16_conditioned_20260709/sair_sync/`: 25,000 labels,
+  47,811 remaining signatures, 24/24 submission details recovered, 24/24
+  downloads recovered, 208 scoreable rows, 0 pending rows, 0 unmatched rows,
+  and `partial_sync=false`. Active-learning dataset rebuilt as
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg16_conditioned.jsonl`
+  with 654 rows: 435 accepted duplicate/collapsed basin, 8 globally covered
+  high-team basin, 8 useful score-positive, 97 exact local valid, 30 locally
+  invalid, and 76 wrong-r rows. Source roles: 171 accepted-feedback rows,
+  217 artifact rows, 58 candidate-queue rows, and 208 fresh SAIR submission
+  rows. Registered `AXG-1.6` as a child of `AXG-1.5`. Next in progress:
+  bounded CUDA target-r exports for r12/r16/r20/r24 using the AXG venv with
+  `PYTHONPATH=.`, open sampling, support-gcd filtering, even-support
+  avoidance, and stricter family/basin caps completed. CUDA results: r12
+  took 192.000s with 89.000% max / 77.479% average GPU utilization,
+  369 exports, 6 decoded, 5 valid, and 5 target-r survivors; r16 took
+  194.571s with 89.000% max / 77.400% average GPU utilization, 276 exports,
+  10 decoded, 10 valid, and 8 target-r survivors; r20 took 192.771s with
+  89.000% max / 78.021% average GPU utilization, 310 exports, 8 decoded,
+  8 valid, and 8 target-r survivors; r24 took 192.646s with 89.000% max /
+  78.128% average GPU utilization, 245 exports, 8 decoded, 8 valid, and
+  7 target-r survivors. Aggregate GPU runtime was 771.988s, with 1,200
+  exported rows, 32 scored decoded rows, 31 valid rows, and 28 target-r
+  survivors. Proposal loop `axg16_anti_collapse_multir_gate_20260709`
+  considered 32 model-generated rows, filtered 29 target-r rows, found
+  8 eligible rows, and selected a 7-row r12/r20/r24 packet with 0 fatal
+  risks, 7 advisory loose-basin risks, 7 basin fingerprints, 7 mod-p
+  signatures, 4 template families, 2 modes, complete SAIR sync state, and
+  `decision=reviewed_packet_ready_for_dry_run`. Local SAIR dry-run validation
+  passed with `ok=true`, 7 polynomials, and 929 request bytes. No live SAIR
+  submission was made. Reports:
+  `data/igp24/axg16_conditioned_20260709/axg16_conditioned_report.md` and
+  `data/igp24/axg16_conditioned_20260709/axg16_conditioned_summary.json`.
+  Next: validate artifacts, remove generated checkpoint dumps, commit/push,
+  then ask for explicit approval before any live submission.
 - Active AXG full-stack autonomous research cycle started 2026-07-09 from
   clean commit `689baac`. Preflight: `git pull --ff-only` reported already up
   to date; `SAIR_API_KEY` is present in the environment but was not printed or
