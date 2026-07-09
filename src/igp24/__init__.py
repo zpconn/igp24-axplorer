@@ -26,10 +26,18 @@ from src.igp24.scoring import (
     prospective_team_count,
     team_score_multiplier,
 )
+from src.igp24.constructions import (
+    ConstructionFamily,
+    ConstructionRegistry,
+    default_registry,
+    rank_families_for_target,
+)
 
 __all__ = [
     "DEGREE",
     "CandidateAnalysis",
+    "ConstructionFamily",
+    "ConstructionRegistry",
     "GroupCycleIndex",
     "GroupRecord",
     "analyze_candidate",
@@ -37,11 +45,13 @@ __all__ = [
     "canonicalize_under_translations",
     "construct_polynomial",
     "cycle_type_key",
+    "default_registry",
     "discriminant_log_ratio",
     "export_coefficients",
     "maximum_possible_points",
     "official_score_economics",
     "prospective_team_count",
+    "rank_families_for_target",
     "score_candidate",
     "stable_canonical_hash",
     "team_score_multiplier",

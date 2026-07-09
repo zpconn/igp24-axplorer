@@ -33,6 +33,28 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 5 checkpoint: added a conservative
+  construction-family registry under `src/igp24/constructions/` plus
+  `scripts/igp24_construction_registry_report.py`. The registry formalizes 8
+  existing families required by the remediation plan: `g(x^2)` degree-12
+  lifts, quartic-in-`x^6`, 6x4 towers, 8x3 compositions, 4x6 compositions,
+  linear-real product seeds, positive quadratic-product seeds, and generic
+  sparse/random model exports. Each family declares degree pattern, expected
+  block sizes, imprimitive/primitive fit, supported real-root counts,
+  parameterization, mutation knobs, known collapse labels, known verified or
+  score-positive pairs, source scripts, and soundness. The registry enforces
+  `exact_label_claimed=false` for all families and reports
+  `declared_structural_routing_only_not_exact_label_evidence`, so this is
+  routing metadata only, not a verifier. Generated a read-only r24 report for
+  current high-real target `24T19906|r=24` under
+  `data/igp24/remediation_20260709/construction_registry_phase5/high_real_r24_24T19906/`.
+  Result: 8 families, 0 exact-label claims, live submission recommended
+  `false`, target group record unavailable because the real GAP-backed group
+  index is still missing, and all top r24-capable families carry known
+  collapse-label warnings. This advances Phase 5 but is not score improvement
+  and does not satisfy live-submission gates. Validation so far:
+  py-compile passed for the new registry/report code and focused construction
+  registry tests passed (`5 passed`).
 - 2026-07-09 remediation Phase 7 checkpoint: added
   `scripts/igp24_replay_benchmark.py`, a read-only chronological replay
   benchmark that joins historical selected packets with later SAIR

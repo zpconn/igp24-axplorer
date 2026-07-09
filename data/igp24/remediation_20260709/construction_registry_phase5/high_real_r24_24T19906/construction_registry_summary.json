@@ -1,0 +1,54 @@
+{
+  "avoid_labels": [
+    "24T24970",
+    "24T24979",
+    "24T25000",
+    "24T24651",
+    "24T23883"
+  ],
+  "created_at": "2026-07-09T22:09:18.343416+00:00",
+  "exact_label_claimed_count": 0,
+  "family_count": 8,
+  "imprimitive_expectation_counts": {
+    "forced": 5,
+    "likely": 1,
+    "not_forced": 1,
+    "unknown": 1
+  },
+  "live_submission_recommended_now": false,
+  "record_type": "igp24_construction_registry_summary",
+  "safety_note": "Read-only construction registry report. It does not generate candidates, call external algebra systems or SAIR, or recommend live submission.",
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+  "source_commit": "d5582dfaae3f0bc57ff9b745366b8bbb024fec40",
+  "supported_r_family_counts": {
+    "0": 6,
+    "10": 2,
+    "12": 6,
+    "14": 2,
+    "16": 6,
+    "18": 2,
+    "2": 2,
+    "20": 7,
+    "22": 2,
+    "24": 7,
+    "4": 6,
+    "6": 2,
+    "8": 6
+  },
+  "target": {
+    "block_sizes": [],
+    "group_record_available": false,
+    "label": "24T19906",
+    "primitive": null,
+    "r": 24,
+    "solvable": null
+  },
+  "tool": "scripts/igp24_construction_registry_report.py",
+  "top_ranked_families": [
+    "quartic_in_x6",
+    "gx2_degree12_lift",
+    "tower_6x4",
+    "positive_quadratic_product",
+    "composition_8x3"
+  ]
+}

@@ -1,0 +1,513 @@
+{
+  "exact_label_claimed_count": 0,
+  "families": [
+    {
+      "aliases": [
+        "degree12_base_six_positive_roots_lifted_by_x2",
+        "r12_exact_composed_base_perturbation_probe",
+        "r16_diversified_root_layout_probe",
+        "r12_gx2_structured_score_followup"
+      ],
+      "degree_pattern": [
+        12,
+        2
+      ],
+      "display_name": "g(x^2) degree-12 lift",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        2,
+        12
+      ],
+      "imprimitive_expectation": "forced",
+      "justified_group_constraints": [
+        "exact g(x^2) support forces a block system of size 2 before perturbation",
+        "near-composed variants need cycle-type compatibility before scoring"
+      ],
+      "known_collapse_labels": [
+        "24T24970",
+        "24T24979",
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [
+        "24T22770|r=12"
+      ],
+      "known_verified_pairs": [
+        "24T22770|r=12",
+        "24T24970|r=12",
+        "24T24979|r=12",
+        "24T24979|r=16"
+      ],
+      "mutation_parameters": [
+        "base root layout",
+        "off-block exponent set",
+        "coefficient deltas"
+      ],
+      "name": "gx2_degree12_lift",
+      "notes": "Useful for even-r imprimitive scouting, but recent nearby lanes collapsed into crowded labels.",
+      "parameterization": [
+        "degree-12 base polynomial g(y)",
+        "lift y=x^2",
+        "optional off-block perturbations only when explicitly declared"
+      ],
+      "primitive_target_fit": "poor",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_r12_structured_probe.py",
+        "scripts/igp24_r12_structured_followup.py",
+        "scripts/igp24_r16_diversity_probe.py"
+      ],
+      "supported_r_values": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "quartic_lift",
+        "r8_quartic_lift_perturbed",
+        "r8_quartic_lift_score_followup",
+        "r8_score_followup_24T9993"
+      ],
+      "degree_pattern": [
+        4,
+        6
+      ],
+      "display_name": "quartic in x^6",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        6,
+        12
+      ],
+      "imprimitive_expectation": "forced",
+      "justified_group_constraints": [
+        "unperturbed support is composed through x^6",
+        "off-core perturbations must be treated as structural escapes, not exact label evidence"
+      ],
+      "known_collapse_labels": [
+        "24T24979",
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [
+        "24T9993|r=8"
+      ],
+      "known_verified_pairs": [
+        "24T657|r=8",
+        "24T661|r=8",
+        "24T1310|r=8",
+        "24T9993|r=8"
+      ],
+      "mutation_parameters": [
+        "quartic coefficients",
+        "off-core exponent pair",
+        "coefficient deltas"
+      ],
+      "name": "quartic_in_x6",
+      "notes": "Historically found the best project score row, but nearby follow-up lanes became crowded.",
+      "parameterization": [
+        "quartic base in y=x^6",
+        "fiber sign pattern",
+        "off-core odd perturbation mode"
+      ],
+      "primitive_target_fit": "poor",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_r8_score_followup_generate.py",
+        "scripts/igp24_r8_score_followup_lane.py"
+      ],
+      "supported_r_values": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "odd_perturbed_r24_6x4_tower_escape",
+        "r24_tower_odd_escape_probe",
+        "r12_tower_probe"
+      ],
+      "degree_pattern": [
+        6,
+        4
+      ],
+      "display_name": "6 by 4 tower/composition",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        4,
+        6,
+        12
+      ],
+      "imprimitive_expectation": "forced",
+      "justified_group_constraints": [
+        "composition/tower form implies imprimitive block structure before escapes"
+      ],
+      "known_collapse_labels": [
+        "24T23883",
+        "24T24651",
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T23883|r=12",
+        "24T24651|r=12",
+        "24T24651|r=24"
+      ],
+      "mutation_parameters": [
+        "outer coefficients",
+        "inner quartic parameter",
+        "odd escape perturbations"
+      ],
+      "name": "tower_6x4",
+      "notes": "Keep as a structured lane only when block compatibility is useful and old tower basins are avoided.",
+      "parameterization": [
+        "outer degree-6 polynomial",
+        "inner quartic",
+        "tower-level perturbation"
+      ],
+      "primitive_target_fit": "poor",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_r12_tower_probe.py",
+        "scripts/igp24_r24_tower_odd_escape_probe.py"
+      ],
+      "supported_r_values": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "alt_composition_8x3",
+        "alt_composition_r8_3x8",
+        "first_reviewed_8x3_rows"
+      ],
+      "degree_pattern": [
+        8,
+        3
+      ],
+      "display_name": "8 by 3 composition",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        3,
+        8,
+        12
+      ],
+      "imprimitive_expectation": "forced",
+      "justified_group_constraints": [
+        "composed form implies an imprimitive block system before perturbation"
+      ],
+      "known_collapse_labels": [
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T25000|r=4",
+        "24T25000|r=12",
+        "24T25000|r=16"
+      ],
+      "mutation_parameters": [
+        "outer coefficient shift",
+        "inner level shift",
+        "fiber layout"
+      ],
+      "name": "composition_8x3",
+      "notes": "Prior submissions mostly collapsed; require materially different compatibility evidence before widening.",
+      "parameterization": [
+        "outer degree-8 polynomial",
+        "inner cubic",
+        "inner/outer perturbation mode"
+      ],
+      "primitive_target_fit": "poor",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_alt_8x3_sair_probe.py"
+      ],
+      "supported_r_values": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "alt_composition_4x6",
+        "new_4x6_inner_family_not_current_roots"
+      ],
+      "degree_pattern": [
+        4,
+        6
+      ],
+      "display_name": "4 by 6 composition",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        4,
+        6,
+        12
+      ],
+      "imprimitive_expectation": "forced",
+      "justified_group_constraints": [
+        "composed form gives block-structure evidence only"
+      ],
+      "known_collapse_labels": [
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T25000|r=16"
+      ],
+      "mutation_parameters": [
+        "outer shift",
+        "inner-root set",
+        "mixed perturbation mode"
+      ],
+      "name": "composition_4x6",
+      "notes": "Use only with a new inner-root family and compatibility evidence.",
+      "parameterization": [
+        "outer degree-4 polynomial",
+        "inner sextic",
+        "inner-root layout"
+      ],
+      "primitive_target_fit": "poor",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_alt_composition_4x6_probe.py"
+      ],
+      "supported_r_values": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+        "r20_linear_real_roots_probe"
+      ],
+      "degree_pattern": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "display_name": "linear-real-root product seed",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [],
+      "imprimitive_expectation": "not_forced",
+      "justified_group_constraints": [
+        "base seed fixes real-root count locally but does not assert final Galois structure"
+      ],
+      "known_collapse_labels": [
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T25000|r=20"
+      ],
+      "mutation_parameters": [
+        "real-root layout",
+        "no-real quadratic constants",
+        "low coefficient breaks"
+      ],
+      "name": "linear_real_product",
+      "notes": "A non-composed high-real lane; promising only if cycle compatibility escapes crowded labels.",
+      "parameterization": [
+        "20 integer real roots",
+        "two no-real quadratic factors",
+        "low coefficient perturbations"
+      ],
+      "primitive_target_fit": "possible",
+      "solvability_bias": "unknown",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_r20_linear_real_probe.py"
+      ],
+      "supported_r_values": [
+        20
+      ]
+    },
+    {
+      "aliases": [
+        "positive_quadratic_product_plus_low_odd_perturbation",
+        "r24_high_real_quadratic_product_probe",
+        "quadratic_product_construction"
+      ],
+      "degree_pattern": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "display_name": "positive quadratic product seed",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [
+        2,
+        12
+      ],
+      "imprimitive_expectation": "likely",
+      "justified_group_constraints": [
+        "base seed is a reducible all-real product; perturbations are heuristic escapes only"
+      ],
+      "known_collapse_labels": [
+        "24T23883",
+        "24T24651",
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T23883|r=24",
+        "24T24651|r=24",
+        "24T25000|r=24"
+      ],
+      "mutation_parameters": [
+        "positive quadratic roots",
+        "odd exponent set",
+        "coefficient deltas"
+      ],
+      "name": "positive_quadratic_product",
+      "notes": "Useful for r24 local validity pressure, but historical output collapsed heavily.",
+      "parameterization": [
+        "twelve positive quadratic factors",
+        "low odd perturbations"
+      ],
+      "primitive_target_fit": "weak",
+      "solvability_bias": "possible",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_r24_high_real_probe.py"
+      ],
+      "supported_r_values": [
+        24
+      ]
+    },
+    {
+      "aliases": [
+        "generic sparse/random",
+        "model_sample_export",
+        "fixed_sparse_template",
+        "sparse",
+        "mixed",
+        "structured",
+        "sparse_mixed_support_gcd1"
+      ],
+      "degree_pattern": [
+        24
+      ],
+      "display_name": "generic sparse/random model export",
+      "exact_label_claimed": false,
+      "expected_block_sizes": [],
+      "imprimitive_expectation": "unknown",
+      "justified_group_constraints": [
+        "no declared exact group structure; must rely on cycle-type compatibility"
+      ],
+      "known_collapse_labels": [
+        "24T24970",
+        "24T24979",
+        "24T25000"
+      ],
+      "known_score_positive_pairs": [],
+      "known_verified_pairs": [
+        "24T24979|r=16",
+        "24T25000|r=16",
+        "24T25000|r=20",
+        "24T25000|r=24"
+      ],
+      "mutation_parameters": [
+        "support pattern",
+        "target-r control token",
+        "coefficient sampling temperature"
+      ],
+      "name": "generic_sparse_random",
+      "notes": "Keep as a baseline/source of raw diversity; never treat shape novelty as exact group targeting.",
+      "parameterization": [
+        "AXG token model or random coefficient strategy",
+        "support pattern",
+        "coefficient bound"
+      ],
+      "primitive_target_fit": "possible",
+      "solvability_bias": "unknown",
+      "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+      "source_scripts": [
+        "scripts/igp24_score_sample_export.py",
+        "scripts/igp24_gpu_sampler_probe.py"
+      ],
+      "supported_r_values": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24
+      ]
+    }
+  ],
+  "family_count": 8,
+  "record_type": "igp24_construction_family_registry",
+  "schema_version": 1,
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence"
+}
