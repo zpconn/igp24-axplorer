@@ -8,6 +8,51 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active escape-lane scout started 2026-07-09 from clean commit `59a3dcc`.
+  Preflight: `git pull --ff-only` reported already up to date and the
+  worktree was clean; `SAIR_API_KEY` is present in the environment but was not
+  printed or recorded. Objective: run a bounded scout under
+  `data/igp24/escape_lane_scout_20260709/` that pivots away from the
+  now-proven bad deterministic r24 high-real quadratic-product lane and looks
+  for materially different r24/r20/r16 candidates with better odds of escaping
+  crowded labels, especially `24T25000`. Constraints: fresh SAIR sync before
+  generation, no live SAIR submission without explicit approval, dry-run only
+  if a packet clears local gates, no big GPU/model training run, keep TODO
+  updated in real time, validate artifacts, commit, and push. In progress:
+  fresh read-only SAIR sync completed fully under
+  `data/igp24/escape_lane_scout_20260709/sair_sync/`: 25,000 labels,
+  47,834 remaining signatures, 24/24 submission details recovered, 24/24
+  downloads recovered, 208 scoreable rows, 0 pending rows, 0 unmatched rows,
+  and `partial_sync=false`. Current top remaining buckets are r24 = 11,523,
+  r16 = 9,820, r8 = 6,112, r12 = 6,093, and r20 = 5,201. Targeting decision:
+  prioritize r24/r20/r16 because r24 and r20 have the largest remaining
+  percentages and all three have many zero-team remaining labels; avoid
+  widening the rejected deterministic `r24_high_real:*` lane. Next in
+  progress: bounded scouting across materially different existing
+  construction/provenance lanes completed. Lanes attempted: alt 4x6 (220
+  trials, 0 valid target rows), alt 8x3/3x8 (260 trials, 3 valid r24 rows,
+  then 0 eligible after older `24T24932` feedback), r20 linear-real (160
+  trials, 88 valid local r20 rows, then 0 eligible after
+  `construction_family_known_high_label_collapse=24T25000`), r24 tower
+  odd-escape (220 trials, 27 valid local r24 rows, then 0 eligible after
+  `construction_family_known_high_label_collapse=24T25000`), and r16
+  diversity (220 trials, 48 valid local r16 rows, 24 raw selected). Planner
+  update: default accepted feedback now includes older crowded construction
+  feedback for alt 8x3, 4x6, r20 linear-real, and r24 tower odd-escape;
+  provenance extraction now exposes r16/r20/r24 escape-lane template families
+  and basin fingerprints. Final gate result: r16 diversity selected 10 rows,
+  `recommended_for_sair_packet=true`, risk count 0, 3 perturbation modes, 3
+  template families, 10 basin fingerprints, 10 mod-p signatures, and no sync
+  hold. SAIR dry-run only passed with `ok=true`, `polynomial_count=10`, and
+  `body_bytes=1044`. Ready packet:
+  `data/igp24/escape_lane_scout_20260709/gate_r16_diversity/anti_basin_candidate_coefficients.txt`.
+  No live submission was made. Validation: py_compile passed for the planner,
+  SAIR helpers, and touched/used generator scripts; focused tests passed with
+  `35 passed in 1.23s`; JSON/JSONL parse checks passed for 18 JSON files and
+  25 JSONL files / 26,347 rows; coefficient sanity checks passed for all scout
+  coefficient files, including the 10-row ready r16 packet; `git diff --check`
+  passed; and the key-shaped secret scan found no matches. Next: commit, push,
+  then ask for explicit approval before submitting the r16 diversity packet.
 - Active r24 deterministic high-real expansion pass started 2026-07-09.
   Preflight: `git pull --ff-only` reported already up to date and the
   worktree was clean at `8021dfa`. Objective: widen the clean CPU-only

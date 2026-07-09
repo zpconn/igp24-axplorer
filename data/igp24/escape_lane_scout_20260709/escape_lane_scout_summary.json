@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_escape_lane_scout_summary",
+  "created_at": "2026-07-09",
+  "source_commit": "59a3dcc90dea199e0db9feb986fdad9d724f7d40",
+  "safety": {
+    "api_key_recorded": false,
+    "live_sair_submission": false,
+    "sair_dry_run": true,
+    "gpu_training": false,
+    "model_training": false
+  },
+  "sync": {
+    "sync_dir": "data/igp24/escape_lane_scout_20260709/sair_sync",
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "degraded_mode_summary": "24/24 details recovered; 24/24 downloads recovered",
+    "remaining_signature_count": 47834,
+    "scoreable_rows": 208,
+    "pending_rows": 0,
+    "unmatched_rows": 0,
+    "top_remaining_r_buckets": [
+      {"r": 24, "remaining": 11523},
+      {"r": 16, "remaining": 9820},
+      {"r": 8, "remaining": 6112},
+      {"r": 12, "remaining": 6093},
+      {"r": 20, "remaining": 5201}
+    ]
+  },
+  "lanes": {
+    "alt_4x6": {
+      "trials": 220,
+      "valid_candidates": 0,
+      "raw_selected_rows": 0,
+      "gate_selected_rows": 0,
+      "ready_for_dry_run": false,
+      "status": "diagnostic_too_few_valid_rows"
+    },
+    "alt_8x3_3x8": {
+      "trials": 260,
+      "valid_candidates": 3,
+      "raw_selected_rows": 3,
+      "gate_selected_rows": 0,
+      "ready_for_dry_run": false,
+      "primary_hold": "template_family_known_high_label_collapse=24T24932"
+    },
+    "r20_linear_real": {
+      "trials": 160,
+      "valid_candidates": 88,
+      "raw_selected_rows": 10,
+      "gate_selected_rows": 0,
+      "ready_for_dry_run": false,
+      "primary_hold": "construction_family_known_high_label_collapse=24T25000"
+    },
+    "r24_tower_odd_escape": {
+      "trials": 220,
+      "valid_candidates": 27,
+      "raw_selected_rows": 24,
+      "gate_selected_rows": 0,
+      "ready_for_dry_run": false,
+      "primary_hold": "construction_family_known_high_label_collapse=24T25000"
+    },
+    "r16_diversity": {
+      "trials": 220,
+      "valid_candidates": 48,
+      "raw_selected_rows": 24,
+      "gate_candidate_rows": 24,
+      "gate_eligible_rows": 24,
+      "gate_selected_rows": 10,
+      "ready_for_dry_run": true,
+      "risk_count": 0,
+      "selected_modes": {
+        "three_odd_perturbed_near_composed": 4,
+        "four_odd_perturbed_near_composed": 3,
+        "mixed_even_odd_perturbed": 3
+      },
+      "template_family_count": 3,
+      "basin_fingerprint_count": 10,
+      "mod_p_signature_count": 10,
+      "sync_hold_reasons": []
+    }
+  },
+  "dry_run": {
+    "coefficients_txt": "data/igp24/escape_lane_scout_20260709/gate_r16_diversity/anti_basin_candidate_coefficients.txt",
+    "output_json": "data/igp24/escape_lane_scout_20260709/gate_r16_diversity/r16_diversity_sair_dry_run_20260709.json",
+    "ok": true,
+    "polynomial_count": 10,
+    "body_bytes": 1044
+  },
+  "decision": {
+    "submission_recommended_with_user_approval": true,
+    "recommended_packet": "r16_diversity",
+    "do_not_submit_without_explicit_approval": true,
+    "why": "The r16 diversity lane is the only scouted lane that cleared local validity, default feedback hard stops, diversity gates, and sync collision checks.",
+    "held_lanes": [
+      "alt_4x6",
+      "alt_8x3_3x8",
+      "r20_linear_real",
+      "r24_tower_odd_escape"
+    ]
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "anti_basin_constraints_satisfied": [
+    "degree_pattern_not_6x4",
+    "not_g_x_squared_even_support",
+    "support_gcd_one",
+    "not_product_quadratic_low_odd_perturbation",
+    "not_r24_tower_odd_escape"
+  ],
+  "coefficient_height_max": 1310976436,
+  "coefficient_height_min": 243546259,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_alt_composition_probe.py",
+    "--output_dir",
+    "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8",
+    "--pair_status_json",
+    "data/igp24/pair_status_20260706.json",
+    "--seed",
+    "910803",
+    "--max_trials",
+    "260",
+    "--limit",
+    "24",
+    "--per_family_cap",
+    "2",
+    "--target_rs",
+    "24,20,16",
+    "--exclude_perturbation_modes",
+    "outer_constant_shift",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "created_at": "2026-07-09T14:45:17.491388+00:00",
+  "excluded_perturbation_modes": [
+    "outer_constant_shift"
+  ],
+  "known_hashes_loaded": 181,
+  "lanes": [
+    "8x3",
+    "3x8"
+  ],
+  "observed_root_count_counts": {
+    "0": 1,
+    "12": 4,
+    "18": 1,
+    "24": 3,
+    "4": 2,
+    "6": 6
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_rejected_trials.jsonl",
+    "report_md": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_report.md",
+    "summary_json": "data/igp24/escape_lane_scout_20260709/alt_8x3_3x8/alt_composition_summary.json"
+  },
+  "queue_status": "diagnostic_too_few_valid_rows",
+  "recommendation": "diagnostic_only_refine_alternate_composition_search",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 27,
+    "even_support_g_x_squared_like,support_gcd_not_one": 13,
+    "excluded_perturbation_mode:outer_constant_shift": 171,
+    "real_root_count_not_target_bucket": 14,
+    "reducible_over_q": 32
+  },
+  "rejected_counts_by_pattern": {
+    "3x8": {
+      "coefficient_height_exceeds_bound": 6,
+      "even_support_g_x_squared_like,support_gcd_not_one": 12,
+      "excluded_perturbation_mode:outer_constant_shift": 87
+    },
+    "8x3": {
+      "coefficient_height_exceeds_bound": 21,
+      "even_support_g_x_squared_like,support_gcd_not_one": 1,
+      "excluded_perturbation_mode:outer_constant_shift": 84,
+      "real_root_count_not_target_bucket": 14,
+      "reducible_over_q": 32
+    }
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_family_keys": [
+    "8x3|s=11|mode=outer_high_coefficient_shift|levels=-4,-3,-2,-1,1,2,3,4|outer_y=0:10,5:-1",
+    "8x3|s=10|mode=outer_two_coefficient_shift|levels=2,3,4,5,6,7,8,9|outer_y=0:1,2:-1",
+    "8x3|s=11|mode=outer_two_coefficient_shift|levels=2,3,4,5,6,7,8,9|outer_y=0:1,2:-1"
+  ],
+  "selected_hashes": [
+    "886f7c30a5ad50a5ddcfbd5306c4947b3044c94bb37040d2d1d532712e18fb35",
+    "0c192dbd5854fef80a159abe167164e1363876a36ed25f1f6b467ff796eeb89f",
+    "bf404229a931c1d3f03922e618a8fa4b639f6f90ce344eb1bdf8f20cd24ff8ef"
+  ],
+  "selected_mode_counts": {
+    "outer_high_coefficient_shift": 1,
+    "outer_two_coefficient_shift": 2
+  },
+  "selected_pattern_counts": {
+    "8x3": 3
+  },
+  "selected_r_counts": {
+    "24": 3
+  },
+  "selected_rows": 3,
+  "selected_short_hashes": [
+    "886f7c30a5ad",
+    "0c192dbd5854",
+    "bf404229a931"
+  ],
+  "source_commit": "59a3dcc90dea199e0db9feb986fdad9d724f7d40",
+  "submission_readiness": {
+    "candidate_rows_to_consider": [
+      {
+        "height": 243546259,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 1,
+        "short_hash": "886f7c30a5ad"
+      },
+      {
+        "height": 797997200,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 2,
+        "short_hash": "0c192dbd5854"
+      },
+      {
+        "height": 1310976436,
+        "pattern": "8x3",
+        "r": 24,
+        "rank": 3,
+        "short_hash": "bf404229a931"
+      }
+    ],
+    "known_basins_avoided": [
+      "exact_even_6x4_tower_24T23883_24T24651",
+      "odd_escaped_6x4_tower_24T25000",
+      "product_quadratic_low_odd_perturbation_24T25000",
+      "exact_g_x_squared_even_support"
+    ],
+    "reason": "Too few locally valid structurally novel rows were selected.",
+    "selected_patterns": [
+      "8x3"
+    ],
+    "selected_r_values": [
+      24
+    ],
+    "status": "diagnostic_only_not_ready",
+    "submitted_by_this_tool": false,
+    "worth_submitting_later": false
+  },
+  "target_rs": [
+    24,
+    20,
+    16
+  ],
+  "tool": "scripts/igp24_alt_composition_probe.py",
+  "trial_pattern_counts": {
+    "3x8": 105,
+    "8x3": 155
+  },
+  "trials_attempted": 260,
+  "valid_candidate_count": 3,
+  "valid_mode_counts": {
+    "outer_high_coefficient_shift": 1,
+    "outer_two_coefficient_shift": 2
+  },
+  "valid_pattern_counts": {
+    "8x3": 3
+  },
+  "valid_r_counts": {
+    "24": 3
+  }
+}

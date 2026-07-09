@@ -316,12 +316,14 @@ def test_default_accepted_feedback_includes_r24_deterministic_collapse():
     paths = [str(path) for path in DEFAULT_ACCEPTED_FEEDBACK_JSONS]
 
     assert any("r24_deterministic_sair_accepted_feedback_20260709.json" in path for path in paths)
+    assert any("r20_linear_real_sair_accepted_feedback_20260707.json" in path for path in paths)
+    assert any("r24_tower_odd_escape_sair_accepted_feedback_20260707.json" in path for path in paths)
 
     observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
     r24_observations = [row for row in observations if row.get("pair_key") == "24T25000|r=24"]
 
     assert len(r24_observations) >= 11
-    assert {row["template_family_id"] for row in r24_observations} >= {
+    assert {row.get("template_family_id") for row in r24_observations if row.get("template_family_id")} >= {
         "r24_high_real:single_low_odd_break",
         "r24_high_real:two_low_odd_break",
         "r24_high_real:three_low_odd_break",
@@ -430,6 +432,136 @@ def test_candidate_features_reads_r24_high_real_probe_metadata():
     assert sample_export_source({"source_strategy": "r24_high_real_quadratic_product_probe"}) == (
         "r24_high_real_quadratic_product_probe"
     )
+
+
+def test_candidate_features_reads_escape_lane_probe_metadata():
+    r20_row = {
+        "canonical_hash": "r20-linear-hash",
+        "real_root_count": 20,
+        "coefficient_height": 1000,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 5, "degrees": [1, 23]}],
+        "generation_metadata": {
+            "construction_family": "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+            "decomposition_degree_pattern": "20x1_plus_2x2_noncomposed",
+            "r20_linear_mode": "three_low_coefficient_break",
+            "r20_linear_family_key": "three_low_coefficient_break|roots=-1,1|no_real=1,3|pert=1:1,3:-1,5:1",
+            "r20_linear_coefficient_perturbations": [
+                {"x_exponent": 1, "delta": 1},
+                {"x_exponent": 3, "delta": -1},
+                {"x_exponent": 5, "delta": 1},
+            ],
+            "r20_linear_support_gcd": 1,
+            "r20_linear_even_support": False,
+            "r20_linear_odd_support_exponents": [1, 3, 5],
+        },
+    }
+    r16_row = {
+        "canonical_hash": "r16-diversity-hash",
+        "real_root_count": 16,
+        "coefficient_height": 1000,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 7, "degrees": [2, 22]}],
+        "generation_metadata": {
+            "strategy": "r16_diversified_root_layout_probe",
+            "r16_diversity_mode": "mixed_even_odd_perturbed",
+            "r16_diversity_family_key": "mixed_even_odd_perturbed|roots=1,2|quads=1-1,1-2|odd=1,5|y=5",
+            "r16_diversity_off_block_perturbation_exponents": [1, 5],
+            "r16_diversity_divisor2_off_block_terms": 2,
+        },
+    }
+    r24_tower_row = {
+        "canonical_hash": "r24-tower-escape-hash",
+        "real_root_count": 24,
+        "coefficient_height": 1000,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [2, 1] + [0] * 22 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 3, "degrees": [1, 23]}],
+        "generation_metadata": {
+            "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+            "decomposition_degree_pattern": "6x4_seed_plus_odd_x_perturbation",
+            "r24_tower_odd_escape_mode": "single_odd_tower_escape",
+            "r24_tower_odd_escape_family_key": "s=6|mode=single_odd_tower_escape|real=-1,-2|odd_x=1:1",
+            "r24_tower_odd_escape_odd_perturbations": [{"x_exponent": 1, "delta": 1}],
+            "r24_tower_odd_escape_support_gcd": 1,
+            "r24_tower_odd_escape_even_support_after_perturbation": False,
+            "r24_tower_odd_escape_odd_support_exponents": [1],
+        },
+    }
+
+    r20_features = candidate_features(r20_row)
+    r16_features = candidate_features(r16_row)
+    r24_features = candidate_features(r24_tower_row)
+
+    assert r20_features["template_family_id"].startswith(
+        "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation:"
+    )
+    assert r20_features["basin_fingerprint"] == r20_features["family_key"]
+    assert r20_features["perturbation_mode"] == "three_low_coefficient_break"
+    assert r20_features["odd_support_exponents"] == [1, 3, 5]
+
+    assert r16_features["template_family_id"] == "r16_diversified_root_layout_probe::mixed_even_odd_perturbed"
+    assert r16_features["basin_fingerprint"] == r16_features["family_key"]
+    assert r16_features["support_gcd"] == 1
+    assert r16_features["even_support"] is False
+
+    assert r24_features["template_family_id"] == (
+        "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape"
+    )
+    assert r24_features["basin_fingerprint"] == r24_features["family_key"]
+    assert r24_features["perturbation_terms"] == 1
+
+
+def test_construction_family_feedback_holds_older_crowded_lane_repeat():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[20])
+    basin_profile = build_basin_profile(
+        [
+            {
+                "label": "24T25000",
+                "pair_key": "24T25000|r=20",
+                "r": 20,
+                "canonical_hash": "accepted-r20-linear",
+                "construction_family": "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+                "family_key": "accepted-r20-linear-family",
+                "support_gcd": 1,
+                "mod_p_pattern_signature": "p5:1-23",
+            }
+        ],
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 52}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+    repeat = score_candidate_row(
+        {
+            "canonical_hash": "r20-linear-repeat",
+            "real_root_count": 20,
+            "coefficient_height": 1000,
+            "irreducible": True,
+            "squarefree": True,
+            "exported_coefficients": [2, 1] + [0] * 22 + [1],
+            "mod_p_factorization_degree_patterns": [{"prime": 7, "degrees": [1, 23]}],
+            "generation_metadata": {
+                "construction_family": "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+                "decomposition_degree_pattern": "20x1_plus_2x2_noncomposed",
+                "r20_linear_mode": "single_low_coefficient_break",
+                "r20_linear_family_key": "new-r20-linear-family",
+                "r20_linear_coefficient_perturbations": [{"x_exponent": 1, "delta": 1}],
+                "r20_linear_support_gcd": 1,
+                "r20_linear_even_support": False,
+            },
+        },
+        target_rs={20},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert repeat["eligible_for_packet"] is False
+    assert "construction_family_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
 
 
 def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signature():

@@ -1,0 +1,879 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_anti_basin_planner",
+  "created_at": "2026-07-09T14:51:43.282837+00:00",
+  "tool": "scripts/igp24_anti_basin_planner.py",
+  "source_commit": "59a3dcc90dea199e0db9feb986fdad9d724f7d40",
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_anti_basin_planner.py",
+    "--candidate_jsonl",
+    "data/igp24/escape_lane_scout_20260709/r24_tower_odd_escape/r24_tower_odd_escape_candidate_queue.jsonl",
+    "--label_basin_summary_json",
+    "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_summary.json",
+    "--label_basin_observations_jsonl",
+    "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_observations.jsonl",
+    "--sair_sync_dir",
+    "data/igp24/escape_lane_scout_20260709/sair_sync",
+    "--output_dir",
+    "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape",
+    "--target_rs",
+    "24",
+    "--crowded_team_threshold",
+    "20",
+    "--packet_limit",
+    "12",
+    "--min_packet_rows",
+    "8",
+    "--min_model_generated_rows",
+    "0",
+    "--min_perturbation_mode_count",
+    "1",
+    "--per_mode_cap",
+    "12",
+    "--per_pattern_cap",
+    "12",
+    "--min_template_family_count",
+    "1",
+    "--min_basin_fingerprint_count",
+    "8",
+    "--reject_unknown_provenance"
+  ],
+  "safety": {
+    "gpu_training": false,
+    "model_training": false,
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "magma": false,
+    "pari": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/escape_lane_scout_20260709/r24_tower_odd_escape/r24_tower_odd_escape_candidate_queue.jsonl"
+    ],
+    "label_basin_summary_record_type": "igp24_label_basin_analysis",
+    "progress_source": {
+      "record_type": "igp24_sair_label_progress_snapshot",
+      "created_at": "2026-07-09T14:43:16.902730+00:00",
+      "query": {
+        "source": "data/igp24/escape_lane_scout_20260709/sair_sync"
+      },
+      "page_count": 5,
+      "label_count": 25000,
+      "first_generated_at": "2026-07-09T14:43:09Z",
+      "last_generated_at": "2026-07-09T14:43:09Z",
+      "published": true
+    },
+    "target_rs": [
+      24
+    ]
+  },
+  "basin_profile": {
+    "avoid_labels": [
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T25000"
+    ],
+    "crowded_labels": [
+      "24T1310",
+      "24T22770",
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T24984",
+      "24T25000",
+      "24T657",
+      "24T661",
+      "24T9993"
+    ],
+    "crowded_observation_count": 233,
+    "accepted_hash_count": 171,
+    "exact_fingerprint_count": 135,
+    "loose_fingerprint_count": 43,
+    "mod_p_signature_count": 114,
+    "collapsed_family_pattern_count": 22,
+    "collapsed_construction_r_count": 19,
+    "collapsed_pair_count": 20,
+    "collapsed_template_r_count": 40,
+    "collapsed_basin_r_count": 154,
+    "collapsed_model_template_r_count": 2,
+    "collapsed_model_basin_r_count": 4
+  },
+  "candidate_count": 24,
+  "eligible_candidate_count": 0,
+  "selected_rows": 0,
+  "score_classification_counts": {
+    "reject_or_hold_known_basin_risk": 24
+  },
+  "top_scored_rows": [
+    {
+      "rank": 1,
+      "short_hash": "f48ecb66049a",
+      "score": 57.304,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "f48ecb66049abb991363c5866720406d6e5d4be8e19f62bbb872185da45b94cb",
+        "short_hash": "f48ecb66049a",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 372258,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=6|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-5,-8|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=6|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-5,-8|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-5-6-12;p3:1-5-6-12;p5:1-2-3-6-12;p7:5-19",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 2,
+      "short_hash": "d6da4886246d",
+      "score": 57.102,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "d6da4886246da8f41cc6334abbeef3e3548eeeb04ff9cfc5556b0aed020d4764",
+        "short_hash": "d6da4886246d",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 507209,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=6|mode=single_odd_tower_escape|real=-1,-3,-4,-5,-6,-7|odd_x=1:-1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=6|mode=single_odd_tower_escape|real=-1,-3,-4,-5,-6,-7|odd_x=1:-1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-2-10-11;p3:1-5-6-12;p5:1-5-18;p7:1-3-3-4-4-9",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 3,
+      "short_hash": "a256a3c49815",
+      "score": 57.077,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "a256a3c498156720525f6288adff398db75057aac04731fa6fb312308e93cf47",
+        "short_hash": "a256a3c49815",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 527008,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=6|mode=single_odd_tower_escape|real=-1,-2,-3,-6,-7,-8|odd_x=1:3",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=6|mode=single_odd_tower_escape|real=-1,-2,-3,-6,-7,-8|odd_x=1:3",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-5-6-12;p5:11-13",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 4,
+      "short_hash": "48eccac8e215",
+      "score": 56.902,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "48eccac8e21524ec064408e9b942d74a0246225ca17b2ee2defff71741b668a3",
+        "short_hash": "48eccac8e215",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 689990,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=7|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-7|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=7|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-7|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-23;p3:1-2-4-4-6-7;p5:5-7-12;p7:1-23",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 5,
+      "short_hash": "ddbda553f944",
+      "score": 56.829,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "ddbda553f944b7dcc1773908d1804472aa21ddcf1ccd87e10768e5925e50ce50",
+        "short_hash": "ddbda553f944",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 771498,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=7|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-9|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=7|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-9|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-23;p3:1-9-14;p5:24;p7:1-5-18",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 6,
+      "short_hash": "217e51b89373",
+      "score": 56.512,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "217e51b89373c0b800b87b027c4018d4735ca1c94033225e1f7cfd748ac6f8c7",
+        "short_hash": "217e51b89373",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 1255559,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=7|mode=single_odd_tower_escape|real=-1,-2,-4,-5,-8,-12|odd_x=1:2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=7|mode=single_odd_tower_escape|real=-1,-2,-4,-5,-8,-12|odd_x=1:2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p3:1-3-5-5-10;p5:1-23;p7:4-7-13",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 7,
+      "short_hash": "af0c4ce10dfc",
+      "score": 56.238,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "af0c4ce10dfc2e1b85cfb392508cb623620e2f7ff68188e55267e8d70d711ef7",
+        "short_hash": "af0c4ce10dfc",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 1911011,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-9,-13|odd_x=3:-1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-9,-13|odd_x=3:-1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p5:7-8-9;p7:1-4-7-12",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 8,
+      "short_hash": "87934ccf2357",
+      "score": 56.178,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "87934ccf23574ae9ec870fd6b28e15ad7c271aa8827be0bf9d0bd222c19ed3b6",
+        "short_hash": "87934ccf2357",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 2095316,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-10,-12|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-10,-12|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-5-6-12;p3:1-8-15;p5:1-23;p7:6-9-9",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 9,
+      "short_hash": "bf1e4877b6f1",
+      "score": 56.105,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "bf1e4877b6f14af34bf7938b4ff22d2d779d56cb3986755a16d2753a31047222",
+        "short_hash": "bf1e4877b6f1",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 2345021,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-11,-13|odd_x=1:2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-11,-13|odd_x=1:2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p3:1-5-18;p5:1-3-5-15;p7:5-6-13",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 10,
+      "short_hash": "6a1878ef0a3d",
+      "score": 56.078,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "6a1878ef0a3d24ac1d41cb4bcf3bad1b86777f11485107f9f3a2ff7e1cf08aa9",
+        "short_hash": "6a1878ef0a3d",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 2441753,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-10,-15|odd_x=3:-2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-5,-10,-15|odd_x=3:-2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p7:2-2-20",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 11,
+      "short_hash": "62afb19a0df7",
+      "score": 56.055,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "62afb19a0df70a12e4469d227c3e8c77de1ce4e14a015435cb6dd5def7c08945",
+        "short_hash": "62afb19a0df7",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 2530874,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-15|odd_x=3:-1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=8|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-15|odd_x=3:-1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p7:1-6-17",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 12,
+      "short_hash": "656c513ef280",
+      "score": 56.002,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "656c513ef28091e1825d57930099f1a0510f1e1a0715ded66e077647c30a52ce",
+        "short_hash": "656c513ef280",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 2744604,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-14|odd_x=1:-2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-14|odd_x=1:-2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p3:1-4-19;p5:1-3-5-15;p7:1-3-4-16",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 13,
+      "short_hash": "e0d34ed6e496",
+      "score": 55.749,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "e0d34ed6e496bf388e4acc3860325aeba35fc7221b57289c34020476b1844ec5",
+        "short_hash": "e0d34ed6e496",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 4051421,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-16|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-16|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-3-4-16;p3:1-5-6-12;p5:1-23;p7:10-14",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 14,
+      "short_hash": "ffc7dd1d7b25",
+      "score": 55.749,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "ffc7dd1d7b254c0f2c5f04acd9313ed8537fcb5b0f8dd9031c2ab3bca4f8da01",
+        "short_hash": "ffc7dd1d7b25",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 4051421,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-16|odd_x=3:2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-12,-16|odd_x=3:2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p5:2-7-15;p7:1-2-4-7-10",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 15,
+      "short_hash": "5f8964cecf2e",
+      "score": 55.686,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "5f8964cecf2e0113852f8ad4608ed95cbdb2361b1ad57855daa8bbcc23ebc8af",
+        "short_hash": "5f8964cecf2e",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 4461505,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-13,-17|odd_x=1:-2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=9|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-13,-17|odd_x=1:-2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p3:1-23;p5:1-8-15;p7:24",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 16,
+      "short_hash": "7e4f69593117",
+      "score": 55.569,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "7e4f69593117478bf27d504afb49c3a0e58ef600a4078c226ab2880cea40718c",
+        "short_hash": "7e4f69593117",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 5335506,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=11|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-9|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=11|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-6,-9|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-23;p3:1-23;p5:1-3-5-15;p7:24",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 17,
+      "short_hash": "77923a89eb09",
+      "score": 55.564,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "77923a89eb095e23ced0808a3307546a0d9e3f131e04ff0e62e3f1cb7ff88161",
+        "short_hash": "77923a89eb09",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 5380700,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-19|odd_x=1:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-19|odd_x=1:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-2-10-11;p3:1-23;p5:3-4-5-6-6;p7:1-3-9-11",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 18,
+      "short_hash": "e549545e24d8",
+      "score": 55.564,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "e549545e24d83f7bdad00b4a66253167a8b06f5ad9aa692193939acf8cf7e581",
+        "short_hash": "e549545e24d8",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 5380700,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-19|odd_x=3:1",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-19|odd_x=3:1",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          3
+        ],
+        "mod_p_pattern_signature": "p5:9-15",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 19,
+      "short_hash": "1c7f1274a9c9",
+      "score": 55.512,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "1c7f1274a9c974b09b79d545ae595c26a99c1ada8eb2054b898f65db7b5033da",
+        "short_hash": "1c7f1274a9c9",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 5826200,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-9,-19|odd_x=1:-3",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-9,-19|odd_x=1:-3",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p2:1-2-10-11;p5:5-5-14;p7:7-7-10",
+        "irreducible": true,
+        "squarefree": true
+      }
+    },
+    {
+      "rank": 20,
+      "short_hash": "292acab2e97e",
+      "score": 55.504,
+      "eligible_for_packet": false,
+      "classification": "reject_or_hold_known_basin_risk",
+      "risk_reasons": [
+        "construction_family_known_high_label_collapse=24T25000"
+      ],
+      "features": {
+        "canonical_hash": "292acab2e97e1db9b915e7505ca25b79cea008e7b50bcfb480dec300d3352826",
+        "short_hash": "292acab2e97e",
+        "label": "",
+        "pair_key": "",
+        "r": 24,
+        "coefficient_height": 5894150,
+        "construction_family": "odd_perturbed_r24_6x4_tower_escape",
+        "decomposition_pattern": "6x4_seed_plus_odd_x_perturbation",
+        "perturbation_mode": "single_odd_tower_escape",
+        "perturbation_terms": 1,
+        "family_key": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-22|odd_x=1:2",
+        "template_family_id": "odd_perturbed_r24_6x4_tower_escape:6x4_seed_plus_odd_x_perturbation:single_odd_tower_escape",
+        "basin_fingerprint": "s=10|mode=single_odd_tower_escape|real=-1,-2,-3,-4,-7,-22|odd_x=1:2",
+        "coefficient_hash": "",
+        "decoded_hash": "",
+        "source_seed_hash": "",
+        "support_gcd": 1,
+        "even_support": false,
+        "odd_support_exponents": [
+          1
+        ],
+        "mod_p_pattern_signature": "p3:1-23;p5:24;p7:1-6-6-11",
+        "irreducible": true,
+        "squarefree": true
+      }
+    }
+  ],
+  "selected_rows_summary": [],
+  "submission_recommendation": {
+    "recommended_for_sair_packet": false,
+    "local_recommended_for_sair_packet": false,
+    "status": "hold_no_submission",
+    "reason": "only_0_eligible_rows_below_min_8; selected_rows_do_not_have_min_perturbation_mode_count_1; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "selected_rows": 0,
+    "selected_mode_counts": {},
+    "min_perturbation_mode_count": 1,
+    "selected_mod_p_signature_counts": {},
+    "selected_template_family_counts": {},
+    "selected_basin_fingerprint_counts": {},
+    "selected_source_counts": {},
+    "model_generated_selected_rows": 0,
+    "min_model_generated_rows": 0,
+    "min_template_family_count": 1,
+    "min_basin_fingerprint_count": 8,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "sync_submission_gate": {
+      "full_submission_state_complete": true,
+      "partial_sync": false,
+      "submission_detail_complete": true,
+      "download_complete": true,
+      "degraded_mode_summary": "24/24 details recovered; 24/24 downloads recovered",
+      "selected_pair_keys": [],
+      "selected_r_values": [],
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "pending_high_label_basin_collisions": {},
+      "hold_reasons": []
+    }
+  },
+  "next_decision": "Do not submit this packet; refine generation toward more perturbation-mode and mod-p diversity.",
+  "output_files": {
+    "progress_cache_json": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_live_progress_cache.json",
+    "scores_jsonl": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_candidate_scores.jsonl",
+    "selected_jsonl": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_selected_queue.jsonl",
+    "coefficients_txt": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_candidate_hashes.txt",
+    "summary_json": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_planner_summary.json",
+    "report_md": "data/igp24/escape_lane_scout_20260709/gate_r24_tower_odd_escape/anti_basin_planner_report.md"
+  }
+}

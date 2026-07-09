@@ -1,0 +1,95 @@
+{
+  "coefficient_height_max": 2027901173760000,
+  "coefficient_height_min": 46641998908512,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_r20_linear_real_probe.py",
+    "--output_dir",
+    "data/igp24/escape_lane_scout_20260709/r20_linear_real",
+    "--pair_status_json",
+    "data/igp24/pair_status_20260706.json",
+    "--seed",
+    "912020",
+    "--max_trials",
+    "160",
+    "--limit",
+    "24",
+    "--per_family_cap",
+    "2",
+    "--per_mode_cap",
+    "5",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "construction_family": "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
+  "created_at": "2026-07-09T14:45:32.178755+00:00",
+  "decomposition_pattern": "20x1_plus_2x2_noncomposed",
+  "known_hashes_loaded": 181,
+  "observed_root_count_counts": {
+    "20": 93
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_rejected_trials.jsonl",
+    "report_md": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_report.md",
+    "summary_json": "data/igp24/escape_lane_scout_20260709/r20_linear_real/r20_linear_real_summary.json"
+  },
+  "queue_status": "review_only_queue_ready",
+  "recommendation": "review_only_gate_before_any_submission",
+  "rejected_counts": {
+    "known_or_duplicate_hash": 5,
+    "reducible_over_q": 67
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_hashes": [
+    "cc006b8efc66d8e37cd585268b334d3594482e3606288eeea98541489269417e",
+    "a82cc79e444f39f1b04d54ac2f48710958138b8e31a9c5ab0f0f3535d0066566",
+    "d057941b79e31eba4e6e77befa55f20bbf28e025e46860aad2187ea108619b07",
+    "0f1f3af9778adbda024aba0d4977e296737a1e89431cca9cbb7cacd8859a93d2",
+    "27546e009d25f69e09cff7b0fa73a9ac35b2487032e0e44a3b510f49388b33a4",
+    "8e5c728256e32b150ce483ec8bbf1f51c4a37ae28c9a76f38b9e9c674039a947",
+    "1a7d4a12bdce2642556998f6fe2b381adf3b1f8443bd29af2a78421d0ffd5235",
+    "7788c1b86f9ca64862ff5496b8c02ec0cd0bacb96375975d00a78eba41973005",
+    "5c634392d4f76fba7c602cb06057c479f4e2b87f51f7193534aaae4304188f71",
+    "ab1abe4e0947f2c34faeb9c91b47230449d3ff4f949fe0590238813dd586e9b6"
+  ],
+  "selected_mode_counts": {
+    "single_low_coefficient_break": 5,
+    "three_low_coefficient_break": 5
+  },
+  "selected_rows": 10,
+  "selected_short_hashes": [
+    "cc006b8efc66",
+    "a82cc79e444f",
+    "d057941b79e3",
+    "0f1f3af9778a",
+    "27546e009d25",
+    "8e5c728256e3",
+    "1a7d4a12bdce",
+    "7788c1b86f9c",
+    "5c634392d4f7",
+    "ab1abe4e0947"
+  ],
+  "source_commit": "59a3dcc90dea199e0db9feb986fdad9d724f7d40",
+  "target_r": 20,
+  "tool": "scripts/igp24_r20_linear_real_probe.py",
+  "trials_attempted": 160,
+  "valid_mode_counts": {
+    "single_low_coefficient_break": 62,
+    "three_low_coefficient_break": 26
+  },
+  "valid_r20_candidates": 88
+}

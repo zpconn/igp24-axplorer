@@ -1,0 +1,140 @@
+{
+  "anti_basin_constraints_satisfied": [
+    "degree_pattern_4x6",
+    "not_6x4",
+    "not_plain_8x3",
+    "not_g_x_squared_even_support",
+    "support_gcd_one"
+  ],
+  "coefficient_height_max": null,
+  "coefficient_height_min": null,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_alt_composition_4x6_probe.py",
+    "--output_dir",
+    "data/igp24/escape_lane_scout_20260709/alt_4x6",
+    "--pair_status_json",
+    "data/igp24/pair_status_20260706.json",
+    "--seed",
+    "910401",
+    "--max_trials",
+    "220",
+    "--limit",
+    "24",
+    "--per_family_cap",
+    "2",
+    "--per_mode_cap",
+    "5",
+    "--target_rs",
+    "24,20,16",
+    "--exclude_perturbation_modes",
+    "outer_constant_shift",
+    "--prime_limit",
+    "7",
+    "--exact_score_timeout",
+    "5.0"
+  ],
+  "created_at": "2026-07-09T14:45:18.160752+00:00",
+  "excluded_perturbation_modes": [
+    "outer_constant_shift"
+  ],
+  "known_hashes_loaded": 181,
+  "observed_root_count_counts": {
+    "0": 22,
+    "10": 2,
+    "12": 9
+  },
+  "output_files": {
+    "coefficients_txt": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_candidate_hashes.txt",
+    "queue_jsonl": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_candidate_queue.jsonl",
+    "rejected_jsonl": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_rejected_trials.jsonl",
+    "report_md": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_report.md",
+    "summary_json": "data/igp24/escape_lane_scout_20260709/alt_4x6/alt_composition_4x6_summary.json"
+  },
+  "queue_status": "diagnostic_too_few_valid_rows",
+  "recommendation": "diagnostic_only_refine_4x6_search",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 160,
+    "even_support_g_x_squared_like,support_gcd_not_one": 18,
+    "not_squarefree": 1,
+    "real_root_count_not_target_bucket": 33,
+    "reducible_over_q": 8
+  },
+  "rejected_counts_by_mode": {
+    "outer_balanced_shift": {
+      "coefficient_height_exceeds_bound": 38,
+      "even_support_g_x_squared_like,support_gcd_not_one": 6,
+      "real_root_count_not_target_bucket": 8,
+      "reducible_over_q": 2
+    },
+    "outer_cubic_mixed_shift": {
+      "coefficient_height_exceeds_bound": 40,
+      "even_support_g_x_squared_like,support_gcd_not_one": 5,
+      "real_root_count_not_target_bucket": 12
+    },
+    "outer_linear_quadratic_shift": {
+      "coefficient_height_exceeds_bound": 41,
+      "even_support_g_x_squared_like,support_gcd_not_one": 4,
+      "real_root_count_not_target_bucket": 9,
+      "reducible_over_q": 1
+    },
+    "outer_two_coefficient_shift": {
+      "coefficient_height_exceeds_bound": 41,
+      "even_support_g_x_squared_like,support_gcd_not_one": 3,
+      "not_squarefree": 1,
+      "real_root_count_not_target_bucket": 4,
+      "reducible_over_q": 5
+    }
+  },
+  "safety": {
+    "automatic_submission": false,
+    "cpu_only": true,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "network": false,
+    "pari": false,
+    "sair_api": false
+  },
+  "selected_family_keys": [],
+  "selected_hashes": [],
+  "selected_mode_counts": {},
+  "selected_pattern_counts": {},
+  "selected_r_counts": {},
+  "selected_rows": 0,
+  "selected_short_hashes": [],
+  "source_commit": "59a3dcc90dea199e0db9feb986fdad9d724f7d40",
+  "submission_readiness": {
+    "candidate_rows_to_consider": [],
+    "known_basins_avoided": [
+      "exact_even_6x4_tower_24T23883_24T24651",
+      "odd_escaped_6x4_tower_24T25000",
+      "plain_8x3_24T24932",
+      "exact_g_x_squared_even_support"
+    ],
+    "reason": "Too few locally valid/diverse 4x6 rows survived local gates.",
+    "selected_mode_counts": {},
+    "selected_patterns": [],
+    "selected_r_values": [],
+    "status": "diagnostic_only_not_ready",
+    "submitted_by_this_tool": false,
+    "worth_scoring_with_anti_basin_planner": false
+  },
+  "target_rs": [
+    24,
+    20,
+    16
+  ],
+  "tool": "scripts/igp24_alt_composition_4x6_probe.py",
+  "trial_mode_counts": {
+    "outer_balanced_shift": 54,
+    "outer_cubic_mixed_shift": 57,
+    "outer_linear_quadratic_shift": 55,
+    "outer_two_coefficient_shift": 54
+  },
+  "trials_attempted": 220,
+  "valid_candidate_count": 0,
+  "valid_mode_counts": {},
+  "valid_r_counts": {}
+}

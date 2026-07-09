@@ -39,6 +39,11 @@ from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_summary.json"
 DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_observations.jsonl"
 DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
+    REPO_ROOT / "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    REPO_ROOT / "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    REPO_ROOT / "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    REPO_ROOT / "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    REPO_ROOT / "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
     REPO_ROOT / "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
     REPO_ROOT
     / "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
@@ -53,6 +58,11 @@ HIGH_VALUE_R_WEIGHTS = {24: 40.0, 16: 32.0, 20: 30.0, 12: 24.0, 8: 22.0}
 R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES = {
     "r8_quartic_lift_perturbed",
     "r8_quartic_lift_score_followup",
+}
+CONSTRUCTION_FAMILY_HARD_STOP_COLLAPSES = {
+    "odd_perturbed_r24_6x4_tower_escape",
+    "positive_quadratic_product_plus_low_odd_perturbation",
+    "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation",
 }
 
 PROGRESS_CACHE_JSON = "anti_basin_live_progress_cache.json"
@@ -140,6 +150,7 @@ def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
         "basin_fingerprint",
         "alt_composition_family_key",
         "r24_tower_family_key",
+        "r24_tower_odd_escape_family_key",
         "r12_tower_family_key",
         "r24_high_real_family_key",
         "r20_high_real_family_key",
@@ -162,6 +173,9 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or row.get("support_gcd")
         or
         metadata.get("alt_support_gcd")
+        or metadata.get("r24_tower_odd_escape_support_gcd")
+        or metadata.get("r20_linear_support_gcd")
+        or (1 if metadata.get("r16_diversity_divisor2_off_block_terms") else None)
         or metadata.get("r8_quartic_lift_support_gcd")
         or support.get("support_gcd")
     )
@@ -171,11 +185,22 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     if even_support is None:
         even_support = metadata.get("alt_even_support")
     if even_support is None:
+        even_support = metadata.get("r24_tower_odd_escape_even_support_after_perturbation")
+    if even_support is None:
+        even_support = metadata.get("r20_linear_even_support")
+    if even_support is None and metadata.get("r16_diversity_divisor2_off_block_terms"):
+        even_support = False
+    if even_support is None:
         even_support = metadata.get("r8_quartic_lift_even_support")
     if even_support is None:
         even_support = support.get("even_support")
     perturbations = (
         metadata.get("alt_outer_perturbations")
+        or metadata.get("r24_tower_odd_escape_odd_perturbations")
+        or metadata.get("r20_linear_coefficient_perturbations")
+        or metadata.get("r16_diversity_odd_perturbations")
+        or metadata.get("r16_diversity_y_perturbations")
+        or metadata.get("r16_diversity_off_block_perturbation_exponents")
         or metadata.get("r8_quartic_lift_perturbation_exponents")
         or metadata.get("r24_high_real_odd_perturbations")
         or metadata.get("r24_high_real_odd_support_after_perturbation")
@@ -190,6 +215,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("r24_high_real_perturbation_mode")
         or metadata.get("r24_high_real_mode")
         or metadata.get("r24_tower_mode")
+        or metadata.get("r24_tower_odd_escape_mode")
         or metadata.get("r20_linear_mode")
         or metadata.get("r16_diversity_mode")
         or row.get("source_mode")
@@ -214,6 +240,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or row.get("construction_family")
         or metadata.get("generation_strategy")
         or metadata.get("resolved_generation_strategy")
+        or metadata.get("strategy")
         or ""
     )
     high_real_mode = metadata.get("r24_high_real_perturbation_mode") or metadata.get("r24_high_real_mode")
@@ -221,11 +248,18 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         metadata.get("template_family_id")
         or row.get("template_family_id")
         or (f"r24_high_real:{high_real_mode}" if high_real_mode else "")
+        or (f"{construction}:{pattern}:{mode}" if construction and (pattern or mode) else "")
     )
+    inferred_family_key = family_key(metadata, row)
     basin_fingerprint = str(
         metadata.get("basin_fingerprint")
         or row.get("basin_fingerprint")
         or metadata.get("r24_high_real_family_key")
+        or metadata.get("r24_tower_odd_escape_family_key")
+        or metadata.get("r20_linear_family_key")
+        or metadata.get("r16_diversity_family_key")
+        or metadata.get("alt_composition_family_key")
+        or inferred_family_key
         or ""
     )
     coefficient_hash = str(metadata.get("coefficient_hash") or row.get("coefficient_hash") or "")
@@ -250,7 +284,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "decomposition_pattern": pattern,
         "perturbation_mode": mode,
         "perturbation_terms": len(perturbations) if isinstance(perturbations, list) else 0,
-        "family_key": family_key(metadata, row),
+        "family_key": inferred_family_key,
         "template_family_id": template_family_id,
         "basin_fingerprint": basin_fingerprint,
         "coefficient_hash": coefficient_hash,
@@ -260,6 +294,9 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "even_support": bool(even_support) if even_support is not None else None,
         "odd_support_exponents": (
             metadata.get("alt_odd_support_exponents")
+            or metadata.get("r24_tower_odd_escape_odd_support_exponents")
+            or metadata.get("r20_linear_odd_support_exponents")
+            or metadata.get("r16_diversity_off_block_perturbation_exponents")
             or metadata.get("odd_support_exponents")
             or metadata.get("r24_high_real_odd_support_after_perturbation")
             or support.get("odd_support_exponents")
@@ -439,18 +476,22 @@ def build_sync_submission_gate(
 
 
 def observation_features(row: dict[str, Any]) -> dict[str, Any]:
+    construction = str(row.get("construction_family") or "")
+    pattern = str(row.get("decomposition_pattern") or "")
+    mode = str(row.get("perturbation_mode") or "")
+    family = str(row.get("family_key") or "")
     return {
         "label": str(row.get("label") or ""),
         "pair_key": str(row.get("pair_key") or ""),
         "r": int(row.get("r") or -1),
-        "construction_family": str(row.get("construction_family") or ""),
-        "decomposition_pattern": str(row.get("decomposition_pattern") or ""),
-        "perturbation_mode": str(row.get("perturbation_mode") or ""),
+        "construction_family": construction,
+        "decomposition_pattern": pattern,
+        "perturbation_mode": mode,
         "support_gcd": int(row["support_gcd"]) if row.get("support_gcd") is not None else None,
         "even_support": row.get("even_support"),
-        "family_key": str(row.get("family_key") or ""),
-        "template_family_id": str(row.get("template_family_id") or ""),
-        "basin_fingerprint": str(row.get("basin_fingerprint") or ""),
+        "family_key": family,
+        "template_family_id": str(row.get("template_family_id") or (f"{construction}:{pattern}:{mode}" if construction and (pattern or mode) else "")),
+        "basin_fingerprint": str(row.get("basin_fingerprint") or family),
         "mod_p_pattern_signature": row.get("mod_p_pattern_signature"),
         "canonical_hash": str(row.get("canonical_hash") or ""),
     }
@@ -574,6 +615,7 @@ def build_basin_profile(
     loose_fingerprints = Counter()
     mod_signatures = Counter()
     mode_by_family_pattern = Counter()
+    collapsed_construction_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
     collapsed_family_pattern_labels: dict[tuple[str, str, int], set[str]] = defaultdict(set)
     collapsed_pair_counts: Counter[str] = Counter()
     collapsed_template_r_labels: dict[tuple[str, int], set[str]] = defaultdict(set)
@@ -600,6 +642,8 @@ def build_basin_profile(
         if row.get("mod_p_pattern_signature"):
             mod_signatures[str(row["mod_p_pattern_signature"])] += 1
         mode_by_family_pattern[(row["construction_family"], row["decomposition_pattern"], row["perturbation_mode"])] += 1
+        if row.get("construction_family"):
+            collapsed_construction_r_labels[(row["construction_family"], row["r"])].add(row["label"])
         collapsed_family_pattern_labels[(row["construction_family"], row["decomposition_pattern"], row["r"])].add(row["label"])
         if row.get("pair_key"):
             collapsed_pair_counts[str(row["pair_key"])] += 1
@@ -623,6 +667,9 @@ def build_basin_profile(
         "loose_fingerprints": loose_fingerprints,
         "mod_signatures": mod_signatures,
         "mode_by_family_pattern": mode_by_family_pattern,
+        "collapsed_construction_r_labels": {
+            key: sorted(labels) for key, labels in collapsed_construction_r_labels.items()
+        },
         "collapsed_family_pattern_labels": {
             key: sorted(labels) for key, labels in collapsed_family_pattern_labels.items()
         },
@@ -715,12 +762,18 @@ def score_candidate_row(
     exact_hits = int(basin_profile["exact_fingerprints"].get(exact_key, 0))
     loose_hits = int(basin_profile["loose_fingerprints"].get(loose_key, 0))
     mode_hits = int(basin_profile["mode_by_family_pattern"].get(mode_key, 0))
+    construction_key = (features["construction_family"], r_value)
+    construction_labels = basin_profile.get("collapsed_construction_r_labels", {}).get(construction_key, [])
     family_pattern_key = (features["construction_family"], features["decomposition_pattern"], r_value)
     collapsed_labels = basin_profile.get("collapsed_family_pattern_labels", {}).get(family_pattern_key, [])
     if features.get("pair_key") and basin_profile.get("collapsed_pair_counts", {}).get(features["pair_key"]):
         hits = basin_profile["collapsed_pair_counts"][features["pair_key"]]
         risk_reasons.append(f"known_repeated_pair_collision:{features['pair_key']}={hits}")
         score -= 180.0
+    if construction_labels and features["construction_family"] in CONSTRUCTION_FAMILY_HARD_STOP_COLLAPSES:
+        labels = ",".join(str(label) for label in construction_labels)
+        risk_reasons.append(f"construction_family_known_high_label_collapse={labels}")
+        score -= 150.0
     if (
         features["construction_family"] in R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES
         and features["decomposition_pattern"] == "quartic_in_x6"
@@ -792,6 +845,7 @@ def score_candidate_row(
             "accepted_hash_duplicate",
             "known_repeated_pair_collision",
             "outer_constant_shift",
+            "construction_family_known_high_label_collapse",
             "r8_quartic_in_x6_known_label_collapse",
             "template_family_known_high_label_collapse",
             "basin_fingerprint_known_high_label_collapse",
@@ -1008,6 +1062,7 @@ def build_summary(
             "loose_fingerprint_count": len(basin_profile["loose_fingerprints"]),
             "mod_p_signature_count": len(basin_profile["mod_signatures"]),
             "collapsed_family_pattern_count": len(basin_profile.get("collapsed_family_pattern_labels") or {}),
+            "collapsed_construction_r_count": len(basin_profile.get("collapsed_construction_r_labels") or {}),
             "collapsed_pair_count": len(basin_profile.get("collapsed_pair_counts") or {}),
             "collapsed_template_r_count": len(basin_profile.get("collapsed_template_r_labels") or {}),
             "collapsed_basin_r_count": len(basin_profile.get("collapsed_basin_r_labels") or {}),
