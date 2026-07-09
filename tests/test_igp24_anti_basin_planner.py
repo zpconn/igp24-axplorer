@@ -312,6 +312,22 @@ def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
     }
 
 
+def test_default_accepted_feedback_includes_r24_deterministic_collapse():
+    paths = [str(path) for path in DEFAULT_ACCEPTED_FEEDBACK_JSONS]
+
+    assert any("r24_deterministic_sair_accepted_feedback_20260709.json" in path for path in paths)
+
+    observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    r24_observations = [row for row in observations if row.get("pair_key") == "24T25000|r=24"]
+
+    assert len(r24_observations) >= 11
+    assert {row["template_family_id"] for row in r24_observations} >= {
+        "r24_high_real:single_low_odd_break",
+        "r24_high_real:two_low_odd_break",
+        "r24_high_real:three_low_odd_break",
+    }
+
+
 def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
     row = {
         "canonical_hash": "r8-hash",
@@ -578,6 +594,79 @@ def test_r16_model_mixed_dense_medium_feedback_holds_24t25000_repeats():
     assert novel["eligible_for_packet"] is True
     assert novel["score"] > medium_repeat["score"]
     assert novel["score"] > dense_repeat["score"]
+
+
+def test_r24_high_real_feedback_holds_24t25000_repeat():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[24])
+    observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    basin_profile = build_basin_profile(
+        observations,
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 45}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+    repeat = score_candidate_row(
+        {
+            "canonical_hash": "r24-repeat-three-low-odd",
+            "real_root_count": 24,
+            "coefficient_height": 1931559552,
+            "irreducible": True,
+            "squarefree": True,
+            "exported_coefficients": [
+                479001600,
+                1,
+                -1486442880,
+                0,
+                1931559552,
+                -1,
+                -1414014888,
+                0,
+                657206836,
+                1,
+                -206070150,
+                0,
+                44990231,
+                0,
+                -6926634,
+                0,
+                749463,
+                0,
+                -55770,
+                0,
+                2717,
+                0,
+                -78,
+                0,
+                1,
+            ],
+            "mod_p_factorization_degree_patterns": [
+                {"prime": 2, "degrees": [1, 23]},
+                {"prime": 3, "degrees": [1, 23]},
+                {"prime": 5, "degrees": [1, 3, 3, 4, 6, 7]},
+                {"prime": 7, "degrees": [1, 23]},
+            ],
+            "generation_metadata": {
+                "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+                "r24_high_real_exact_composed_seed_divisor": 2,
+                "r24_high_real_family_key": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,5,9",
+                "r24_high_real_mode": "three_low_odd_break",
+                "r24_high_real_odd_perturbations": [
+                    {"x_exponent": 1, "delta": 1},
+                    {"x_exponent": 5, "delta": -1},
+                    {"x_exponent": 9, "delta": 1},
+                ],
+                "r24_high_real_odd_support_after_perturbation": [1, 5, 9],
+            },
+        },
+        target_rs={24},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert repeat["eligible_for_packet"] is False
+    assert "template_family_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
+    assert "exact_crowded_basin_fingerprint_hits=1" in repeat["risk_reasons"]
 
 
 def test_submission_recommendation_can_require_model_generated_rows():

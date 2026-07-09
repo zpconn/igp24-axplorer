@@ -1,0 +1,73 @@
+{
+  "_rate_limit_headers": {
+    "X-Ratelimit-Limit": "600",
+    "X-Ratelimit-Remaining": "599",
+    "X-Ratelimit-Reset": "1783607219"
+  },
+  "data": {
+    "batchId": "igp24_batch_ffd919c6ea844af8",
+    "competitionId": "igp24",
+    "createdAt": "2026-07-09T14:26:00Z",
+    "description": "r24 deterministic high-real expansion 20260709",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "r24 deterministic high-real expansion 20260709"
+    },
+    "payload": {
+      "queuedPolynomials": [
+        {
+          "polynomialIndex": 0,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 1,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 2,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 3,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 4,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 5,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 6,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 7,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 8,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 9,
+          "status": "queued"
+        },
+        {
+          "polynomialIndex": 10,
+          "status": "queued"
+        }
+      ]
+    },
+    "queuedCount": 11,
+    "rejectedCount": 0,
+    "submissionId": "sub_55fba0a7253d4a72b8ab7a6e80d5cede",
+    "submissionStatus": "queued",
+    "updatedAt": "2026-07-09T14:26:00Z",
+    "verifiedPolynomials": []
+  },
+  "ok": true
+}

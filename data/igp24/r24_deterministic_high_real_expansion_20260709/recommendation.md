@@ -1,7 +1,8 @@
 # Recommendation
 
-Submit only with explicit approval: the 11-row deterministic r24 packet is
-review-ready.
+Post-submit update: the 11-row deterministic r24 packet was submitted after
+explicit approval and accepted by SAIR, but all rows collapsed to the known
+`24T25000|r=24` basin.
 
 Why this is the best next move:
 
@@ -15,4 +16,16 @@ Packet path:
 
 `data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt`
 
-No live SAIR submission was made in this pass.
+Submission:
+
+`sub_55fba0a7253d4a72b8ab7a6e80d5cede`
+
+Result:
+
+- 11/11 accepted
+- 11/11 scoreable after full post-submit sync
+- pair: `24T25000|r=24`
+- no new pair
+
+Next action: use the accepted feedback as negative memory and do not widen this
+deterministic r24 lane without a materially different construction.

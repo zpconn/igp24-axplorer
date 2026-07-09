@@ -31,13 +31,31 @@ results change.
   `two_low_odd_break`, `three_low_odd_break` = 8 each). Anti-basin gating with
   the complete sync selected 11 rows, `recommended_for_sair_packet=true`,
   `risk_count=0`, 11 basin fingerprints, 7 mod-p signatures, 3 perturbation
-  modes, and no sync hold reasons. No live submission was made. Review packet:
+  modes, and no sync hold reasons. Live submission completed after explicit
+  user approval as `sub_55fba0a7253d4a72b8ab7a6e80d5cede`; dry-run passed
+  with 11 rows and 1468 request bytes, SAIR accepted all 11 rows, and a full
+  post-submit sync recovered 24/24 submission details plus 24/24 downloads.
+  Final state: 208/208 recovered submission rows scoreable, 0 pending, 0
+  failed, and 0 unmatched. Submitted-packet result: all 11 rows verified as
+  `24T25000|r=24`, with 5 `exact_nfdisc` rows and 6 `mixed_disc` rows after
+  sync. No new pair was discovered; the deterministic
+  `r24_high_real:*` positive-quadratic-product plus low-odd perturbation lane
+  is now treated as durable negative memory unless the construction changes
+  materially. Feedback ingest wrote
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json`
+  and appended 11 alternates to `data/igp24/pair_status_20260706.json`.
+  Planner default feedback now includes that artifact; the post-submit replay
+  gate on the original 24-row queue selected 0 rows from 0 eligible candidates,
+  with the primary hold signal
+  `template_family_known_high_label_collapse=24T25000`.
+  Review packet:
   `data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt`.
   Reports:
-  `data/igp24/r24_deterministic_high_real_expansion_20260709/expansion_report.md`
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/expansion_report.md`,
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/submission/submission_report.md`,
   and
   `data/igp24/r24_deterministic_high_real_expansion_20260709/recommendation.md`.
-  Next: validate, secret-scan, commit, and push.
+  Next: validate the default feedback gate, secret-scan, commit, and push.
 - Active negative-basin memory pass started 2026-07-09. Preflight:
   `git pull --ff-only` reported already up to date and the worktree was clean.
   Objective: convert the accepted-but-collapsed r16 refinement packet

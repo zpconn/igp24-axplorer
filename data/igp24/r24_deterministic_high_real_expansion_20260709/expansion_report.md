@@ -6,7 +6,9 @@ Created: 2026-07-09
 
 The deterministic r24 high-real lane improved materially over the tiny probe.
 The expanded CPU-only run produced a review-ready 11-row packet with clean
-anti-basin status. No live SAIR submission was made.
+anti-basin status. After explicit user approval, the packet was submitted to
+SAIR as `sub_55fba0a7253d4a72b8ab7a6e80d5cede`. SAIR accepted all 11 rows, but
+every row collapsed to the known `24T25000|r=24` basin.
 
 ## Sync
 
@@ -76,7 +78,11 @@ The coefficient packet is:
 
 ## Decision
 
-This is the best current packet candidate. It is stronger than the tiny probe
-and avoids the blocked r16/r8/r20 basins. Since this goal forbids live
-submission without explicit approval, the next action is to ask whether to
-submit the 11-row r24 deterministic packet.
+This was the best current packet candidate before submission, but SAIR feedback
+shows the local anti-basin signal was insufficient for this deterministic
+construction. The next action is to use the accepted feedback as durable
+negative memory and avoid widening this `r24_high_real:*` lane without a
+material construction change.
+
+Post-submit replay: after loading this feedback by default, the original
+24-row queue replays with 0 eligible rows and 0 selected rows.

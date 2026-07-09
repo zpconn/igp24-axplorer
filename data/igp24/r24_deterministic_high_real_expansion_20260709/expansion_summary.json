@@ -3,8 +3,8 @@
   "record_type": "igp24_r24_deterministic_high_real_expansion_summary",
   "created_at": "2026-07-09",
   "safety": {
-    "sair_submission": false,
-    "sair_dry_run": false,
+    "sair_submission": true,
+    "sair_dry_run": true,
     "gpu_training": false,
     "model_training": false,
     "api_key_recorded": false
@@ -56,7 +56,7 @@
     "eligible_candidate_count": 24,
     "selected_rows": 11,
     "recommended_for_sair_packet": true,
-    "status": "review_ready_not_submitted",
+    "status": "submitted_accepted_known_basin",
     "anti_basin_status": "reviewed_packet_ready_for_dry_run",
     "risk_count": 0,
     "selected_mode_counts": {
@@ -89,17 +89,23 @@
     "sync_blocker": {"tiny": "partial_sync", "expanded": "none"}
   },
   "review_packet": {
-    "status": "review_ready_not_submitted",
+    "status": "submitted_accepted_known_basin",
     "coefficients_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt",
     "hashes_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_hashes.txt",
     "selected_jsonl": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_selected_queue.jsonl",
     "row_count": 11,
-    "requires_explicit_submission_approval": true
+    "requires_explicit_submission_approval": true,
+    "submitted_after_explicit_approval": true,
+    "submission_id": "sub_55fba0a7253d4a72b8ab7a6e80d5cede",
+    "accepted_pair_key": "24T25000|r=24",
+    "accepted_rows": 11,
+    "scoreable_rows_after_sync": 11,
+    "new_pair_discovered": false
   },
   "decision": {
-    "lane": "continue_or_submit_r24_deterministic_high_real",
+    "lane": "hold_r24_deterministic_high_real_known_basin",
     "submit_now": false,
-    "why_not_submitted": "The goal explicitly forbids live submission without approval.",
-    "recommendation": "This is the best current review-ready packet. Ask for approval before submitting the 11 coefficient rows."
+    "why_not_submitted": null,
+    "recommendation": "Do not widen this deterministic r24 lane without a materially different construction; all submitted rows collapsed to 24T25000|r=24."
   }
 }

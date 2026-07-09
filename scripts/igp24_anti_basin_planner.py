@@ -44,6 +44,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     / "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
     REPO_ROOT
     / "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+    REPO_ROOT
+    / "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
