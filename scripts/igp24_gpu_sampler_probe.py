@@ -230,6 +230,8 @@ def summarize_sample_export(path: Path) -> dict[str, Any]:
         "sample_export_basin_fingerprint_counts": dedup.get("exported_basin_fingerprint_counts", {}),
         "sample_export_avoid_even_support_like": bool(dedup.get("avoid_even_support_like", False)),
         "sample_export_require_support_gcd_one": bool(dedup.get("require_support_gcd_one", False)),
+        "sample_export_required_support_patterns": dedup.get("required_support_patterns", []),
+        "sample_export_excluded_support_patterns": dedup.get("excluded_support_patterns", []),
         "sample_export_family_cap": dedup.get("family_cap"),
         "sample_export_basin_fingerprint_cap": dedup.get("basin_fingerprint_cap"),
         "sample_export_dedup_enabled": bool(dedup.get("deduplication_enabled", False)),
@@ -1184,6 +1186,8 @@ def build_sample_export_target_r_conditioned_command(
     generation_strategy: str = "fixed_sparse_template",
     avoid_even_support_like: bool = False,
     require_support_gcd_one: bool = False,
+    required_support_patterns: str = "",
+    excluded_support_patterns: str = "",
     family_cap: int = 0,
     basin_fingerprint_cap: int = 0,
 ) -> dict[str, Any]:
@@ -1280,6 +1284,10 @@ def build_sample_export_target_r_conditioned_command(
         "true" if avoid_even_support_like else "false",
         "--sample_export_require_support_gcd_one",
         "true" if require_support_gcd_one else "false",
+        "--sample_export_required_support_patterns",
+        str(required_support_patterns),
+        "--sample_export_excluded_support_patterns",
+        str(excluded_support_patterns),
         "--sample_export_family_cap",
         str(int(family_cap)),
         "--sample_export_basin_fingerprint_cap",
@@ -1324,10 +1332,17 @@ def build_sample_export_target_r_conditioned_command(
             "generation_strategy": str(generation_strategy),
             "conditioned_diversity_sampling": bool(float(temperature) > 0.9 or int(top_k) < 0 or int(unique_target) > 0),
             "provenance_aware_export": bool(
-                avoid_even_support_like or require_support_gcd_one or int(family_cap) > 0 or int(basin_fingerprint_cap) > 0
+                avoid_even_support_like
+                or require_support_gcd_one
+                or bool(str(required_support_patterns))
+                or bool(str(excluded_support_patterns))
+                or int(family_cap) > 0
+                or int(basin_fingerprint_cap) > 0
             ),
             "sample_export_avoid_even_support_like": bool(avoid_even_support_like),
             "sample_export_require_support_gcd_one": bool(require_support_gcd_one),
+            "sample_export_required_support_patterns": str(required_support_patterns),
+            "sample_export_excluded_support_patterns": str(excluded_support_patterns),
             "sample_export_family_cap": int(family_cap),
             "sample_export_basin_fingerprint_cap": int(basin_fingerprint_cap),
             "seed": int(seed_text),
@@ -1804,6 +1819,16 @@ def get_parser() -> argparse.ArgumentParser:
         help="AXG-1.4: skip model-export rows whose positive support gcd is not one",
     )
     parser.add_argument(
+        "--target_r_conditioned_required_support_patterns",
+        default="",
+        help="comma-separated support_pattern allow-list for sample_export_target_r_conditioned",
+    )
+    parser.add_argument(
+        "--target_r_conditioned_excluded_support_patterns",
+        default="",
+        help="comma-separated support_pattern block-list for sample_export_target_r_conditioned",
+    )
+    parser.add_argument(
         "--target_r_conditioned_family_cap",
         type=int,
         default=0,
@@ -1855,6 +1880,12 @@ def main() -> int:
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_require_support_gcd_one": bool(args.target_r_conditioned_require_support_gcd_one)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_required_support_patterns": args.target_r_conditioned_required_support_patterns
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_excluded_support_patterns": args.target_r_conditioned_excluded_support_patterns
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_family_cap": args.target_r_conditioned_family_cap
@@ -1954,6 +1985,8 @@ def main() -> int:
                 generation_strategy=args.target_r_conditioned_generation_strategy,
                 avoid_even_support_like=bool(args.target_r_conditioned_avoid_even_support_like),
                 require_support_gcd_one=bool(args.target_r_conditioned_require_support_gcd_one),
+                required_support_patterns=str(args.target_r_conditioned_required_support_patterns),
+                excluded_support_patterns=str(args.target_r_conditioned_excluded_support_patterns),
                 family_cap=int(args.target_r_conditioned_family_cap),
                 basin_fingerprint_cap=int(args.target_r_conditioned_basin_fingerprint_cap),
             )

@@ -231,6 +231,29 @@ results change.
   post-feedback run manifest in the AXG-1.8 model registry. Next move: AXG-1.9
   should train a genuinely different generation family/objective rather than
   resampling dense/medium fixed-sparse high-real templates.
+- AXG-1.9 sparse-escape preflight/infra checkpoint: after clean pull from
+  commit `2ae1669`, `SAIR_API_KEY` was present without being printed and the
+  RTX 5090 was idle. Refreshed label-basin analysis under
+  `data/igp24/axg19_sparse_escape_20260709/label_basin_analysis/`, now with
+  187 observations including the AXG-1.8 fixed-sparse collapse. Live target
+  planning under `data/igp24/axg19_sparse_escape_20260709/target_plan_live/`
+  still recommends a materially different high-real lane, with top remaining
+  buckets r24 = 11,390, r16 = 9,735, r8 = 5,995, r12 = 5,925, and r20 =
+  5,182. Updated planner default basin paths to the AXG-1.9 snapshot and added
+  sample-export support-pattern filters:
+  `--sample_export_required_support_patterns` and
+  `--sample_export_excluded_support_patterns`, exposed through
+  `scripts/igp24_gpu_sampler_probe.py` as
+  `--target_r_conditioned_required_support_patterns` and
+  `--target_r_conditioned_excluded_support_patterns`. Focused validation
+  passed: `python3 -m py_compile train.py src/evaluator.py
+  scripts/igp24_gpu_sampler_probe.py` and
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_sample_export.py tests/test_igp24_gpu_sampler_probe.py`
+  passed with 39 tests. Next in progress: rebuild/register AXG-1.9 with
+  AXG-1.8 feedback and run sparse-support model export for high-real targets,
+  requiring `sparse_mixed_support_gcd1` and excluding dense/medium mixed
+  support rows before CPU scoring.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

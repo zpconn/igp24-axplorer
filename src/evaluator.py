@@ -234,6 +234,10 @@ def _json_hash(payload: Any) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _parse_csv_set(value: Any) -> set[str]:
+    return {item.strip() for item in str(value or "").split(",") if item.strip()}
+
+
 def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, Any]:
     if decoded_coefficients is None:
         return {
@@ -632,10 +636,17 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     seed_bank_requested = bool(getattr(args, "sample_export_seed_bank_jsonl", "") and int(getattr(args, "sample_export_seed_bank_limit", 0) or 0) > 0)
     avoid_even_support_like = bool(getattr(args, "sample_export_avoid_even_support_like", False))
     require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
+    required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
+    excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
     family_cap = int(getattr(args, "sample_export_family_cap", 0) or 0)
     basin_fingerprint_cap = int(getattr(args, "sample_export_basin_fingerprint_cap", 0) or 0)
     provenance_controls_enabled = (
-        avoid_even_support_like or require_support_gcd_one or family_cap > 0 or basin_fingerprint_cap > 0
+        avoid_even_support_like
+        or require_support_gcd_one
+        or bool(required_support_patterns)
+        or bool(excluded_support_patterns)
+        or family_cap > 0
+        or basin_fingerprint_cap > 0
     )
     controlled_export = (
         dedup_enabled
@@ -753,6 +764,11 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     support_gcd = sample_provenance.get("support_gcd")
                     if require_support_gcd_one and support_gcd != 1:
                         skip_reasons.append("support_gcd_not_one")
+                    support_pattern = str(sample_provenance.get("support_pattern") or "unknown")
+                    if required_support_patterns and support_pattern not in required_support_patterns:
+                        skip_reasons.append("required_support_pattern_mismatch")
+                    if excluded_support_patterns and support_pattern in excluded_support_patterns:
+                        skip_reasons.append("excluded_support_pattern")
                     family_id = str(sample_provenance.get("template_family_id") or "unknown")
                     basin_fingerprint = str(sample_provenance.get("basin_fingerprint") or "unknown")
                     if family_cap > 0 and exported_family_counts[family_id] >= family_cap:
@@ -847,6 +863,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "provenance_controls_enabled": provenance_controls_enabled,
         "avoid_even_support_like": avoid_even_support_like,
         "require_support_gcd_one": require_support_gcd_one,
+        "required_support_patterns": sorted(required_support_patterns),
+        "excluded_support_patterns": sorted(excluded_support_patterns),
         "family_cap": family_cap,
         "basin_fingerprint_cap": basin_fingerprint_cap,
         "provenance_skip_counts": dict(provenance_skip_counts),

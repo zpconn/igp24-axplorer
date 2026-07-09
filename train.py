@@ -161,6 +161,18 @@ def get_parser():
         help="opt-in: skip decoded export rows whose positive support gcd is not one",
     )
     parser.add_argument(
+        "--sample_export_required_support_patterns",
+        type=str,
+        default="",
+        help="optional comma-separated support_pattern allow-list for decoded export rows",
+    )
+    parser.add_argument(
+        "--sample_export_excluded_support_patterns",
+        type=str,
+        default="",
+        help="optional comma-separated support_pattern block-list for decoded export rows",
+    )
+    parser.add_argument(
         "--sample_export_family_cap",
         type=int,
         default=0,

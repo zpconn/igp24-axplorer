@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_score_aware_target_plan",
+  "created_at": "2026-07-09T18:52:19.751965+00:00",
+  "tool": "scripts/igp24_score_aware_target_planner.py",
+  "source_commit": "2ae16698805a64b0180dec0ed76152562355bc12",
+  "input_snapshot": {
+    "record_type": "igp24_sair_label_progress_snapshot",
+    "created_at": "2026-07-09T18:42:27.282523+00:00",
+    "query": {
+      "source": "data/igp24/axg18_escape_20260709/post_submit_sync"
+    },
+    "page_count": 5,
+    "label_count": 25000,
+    "first_generated_at": "2026-07-09T18:42:19Z",
+    "last_generated_at": "2026-07-09T18:42:19Z",
+    "published": true
+  },
+  "inputs": {
+    "pair_status_record_type": "igp24_pair_status_ledger",
+    "score_snapshot_record_type": "igp24_user_reported_sair_score_snapshot",
+    "score_snapshot_rows": 20,
+    "sync_submission_rows": 224,
+    "sync_pairs": 28,
+    "sync_partial": false,
+    "sync_submission_state_complete": true,
+    "sync_failing_endpoint": null,
+    "sync_error_code": null,
+    "basin_summary_record_type": "igp24_label_basin_analysis",
+    "basin_observations": 187,
+    "anti_basin_constraint_count": 9
+  },
+  "safety": {
+    "gpu_training": false,
+    "model_training": false,
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "api_key_recorded": false
+  },
+  "coverage_by_r": [],
+  "r_bucket_priorities": [],
+  "ranked_targets": [],
+  "top_uncovered_targets": [],
+  "top_score_followup_targets": [],
+  "top_api_scoreable_targets": [],
+  "top_api_pending_targets": [],
+  "top_lightly_solved_targets": [],
+  "lane_recommendations": [
+    {
+      "lane": "r8_quartic_lift_score_followup",
+      "rank_reason": "stopped by stop_r8_score_followup_quartic_x6_24T25000_lane: The 24T9993-sourced r8 quartic-in-x^6 score-followup lane using templates e/f and odd_pair_off_core perturbations collapsed to crowded 24T25000|r=8; reject nearby rows unless the construction family, decomposition pattern, or label discriminator changes materially.",
+      "source_pair": "24T9993|r=8",
+      "source_points": "0.0019",
+      "source_solved_teams": 10,
+      "source_family": "r8_quartic_lift",
+      "construction_family_counts": {
+        "r8_quartic_lift": 2
+      },
+      "stopped_by_constraint": "stop_r8_score_followup_quartic_x6_24T25000_lane",
+      "recommended_for_generation_now": false,
+      "recommended_for_submission_now": false,
+      "submission_gate": "do not generate or submit nearby rows until construction/decomposition/label discriminator changes materially"
+    },
+    {
+      "lane": "r12_gx2_structured_score_followup",
+      "rank_reason": "visible score outlier 24T22770|r=12 at 0.0002 with 12 solved teams",
+      "source_pair": "24T22770|r=12",
+      "source_points": "0.0002",
+      "source_solved_teams": 12,
+      "source_family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "construction_family_counts": {
+        "degree12_base_six_positive_roots_lifted_by_x2": 2
+      },
+      "stopped_by_constraint": null,
+      "recommended_for_generation_now": true,
+      "recommended_for_submission_now": false,
+      "submission_gate": "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first"
+    },
+    {
+      "lane": "materially_different_high_real_lane_after_basin_stop",
+      "rank_reason": "highest-score r8 follow-up lane is stopped; pivot to r24/r16/r20 or a genuinely different r8 construction with explicit anti-24T25000 gates",
+      "stopped_lanes": [
+        "r8_quartic_lift_score_followup"
+      ],
+      "source_pair": null,
+      "target_r_buckets": "",
+      "recommended_for_generation_now": true,
+      "recommended_for_submission_now": false,
+      "submission_gate": "new packet must avoid stopped template/decomposition/mode/basin fingerprints and pass anti-basin replay before SAIR submission"
+    },
+    {
+      "lane": "no_more_collapsed_composition_lanes",
+      "rank_reason": "basin constraints show 6x4, ordinary 8x3, and current 4x6 inner-root family are exhausted",
+      "avoid_families": [
+        "nearby r24 6x4 towers",
+        "ordinary 8x3 outer coefficient perturbations",
+        "current 4x6 inner roots -3,-2,-1,1,2,4",
+        "product/quadratic low-odd perturbation lanes into 24T25000"
+      ],
+      "recommended_for_generation_now": false,
+      "recommended_for_submission_now": false,
+      "submission_gate": "avoidance rule only"
+    }
+  ],
+  "avoidance_constraints": {
+    "avoid_labels": [
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T24984",
+      "24T25000"
+    ],
+    "high_severity_names": [
+      "avoid_common_labels_without_new_structure",
+      "stop_exact_even_6x4_constant_shift_towers",
+      "avoid_generic_24T25000_perturbation_lanes",
+      "stop_r8_score_followup_quartic_x6_24T25000_lane",
+      "stop_odd_escaped_r24_6x4_towers",
+      "stop_plain_8x3_24T24932_lanes",
+      "stop_current_4x6_24T24984_lane"
+    ],
+    "stopped_lanes": [
+      "r8_quartic_lift_score_followup"
+    ]
+  },
+  "decision": {
+    "recommended_next_lane": {
+      "lane": "materially_different_high_real_lane_after_basin_stop",
+      "rank_reason": "highest-score r8 follow-up lane is stopped; pivot to r24/r16/r20 or a genuinely different r8 construction with explicit anti-24T25000 gates",
+      "stopped_lanes": [
+        "r8_quartic_lift_score_followup"
+      ],
+      "source_pair": null,
+      "target_r_buckets": "",
+      "recommended_for_generation_now": true,
+      "recommended_for_submission_now": false,
+      "submission_gate": "new packet must avoid stopped template/decomposition/mode/basin fingerprints and pass anti-basin replay before SAIR submission"
+    },
+    "clear_bounded_generation_lane": true,
+    "submission_recommended_now": false,
+    "submission_reason": "no candidate packet was generated by this planning helper; any future packet must pass score-aware and anti-basin gates plus SAIR dry-run",
+    "full_sync_required_before_submission": false,
+    "gpu_training_recommended_now": false,
+    "big_model_training_recommended_now": false
+  },
+  "output_files": {
+    "plan_json": "data/igp24/axg19_sparse_escape_20260709/target_plan/score_aware_target_plan.json",
+    "summary_json": "data/igp24/axg19_sparse_escape_20260709/target_plan/score_aware_target_summary.json",
+    "report_md": "data/igp24/axg19_sparse_escape_20260709/target_plan/score_aware_target_report.md",
+    "ranked_targets_jsonl": "data/igp24/axg19_sparse_escape_20260709/target_plan/score_aware_ranked_targets.jsonl",
+    "lanes_json": "data/igp24/axg19_sparse_escape_20260709/target_plan/score_aware_lane_recommendations.json"
+  }
+}

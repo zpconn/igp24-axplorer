@@ -36,8 +36,8 @@ from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 
 
-DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/axg18_escape_20260709/label_basin_analysis/label_basin_summary.json"
-DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/axg18_escape_20260709/label_basin_analysis/label_basin_observations.jsonl"
+DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/axg19_sparse_escape_20260709/label_basin_analysis/label_basin_summary.json"
+DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/axg19_sparse_escape_20260709/label_basin_analysis/label_basin_observations.jsonl"
 DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     REPO_ROOT / "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
     REPO_ROOT / "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",

@@ -399,6 +399,8 @@ def test_build_sample_export_target_r_conditioned_command_accepts_diversity_samp
         generation_strategy="mixed",
         avoid_even_support_like=True,
         require_support_gcd_one=True,
+        required_support_patterns="sparse_mixed_support_gcd1",
+        excluded_support_patterns="dense_mixed_support_gcd1,medium_mixed_support_gcd1",
         family_cap=3,
         basin_fingerprint_cap=2,
     )
@@ -412,6 +414,10 @@ def test_build_sample_export_target_r_conditioned_command_accepts_diversity_samp
     assert config["caps"]["provenance_aware_export"] is True
     assert config["caps"]["sample_export_avoid_even_support_like"] is True
     assert config["caps"]["sample_export_require_support_gcd_one"] is True
+    assert config["caps"]["sample_export_required_support_patterns"] == "sparse_mixed_support_gcd1"
+    assert config["caps"]["sample_export_excluded_support_patterns"] == (
+        "dense_mixed_support_gcd1,medium_mixed_support_gcd1"
+    )
     assert config["caps"]["sample_export_family_cap"] == 3
     assert config["caps"]["sample_export_basin_fingerprint_cap"] == 2
     assert command[command.index("--temperature") + 1] == "1.15"
@@ -421,6 +427,10 @@ def test_build_sample_export_target_r_conditioned_command_accepts_diversity_samp
     assert command[command.index("--igp24_generation_strategy") + 1] == "mixed"
     assert command[command.index("--sample_export_avoid_even_support_like") + 1] == "true"
     assert command[command.index("--sample_export_require_support_gcd_one") + 1] == "true"
+    assert command[command.index("--sample_export_required_support_patterns") + 1] == "sparse_mixed_support_gcd1"
+    assert command[command.index("--sample_export_excluded_support_patterns") + 1] == (
+        "dense_mixed_support_gcd1,medium_mixed_support_gcd1"
+    )
     assert command[command.index("--sample_export_family_cap") + 1] == "3"
     assert command[command.index("--sample_export_basin_fingerprint_cap") + 1] == "2"
 

@@ -37,7 +37,7 @@ from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 
 DEFAULT_PAIR_STATUS = REPO_ROOT / "data/igp24/pair_status_20260706.json"
 DEFAULT_SCORE_SNAPSHOT = REPO_ROOT / "data/igp24/sair_score_snapshot_20260707_user_reported.json"
-DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/axg18_escape_20260709/label_basin_analysis/label_basin_summary.json"
+DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/axg19_sparse_escape_20260709/label_basin_analysis/label_basin_summary.json"
 
 PLAN_JSON = "score_aware_target_plan.json"
 SUMMARY_JSON = "score_aware_target_summary.json"

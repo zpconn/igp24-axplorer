@@ -229,6 +229,86 @@ def test_sample_and_export_axg14_provenance_controls_skip_bad_basins(tmp_path):
     assert records[0]["generation_metadata"]["perturbation_mode"] == "sparse_mixed_support_gcd1"
 
 
+def test_sample_and_export_can_require_sparse_support_pattern(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coeffs):
+            self.coefficients = coeffs
+
+    class DummyTokenizer:
+        def __init__(self):
+            self.coefficients_by_index = [
+                [2, 1] + [0] * 22,
+                [2, 1, 1, 1, 1, 1, 1] + [0] * 17,
+                [2] + [1] * 15 + [0] * 8,
+            ]
+
+        def decode(self, row):
+            return DummyDecoded(self.coefficients_by_index[int(row[0])])
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            values = list(range(self.offset, self.offset + batch_size))
+            self.offset += batch_size
+            return torch.tensor([[value] + [0] * (length - 1) for value in values], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="support_filter_export_test",
+        exp_id="run",
+        seed=45,
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=3,
+        num_samples_from_model=3,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=3,
+        sample_export_progress_interval=1,
+        sample_export_avoid_even_support_like=False,
+        sample_export_require_support_gcd_one=False,
+        sample_export_required_support_patterns="sparse_mixed_support_gcd1",
+        sample_export_excluded_support_patterns="",
+        sample_export_family_cap=0,
+        sample_export_basin_fingerprint_cap=0,
+        top_k=-1,
+        igp24_generation_strategy="sparse",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=16,
+        sample_export_target_r_conditioning_mode="control_token",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "support_filtered_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.15,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["records_written"] == 1
+    assert summary["provenance_controls_enabled"]
+    assert summary["required_support_patterns"] == ["sparse_mixed_support_gcd1"]
+    assert summary["provenance_skip_counts"] == {"required_support_pattern_mismatch": 2}
+    assert records[0]["generation_metadata"]["generation_strategy"] == "sparse"
+    assert records[0]["generation_metadata"]["support_pattern"] == "sparse_mixed_support_gcd1"
+
+
 def test_sample_and_export_prefixes_target_r_seed_bank(tmp_path):
     class DummyDecoded:
         def __init__(self, coefficient):
