@@ -4,6 +4,23 @@ This file is the working project log for the Axplorer-based IGP24 candidate
 generator. Keep it current as implementation, tests, smoke runs, and benchmark
 results change.
 
+## Standing Operating Rule
+
+- Effective 2026-07-09, every substantial IGP24 advancement cycle should
+  exercise the full AXG stack by default: sync fresh SAIR state, update the
+  active-learning corpus, train a fresh bounded AXG model iteration on GPU,
+  verify/log GPU utilization, run inference from the new checkpoint, score and
+  gate model-generated samples, compare them with any structured search lanes,
+  improve planner/search infrastructure where useful, and update this TODO
+  with training metrics, inference results, benchmark/scout outcomes, gate
+  decisions, and next tasks. Hand-built scouting remains useful, but it should
+  normally run alongside a new AXG iteration instead of replacing it.
+- Exceptions are narrow administrative tasks such as formatting an already
+  approved submission packet, answering a repo/status question, syncing or
+  polling SAIR state, or making a small documentation-only update. Live SAIR
+  submissions still require explicit user approval, and `SAIR_API_KEY` must
+  remain environment-only.
+
 ## Current Status
 
 - Branch: `igp24-dev`
