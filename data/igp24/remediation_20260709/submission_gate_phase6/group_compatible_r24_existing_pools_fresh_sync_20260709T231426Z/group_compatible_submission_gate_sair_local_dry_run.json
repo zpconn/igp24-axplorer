@@ -1,0 +1,11 @@
+{
+  "api_key_required": false,
+  "body_bytes": 280,
+  "dry_run": true,
+  "live_submission": false,
+  "local_only": true,
+  "network_calls": false,
+  "ok": true,
+  "polynomial_count": 2,
+  "would_post": "/api/public/v1/competitions/igp24/submissions"
+}

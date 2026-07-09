@@ -33,6 +33,21 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
+  read-only SAIR API sync after the group-compatible packet gate, with
+  `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:
+  `data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/`.
+  Result: 25,000 labels, 46,950 remaining signatures, 29 submissions,
+  234 submission rows, 234 scoreable rows, 0 pending rows, 0 unmatched rows,
+  29/29 details and downloads recovered, and `partial_sync=false`. Regenerated
+  the local group-compatible gate against this fresh progress snapshot under
+  `data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_fresh_sync_20260709T231426Z/`.
+  The 2-row r24 packet still passes exact local validation and local SAIR
+  dry-run formatting; progress cross-check still finds all 18 possible
+  uncovered r24 pairs current, with 0 stale and 0 unknown progress pairs.
+  Live submission remains recommended `false` by automation because exact
+  labels are unknown and explicit user approval is required for the exact
+  packet.
 - 2026-07-09 remediation Phase 6 submission-gate checkpoint: added
   `scripts/igp24_group_compatible_submission_gate.py`, a local/file-only
   review gate for packet-optimizer rows that have group-compatibility evidence
