@@ -1,0 +1,57 @@
+{
+  "created_at_utc": "2026-07-09T18:36:22.019651+00:00",
+  "decoded_input_records": 13,
+  "gpu_probe_summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15",
+  "real_root_counts": {
+    "16": 6,
+    "2": 2,
+    "4": 5
+  },
+  "records_read": 3718,
+  "records_selected": 3718,
+  "rejected_records": 0,
+  "report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/score_report.md",
+  "runtime_seconds": 1.013297869998496,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 13
+  },
+  "sample_export_source_target_r_survivors": {
+    "model_generate": 6
+  },
+  "score_all": true,
+  "score_command": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_score_sample_export.py data/igp24/axg18_escape_20260709/r16_cuda_seed42116/gpu_model_sample_export_target_r16_conditioned.jsonl --output_dir data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15 --score_all true --coeff_bound 1000000000000000 --target_r 16 --exact_score_timeout 0 --local_search false",
+  "scored_jsonl_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 9886.540492207323,
+    "canonical_hash_records": 13,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 760.5031147851787,
+    "proxy_scored_records": 13,
+    "rejected_records": 0,
+    "scored_records": 13,
+    "unique_canonical_hashes": 13
+  },
+  "scored_records": 13,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 3705,
+  "source_commit": "c35cbf97ace324877fa5cb07ff525cebb2364ea5",
+  "source_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/gpu_model_sample_export_target_r16_conditioned.jsonl",
+  "split_manifest_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/split_workflow_manifest.json",
+  "split_report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/split_workflow_report.md",
+  "summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/r16_cuda_seed42116/cpu_scored_samples_bound1e15/score_summary.json",
+  "target_r_survivor_count": 6,
+  "valid_records": 13
+}

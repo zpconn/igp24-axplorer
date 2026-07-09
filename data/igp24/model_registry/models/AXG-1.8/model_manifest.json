@@ -37,7 +37,13 @@
   "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
   "random_seed": null,
   "record_type": "igp24_axg_model_manifest",
-  "runs": [],
+  "runs": [
+    {
+      "recorded_at": "2026-07-09T18:46:27.423737+00:00",
+      "run_id": "axg18_high_real_escape_combined_gate_after_feedback_20260709",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.8/axg18_high_real_escape_combined_gate_after_feedback_20260709/run_manifest.json"
+    }
+  ],
   "sair_submission": {
     "automatic_live_submission": false,
     "notes": "Submission is explicit and gated outside model training.",

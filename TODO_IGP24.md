@@ -186,6 +186,51 @@ results change.
   inference for the refreshed high-real lane (r24/r16/r20) using the AXG-1.8
   dataset and stricter submission gating against both r8 and high-real
   `24T25000` model basins.
+- AXG-1.8 planner-default checkpoint: updated the score-aware target planner
+  and anti-basin planner default label-basin paths from the stale
+  `label_basin_analysis_20260707` snapshot to the refreshed
+  `data/igp24/axg18_escape_20260709/label_basin_analysis/` artifacts. This
+  prevents default planner calls from re-recommending the stopped
+  `r8_quartic_lift_score_followup` lane. Validation passed:
+  `python3 -m py_compile scripts/igp24_score_aware_target_planner.py
+  scripts/igp24_anti_basin_planner.py`,
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_anti_basin_planner.py`, and a default-basin planner check
+  under `data/igp24/axg18_escape_20260709/target_plan_default_basin_check/`
+  reproduced `materially_different_high_real_lane_after_basin_stop` with
+  target buckets r24/r16/r20 and no immediate submission recommendation.
+- AXG-1.8 high-real CUDA/submission checkpoint: ran bounded GPU target-r
+  inference with the AXG-1.8 active-learning dataset and fixed-sparse metadata
+  for r24, r16, a second r16 seed, and r20. GPU utilization was real on the
+  RTX 5090 (max 86-87%, average about 67-73% in the probe summaries). Decoded
+  target-r yields were thin but locally valid: r24 produced 6 valid r24 rows
+  from 3,072 attempts, first r16 produced 9 valid r16 rows from 4,096 attempts,
+  second r16 produced 13 valid r16 rows from 8,192 attempts, and r20 produced
+  8 valid r20 rows from 4,096 attempts. The initial r24 gate held all rows as
+  accepted-hash duplicates; the combined high-real gate selected a 3-row
+  packet across r16/r20 and passed dry-run validation (`3` rows, 321 bytes,
+  `ok=true`). Live SAIR submission
+  `sub_2f897a63341b46b382139d6d8de88792` accepted and scored all 3 rows, but
+  all collapsed to `24T25000`: two `24T25000|r=16` rows with `mixed_disc` and
+  one `24T25000|r=20` row with `exact_nfdisc`. This is not score improvement
+  and does not complete the active AXG-1.7/score-improvement goal.
+- AXG-1.8 feedback/anti-collapse checkpoint: post-submit sync completed fully
+  under `data/igp24/axg18_escape_20260709/post_submit_sync/` with 27
+  submissions, 224 scoreable rows, 0 pending rows, and 27/27 detail/download
+  recovery. Wrote
+  `data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json`
+  and wired it into the default anti-basin feedback list. Added a generic
+  fatal hard-stop for the proven AXG-1.8 pattern:
+  `model:fixed_sparse_template` high-real r16/r20/r24 with
+  `dense_mixed_support_gcd1` or `medium_mixed_support_gcd1`. Replay of the
+  same combined pool after feedback selected 0 rows and held submission under
+  `axg18_high_real_escape_combined_gate_after_feedback_20260709`. Validation:
+  py-compile passed for the touched planner/feedback scripts and
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_anti_basin_planner.py` passed with 25 tests. Recorded the
+  post-feedback run manifest in the AXG-1.8 model registry. Next move: AXG-1.9
+  should train a genuinely different generation family/objective rather than
+  resampling dense/medium fixed-sparse high-real templates.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

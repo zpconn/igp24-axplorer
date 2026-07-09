@@ -36,8 +36,8 @@ from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 
 
-DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_summary.json"
-DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/label_basin_analysis_20260707/label_basin_observations.jsonl"
+DEFAULT_LABEL_BASIN_SUMMARY = REPO_ROOT / "data/igp24/axg18_escape_20260709/label_basin_analysis/label_basin_summary.json"
+DEFAULT_LABEL_BASIN_OBSERVATIONS = REPO_ROOT / "data/igp24/axg18_escape_20260709/label_basin_analysis/label_basin_observations.jsonl"
 DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     REPO_ROOT / "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
     REPO_ROOT / "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
@@ -55,6 +55,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     / "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
     REPO_ROOT
     / "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    REPO_ROOT
+    / "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
@@ -78,6 +80,7 @@ FATAL_RISK_REASON_PREFIXES = (
     "model_template_family_known_high_label_collapse",
     "model_basin_fingerprint_known_high_label_collapse",
     "model_mixed_high_real_24T25000_collapse_pattern",
+    "model_fixed_sparse_high_real_24T25000_collapse_pattern",
     "exact_crowded_basin_fingerprint",
 )
 
@@ -91,6 +94,11 @@ CONSTRUCTION_FAMILY_HARD_STOP_COLLAPSES = {
 }
 AXG16_MODEL_MIXED_24T25000_COLLAPSE_RS = {12, 20, 24}
 AXG16_MODEL_MIXED_24T25000_COLLAPSE_MODES = {
+    "dense_mixed_support_gcd1",
+    "medium_mixed_support_gcd1",
+}
+AXG18_MODEL_FIXED_SPARSE_24T25000_COLLAPSE_RS = {16, 20, 24}
+AXG18_MODEL_FIXED_SPARSE_24T25000_COLLAPSE_MODES = {
     "dense_mixed_support_gcd1",
     "medium_mixed_support_gcd1",
 }
@@ -359,6 +367,23 @@ def is_axg16_model_mixed_24t25000_collapse_pattern(features: dict[str, Any]) -> 
     if mode not in AXG16_MODEL_MIXED_24T25000_COLLAPSE_MODES:
         return False
     return template.startswith(f"model:mixed:r{r_value}:")
+
+
+def is_axg18_model_fixed_sparse_24t25000_collapse_pattern(features: dict[str, Any]) -> bool:
+    """Detect the AXG-1.8 fixed-sparse high-real pattern that collapsed to 24T25000."""
+    if features.get("construction_family") != "model_sample_export":
+        return False
+    try:
+        r_value = int(features.get("r"))
+    except (TypeError, ValueError):
+        return False
+    if r_value not in AXG18_MODEL_FIXED_SPARSE_24T25000_COLLAPSE_RS:
+        return False
+    mode = str(features.get("perturbation_mode") or features.get("decomposition_pattern") or "")
+    template = str(features.get("template_family_id") or "")
+    if mode not in AXG18_MODEL_FIXED_SPARSE_24T25000_COLLAPSE_MODES:
+        return False
+    return template.startswith(f"model:fixed_sparse_template:r{r_value}:")
 
 
 def sample_export_source(row: dict[str, Any] | None) -> str:
@@ -851,6 +876,11 @@ def score_candidate_row(
         if is_axg16_model_mixed_24t25000_collapse_pattern(features):
             risk_reasons.append(
                 f"model_mixed_high_real_24T25000_collapse_pattern:r{r_value}:{features.get('perturbation_mode')}"
+            )
+            score -= 220.0
+        if is_axg18_model_fixed_sparse_24t25000_collapse_pattern(features):
+            risk_reasons.append(
+                f"model_fixed_sparse_high_real_24T25000_collapse_pattern:r{r_value}:{features.get('perturbation_mode')}"
             )
             score -= 220.0
         template_labels = basin_profile.get("collapsed_model_template_r_labels", {}).get(template_key, [])

@@ -1,0 +1,196 @@
+{
+  "accepted_feedback_paths": [
+    "data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+    "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+    "data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
+    "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg18_escape_20260709/r16_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-09T18:32:14.627048+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 3,
+    "min_model_generated_rows": 3,
+    "min_packet_rows": 3,
+    "min_template_family_count": 2,
+    "packet_limit": 8,
+    "per_mode_cap": 2,
+    "per_pattern_cap": 2,
+    "reject_unknown_provenance": true
+  },
+  "extra_submission_status_paths": [],
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.8",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/rejected_candidates.jsonl",
+    "report": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_r16_high_real_escape_gate_20260709/proposal_loop_summary.json"
+  },
+  "recommendation": {
+    "advisory_risk_count": 1,
+    "fatal_risk_count": 0,
+    "local_recommended_for_sair_packet": false,
+    "min_basin_fingerprint_count": 3,
+    "min_model_generated_rows": 3,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 2,
+    "model_generated_selected_rows": 1,
+    "reason": "only_1_eligible_rows_below_min_3; only_1_model_generated_rows_below_min_3; selected_rows_do_not_have_min_perturbation_mode_count_2; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_template_family_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {
+      "95e7003e8a82b2a736e86243": 1
+    },
+    "selected_mod_p_signature_counts": {
+      "p11:1-4-19;p3:1-2-3-18;p5:5-19;p7:1-23": 1
+    },
+    "selected_mode_counts": {
+      "dense_mixed_support_gcd1": 1
+    },
+    "selected_rows": 1,
+    "selected_source_counts": {
+      "model_generate": 1
+    },
+    "selected_template_family_counts": {
+      "model:fixed_sparse_template:r16:dense_mixed_support_gcd1": 1
+    },
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "26/26 details recovered; 26/26 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        16
+      ],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "data/igp24/model_registry",
+  "run_id": "axg18_r16_high_real_escape_gate_20260709",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/axg18_escape_20260709/sair_sync",
+  "sair_sync_gate": {
+    "degraded_mode_summary": "26/26 details recovered; 26/26 downloads recovered",
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "hold_reasons": [],
+    "partial_sync": false,
+    "pending_high_label_basin_collisions": {},
+    "pending_pair_counts": {},
+    "selected_exact_pair_pending_collisions": {},
+    "selected_pair_keys": [],
+    "selected_r_values": [
+      16
+    ],
+    "submission_detail_complete": true
+  },
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "224d287c315d950419ca57cd": 1,
+        "2a1f2f64702dcef315b5eeae": 2,
+        "95e7003e8a82b2a736e86243": 1,
+        "b6a7dc352ca6aeab7117cbc2": 1,
+        "bd8fc1ac2ff20cc657e62cac": 2
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 9
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 6,
+        "review_packet_candidate_loose_basin_match": 1
+      }
+    },
+    "eligible_rows_by_source": {
+      "model_generate": 1
+    },
+    "model_generated_eligible_rows": 1,
+    "model_generated_selected_rows": 1,
+    "model_generated_target_r_survivor_rows": 7,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "dense_mixed_support_gcd1": 4,
+        "medium_mixed_support_gcd1": 3
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 6
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "accepted_hash_duplicate": 6,
+        "loose_crowded_basin_fingerprint_hits=4": 3,
+        "loose_crowded_basin_fingerprint_hits=5": 4
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 7
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "model_generate": 1
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 7
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:fixed_sparse_template:r16:dense_mixed_support_gcd1": 4,
+        "model:fixed_sparse_template:r16:medium_mixed_support_gcd1": 3
+      }
+    }
+  },
+  "source_commit": "c35cbf97ace324877fa5cb07ff525cebb2364ea5",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

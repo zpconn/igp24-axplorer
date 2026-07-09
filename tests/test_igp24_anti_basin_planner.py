@@ -755,6 +755,47 @@ def test_axg16_model_mixed_high_real_pattern_is_fatal_even_without_exact_feedbac
     )
 
 
+def test_axg18_model_fixed_sparse_high_real_pattern_is_fatal_even_without_exact_feedback():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[16, 20, 24])
+    basin_profile = build_basin_profile([], {}, avoid_labels={"24T25000"}, crowded_team_threshold=20)
+
+    for r_value in (16, 20, 24):
+        blocked = score_candidate_row(
+            _axg_model_candidate(
+                f"axg18-fixed-sparse-pattern-r{r_value}",
+                r=r_value,
+                template=f"model:fixed_sparse_template:r{r_value}:medium_mixed_support_gcd1",
+                basin=f"fresh-fixed-sparse-basin-r{r_value}",
+            ),
+            target_rs={16, 20, 24},
+            progress_cache=progress,
+            basin_profile=basin_profile,
+        )
+        reason_prefix = (
+            f"model_fixed_sparse_high_real_24T25000_collapse_pattern:r{r_value}:medium_mixed_support_gcd1"
+        )
+
+        assert blocked["eligible_for_packet"] is False
+        assert reason_prefix in blocked["fatal_risk_reasons"]
+
+    sparse_variant = score_candidate_row(
+        _axg_model_candidate(
+            "axg18-fixed-sparse-sparse-mode-not-global-fatal",
+            r=16,
+            template="model:fixed_sparse_template:r16:sparse_mixed_support_gcd1",
+            basin="fresh-fixed-sparse-sparse-basin-r16",
+        ),
+        target_rs={16},
+        progress_cache=normalize_progress_cache(_progress_snapshot(), target_rs=[16]),
+        basin_profile=basin_profile,
+    )
+    assert sparse_variant["eligible_for_packet"] is True
+    assert not any(
+        str(reason).startswith("model_fixed_sparse_high_real_24T25000_collapse_pattern")
+        for reason in sparse_variant["risk_reasons"]
+    )
+
+
 def test_r16_model_mixed_dense_medium_feedback_holds_24t25000_repeats():
     progress = normalize_progress_cache(_progress_snapshot(), target_rs=[16])
     observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
