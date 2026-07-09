@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-09T21:51:45.039386+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "a76b6ae951f201d8750b6237b176f9fd78d9620d",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/escape_lane_scout_20260709/gate_r16_diversity/anti_basin_selected_queue.jsonl"
+    ],
+    "candidate_count": 10,
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    }
+  },
+  "candidate_count": 10,
+  "eligible_candidate_count": 0,
+  "selected_rows": 0,
+  "rejected_rows": 10,
+  "reject_reason_counts": {
+    "missing_pair_or_compatibility_evidence": 10
+  },
+  "crowded_only_candidates_rejected": 0,
+  "pair_evidence_missing_candidates": 10,
+  "selected_possible_uncovered_pair_count": 0,
+  "selected_possible_low_team_pair_count": 0,
+  "selected_possible_uncovered_pairs": [],
+  "selected_possible_low_team_pairs": [],
+  "distinct_compatible_label_clusters": 0,
+  "selected_compatible_label_clusters": [],
+  "expected_score_ceiling": 0,
+  "expected_score_estimate": 0,
+  "selected_diversity": {
+    "construction_family": {},
+    "template_family_id": {},
+    "perturbation_mode": {},
+    "basin_fingerprint": {},
+    "mod_p_pattern_signature": {},
+    "r": {}
+  },
+  "local_packet_ready_for_review": false,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [],
+  "output_files": {
+    "summary_json": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_summary.json",
+    "report_md": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/packet_optimizer_hashes.txt"
+  }
+}

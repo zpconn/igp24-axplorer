@@ -33,6 +33,30 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 6 checkpoint: added
+  `scripts/igp24_packet_optimizer.py`, a conservative packet selector that
+  greedily maximizes the union of plausible valuable `(24Tt,r)` pairs while
+  enforcing caps by canonical hash, construction family, template family,
+  perturbation mode, basin fingerprint, modular signature, compatible-label
+  cluster, and real-root count. It consumes current anti-basin/proposal rows
+  and future group-compatibility rows, uses the Phase 4 official
+  score-economics plan for pair values, rejects crowded-only candidates, and
+  refuses to assign value to candidates that lack exact-pair or compatibility
+  evidence. Output files include summary/report JSON+Markdown, selected and
+  rejected JSONL, hashes, and SAIR-ready coefficient lines when selected rows
+  carry coefficients. Phase 6 dry run:
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/r16_diversity_no_pair_evidence/`
+  replayed the previously anti-basin-clean r16 diversity packet. Result:
+  10 candidates considered, 0 eligible for score-optimized selection, 0
+  selected, 10 rejected for `missing_pair_or_compatibility_evidence`, 0
+  possible uncovered pairs, 0 possible low-team pairs, and expected score
+  estimate 0. This is an intentional go/no-go tightening: anti-basin-clean
+  rows are no longer enough for a submission packet unless they also carry
+  exact pair evidence or sound compatibility evidence. No live submission or
+  dry-run submission was made/recommended. Validation so far:
+  py-compile passed for the optimizer; focused packet/scoring/target-planner/
+  anti-basin/group-compatibility tests passed (`46 passed`); Phase 6 JSON/JSONL
+  artifacts parse cleanly.
 - 2026-07-09 remediation Phase 4 checkpoint: added explicit official IGP24
   score-economics support under `src/igp24/scoring.py` and wired it into
   `scripts/igp24_score_aware_target_planner.py`. Planner rows now expose
