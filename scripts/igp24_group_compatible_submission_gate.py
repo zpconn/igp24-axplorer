@@ -123,7 +123,7 @@ def pair_progress_status(progress_index: dict[str, dict[str, Any]], pair_key: st
     label, r_value = parsed
     label_row = progress_index.get(label)
     if label_row is None:
-        return {"pair_key": pair_key, "label": label, "r": r_value, "progress_state": "label_missing", "current_value_class": "unknown"}
+        return {"pair_key": pair_key, "label": label, "r": r_value, "progress_state": "progress_data_missing_unknown", "current_value_class": "unknown"}
     remaining = {int(value) for value in label_row.get("remainingSignatures") or []}
     discovered = {int(value) for value in label_row.get("discoveredSignatures") or []}
     signature = signature_by_r(label_row).get(r_value) or {}
@@ -134,13 +134,14 @@ def pair_progress_status(progress_index: dict[str, dict[str, Any]], pair_key: st
         else label_row.get("teamCount") or 0
     )
     if r_value in remaining:
-        progress_state = "remaining"
+        progress_state = "allowed_remaining"
         value_class = "uncovered"
     elif r_value in discovered or signature_discovered:
-        progress_state = "discovered"
+        progress_state = "allowed_discovered"
         value_class = "low_team" if team_count <= 20 else "crowded"
     else:
-        progress_state = "unknown"
+        allowed = {int(value) for value in label_row.get("allowedR") or []}
+        progress_state = "signature_not_allowed" if allowed and r_value not in allowed else "progress_data_missing_unknown"
         value_class = "unknown"
     return {
         "pair_key": pair_key,
@@ -329,7 +330,8 @@ def row_checks(
         "local_squarefree": local.get("squarefree") is True,
         "local_r_matches": bool(local.get("real_root_count_matches")),
         "hash_matches_optimizer_row": bool(local.get("hash_matches_optimizer_row")),
-        "has_group_compatibility": int(row.get("compatible_label_count") or 0) > 0,
+        "has_group_compatibility": int(row.get("indexed_target_survivor_count") or row.get("compatible_label_count") or 0) > 0
+        and row.get("evidence_strength") != "insufficient_modular_cycle_evidence",
         "has_valuable_compatible_pair": bool(possible_uncovered or possible_low_team),
         "not_crowded_only": not bool(possible_crowded and not possible_uncovered and not possible_low_team),
     }
@@ -410,13 +412,27 @@ def build_gate(
                 "short_hash": row.get("short_hash"),
                 "coefficients": coeffs25,
                 "features": row.get("features"),
+                "index_scope": row.get("index_scope"),
+                "indexed_group_count": row.get("indexed_group_count"),
+                "expected_global_group_count": row.get("expected_global_group_count"),
+                "global_index_complete": row.get("global_index_complete"),
+                "unindexed_label_mass_unknown": row.get("unindexed_label_mass_unknown"),
+                "indexed_target_survivor_count": row.get("indexed_target_survivor_count"),
+                "indexed_target_labels_not_ruled_out": row.get("indexed_target_labels_not_ruled_out"),
                 "compatible_label_count": row.get("compatible_label_count"),
+                "compatible_label_count_deprecated": row.get("compatible_label_count_deprecated"),
+                "evidence_strength": row.get("evidence_strength"),
+                "valuable_targets_not_ruled_out": list(row.get("valuable_targets_not_ruled_out") or []),
                 "possible_uncovered_pairs": list(row.get("possible_uncovered_pairs") or []),
                 "possible_low_team_pairs": list(row.get("possible_low_team_pairs") or []),
                 "possible_crowded_pairs": list(row.get("possible_crowded_pairs") or []),
+                "best_case_points": row.get("best_case_points"),
                 "maximum_possible_points": row.get("maximum_possible_points"),
                 "estimated_expected_points": row.get("estimated_expected_points"),
+                "expected_points_status": row.get("expected_points_status"),
+                "expected_points_basis": row.get("expected_points_basis"),
                 "marginal_estimated_points": row.get("marginal_estimated_points"),
+                "marginal_best_case_points": row.get("marginal_best_case_points"),
                 "compatibility_ambiguity_factor": row.get("compatibility_ambiguity_factor"),
                 "progress_cross_check": progress,
                 "submission_hash_cross_check": submission_hash,
@@ -552,9 +568,13 @@ def build_gate(
             "known_submission_labels": known_submission_labels,
             "known_submission_pairs": known_submission_pairs,
         },
+        "indexed_target_survivor_count_distribution": dict(
+            Counter(str(row.get("indexed_target_survivor_count")) for row in gate_rows)
+        ),
         "compatible_label_count_distribution": dict(
             Counter(str(row.get("compatible_label_count")) for row in gate_rows)
         ),
+        "compatible_label_count_distribution_deprecated": True,
         "check_failures": sorted(blockers),
         "local_sair_dry_run": dry_run_payload,
         "sair_sync": {

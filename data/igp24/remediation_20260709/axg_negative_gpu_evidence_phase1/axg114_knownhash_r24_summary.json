@@ -1,0 +1,60 @@
+{
+  "run_id": "axg114_r24_knownhash_20260709T2323Z",
+  "created_at_utc": "2026-07-09T23:25:42.086190+00:00",
+  "source_commit": "200200dbc96d0cd47c96ae256e1743a8123b9935",
+  "repo_root": "/home/zpconn/code/igp24-axplorer",
+  "tmp_output_dir": "/tmp/igp24_axg114_r24_knownhash_20260709T2323Z",
+  "purpose": "Bounded r24 GPU sample-export probe using known-submission hash exclusion after the fresh SAIR sync exposed submitted hashes in the existing group-compatible pools.",
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false,
+    "runs_exact_verifiers": false,
+    "proxy_only": true
+  },
+  "training_and_sampling": {
+    "probe_mode": "sample_export_target_r_conditioned",
+    "target_r": 24,
+    "training_jsonl": "data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl",
+    "training_target_rs": "8,12,16,20,24",
+    "excluded_hashes_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl",
+    "returncode": 0,
+    "timed_out": false,
+    "runtime_seconds": 106.85304241899576,
+    "gpu_used": true,
+    "post_train_cpu_sampling_scoring_avoided": true,
+    "sample_attempt_budget": 2048,
+    "attempted_samples": 2048,
+    "records_written": 332,
+    "decoded_records": 35,
+    "unique_decoded_coefficients": 35,
+    "invalid_decode_records": 297,
+    "duplicate_decoded_records_skipped": 1668,
+    "excluded_hashes_loaded": 265,
+    "excluded_hash_records_skipped": 1,
+    "stop_reason": "attempt_budget_exhausted",
+    "template_family_counts": {
+      "model:mixed:r24:dense_mixed_support_gcd1": 30,
+      "model:mixed:r24:medium_mixed_support_gcd1": 5
+    }
+  },
+  "cpu_proxy_scoring": {
+    "created_at_utc": "2026-07-09T23:27:42.211812+00:00",
+    "records_read": 332,
+    "decoded_input_records": 35,
+    "skipped_decode_records": 297,
+    "scored_records": 35,
+    "valid_records": 0,
+    "rejected_records": 35,
+    "unique_hashes": 35,
+    "duplicate_hash_records": 0,
+    "local_search_enabled": false,
+    "rejection_reasons": {
+      "coefficient_height_exceeds_bound": 35
+    },
+    "height_min": 725989,
+    "height_max": 12098014798404944990232070,
+    "real_root_counts": {}
+  },
+  "lesson": "Known-submission hash exclusion prevented immediate repeats, but this r24 mixed/high-temperature lane produced only 35 decodable unique rows and all exceeded the configured coefficient-height bound before real-root or group checks. It is not submittable and should feed negative training/risk evidence."
+}

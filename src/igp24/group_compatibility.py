@@ -22,6 +22,7 @@ from typing import Any, Iterable, Sequence
 SCHEMA_VERSION = 1
 RECORD_TYPE = "igp24_group_cycle_index"
 DEGREE = 24
+EXPECTED_GLOBAL_GROUP_COUNT = 25000
 
 
 def utc_now() -> str:
@@ -109,7 +110,13 @@ class GroupCycleIndex:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def initialize(self, *, provenance: dict[str, Any] | None = None) -> None:
+    def initialize(
+        self,
+        *,
+        provenance: dict[str, Any] | None = None,
+        index_scope: str = "target_subset",
+        expected_global_group_count: int = EXPECTED_GLOBAL_GROUP_COUNT,
+    ) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as conn:
             conn.executescript(
@@ -144,6 +151,9 @@ class GroupCycleIndex:
                 "record_type": RECORD_TYPE,
                 "degree": DEGREE,
                 "created_at": utc_now(),
+                "index_scope": index_scope,
+                "expected_global_group_count": int(expected_global_group_count),
+                "global_index_complete": False,
                 "provenance": provenance or {},
             }
             for key, value in metadata.items():
@@ -156,6 +166,23 @@ class GroupCycleIndex:
         with self.connect() as conn:
             rows = conn.execute("SELECT key, value FROM metadata").fetchall()
         return {row["key"]: json.loads(row["value"]) for row in rows}
+
+    def scope_metadata(self) -> dict[str, Any]:
+        metadata = self.metadata()
+        indexed_group_count = self.group_count()
+        expected = int(metadata.get("expected_global_group_count") or EXPECTED_GLOBAL_GROUP_COUNT)
+        global_complete = bool(metadata.get("global_index_complete")) or indexed_group_count >= expected
+        scope = str(metadata.get("index_scope") or ("complete_degree24_universe" if global_complete else "target_subset"))
+        if global_complete:
+            scope = "complete_degree24_universe"
+        return {
+            "index_scope": scope,
+            "indexed_group_count": indexed_group_count,
+            "expected_global_group_count": expected,
+            "global_index_complete": global_complete,
+            "unindexed_label_mass_unknown": not global_complete,
+            "soundness": "necessary_target_exclusion_only",
+        }
 
     def upsert_group(self, record: GroupRecord) -> None:
         if record.degree != DEGREE:
@@ -306,6 +333,24 @@ def _progress_by_pair(progress_rows: Iterable[dict[str, Any]]) -> dict[str, dict
         label = str(row.get("label") or "")
         if not label:
             continue
+        allowed = set()
+        for value in row.get("allowedR") or []:
+            try:
+                allowed.add(int(value))
+            except (TypeError, ValueError):
+                continue
+        discovered = set()
+        for value in row.get("discoveredSignatures") or []:
+            try:
+                discovered.add(int(value))
+            except (TypeError, ValueError):
+                continue
+        remaining = set()
+        for value in row.get("remainingSignatures") or []:
+            try:
+                remaining.add(int(value))
+            except (TypeError, ValueError):
+                continue
         for sig in row.get("signatures") or []:
             if not isinstance(sig, dict) or sig.get("r") is None:
                 continue
@@ -313,16 +358,118 @@ def _progress_by_pair(progress_rows: Iterable[dict[str, Any]]) -> dict[str, dict
                 r_value = int(sig["r"])
             except (TypeError, ValueError):
                 continue
+            allowed.add(r_value)
+            if bool(sig.get("discovered")):
+                discovered.add(r_value)
+            elif r_value not in discovered:
+                remaining.add(r_value)
             progress[f"{label}|r={r_value}"] = {
                 "label": label,
                 "r": r_value,
+                "allowed": True,
                 "discovered": bool(sig.get("discovered")),
-                "remaining": not bool(sig.get("discovered")),
+                "remaining": r_value in remaining and r_value not in discovered,
                 "team_count": int(sig.get("teamCount") or 0),
                 "minimum_disc_abs": sig.get("minimumDiscAbs") or row.get("minimumDiscAbs"),
                 "in_baseline": bool(sig.get("inBaseline", False)),
             }
+        for r_value in allowed:
+            pair_key = f"{label}|r={r_value}"
+            if pair_key not in progress:
+                progress[pair_key] = {
+                    "label": label,
+                    "r": r_value,
+                    "allowed": True,
+                    "discovered": r_value in discovered,
+                    "remaining": r_value in remaining and r_value not in discovered,
+                    "team_count": int(row.get("teamCount") or 0) if r_value in discovered else 0,
+                    "minimum_disc_abs": row.get("minimumDiscAbs"),
+                    "in_baseline": False,
+                }
     return progress
+
+
+def _labels_with_progress(progress_rows: Iterable[dict[str, Any]]) -> dict[str, set[int]]:
+    labels: dict[str, set[int]] = {}
+    for row in progress_rows:
+        label = str(row.get("label") or "")
+        if not label:
+            continue
+        allowed: set[int] = set()
+        for key in ("allowedR", "remainingSignatures", "discoveredSignatures"):
+            for value in row.get(key) or []:
+                try:
+                    allowed.add(int(value))
+                except (TypeError, ValueError):
+                    continue
+        for sig in row.get("signatures") or []:
+            if isinstance(sig, dict) and sig.get("r") is not None:
+                try:
+                    allowed.add(int(sig["r"]))
+                except (TypeError, ValueError):
+                    continue
+        labels[label] = allowed
+    return labels
+
+
+def _pair_progress_state(
+    pair_key: str,
+    *,
+    progress: dict[str, dict[str, Any]],
+    progress_labels: dict[str, set[int]],
+) -> dict[str, Any]:
+    if "|r=" not in pair_key:
+        return {"pair_key": pair_key, "progress_state": "invalid_pair_key", "score_value_status": "no_score_value"}
+    label, r_text = pair_key.split("|r=", 1)
+    try:
+        r_value = int(r_text)
+    except ValueError:
+        return {"pair_key": pair_key, "label": label, "progress_state": "invalid_pair_key", "score_value_status": "no_score_value"}
+    if label not in progress_labels:
+        return {
+            "pair_key": pair_key,
+            "label": label,
+            "r": r_value,
+            "progress_state": "progress_data_missing_unknown",
+            "score_value_status": "unknown_no_score_value",
+        }
+    if r_value not in progress_labels[label]:
+        return {
+            "pair_key": pair_key,
+            "label": label,
+            "r": r_value,
+            "progress_state": "signature_not_allowed",
+            "score_value_status": "no_score_value",
+        }
+    item = progress.get(pair_key)
+    if item is None:
+        return {
+            "pair_key": pair_key,
+            "label": label,
+            "r": r_value,
+            "progress_state": "progress_data_missing_unknown",
+            "score_value_status": "unknown_no_score_value",
+        }
+    team_count = int(item.get("team_count") or 0)
+    if item.get("remaining") and not item.get("discovered"):
+        state = "allowed_remaining"
+        value_status = "valuable_uncovered"
+    elif item.get("discovered"):
+        state = "allowed_discovered"
+        value_status = "valuable_low_team" if team_count <= 20 else "crowded_or_low_value"
+    else:
+        state = "progress_data_missing_unknown"
+        value_status = "unknown_no_score_value"
+    return {
+        "pair_key": pair_key,
+        "label": label,
+        "r": r_value,
+        "progress_state": state,
+        "score_value_status": value_status,
+        "team_count": team_count,
+        "minimum_disc_abs": item.get("minimum_disc_abs"),
+        "in_baseline": bool(item.get("in_baseline", False)),
+    }
 
 
 def candidate_compatibility(
@@ -335,21 +482,46 @@ def candidate_compatibility(
 ) -> dict[str, Any]:
     evidence = observed_cycle_evidence(row)
     all_labels = index.all_labels()
+    scope = index.scope_metadata()
+    deprecated_fields = {
+        "compatible_label_fields_deprecated": True,
+        "compatible_label_count_deprecated": True,
+        "compatible_label_count_scope": "indexed_subset_only_not_global",
+    }
     if not all_labels:
         return {
             "status": "index_empty",
+            **scope,
+            "indexed_target_survivor_count": 0,
+            "indexed_target_labels_not_ruled_out": [],
             "compatible_label_count": 0,
             "compatible_labels": [],
+            **deprecated_fields,
+            "valuable_targets_not_ruled_out": [],
+            "compatible_uncovered_pairs": [],
+            "compatible_low_team_pairs": [],
+            "compatible_crowded_pairs": [],
+            "progress_states": {},
             "evidence": {"primes": [], "cycle_types": []},
-            "soundness": "necessary_condition_only",
+            "evidence_strength": "insufficient_index",
         }
     if not evidence:
         return {
             "status": "insufficient_cycle_evidence",
+            **scope,
+            "indexed_target_survivor_count": len(all_labels),
+            "indexed_target_labels_not_ruled_out": sorted(all_labels),
             "compatible_label_count": len(all_labels),
             "compatible_labels": sorted(all_labels),
+            **deprecated_fields,
+            "valuable_targets_not_ruled_out": [],
+            "compatible_uncovered_pairs": [],
+            "compatible_low_team_pairs": [],
+            "compatible_crowded_pairs": [],
+            "progress_states": {},
             "evidence": {"primes": [], "cycle_types": []},
-            "soundness": "necessary_condition_only",
+            "evidence_strength": "insufficient_modular_cycle_evidence",
+            "warning": "no modular cycle evidence; indexed targets have not been tested and this row is not packet-eligible",
         }
 
     compatible = set(all_labels)
@@ -371,33 +543,45 @@ def candidate_compatibility(
 
     r_value = _row_r_value(row)
     progress = _progress_by_pair(progress_rows or [])
+    progress_labels = _labels_with_progress(progress_rows or [])
     compatible_pairs = [f"{label}|r={r_value}" for label in sorted(compatible) if r_value is not None]
     compatible_uncovered = []
     compatible_low_team = []
     compatible_crowded = []
+    progress_states: dict[str, dict[str, Any]] = {}
     for pair in compatible_pairs:
-        item = progress.get(pair)
-        if item is None:
+        state = _pair_progress_state(pair, progress=progress, progress_labels=progress_labels)
+        progress_states[pair] = state
+        team_count = int(state.get("team_count") or 0)
+        if state.get("progress_state") == "allowed_remaining":
             compatible_uncovered.append(pair)
-            continue
-        team_count = int(item.get("team_count") or 0)
-        if item.get("remaining") or not item.get("discovered"):
-            compatible_uncovered.append(pair)
-        elif team_count <= low_team_threshold:
+        elif state.get("progress_state") == "allowed_discovered" and team_count <= low_team_threshold:
             compatible_low_team.append(pair)
-        elif team_count >= crowded_team_threshold:
+        elif state.get("progress_state") == "allowed_discovered" and team_count >= crowded_team_threshold:
             compatible_crowded.append(pair)
 
+    survivors = sorted(compatible)
+    valuable_targets = sorted(set(compatible_uncovered + compatible_low_team))
     return {
         "status": "ok" if compatible else "empty_compatible_set",
+        **scope,
+        "indexed_target_survivor_count": len(compatible),
+        "indexed_target_labels_not_ruled_out": survivors,
         "compatible_label_count": len(compatible),
-        "compatible_labels": sorted(compatible),
+        "compatible_labels": survivors,
+        **deprecated_fields,
+        "valuable_targets_not_ruled_out": valuable_targets,
         "compatible_uncovered_pairs": sorted(compatible_uncovered),
         "compatible_low_team_pairs": sorted(compatible_low_team),
         "compatible_crowded_pairs": sorted(compatible_crowded),
+        "compatible_unknown_or_no_score_pairs": sorted(
+            pair for pair in compatible_pairs if pair not in set(compatible_uncovered + compatible_low_team + compatible_crowded)
+        ),
+        "progress_states": progress_states,
         "crowded_only": bool(compatible) and not compatible_uncovered and not compatible_low_team,
         "ambiguity": {
-            "label_count": len(compatible),
+            "indexed_target_survivor_count": len(compatible),
+            "global_ambiguity_status": "unknown_partial_index" if not scope["global_index_complete"] else "complete_index_count",
             "narrowed_below_1000": len(compatible) < 1000,
             "narrowed_below_100": len(compatible) < 100,
             "narrowed_below_20": len(compatible) < 20,
@@ -410,8 +594,8 @@ def candidate_compatibility(
             "discriminant_square": discriminant_square,
             "parity_filter_applied": parity_filter_applied,
         },
-        "soundness": "necessary_condition_only",
-        "warning": "compatible labels are candidates only; exact label still requires SAIR/Magma verification",
+        "evidence_strength": "modular_cycle_target_exclusion",
+        "warning": "indexed survivors are necessary target-exclusion evidence only; unindexed labels remain possible unless the index is complete",
     }
 
 
@@ -425,6 +609,7 @@ def validate_historical_containment(
     failures: list[dict[str, Any]] = []
     sizes: list[int] = []
     crowded_only_count = 0
+    true_label_outside_index = 0
     for row in rows:
         label = str(row.get("label") or row.get("verified_group_label") or "")
         if not label:
@@ -433,9 +618,13 @@ def validate_historical_containment(
         if not label:
             continue
         compatibility = candidate_compatibility(row, index, progress_rows=progress_rows)
-        labels = set(compatibility.get("compatible_labels") or [])
-        contained = label in labels
-        size = int(compatibility.get("compatible_label_count") or 0)
+        labels = set(compatibility.get("indexed_target_labels_not_ruled_out") or compatibility.get("compatible_labels") or [])
+        indexed_labels = index.all_labels()
+        label_indexed = label in indexed_labels
+        contained = label in labels if label_indexed else None
+        if not label_indexed:
+            true_label_outside_index += 1
+        size = int(compatibility.get("indexed_target_survivor_count") or compatibility.get("compatible_label_count") or 0)
         sizes.append(size)
         crowded_only_count += int(bool(compatibility.get("crowded_only")))
         item = {
@@ -443,20 +632,27 @@ def validate_historical_containment(
             "r": _row_r_value(row),
             "canonical_hash": row.get("canonical_hash"),
             "contained": contained,
+            "true_label_indexed": label_indexed,
+            "indexed_target_survivor_count": size,
             "compatible_label_count": size,
             "status": compatibility.get("status"),
+            "unindexed_label_mass_unknown": compatibility.get("unindexed_label_mass_unknown"),
         }
         checked.append(item)
-        if not contained:
-            failures.append(item | {"compatible_labels": compatibility.get("compatible_labels", [])[:50]})
+        if label_indexed and not contained:
+            failures.append(item | {"indexed_target_labels_not_ruled_out": compatibility.get("indexed_target_labels_not_ruled_out", [])[:50]})
 
     sorted_sizes = sorted(sizes)
     median = sorted_sizes[len(sorted_sizes) // 2] if sorted_sizes else None
+    indexed_checked_count = len(checked) - true_label_outside_index
     return {
         "checked_count": len(checked),
+        "indexed_true_label_checked_count": indexed_checked_count,
+        "true_label_outside_index_count": true_label_outside_index,
         "failure_count": len(failures),
-        "true_label_containment": 1.0 - (len(failures) / len(checked)) if checked else None,
+        "true_label_containment": 1.0 - (len(failures) / indexed_checked_count) if indexed_checked_count else None,
         "failures": failures,
+        "median_indexed_target_survivor_count": median,
         "median_compatible_label_count": median,
         "fraction_below_1000": sum(1 for value in sizes if value < 1000) / len(sizes) if sizes else None,
         "fraction_below_100": sum(1 for value in sizes if value < 100) / len(sizes) if sizes else None,
@@ -468,15 +664,26 @@ def validate_historical_containment(
 
 
 def summarize_compatibility(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
-    sizes = [int(row.get("group_compatibility", {}).get("compatible_label_count") or 0) for row in rows]
+    sizes = [
+        int(
+            row.get("group_compatibility", {}).get("indexed_target_survivor_count")
+            or row.get("group_compatibility", {}).get("compatible_label_count")
+            or 0
+        )
+        for row in rows
+    ]
     statuses = Counter(str(row.get("group_compatibility", {}).get("status")) for row in rows)
     return {
         "row_count": len(rows),
         "status_counts": dict(sorted(statuses.items())),
+        "median_indexed_target_survivor_count": sorted(sizes)[len(sizes) // 2] if sizes else None,
         "median_compatible_label_count": sorted(sizes)[len(sizes) // 2] if sizes else None,
         "fraction_below_1000": sum(1 for value in sizes if value < 1000) / len(sizes) if sizes else None,
         "fraction_below_100": sum(1 for value in sizes if value < 100) / len(sizes) if sizes else None,
         "fraction_below_20": sum(1 for value in sizes if value < 20) / len(sizes) if sizes else None,
         "fraction_below_5": sum(1 for value in sizes if value < 5) / len(sizes) if sizes else None,
         "crowded_only_count": sum(1 for row in rows if row.get("group_compatibility", {}).get("crowded_only")),
+        "partial_index_rows": sum(
+            1 for row in rows if row.get("group_compatibility", {}).get("unindexed_label_mass_unknown") is True
+        ),
     }

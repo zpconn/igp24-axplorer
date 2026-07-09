@@ -43,6 +43,50 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24.py tests/test_igp24_active_learning_dataset.py`
   -> 42 passed. This strengthens the Phase 1 gate before any future AXG-1.7+
   model run can count as remediation-aligned.
+- 2026-07-09 negative AXG/GPU evidence checkpoint: distilled the bounded
+  known-submission-hash-excluding r24 CUDA probe under
+  `/tmp/igp24_axg114_r24_knownhash_20260709T2323Z/` into
+  `data/igp24/remediation_20260709/axg_negative_gpu_evidence_phase1/`.
+  Run id `axg114_r24_knownhash_20260709T2323Z` used the AXG-1.13 high-real
+  training JSONL with target r=24, loaded 265 known-submission hashes from the
+  fresh SAIR sync, and skipped 1 known hash during export. CUDA sampling ran
+  successfully for 106.853s with 2,048 attempts, 332 export records, 35 unique
+  decoded coefficient rows, 297 invalid decodes, and 1,668 duplicate decoded
+  records skipped. The follow-up CPU proxy scoring pass scored the 35 decoded
+  rows and rejected all 35 for `coefficient_height_exceeds_bound` before
+  real-root or group checks; no rows are submittable. Lesson: the corrected
+  hash blocker prevents repeats, but the current r24 mixed/high-temperature
+  lane escapes by producing out-of-bound coefficients. Feed this into
+  coefficient-height-aware negative training/risk evidence or shift to tighter
+  support/template constraints before the next AXG run.
+- 2026-07-09 remediation compatibility/scoring semantics checkpoint: corrected
+  the Phase 3/6 partial-index language and packet score math before any new
+  generation. `src/igp24/group_compatibility.py` now reports
+  `indexed_target_labels_not_ruled_out`, `indexed_target_survivor_count`,
+  `index_scope`, `indexed_group_count`, `expected_global_group_count`,
+  `global_index_complete`, `unindexed_label_mass_unknown`, and
+  `soundness=necessary_target_exclusion_only`; the old
+  `compatible_label_count` remains only as a deprecated indexed-subset alias.
+  Missing progress data and disallowed signatures no longer count as
+  uncovered. `scripts/igp24_packet_optimizer.py` now caps each candidate by
+  mutually exclusive `best_case_points` instead of summing all surviving
+  labels, removes the old `1/sqrt(compatible_label_count)` expected-score
+  heuristic, and reports `expected_points_status=unavailable_uncalibrated`
+  unless a row has an exact verified pair. Known-submission hash rejection now
+  preserves submission id/status/label/pair metadata in rejection artifacts.
+  Marked the historical 2-row/19-point/4.4-estimate artifact as superseded in
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/SUPERSEDED_INVALID_SCORING.md`.
+  Reran the same old r24 pools with corrected semantics and the fresh
+  known-submission rows under
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_corrected_semantics_20260709/`:
+  14 candidates considered, 0 eligible, 0 selected,
+  `best_case_packet_points=0`, and
+  `expected_points_status=unavailable_uncalibrated`.
+  Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_group_compatibility.py tests/test_igp24_packet_optimizer.py tests/test_igp24_group_compatible_submission_gate.py tests/test_igp24.py`
+  -> 60 passed. Full-suite validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 369 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
   read-only SAIR API sync after the group-compatible packet gate, with
   `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:

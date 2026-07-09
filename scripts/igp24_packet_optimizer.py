@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -67,16 +66,42 @@ def load_score_plan(path: Path | None) -> dict[str, dict[str, Any]]:
     return by_pair
 
 
-def load_known_submission_hashes(paths: Iterable[Path] | None) -> set[str]:
-    hashes: set[str] = set()
+def load_known_submission_hashes(paths: Iterable[Path] | None) -> dict[str, list[dict[str, Any]]]:
+    hashes: dict[str, list[dict[str, Any]]] = {}
     for path in paths or []:
         if not path.exists():
             continue
         for row in read_jsonl(path):
             candidate_hash = str(row.get("canonical_hash") or "")
             if candidate_hash:
-                hashes.add(candidate_hash)
+                hashes.setdefault(candidate_hash, []).append(
+                    {
+                        "submission_id": row.get("submission_id"),
+                        "submitted_line_number": row.get("submitted_line_number"),
+                        "status": row.get("status"),
+                        "status_class": row.get("status_class"),
+                        "label": row.get("label"),
+                        "t": row.get("t"),
+                        "r": row.get("r"),
+                        "pair_key": row.get("pair_key"),
+                        "scoreable": row.get("scoreable"),
+                        "scoring_status": row.get("scoring_status"),
+                        "disc_source": row.get("disc_source"),
+                        "field_disc_abs": row.get("field_disc_abs"),
+                    }
+                )
     return hashes
+
+
+def known_submission_matches(
+    canonical_hash: str,
+    known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None,
+) -> list[dict[str, Any]]:
+    if not canonical_hash or not known_submission_hashes:
+        return []
+    if isinstance(known_submission_hashes, set):
+        return [{"canonical_hash": canonical_hash}] if canonical_hash in known_submission_hashes else []
+    return list(known_submission_hashes.get(canonical_hash, []))
 
 
 def nested_dict(row: dict[str, Any], key: str) -> dict[str, Any]:
@@ -155,7 +180,8 @@ def pair_economics(pair_key: str, score_plan: dict[str, dict[str, Any]], fallbac
         "pair_key": pair_key,
         "maximum_possible_points": float(max_points or 0.0),
         "estimated_expected_points": float(est_points or 0.0),
-        "score_ceiling_class": row.get("score_ceiling_class") or fallback_kind,
+        "score_ceiling_class": row.get("score_ceiling_class")
+        or ("uncovered_first_team_one_point" if fallback_kind == "uncovered" else fallback_kind),
         "category": row.get("category"),
         "r": row.get("r"),
         "label": row.get("label") or pair_key.split("|", 1)[0],
@@ -179,7 +205,7 @@ def normalize_candidate(
     *,
     score_plan: dict[str, dict[str, Any]],
     require_eligible: bool,
-    known_submission_hashes: set[str] | None = None,
+    known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None = None,
 ) -> dict[str, Any]:
     features = candidate_features(row)
     compat = group_compatibility(row)
@@ -191,14 +217,31 @@ def normalize_candidate(
     add_pairs(pair_values, compat.get("compatible_low_team_pairs") or [], score_plan=score_plan, fallback_kind="low_team")
     add_pairs(pair_values, compat.get("compatible_crowded_pairs") or [], score_plan=score_plan, fallback_kind="crowded")
     exact_pair = pair_key_from_features(features)
+    exact_pair_verified = bool(
+        exact_pair
+        and (
+            row.get("exact_label_verified")
+            or row.get("verified_label")
+            or features.get("exact_label_verified")
+            or features.get("verified_group_label")
+            or features.get("label")
+        )
+    )
     if exact_pair:
         fallback = "uncovered" if str(exact_pair) in score_plan and score_plan[str(exact_pair)].get("progress_state") == "remaining" else "exact_pair"
         add_pairs(pair_values, [exact_pair], score_plan=score_plan, fallback_kind=fallback)
 
-    compatible_count = int(compat.get("compatible_label_count") or len(compat.get("compatible_labels") or []) or 1)
-    ambiguity_factor = 1.0 / math.sqrt(max(1, compatible_count))
-    total_max = sum(float(row["maximum_possible_points"]) for row in pair_values.values())
-    total_est = sum(float(row["estimated_expected_points"]) for row in pair_values.values())
+    indexed_survivor_count = int(
+        compat.get("indexed_target_survivor_count")
+        or compat.get("compatible_label_count")
+        or len(compat.get("indexed_target_labels_not_ruled_out") or compat.get("compatible_labels") or [])
+        or 0
+    )
+    best_case_points = min(1.0, max((float(row["maximum_possible_points"]) for row in pair_values.values()), default=0.0))
+    exact_estimated_points = None
+    if exact_pair_verified and exact_pair in pair_values:
+        exact_estimated_points = min(1.0, float(pair_values[exact_pair].get("estimated_expected_points") or 0.0))
+    expected_points_status = "available_exact_verified_pair" if exact_estimated_points is not None else "unavailable_uncalibrated"
     uncovered_pairs = [key for key, value in pair_values.items() if value.get("score_ceiling_class") == "uncovered_first_team_one_point" or value.get("category") == "uncovered_signature"]
     low_team_pairs = [
         key
@@ -219,7 +262,8 @@ def normalize_candidate(
         reject_reasons.append("missing_pair_or_compatibility_evidence")
     if crowded_only:
         reject_reasons.append("crowded_only")
-    known_submission_hash = bool(canonical_hash and canonical_hash in (known_submission_hashes or set()))
+    known_matches = known_submission_matches(canonical_hash, known_submission_hashes)
+    known_submission_hash = bool(known_matches)
     if known_submission_hash:
         reject_reasons.append("known_submission_hash")
 
@@ -231,19 +275,37 @@ def normalize_candidate(
         "short_hash": short_hash,
         "features": features,
         "pair_values": pair_values,
+        "valuable_targets_not_ruled_out": sorted(set(uncovered_pairs + low_team_pairs)),
         "possible_uncovered_pairs": uncovered_pairs,
         "possible_low_team_pairs": low_team_pairs,
         "possible_crowded_pairs": crowded_pairs,
-        "compatible_label_count": compatible_count,
-        "compatibility_ambiguity_factor": round(ambiguity_factor, 8),
+        "indexed_target_survivor_count": indexed_survivor_count,
+        "indexed_target_labels_not_ruled_out": compat.get("indexed_target_labels_not_ruled_out") or compat.get("compatible_labels") or [],
+        "index_scope": compat.get("index_scope"),
+        "indexed_group_count": compat.get("indexed_group_count"),
+        "expected_global_group_count": compat.get("expected_global_group_count"),
+        "global_index_complete": compat.get("global_index_complete"),
+        "unindexed_label_mass_unknown": compat.get("unindexed_label_mass_unknown"),
+        "soundness": compat.get("soundness") or "necessary_target_exclusion_only",
+        "evidence_strength": (
+            "insufficient_modular_cycle_evidence"
+            if compat.get("status") == "insufficient_cycle_evidence"
+            else compat.get("evidence_strength") or "unknown"
+        ),
+        "compatible_label_count": indexed_survivor_count,
+        "compatible_label_count_deprecated": True,
+        "compatibility_ambiguity_factor": None,
         "compatible_label_cluster": cluster,
-        "maximum_possible_points": round(total_max, 12),
-        "estimated_expected_points": round(total_est * ambiguity_factor, 12),
-        "unpenalized_estimated_expected_points": round(total_est, 12),
+        "best_case_points": round(best_case_points, 12),
+        "maximum_possible_points": round(best_case_points, 12),
+        "estimated_expected_points": round(exact_estimated_points, 12) if exact_estimated_points is not None else None,
+        "expected_points_status": expected_points_status,
+        "expected_points_basis": "exact_verified_pair_official_economics" if exact_estimated_points is not None else "unavailable_no_calibrated_probability_model",
         "anti_basin_score": anti_basin_score,
         "eligible_for_optimization": not reject_reasons,
         "reject_reasons": reject_reasons,
         "known_submission_hash": known_submission_hash,
+        "known_submission_matches": known_matches,
         "has_coefficients": coeffs is not None,
         "exported_coefficients": coeffs,
         "source_row": row,
@@ -278,7 +340,7 @@ def greedy_select(candidates: list[dict[str, Any]], *, packet_limit: int, caps: 
     remaining = list(candidates)
     while len(selected) < packet_limit:
         best: dict[str, Any] | None = None
-        best_key: tuple[float, float, float, str] | None = None
+        best_key: tuple[float, float, float, float, str] | None = None
         best_marginal_pairs: dict[str, dict[str, Any]] = {}
         best_cap_reason: str | None = None
         for candidate in remaining:
@@ -294,13 +356,13 @@ def greedy_select(candidates: list[dict[str, Any]], *, packet_limit: int, caps: 
             marginal_pairs = {
                 pair: value for pair, value in candidate["pair_values"].items() if pair not in covered_pairs
             }
-            marginal = sum(float(value.get("estimated_expected_points") or 0.0) for value in marginal_pairs.values())
-            marginal *= float(candidate.get("compatibility_ambiguity_factor") or 1.0)
+            marginal = min(1.0, max((float(value.get("maximum_possible_points") or 0.0) for value in marginal_pairs.values()), default=0.0))
             if marginal <= 0:
                 continue
             key = (
                 marginal,
-                float(candidate.get("estimated_expected_points") or 0.0),
+                float(candidate.get("best_case_points") or candidate.get("maximum_possible_points") or 0.0),
+                float(len(marginal_pairs)),
                 float(candidate.get("anti_basin_score") or 0.0),
                 str(candidate.get("short_hash") or ""),
             )
@@ -318,7 +380,8 @@ def greedy_select(candidates: list[dict[str, Any]], *, packet_limit: int, caps: 
         best = dict(best)
         best["optimizer_rank"] = len(selected) + 1
         best["marginal_pair_values"] = best_marginal_pairs
-        best["marginal_estimated_points"] = round(best_key[0] if best_key else 0.0, 12)
+        best["marginal_best_case_points"] = round(best_key[0] if best_key else 0.0, 12)
+        best["marginal_estimated_points"] = None
         selected.append(best)
         for pair in best_marginal_pairs:
             covered_pairs.add(pair)
@@ -350,6 +413,15 @@ def summarize(
     covered_low = sorted({pair for row in selected for pair in row["possible_low_team_pairs"]})
     selected_clusters = sorted({str(row["compatible_label_cluster"]) for row in selected})
     selected_features = [row["features"] for row in selected]
+    all_expected_available = bool(selected) and all(
+        row.get("expected_points_status") == "available_exact_verified_pair" for row in selected
+    )
+    packet_best_case = round(sum(float(row.get("best_case_points") or row.get("maximum_possible_points") or 0.0) for row in selected), 12)
+    exact_expected = (
+        round(sum(float(row.get("estimated_expected_points") or 0.0) for row in selected), 12)
+        if all_expected_available
+        else None
+    )
     return {
         "schema_version": 1,
         "record_type": "igp24_packet_optimizer",
@@ -385,8 +457,16 @@ def summarize(
         "selected_possible_low_team_pairs": covered_low[:100],
         "distinct_compatible_label_clusters": len(selected_clusters),
         "selected_compatible_label_clusters": selected_clusters[:100],
-        "expected_score_ceiling": round(sum(float(row.get("maximum_possible_points") or 0.0) for row in selected), 12),
-        "expected_score_estimate": round(sum(float(row.get("marginal_estimated_points") or 0.0) for row in selected), 12),
+        "best_case_packet_points": packet_best_case,
+        "expected_score_ceiling": packet_best_case,
+        "expected_score_ceiling_deprecated": True,
+        "expected_score_estimate": exact_expected,
+        "expected_points_status": "available_exact_verified_pairs" if all_expected_available else "unavailable_uncalibrated",
+        "expected_points_basis": (
+            "exact_verified_pair_official_economics"
+            if all_expected_available
+            else "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels"
+        ),
         "selected_diversity": {
             "construction_family": dict(Counter(str(row.get("construction_family") or "") for row in selected_features)),
             "template_family_id": dict(Counter(str(row.get("template_family_id") or "") for row in selected_features)),
@@ -402,10 +482,15 @@ def summarize(
             {
                 "rank": row["optimizer_rank"],
                 "short_hash": row["short_hash"],
-                "marginal_estimated_points": row["marginal_estimated_points"],
+                "marginal_best_case_points": row.get("marginal_best_case_points"),
+                "marginal_estimated_points": row.get("marginal_estimated_points"),
+                "best_case_points": row.get("best_case_points"),
                 "maximum_possible_points": row["maximum_possible_points"],
+                "expected_points_status": row.get("expected_points_status"),
                 "possible_uncovered_pairs": row["possible_uncovered_pairs"][:10],
                 "possible_low_team_pairs": row["possible_low_team_pairs"][:10],
+                "valuable_targets_not_ruled_out": row.get("valuable_targets_not_ruled_out", [])[:10],
+                "indexed_target_survivor_count": row.get("indexed_target_survivor_count"),
                 "compatible_label_count": row["compatible_label_count"],
                 "features": row["features"],
             }
@@ -431,14 +516,15 @@ def report_markdown(summary: dict[str, Any]) -> str:
         f"- Crowded-only rejected: {summary['crowded_only_candidates_rejected']}",
         f"- Known submitted hashes rejected: {summary.get('known_submission_hash_candidates_rejected', 0)}",
         f"- Missing pair evidence: {summary['pair_evidence_missing_candidates']}",
-        f"- Expected score ceiling: {summary['expected_score_ceiling']}",
-        f"- Expected score estimate: {summary['expected_score_estimate']}",
+        f"- Best-case packet points: {summary['best_case_packet_points']}",
+        f"- Expected points status: `{summary['expected_points_status']}`",
+        f"- Expected points basis: {summary['expected_points_basis']}",
         f"- Live submission recommended now: `{summary['live_submission_recommended_now']}`",
         "",
         "## Selected Rows",
         "",
-        "| rank | hash | marginal est. | max points | uncovered pairs | low-team pairs | r | family | mode |",
-        "| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        "| rank | hash | marginal best case | row best case | expected status | uncovered pairs | low-team pairs | r | family | mode |",
+        "| ---: | --- | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |",
     ]
     for row in summary["selected_rows_summary"]:
         features = row["features"]
@@ -448,8 +534,9 @@ def report_markdown(summary: dict[str, Any]) -> str:
                 [
                     str(row["rank"]),
                     f"`{row['short_hash']}`",
-                    str(row["marginal_estimated_points"]),
-                    str(row["maximum_possible_points"]),
+                    str(row["marginal_best_case_points"]),
+                    str(row["best_case_points"]),
+                    f"`{row['expected_points_status']}`",
                     str(len(row["possible_uncovered_pairs"])),
                     str(len(row["possible_low_team_pairs"])),
                     str(features.get("r")),
@@ -489,7 +576,7 @@ def write_outputs(output_dir: Path, *, selected: list[dict[str, Any]], rejected:
             if coeffs:
                 handle.write(format_polynomial_line(coeffs) + "\n")
     paths["hashes_txt"].write_text(
-        "".join(f"{row.get('optimizer_rank', '-')}\t{row['short_hash']}\t{row.get('marginal_estimated_points', 0)}\n" for row in selected),
+        "".join(f"{row.get('optimizer_rank', '-')}\t{row['short_hash']}\t{row.get('marginal_best_case_points', 0)}\n" for row in selected),
         encoding="utf-8",
     )
     return paths
@@ -561,7 +648,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"selected_rows\t{summary['selected_rows']}")
     print(f"possible_uncovered_pairs\t{summary['selected_possible_uncovered_pair_count']}")
     print(f"possible_low_team_pairs\t{summary['selected_possible_low_team_pair_count']}")
-    print(f"expected_score_estimate\t{summary['expected_score_estimate']}")
+    print(f"best_case_packet_points\t{summary['best_case_packet_points']}")
+    print(f"expected_points_status\t{summary['expected_points_status']}")
     print(f"live_submission_recommended_now\t{summary['live_submission_recommended_now']}")
     for name, path in paths.items():
         print(f"{name}\t{path}")

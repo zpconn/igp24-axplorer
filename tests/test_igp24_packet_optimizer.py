@@ -97,6 +97,15 @@ def _row(
             "compatible_low_team_pairs": low_team or [],
             "compatible_crowded_pairs": crowded or [],
             "crowded_only": bool(crowded and not uncovered and not low_team),
+            "index_scope": "target_subset",
+            "indexed_group_count": label_count,
+            "expected_global_group_count": 25000,
+            "global_index_complete": False,
+            "unindexed_label_mass_unknown": True,
+            "indexed_target_survivor_count": label_count,
+            "indexed_target_labels_not_ruled_out": [f"24T{i}" for i in range(1, label_count + 1)],
+            "soundness": "necessary_target_exclusion_only",
+            "evidence_strength": "modular_cycle_target_exclusion",
         },
         "exported_coefficients": _coefficients(len(short)),
     }
@@ -112,7 +121,7 @@ def _normalized_with_known(rows, score_plan, known_hashes):
             row,
             score_plan=score_plan,
             require_eligible=True,
-            known_submission_hashes=set(known_hashes),
+            known_submission_hashes=known_hashes,
         )
         for row in rows
     ]
@@ -183,6 +192,116 @@ def test_packet_optimizer_rejects_known_submission_hashes_before_selection(tmp_p
     known_rejected = [row for row in rejected if row["short_hash"] == "aaa"][0]
     assert known_rejected["known_submission_hash"] is True
     assert "known_submission_hash" in known_rejected["reject_reasons"]
+
+
+def test_packet_optimizer_records_known_submission_metadata_for_proven_hashes(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    known_hashes = {
+        "c814e1de3e8d" + "0" * 52: [
+            {"submission_id": "sub_11fc", "status": "accepted", "label": "24T25000", "r": 24, "pair_key": "24T25000|r=24"}
+        ],
+        "2c8838b3f843" + "0" * 52: [
+            {"submission_id": "sub_25c1", "status": "accepted", "label": "24T24932", "r": 24, "pair_key": "24T24932|r=24"}
+        ],
+    }
+    candidates = _normalized_with_known(
+        [
+            _row("c814e1de3e8d", uncovered=["24T1|r=24"]),
+            _row("2c8838b3f843", uncovered=["24T2|r=24"]),
+            _row("freshhash001", uncovered=["24T1|r=24"]),
+        ],
+        score_plan,
+        known_hashes,
+    )
+
+    selected, rejected = greedy_select(
+        candidates,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+    )
+
+    assert [row["short_hash"] for row in selected] == ["freshhash001"]
+    rejected_by_hash = {row["short_hash"]: row for row in rejected}
+    assert rejected_by_hash["c814e1de3e8d"]["known_submission_matches"][0]["pair_key"] == "24T25000|r=24"
+    assert rejected_by_hash["2c8838b3f843"]["known_submission_matches"][0]["label"] == "24T24932"
+    assert all(row["short_hash"] not in {"c814e1de3e8d", "2c8838b3f843"} for row in selected)
+
+
+def test_candidate_with_many_uncovered_targets_has_one_point_best_case(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    targets = [f"24T{i}|r=24" for i in range(1, 18)]
+    candidate = normalize_candidate(
+        _row("aaa", uncovered=targets, label_count=17),
+        score_plan=score_plan,
+        require_eligible=True,
+    )
+
+    assert candidate["best_case_points"] == 1.0
+    assert candidate["maximum_possible_points"] == 1.0
+    assert len(candidate["possible_uncovered_pairs"]) == 17
+    assert candidate["expected_points_status"] == "unavailable_uncalibrated"
+    assert candidate["estimated_expected_points"] is None
+
+
+def test_packet_best_case_ceiling_no_greater_than_row_count(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    candidates = _normalized(
+        [
+            _row("aaa", uncovered=[f"24T{i}|r=24" for i in range(1, 18)], label_count=17),
+            _row("bbb", uncovered=[f"24T{i}|r=24" for i in range(18, 35)], label_count=17),
+        ],
+        score_plan,
+    )
+    selected, rejected = greedy_select(
+        candidates,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+    )
+    summary = summarize(
+        candidate_paths=[tmp_path / "candidates.jsonl"],
+        candidates=candidates,
+        selected=selected,
+        rejected=rejected,
+        caps={"construction_family": 10},
+        output_files={},
+    )
+
+    assert len(selected) == 2
+    assert summary["best_case_packet_points"] <= 2.0
+    assert summary["expected_score_estimate"] is None
+    assert summary["expected_points_status"] == "unavailable_uncalibrated"
+
+
+def test_exact_verified_pair_can_use_official_economics(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    row = _row("ccc", uncovered=[], low_team=[], crowded=[], label_count=0)
+    row.pop("group_compatibility")
+    row["exact_label_verified"] = True
+    row["features"]["label"] = "24T2"
+    row["features"]["pair_key"] = "24T2|r=16"
+    row["features"]["r"] = 16
+
+    candidate = normalize_candidate(row, score_plan=score_plan, require_eligible=True)
+
+    assert candidate["expected_points_status"] == "available_exact_verified_pair"
+    assert candidate["estimated_expected_points"] == 0.125
+    assert candidate["best_case_points"] == 0.125
 
 
 def test_packet_optimizer_enforces_diversity_caps(tmp_path):

@@ -95,11 +95,44 @@ def test_candidate_compatibility_intersects_cycle_types_and_pairs(tmp_path):
     result = candidate_compatibility(_candidate_row(), index, progress_rows=progress)
 
     assert result["status"] == "ok"
+    assert result["index_scope"] == "target_subset"
+    assert result["global_index_complete"] is False
+    assert result["unindexed_label_mass_unknown"] is True
+    assert result["indexed_target_survivor_count"] == 2
+    assert result["indexed_target_labels_not_ruled_out"] == ["24T2", "24T3"]
+    assert result["compatible_label_count_deprecated"] is True
     assert result["compatible_labels"] == ["24T2", "24T3"]
     assert result["compatible_uncovered_pairs"] == ["24T2|r=8"]
     assert result["compatible_crowded_pairs"] == ["24T3|r=8"]
     assert result["crowded_only"] is False
     assert result["evidence"]["cycle_types"] == ["1.23", "3.21"]
+
+
+def test_candidate_compatibility_missing_progress_is_not_uncovered(tmp_path):
+    index = _build_fixture_index(tmp_path / "groups.sqlite")
+
+    result = candidate_compatibility(_candidate_row(), index, progress_rows=[])
+
+    assert result["status"] == "ok"
+    assert result["compatible_uncovered_pairs"] == []
+    assert result["compatible_low_team_pairs"] == []
+    assert result["valuable_targets_not_ruled_out"] == []
+    assert set(result["compatible_unknown_or_no_score_pairs"]) == {"24T2|r=8", "24T3|r=8"}
+    assert all(
+        item["progress_state"] == "progress_data_missing_unknown"
+        for item in result["progress_states"].values()
+    )
+
+
+def test_candidate_compatibility_signature_not_allowed_has_no_score_value(tmp_path):
+    index = _build_fixture_index(tmp_path / "groups.sqlite")
+    progress = [{"label": "24T2", "allowedR": [4], "signatures": [{"r": 4, "discovered": False, "teamCount": 0}]}]
+
+    result = candidate_compatibility(_candidate_row(), index, progress_rows=progress)
+
+    assert "24T2|r=8" in result["compatible_unknown_or_no_score_pairs"]
+    assert result["progress_states"]["24T2|r=8"]["progress_state"] == "signature_not_allowed"
+    assert "24T2|r=8" not in result["compatible_uncovered_pairs"]
 
 
 def test_discriminant_square_applies_sound_even_group_filter(tmp_path):
@@ -124,6 +157,21 @@ def test_historical_containment_reports_failures(tmp_path):
     assert result["failures"][0]["label"] == "24T1"
 
 
+def test_historical_containment_marks_true_label_outside_partial_index_as_unknown_mass(tmp_path):
+    index = _build_fixture_index(tmp_path / "groups.sqlite")
+    rows = [_candidate_row("24T24932")]
+
+    result = validate_historical_containment(rows, index)
+
+    assert result["checked_count"] == 1
+    assert result["indexed_true_label_checked_count"] == 0
+    assert result["true_label_outside_index_count"] == 1
+    assert result["failure_count"] == 0
+    assert result["true_label_containment"] is None
+    assert result["checked_rows"][0]["true_label_indexed"] is False
+    assert result["checked_rows"][0]["unindexed_label_mass_unknown"] is True
+
+
 def test_score_candidate_target_label_requires_or_uses_compatibility():
     score, analysis = score_candidate(VALID, coeff_bound=5, target_t="24T2", prime_limit=7)
     assert score >= 0
@@ -135,7 +183,7 @@ def test_score_candidate_target_label_requires_or_uses_compatibility():
         VALID,
         coeff_bound=5,
         target_label="24T1",
-        group_compatibility={"compatible_labels": ["24T2"], "compatible_label_count": 1},
+        group_compatibility={"indexed_target_labels_not_ruled_out": ["24T2"], "indexed_target_survivor_count": 1},
         prime_limit=7,
     )
     assert rejected_score == -1.0
@@ -167,7 +215,9 @@ def test_candidate_group_compatibility_cli_outputs_summary(tmp_path):
     summary = json.loads((output_dir / "candidate_group_compatibility_summary.json").read_text(encoding="utf-8"))
     assert summary["historical_containment"]["failure_count"] == 0
     rows = (output_dir / "candidate_group_compatibility_rows.jsonl").read_text(encoding="utf-8").splitlines()
-    assert json.loads(rows[0])["group_compatibility"]["compatible_label_count"] == 2
+    compatibility = json.loads(rows[0])["group_compatibility"]
+    assert compatibility["indexed_target_survivor_count"] == 2
+    assert compatibility["compatible_label_count_deprecated"] is True
 
 
 def test_gap_dependency_report_never_claims_approximation(tmp_path):

@@ -35,11 +35,11 @@ def write_report(path: Path, summary: dict[str, Any], containment: dict[str, Any
         f"- Created UTC: `{summary['created_at']}`",
         f"- Rows: `{summary['row_count']}`",
         f"- Status counts: `{json.dumps(summary['compatibility_summary']['status_counts'], sort_keys=True)}`",
-        f"- Median compatible-label count: `{summary['compatibility_summary']['median_compatible_label_count']}`",
+        f"- Median indexed-target survivor count: `{summary['compatibility_summary']['median_indexed_target_survivor_count']}`",
         f"- Fraction below 100 labels: `{summary['compatibility_summary']['fraction_below_100']}`",
         f"- Crowded-only count: `{summary['compatibility_summary']['crowded_only_count']}`",
         "",
-        "Compatibility is necessary evidence only. It is not an exact-label claim.",
+        "Compatibility is necessary target-exclusion evidence only. With an incomplete index, unindexed true labels remain possible.",
         "",
     ]
     if containment is not None:
@@ -50,7 +50,8 @@ def write_report(path: Path, summary: dict[str, Any], containment: dict[str, Any
                 f"- Checked rows: `{containment['checked_count']}`",
                 f"- Failure count: `{containment['failure_count']}`",
                 f"- True-label containment: `{containment['true_label_containment']}`",
-                f"- Median compatible-label count: `{containment['median_compatible_label_count']}`",
+                f"- True labels outside index: `{containment.get('true_label_outside_index_count')}`",
+                f"- Median indexed-target survivor count: `{containment['median_indexed_target_survivor_count']}`",
                 "",
             ]
         )

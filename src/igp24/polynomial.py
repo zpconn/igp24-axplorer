@@ -415,7 +415,14 @@ def score_candidate(
     target_label_applied = False
     if target_labels:
         if group_compatibility is not None:
-            compatible_labels = set(str(label) for label in group_compatibility.get("compatible_labels") or [])
+            compatible_labels = set(
+                str(label)
+                for label in (
+                    group_compatibility.get("indexed_target_labels_not_ruled_out")
+                    or group_compatibility.get("compatible_labels")
+                    or []
+                )
+            )
             target_label_applied = True
             if target_labels.isdisjoint(compatible_labels):
                 components = {
@@ -435,7 +442,11 @@ def score_candidate(
                 }
                 warnings.append("target_label_incompatible_with_group_cycle_evidence")
                 return -1.0, replace(analysis, score_components=components, warnings=tuple(warnings))
-            compatible_count = int(group_compatibility.get("compatible_label_count") or len(compatible_labels))
+            compatible_count = int(
+                group_compatibility.get("indexed_target_survivor_count")
+                or group_compatibility.get("compatible_label_count")
+                or len(compatible_labels)
+            )
             compatibility_penalty = min(250.0, math.log1p(max(0, compatible_count - 1)) * 25.0)
         else:
             warnings.append("target_label_not_applied_missing_group_compatibility_index")

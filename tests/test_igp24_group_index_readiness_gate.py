@@ -158,7 +158,7 @@ def test_readiness_gate_passes_with_complete_index_and_containment(tmp_path):
     assert any(row["generation_ready"] for row in routes)
 
 
-def test_readiness_gate_blocks_containment_failure(tmp_path):
+def test_readiness_gate_blocks_true_label_outside_partial_index(tmp_path):
     score_plan = _score_plan(tmp_path)
     index_path = tmp_path / "groups.sqlite"
     _index(index_path)
@@ -186,6 +186,8 @@ def test_readiness_gate_blocks_containment_failure(tmp_path):
     )
 
     summary = json.loads((output_dir / "group_index_readiness_summary.json").read_text(encoding="utf-8"))
-    assert summary["historical_containment"]["failure_count"] == 1
-    assert "historical_true_label_containment_failed" in summary["blocking_reasons"]
+    assert summary["historical_containment"]["failure_count"] == 0
+    assert summary["historical_containment"]["true_label_outside_index_count"] == 1
+    assert summary["historical_containment"]["true_label_containment"] is None
+    assert "historical_true_label_containment_not_100pct" in summary["blocking_reasons"]
     assert summary["ready_for_group_directed_generation"] is False
