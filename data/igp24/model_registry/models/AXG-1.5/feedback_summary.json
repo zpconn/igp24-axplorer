@@ -1,0 +1,22 @@
+{
+  "model_version": "AXG-1.5",
+  "notes": [
+    "Fresh SAIR sync was complete: 24/24 submission details and downloads recovered, 208 scoreable rows, 0 pending rows, 0 unmatched rows.",
+    "No AXG-1.5 rows were live-submitted to SAIR.",
+    "A 5-row model-generated advisory packet passed local coefficient sanity and dry-run validation, but the strict planner held it because every selected row had loose crowded-basin warnings.",
+    "The dominant negative feedback remains crowded high-label collapse, especially 24T25000 across r16/r20/r24."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "sair_sync": {
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "partial_sync": false,
+    "pending_rows": 0,
+    "remaining_signature_count": 47823,
+    "scoreable_rows": 208,
+    "submission_recommended_now": false
+  },
+  "schema_version": 1,
+  "status": "local_feedback_only_no_sair_submission"
+}

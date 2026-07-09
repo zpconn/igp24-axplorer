@@ -25,6 +25,70 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active AXG full-stack autonomous research cycle started 2026-07-09 from
+  clean commit `689baac`. Preflight: `git pull --ff-only` reported already up
+  to date; `SAIR_API_KEY` is present in the environment but was not printed or
+  recorded; `nvidia-smi` sees an NVIDIA GeForce RTX 5090 with CUDA 13.2, 32 GB
+  memory, and no running compute process at startup. Objective: follow the
+  new standing operating rule on repeat by syncing SAIR, rebuilding active
+  learning data, training a fresh bounded AXG GPU iteration, running full
+  inference/scoring/gating, improving planner/search infra where useful, and
+  either producing significant verifiable score progress or a clear
+  evidence-backed next step. Live SAIR submission remains held unless
+  explicitly approved; dry-run/manual packet preparation is allowed. Fresh
+  read-only SAIR sync completed fully under
+  `data/igp24/axg15_fullstack_20260709/sair_sync/`: 25,000 labels, 47,823
+  remaining signatures, 24/24 submission details recovered, 24/24 downloads
+  recovered, 208 scoreable rows, 0 pending rows, 0 failed rows, 0 unmatched
+  rows, and `partial_sync=false`. Current largest remaining buckets are
+  r24 = 11,520, r16 = 9,819, r8 = 6,112, r12 = 6,092, and r20 = 5,200.
+  Our local submitted/scoreable distribution is still dominated by crowded
+  collapse labels: `24T25000` has 106 rows and the largest submitted pairs are
+  `24T25000|r=24` (27), `24T25000|r=4` (23), `24T25000|r=20` (22), and
+  `24T25000|r=16` (21). Active-learning dataset rebuilt as
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg15_fullstack.jsonl`
+  with 605 rows from 8 candidate sources, 19 feedback sources, the fresh SAIR
+  sync, and pair status; class counts are 403 accepted duplicate/collapsed
+  basin, 8 accepted high-team/covered basin, 8 accepted useful score-positive,
+  84 exact local valid, 30 locally invalid, and 72 wrong-r rows. Registered
+  `AXG-1.5` as a child of `AXG-1.4`; next in progress is bounded CUDA
+  target-r training/inference for r16/r20/r24 from this dataset. AXG-1.5
+  CUDA results: successful runs used `PYTHONPATH=.` with
+  `/home/zpconn/code/axplorer/.venv/bin/python`; two setup lessons were
+  captured because sandboxed NVML access blocked the first attempt and
+  `/tmp/igp24_pydeps` injected an incompatible NumPy into the Python 3.10 AXG
+  venv on the next attempt. Successful r16/r20/r24 runs took 135.900s,
+  123.224s, and 123.486s, with average GPU utilization 77.076%, 77.900%, and
+  76.500%, respectively. Exports/scoring: r16 wrote 214 records, 17 decoded,
+  17 valid, 16 target-r survivors; r20 wrote 662 records, 16 decoded, 16
+  valid, 12 target-r survivors; r24 wrote 207 records, 16 decoded, 16 valid,
+  14 target-r survivors. Important scoring correction: the first CPU scoring
+  pass used the default coefficient bound and falsely rejected all decoded rows
+  as height-exceeding; rescoring with the AXG generation bound `1e15` produced
+  49/49 valid decoded rows and 42 target-r survivors. Proposal loop
+  `axg15_fullstack_high_real_gate_20260709` saw 49 model-generated candidate
+  rows, 42 target-r filtered rows, 6 eligible rows, and 5 selected advisory
+  rows from r20/r24, but held live submission because all selected rows had
+  `loose_crowded_basin_fingerprint_hits=2`. Coefficient sanity passed for the
+  5 selected rows, and local SAIR dry-run validation passed with `ok=true`,
+  5 polynomials, and 741 request bytes. No live SAIR submission was made.
+  Report:
+  `data/igp24/axg15_fullstack_20260709/axg15_fullstack_report.md`. Summary:
+  `data/igp24/axg15_fullstack_20260709/axg15_fullstack_summary.json`.
+  Registry validation now includes `AXG-1.5` with 6 models, 19 runs, and 0
+  issues. Validation: JSON/JSONL parse checks passed for 36 JSON files and 24
+  JSONL files / 29,441 rows across AXG-1.5 artifacts, the AXG-1.5 registry
+  entries, and active-learning outputs; coefficient sanity passed for the
+  5-row advisory packet; py_compile passed for the GPU sampler, scorer,
+  proposal loop, active-learning builder, SAIR sync/API helper, and model
+  registry; focused clean-path tests passed with `63 passed in 1.07s`; the
+  first focused test attempt with the AXG venv plus `/tmp/igp24_pydeps` failed
+  as expected due the same incompatible NumPy injection diagnosed during
+  training; `git diff --check` passed; key-shaped secret scan found no
+  matches; and generated checkpoint/pickle artifacts were removed before
+  staging. Next: either make `loose_crowded_basin_fingerprint_hits` advisory
+  instead of fatal with explicit tests, or train/export AXG-1.6 with stronger
+  anti-collapse conditioning away from dense/medium mixed-support basins.
 - Active escape-lane scout started 2026-07-09 from clean commit `59a3dcc`.
   Preflight: `git pull --ff-only` reported already up to date and the
   worktree was clean; `SAIR_API_KEY` is present in the environment but was not

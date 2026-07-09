@@ -1,0 +1,83 @@
+{
+  "advisory_packet": {
+    "coefficient_file": "data/igp24/axg15_fullstack_20260709/proposal_loop/axg15_fullstack_high_real_gate_20260709/selected_review_coefficients.txt",
+    "dry_run_body_bytes": 741,
+    "dry_run_ok": true,
+    "polynomial_count": 5,
+    "selected_rows": 5,
+    "status": "dry_run_valid_hold_no_submission"
+  },
+  "aggregate": {
+    "candidate_rows": 49,
+    "eligible_model_generated_rows": 6,
+    "filtered_target_r_rows": 42,
+    "gpu_runtime_seconds": 382.61,
+    "target_r_survivors": 42,
+    "valid_scored_rows": 49
+  },
+  "created_at": "2026-07-09T15:21:30Z",
+  "decision": {
+    "live_submission_made": false,
+    "planner_decision": "hold_no_submission",
+    "reason": "5_selected_rows_have_risk_reasons",
+    "selected_r_values": [
+      20,
+      24
+    ],
+    "selected_risk_reasons": [
+      "loose_crowded_basin_fingerprint_hits=2"
+    ],
+    "significant_verifiable_score_progress": false
+  },
+  "environment_notes": [
+    "Use escalated GPU command path for CUDA/NVML access.",
+    "Use PYTHONPATH=. for AXG venv GPU training; do not inject /tmp/igp24_pydeps into the Python 3.10 AXG venv."
+  ],
+  "model_version": "AXG-1.5",
+  "record_type": "igp24_axg15_fullstack_cycle_summary",
+  "registry_run": "data/igp24/model_registry/runs/AXG-1.5/axg15_fullstack_high_real_gate_20260709/run_manifest.json",
+  "sair_sync": {
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "partial_sync": false,
+    "pending_rows": 0,
+    "remaining_signature_count": 47823,
+    "scoreable_rows": 208
+  },
+  "schema_version": 1,
+  "target_runs": [
+    {
+      "avg_gpu_utilization_percent": 77.076,
+      "decoded_rows": 17,
+      "export_rows": 214,
+      "max_gpu_utilization_percent": 89.0,
+      "runtime_seconds": 135.9,
+      "scored_rows": 17,
+      "target_r": 16,
+      "target_r_survivors": 16,
+      "valid_rows": 17
+    },
+    {
+      "avg_gpu_utilization_percent": 77.9,
+      "decoded_rows": 16,
+      "export_rows": 662,
+      "max_gpu_utilization_percent": 88.0,
+      "runtime_seconds": 123.224,
+      "scored_rows": 16,
+      "target_r": 20,
+      "target_r_survivors": 12,
+      "valid_rows": 16
+    },
+    {
+      "avg_gpu_utilization_percent": 76.5,
+      "decoded_rows": 16,
+      "export_rows": 207,
+      "max_gpu_utilization_percent": 87.0,
+      "runtime_seconds": 123.486,
+      "scored_rows": 16,
+      "target_r": 24,
+      "target_r_survivors": 14,
+      "valid_rows": 16
+    }
+  ]
+}

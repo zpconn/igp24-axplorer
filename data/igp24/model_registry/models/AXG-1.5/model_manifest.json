@@ -1,0 +1,104 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T15:07:48.453617+00:00",
+  "description": "Full-stack SAIR-synced active-learning iteration with fresh AXG GPU training",
+  "device_gpu_info": {
+    "expected": "CUDA GPU when --cpu false",
+    "status": "cuda_verified",
+    "torch_version": "2.12.0+cu130",
+    "gpu_name": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 89.0,
+    "avg_gpu_utilization_percent_range": [
+      76.5,
+      77.9
+    ]
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "689baac40c4c313baa92f6dbc3e43ce6a8a32ee3",
+  "known_limitations": [
+    "AXG-1.5 is a bounded iteration, not a long full-scale training run.",
+    "Selected rows carried loose crowded-basin warnings, so no live submission was recommended.",
+    "GPU samples must pass CPU filters and basin gates before any submission review."
+  ],
+  "model_version": "AXG-1.5",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.4",
+  "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-09T15:21:06.411270+00:00",
+      "run_id": "axg15_fullstack_high_real_gate_20260709",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.5/axg15_fullstack_high_real_gate_20260709/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Submission is explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg15_fullstack_20260709/r16_cuda_v2/gpu_model_sample_export_target_r16_conditioned.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r20_cuda/gpu_model_sample_export_target_r20_conditioned.jsonl",
+    "data/igp24/axg15_fullstack_20260709/r24_cuda/gpu_model_sample_export_target_r24_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command": "PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r <16|20|24> --target_r_training_jsonl data/igp24/active_learning/axg_training_dataset_20260709_axg15_fullstack.jsonl --target_r_training_target_rs 8,12,16,20,24",
+    "recommended_template": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_gpu_sampler_probe.py",
+      "--probe_mode",
+      "sample_export_target_r_conditioned"
+    ],
+    "status": "completed_bounded_cuda_target_r_exports"
+  },
+  "training_data_inputs": [
+    "data/igp24/pair_status_20260706.json",
+    "data/igp24/axg15_fullstack_20260709/sair_sync/",
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg15_fullstack.jsonl",
+    "data/igp24/*accepted_feedback*.json",
+    "data/igp24/**/*candidate_queue.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 382.61,
+    "status": "completed"
+  },
+  "validation_metrics": {
+    "advisory_packet_rows": 5,
+    "local_sair_dry_run_ok": true,
+    "scored_records": 49,
+    "selected_rows": 5,
+    "status": "completed_bounded_cycle",
+    "target_r_survivors": 42,
+    "valid_records": 49,
+    "success_metrics": [
+      "valid exact-r yield after CPU filters",
+      "diversity by family/mod-p/support",
+      "basin-risk distribution",
+      "reviewed candidates surviving strict gate",
+      "information value per SAIR row if later submitted"
+    ]
+  }
+}

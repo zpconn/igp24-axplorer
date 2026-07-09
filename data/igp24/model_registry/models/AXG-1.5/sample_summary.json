@@ -1,0 +1,56 @@
+{
+  "aggregate": {
+    "advisory_packet_rows": 5,
+    "main_gpu_runtime_minutes": 6.38,
+    "main_gpu_runtime_seconds": 382.61,
+    "ready_packets": [],
+    "total_scored_records": 49,
+    "total_target_r_survivors": 42,
+    "total_valid_records": 49
+  },
+  "model_version": "AXG-1.5",
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "decoded_records_written": 17,
+      "duplicate_decoded_records_skipped": 607,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "selected_rows_have_loose_crowded_basin_warnings",
+      "proposal_selected_rows": 0,
+      "records_written": 214,
+      "sample_export_path": "data/igp24/axg15_fullstack_20260709/r16_cuda_v2/gpu_model_sample_export_target_r16_conditioned.jsonl",
+      "scored_records": 17,
+      "target_r": 16,
+      "target_r_survivor_count": 16,
+      "valid_records": 17
+    },
+    {
+      "decoded_records_written": 16,
+      "duplicate_decoded_records_skipped": 739,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "selected_rows_have_loose_crowded_basin_warnings",
+      "proposal_selected_rows": 3,
+      "records_written": 662,
+      "sample_export_path": "data/igp24/axg15_fullstack_20260709/r20_cuda/gpu_model_sample_export_target_r20_conditioned.jsonl",
+      "scored_records": 16,
+      "target_r": 20,
+      "target_r_survivor_count": 12,
+      "valid_records": 16
+    },
+    {
+      "decoded_records_written": 16,
+      "duplicate_decoded_records_skipped": 473,
+      "proposal_decision": "hold_no_submission",
+      "proposal_reason": "selected_rows_have_loose_crowded_basin_warnings",
+      "proposal_selected_rows": 2,
+      "records_written": 207,
+      "sample_export_path": "data/igp24/axg15_fullstack_20260709/r24_cuda/gpu_model_sample_export_target_r24_conditioned.jsonl",
+      "scored_records": 16,
+      "target_r": 24,
+      "target_r_survivor_count": 14,
+      "valid_records": 16
+    }
+  ],
+  "schema_version": 1,
+  "status": "three_bounded_fullstack_exports_scored"
+}
