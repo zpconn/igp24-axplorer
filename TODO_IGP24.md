@@ -8,6 +8,36 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active r24 deterministic high-real expansion pass started 2026-07-09.
+  Preflight: `git pull --ff-only` reported already up to date and the
+  worktree was clean at `8021dfa`. Objective: widen the clean CPU-only
+  deterministic r24 lane from the prior 80-trial smoke into a stronger
+  8-12-row review pool while preserving r16/r8/r20 hard stops. Constraints:
+  no live SAIR submission without explicit approval, no large GPU/model
+  training run, and no SAIR API key recorded in files. Prior evidence being
+  expanded: tiny `positive_quadratic_product_plus_low_odd_perturbation` probe
+  found 67 valid r24 candidates, queued 8, and anti-basin gating selected a
+  locally ready 4-row packet with 0 risk reasons, 4 basin fingerprints, and 3
+  perturbation modes. In progress: read-only SAIR sync retry, then a bounded
+  larger `scripts/igp24_r24_high_real_probe.py` run under
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/`. Sync update:
+  read-only SAIR retry completed fully, not partial, with 23/23 submission
+  details and 23/23 downloads recovered, 197 scoreable rows, 0 pending rows,
+  and 0 unmatched rows. The prior incomplete-state hold is cleared for local
+  packet review; live submission still requires explicit approval. Expansion
+  result: the CPU-only deterministic probe requested 1000 max trials but
+  filled the 24-row queue after 252 attempts, with 217 valid local r24
+  candidates and balanced queued modes (`single_low_odd_break`,
+  `two_low_odd_break`, `three_low_odd_break` = 8 each). Anti-basin gating with
+  the complete sync selected 11 rows, `recommended_for_sair_packet=true`,
+  `risk_count=0`, 11 basin fingerprints, 7 mod-p signatures, 3 perturbation
+  modes, and no sync hold reasons. No live submission was made. Review packet:
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt`.
+  Reports:
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/expansion_report.md`
+  and
+  `data/igp24/r24_deterministic_high_real_expansion_20260709/recommendation.md`.
+  Next: validate, secret-scan, commit, and push.
 - Active negative-basin memory pass started 2026-07-09. Preflight:
   `git pull --ff-only` reported already up to date and the worktree was clean.
   Objective: convert the accepted-but-collapsed r16 refinement packet

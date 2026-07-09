@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_r24_deterministic_high_real_expansion_summary",
+  "created_at": "2026-07-09",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "gpu_training": false,
+    "model_training": false,
+    "api_key_recorded": false
+  },
+  "sync": {
+    "sync_dir": "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_retry",
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "degraded_mode_summary": "23/23 details recovered; 23/23 downloads recovered",
+    "submission_count": 23,
+    "submission_row_count": 197,
+    "scoreable_rows": 197,
+    "pending_rows": 0,
+    "failed_rows": 0,
+    "unmatched_rows": 0,
+    "remaining_signature_count": 47891,
+    "top_remaining_r_buckets": [
+      {"r": 24, "remaining": 11535},
+      {"r": 16, "remaining": 9826},
+      {"r": 8, "remaining": 6119},
+      {"r": 12, "remaining": 6105},
+      {"r": 20, "remaining": 5209}
+    ]
+  },
+  "probe": {
+    "output_dir": "data/igp24/r24_deterministic_high_real_expansion_20260709/probe_1000",
+    "tool": "scripts/igp24_r24_high_real_probe.py",
+    "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+    "seed": 240710,
+    "max_trials_requested": 1000,
+    "trials_attempted": 252,
+    "limit": 24,
+    "per_family_cap": 3,
+    "valid_r24_candidates": 217,
+    "queued_rows": 24,
+    "selected_mode_counts": {
+      "single_low_odd_break": 8,
+      "three_low_odd_break": 8,
+      "two_low_odd_break": 8
+    },
+    "rejected_counts": {
+      "known_or_duplicate_hash": 8,
+      "reducible_over_q": 27
+    }
+  },
+  "gate": {
+    "output_dir": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate",
+    "candidate_count": 24,
+    "eligible_candidate_count": 24,
+    "selected_rows": 11,
+    "recommended_for_sair_packet": true,
+    "status": "review_ready_not_submitted",
+    "anti_basin_status": "reviewed_packet_ready_for_dry_run",
+    "risk_count": 0,
+    "selected_mode_counts": {
+      "single_low_odd_break": 3,
+      "three_low_odd_break": 4,
+      "two_low_odd_break": 4
+    },
+    "selected_template_family_counts": {
+      "r24_high_real:single_low_odd_break": 3,
+      "r24_high_real:three_low_odd_break": 4,
+      "r24_high_real:two_low_odd_break": 4
+    },
+    "selected_basin_fingerprint_count": 11,
+    "selected_mod_p_signature_count": 7,
+    "selected_source_counts": {
+      "r24_high_real_quadratic_product_probe": 11
+    },
+    "sync_hold_reasons": []
+  },
+  "comparison_to_tiny_probe": {
+    "tiny_probe_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe",
+    "tiny_gate_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate",
+    "candidate_count": {"tiny": 8, "expanded": 24},
+    "eligible_count": {"tiny": 8, "expanded": 24},
+    "selected_rows": {"tiny": 4, "expanded": 11},
+    "perturbation_mode_count": {"tiny": 3, "expanded": 3},
+    "basin_fingerprint_count": {"tiny": 4, "expanded": 11},
+    "mod_p_signature_count": {"tiny": 4, "expanded": 7},
+    "risk_count": {"tiny": 0, "expanded": 0},
+    "sync_blocker": {"tiny": "partial_sync", "expanded": "none"}
+  },
+  "review_packet": {
+    "status": "review_ready_not_submitted",
+    "coefficients_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_hashes.txt",
+    "selected_jsonl": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_selected_queue.jsonl",
+    "row_count": 11,
+    "requires_explicit_submission_approval": true
+  },
+  "decision": {
+    "lane": "continue_or_submit_r24_deterministic_high_real",
+    "submit_now": false,
+    "why_not_submitted": "The goal explicitly forbids live submission without approval.",
+    "recommendation": "This is the best current review-ready packet. Ask for approval before submitting the 11 coefficient rows."
+  }
+}

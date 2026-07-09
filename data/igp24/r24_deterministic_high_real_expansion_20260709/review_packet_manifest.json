@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_review_packet_manifest",
+  "created_at": "2026-07-09",
+  "status": "review_ready_not_submitted",
+  "target_r": 24,
+  "row_count": 11,
+  "source_lane": "r24_positive_quadratic_product_plus_low_odd_perturbation",
+  "source_probe_summary": "data/igp24/r24_deterministic_high_real_expansion_20260709/probe_1000/r24_high_real_summary.json",
+  "anti_basin_summary": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_planner_summary.json",
+  "sync_summary": "data/igp24/r24_deterministic_high_real_expansion_20260709/sair_sync_retry/sair_sync_summary.json",
+  "coefficients_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_coefficients.txt",
+  "hashes_txt": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_candidate_hashes.txt",
+  "selected_jsonl": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_selected_queue.jsonl",
+  "anti_basin_gate": {
+    "recommended_for_sair_packet": true,
+    "risk_count": 0,
+    "selected_rows": 11,
+    "selected_basin_fingerprint_count": 11,
+    "selected_mod_p_signature_count": 7,
+    "sync_hold_reasons": []
+  },
+  "safety": {
+    "sair_submission": false,
+    "api_key_recorded": false,
+    "requires_explicit_submission_approval": true
+  }
+}
