@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-09T22:57:50.394959+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "e73e008cfea77b0ab3489ad4714edd34f4e7eeb2",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/remediation_20260709/group_compatible_candidate_pool_phase5/r24_high_real_probe_top25_index_with_progress/candidate_group_compatibility_rows.jsonl",
+      "data/igp24/remediation_20260709/group_compatible_candidate_pool_phase5/axg18_r24_scored_top25_index_with_progress/candidate_group_compatibility_rows.jsonl"
+    ],
+    "candidate_count": 14,
+    "caps": {
+      "construction_family": 8,
+      "template_family_id": 4,
+      "perturbation_mode": 6,
+      "basin_fingerprint": 2,
+      "mod_p_pattern_signature": 3,
+      "compatible_label_cluster": 4,
+      "r": 20
+    }
+  },
+  "candidate_count": 14,
+  "eligible_candidate_count": 3,
+  "selected_rows": 2,
+  "rejected_rows": 12,
+  "reject_reason_counts": {
+    "missing_pair_or_compatibility_evidence": 5,
+    "crowded_only": 6
+  },
+  "crowded_only_candidates_rejected": 6,
+  "pair_evidence_missing_candidates": 5,
+  "selected_possible_uncovered_pair_count": 18,
+  "selected_possible_low_team_pair_count": 0,
+  "selected_possible_uncovered_pairs": [
+    "24T12889|r=24",
+    "24T12891|r=24",
+    "24T19906|r=24",
+    "24T21404|r=24",
+    "24T21405|r=24",
+    "24T22306|r=24",
+    "24T22567|r=24",
+    "24T22631|r=24",
+    "24T22667|r=24",
+    "24T22736|r=24",
+    "24T23412|r=24",
+    "24T23413|r=24",
+    "24T23718|r=24",
+    "24T23722|r=24",
+    "24T23741|r=24",
+    "24T23742|r=24",
+    "24T24089|r=24",
+    "24T24093|r=24"
+  ],
+  "selected_possible_low_team_pairs": [],
+  "distinct_compatible_label_clusters": 2,
+  "selected_compatible_label_clusters": [
+    "24T12889|r=24|24T12891|r=24|24T19906|r=24|24T21404|r=24|24T21405|r=24|24T22306|r=24|24T22631|r=24|24T22667|r=24|24T22736|r=24|24T23412|r=24|24T23413|r=24|24T23718|r=24|24T23722|r=24|24T23741|r=24|24T23742|r=24|24T24089|r=24|24T24093|r=24|24T24979|r=24|24T25000|r=24",
+    "24T22567|r=24|24T22667|r=24|24T24979|r=24|24T25000|r=24"
+  ],
+  "expected_score_ceiling": 19.000000238418,
+  "expected_score_estimate": 4.40006742191,
+  "selected_diversity": {
+    "construction_family": {
+      "model_sample_export": 2
+    },
+    "template_family_id": {
+      "model:fixed_sparse_template:r24:medium_mixed_support_gcd1": 1,
+      "model:fixed_sparse_template:r24:dense_mixed_support_gcd1": 1
+    },
+    "perturbation_mode": {
+      "medium_mixed_support_gcd1": 1,
+      "dense_mixed_support_gcd1": 1
+    },
+    "basin_fingerprint": {
+      "04d19bd97839513f0f23cd28": 1,
+      "774213898a5b360f86bc6ee2": 1
+    },
+    "mod_p_pattern_signature": {
+      "": 2
+    },
+    "r": {
+      "24": 2
+    }
+  },
+  "local_packet_ready_for_review": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [
+    {
+      "rank": 1,
+      "short_hash": "c814e1de3e8d",
+      "marginal_estimated_points": 3.90006742191,
+      "maximum_possible_points": 17.000000119209,
+      "possible_uncovered_pairs": [
+        "24T12889|r=24",
+        "24T12891|r=24",
+        "24T19906|r=24",
+        "24T21404|r=24",
+        "24T21405|r=24",
+        "24T22306|r=24",
+        "24T22631|r=24",
+        "24T22667|r=24",
+        "24T22736|r=24",
+        "24T23412|r=24"
+      ],
+      "possible_low_team_pairs": [],
+      "compatible_label_count": 19,
+      "features": {
+        "canonical_hash": "c814e1de3e8d4f15fb70c19201b27ff9bdc4a10425494cb712e9383eab5a92b9",
+        "short_hash": "c814e1de3e8d",
+        "label": null,
+        "pair_key": null,
+        "r": 24,
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:fixed_sparse_template:r24:medium_mixed_support_gcd1",
+        "perturbation_mode": "medium_mixed_support_gcd1",
+        "basin_fingerprint": "04d19bd97839513f0f23cd28",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:fixed_sparse_template:r24:medium_mixed_support_gcd1:04d19bd97839513f0f23cd28"
+      }
+    },
+    {
+      "rank": 2,
+      "short_hash": "2c8838b3f843",
+      "marginal_estimated_points": 0.5,
+      "maximum_possible_points": 2.000000119209,
+      "possible_uncovered_pairs": [
+        "24T22567|r=24",
+        "24T22667|r=24"
+      ],
+      "possible_low_team_pairs": [],
+      "compatible_label_count": 4,
+      "features": {
+        "canonical_hash": "2c8838b3f843551218164f9e8581fc372987931042f36e5acb16d8585c6c0098",
+        "short_hash": "2c8838b3f843",
+        "label": null,
+        "pair_key": null,
+        "r": 24,
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:fixed_sparse_template:r24:dense_mixed_support_gcd1",
+        "perturbation_mode": "dense_mixed_support_gcd1",
+        "basin_fingerprint": "774213898a5b360f86bc6ee2",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:fixed_sparse_template:r24:dense_mixed_support_gcd1:774213898a5b360f86bc6ee2"
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_summary.json",
+    "report_md": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_hashes.txt"
+  }
+}

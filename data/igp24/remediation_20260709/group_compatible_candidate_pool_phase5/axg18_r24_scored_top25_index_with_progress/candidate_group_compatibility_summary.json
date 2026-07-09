@@ -1,0 +1,23 @@
+{
+  "compatibility_summary": {
+    "crowded_only_count": 2,
+    "fraction_below_100": 1.0,
+    "fraction_below_1000": 1.0,
+    "fraction_below_20": 0.8333333333333334,
+    "fraction_below_5": 0.5,
+    "median_compatible_label_count": 8,
+    "row_count": 6,
+    "status_counts": {
+      "insufficient_cycle_evidence": 1,
+      "ok": 5
+    }
+  },
+  "created_at": "2026-07-09T22:57:42.248479+00:00",
+  "historical_containment": null,
+  "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/degree24_group_cycle_index.sqlite",
+  "input_jsonl": "data/igp24/axg18_escape_20260709/r24_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+  "record_type": "igp24_candidate_group_compatibility_summary",
+  "row_count": 6,
+  "schema_version": 1,
+  "soundness": "necessary_condition_only"
+}

@@ -1,0 +1,23 @@
+{
+  "compatibility_summary": {
+    "crowded_only_count": 4,
+    "fraction_below_100": 1.0,
+    "fraction_below_1000": 1.0,
+    "fraction_below_20": 0.5,
+    "fraction_below_5": 0.5,
+    "median_compatible_label_count": 27,
+    "row_count": 8,
+    "status_counts": {
+      "insufficient_cycle_evidence": 4,
+      "ok": 4
+    }
+  },
+  "created_at": "2026-07-09T22:57:41.917859+00:00",
+  "historical_containment": null,
+  "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/degree24_group_cycle_index.sqlite",
+  "input_jsonl": "data/igp24/r24_high_real_probe_20260706/r24_high_real_candidate_queue.jsonl",
+  "record_type": "igp24_candidate_group_compatibility_summary",
+  "row_count": 8,
+  "schema_version": 1,
+  "soundness": "necessary_condition_only"
+}

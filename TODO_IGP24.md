@@ -271,6 +271,34 @@ results change.
   and replay gates before asking for any live submission approval. Validation:
   py-compile passed; focused GAP workflow/compatibility/readiness/historical
   tests passed (`20 passed`); full test suite passed (`355 passed`).
+- 2026-07-09 remediation Phase 5/6 group-compatible candidate-pool checkpoint:
+  used the exact 27-label GAP index plus fresh SAIR progress from
+  `data/igp24/axg113_high_real_20260709/sair_sync_full/sair_label_progress.jsonl`
+  to annotate existing r24 candidate pools. Artifacts:
+  `data/igp24/remediation_20260709/group_compatible_candidate_pool_phase5/r24_high_real_probe_top25_index_with_progress/`
+  and
+  `data/igp24/remediation_20260709/group_compatible_candidate_pool_phase5/axg18_r24_scored_top25_index_with_progress/`.
+  Result: the old deterministic r24 high-real pool had 8 rows, 4 with
+  sufficient cycle evidence, but all 4 were crowded-only after progress was
+  applied. The AXG-1.8 r24 scored pool had 6 rows, 5 with sufficient cycle
+  evidence, 2 crowded-only, median compatible-label count 8, and 50% narrowed
+  below 5 labels. Ran `scripts/igp24_packet_optimizer.py` on the progress-aware
+  annotated pools under
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/`.
+  Result: 14 candidates considered, 3 eligible, 2 selected, 18 possible
+  uncovered r24 pairs covered, 0 possible low-team pairs, 6 crowded-only rows
+  rejected, 5 rows rejected for missing pair/compatibility evidence, expected
+  score ceiling 19.000000238418, expected score estimate 4.40006742191, and
+  live submission recommended `false`. Selected rows were `c814e1de3e8d`
+  (compatible with 17 uncovered target pairs plus crowded `24T24979/25000`)
+  and `2c8838b3f843` (compatible with 2 uncovered target pairs plus crowded
+  `24T24979/25000`). Venv local scorer revalidated both selected coefficient
+  lines as valid, irreducible, squarefree, r=24 rows with matching modular
+  patterns. This is the first non-crowded, group-compatible review packet, but
+  not submission-grade yet because compatibility is still necessary evidence
+  only and exact label remains unknown. Validation: artifact JSON/JSONL parse
+  passed, local venv scorer revalidated both selected rows, and focused
+  compatibility/packet/readiness tests passed (`17 passed`).
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints
