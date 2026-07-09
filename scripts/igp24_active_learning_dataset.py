@@ -61,6 +61,16 @@ SCORE_AWARE_WEIGHTS = {
     "invalid": 1.5,
     "accepted_but_crowded_collapse": 5.0,
 }
+GENERATOR_TRAINING_POLICY = {
+    "score_positive": {"eligible": True, "weight": 12.0, "role": "score_positive"},
+    "low_team_scoreable": {"eligible": True, "weight": 8.0, "role": "low_team_scoreable"},
+    "accepted_useful_unknown": {"eligible": True, "weight": 3.0, "role": "accepted_useful_unknown"},
+    "exact_local_exploration": {"eligible": True, "weight": 1.0, "role": "exact_local_exploration"},
+    "crowded_collapse": {"eligible": False, "weight": 0.0, "role": "crowded_collapse"},
+    "accepted_duplicate": {"eligible": False, "weight": 0.0, "role": "accepted_duplicate"},
+    "wrong_r": {"eligible": False, "weight": 0.0, "role": "wrong_r"},
+    "invalid": {"eligible": False, "weight": 0.0, "role": "invalid"},
+}
 SAIR_KEY_RE = re.compile(r"sair_[0-9a-f]{12}_[A-Za-z0-9]{20,}")
 
 
@@ -289,6 +299,66 @@ def feature_projection(row: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in features.items() if key != "exported_coefficients"}
 
 
+def generator_training_policy(
+    *,
+    class_label: str,
+    score_label: str,
+    label: str | None,
+    pair: str | None,
+    features: dict[str, Any],
+) -> dict[str, Any]:
+    if score_label in {"score_positive", "low_team_scoreable"}:
+        policy = GENERATOR_TRAINING_POLICY[score_label]
+        reason = f"{score_label} row is a positive generator demonstration"
+    elif class_label == "accepted_useful_or_unknown":
+        policy = GENERATOR_TRAINING_POLICY["accepted_useful_unknown"]
+        reason = "accepted row is not currently known as crowded or duplicate"
+    elif class_label == "exact_local_valid":
+        policy = GENERATOR_TRAINING_POLICY["exact_local_exploration"]
+        reason = "locally exact-valid row with unknown label remains exploratory"
+    elif score_label == "accepted_duplicate":
+        policy = GENERATOR_TRAINING_POLICY["accepted_duplicate"]
+        reason = "accepted duplicate is evidence for risk/reward models, not LM imitation"
+    elif score_label == "accepted_but_crowded_collapse" or class_label == "accepted_globally_covered_high_team_basin":
+        policy = GENERATOR_TRAINING_POLICY["crowded_collapse"]
+        reason = "crowded accepted row is negative evidence, not a generator demonstration"
+    elif score_label == "wrong_r" or class_label == "wrong_real_root_count":
+        policy = GENERATOR_TRAINING_POLICY["wrong_r"]
+        reason = "wrong real-root count for current training target"
+    elif score_label == "invalid" or class_label == "locally_invalid":
+        policy = GENERATOR_TRAINING_POLICY["invalid"]
+        reason = "locally invalid row"
+    else:
+        policy = GENERATOR_TRAINING_POLICY["exact_local_exploration"]
+        reason = "unknown rows are not treated as negative"
+
+    family = (
+        features.get("construction_family")
+        or features.get("template_family")
+        or features.get("family_key")
+        or features.get("basin_fingerprint")
+        or "unknown"
+    )
+    return {
+        "eligible": bool(policy["eligible"]),
+        "weight": float(policy["weight"]),
+        "role": str(policy["role"]),
+        "reason": reason,
+        "pair_key": pair,
+        "label": label,
+        "construction_family": family,
+        "basin_fingerprint": features.get("basin_fingerprint"),
+    }
+
+
+def split_group_key(*, features: dict[str, Any], canonical_hash: str | None) -> str:
+    for key in ("construction_family", "template_family", "family_key", "basin_fingerprint"):
+        value = features.get(key)
+        if value not in (None, ""):
+            return f"{key}:{value}"
+    return f"canonical_hash:{canonical_hash or 'missing'}"
+
+
 def enrich_row(
     *,
     row: dict[str, Any],
@@ -378,7 +448,14 @@ def enrich_row(
         "invalid",
     }
 
-    split_key = canonical_hash or f"{source_path}:{source_index}"
+    generator_training = generator_training_policy(
+        class_label=class_label,
+        score_label=score_label,
+        label=str(label) if label else None,
+        pair=str(pair) if pair else None,
+        features=features,
+    )
+    split_key = split_group_key(features=features, canonical_hash=canonical_hash)
     split_value = int(hashlib.sha256(split_key.encode("utf-8")).hexdigest()[:8], 16) % 10
     train_eval_split = "eval" if split_value in {0, 1} else "train"
     row_id = hashlib.sha256(f"{source_path}:{source_index}:{canonical_hash}".encode("utf-8")).hexdigest()[:16]
@@ -435,6 +512,10 @@ def enrich_row(
             "label_team_count": label_team_count,
             "pair_remaining": progress_pair.get("remaining"),
             "pair_discovered": progress_pair.get("discovered"),
+        },
+        "generator_training": {
+            **generator_training,
+            "split_group_key": split_key,
         },
         "train_eval_split": train_eval_split,
         "leakage_provenance": {
@@ -597,6 +678,17 @@ def build_dataset(
     source_counts = Counter(row["source_role"] for row in rows)
     label_counts = Counter((row["sair_feedback"] or {}).get("label") or "unknown" for row in rows)
     split_counts = Counter(row["train_eval_split"] for row in rows)
+    generator_counts = Counter(row["generator_training"]["role"] for row in rows)
+    generator_eligible_rows = [row for row in rows if row["generator_training"]["eligible"] and row["generator_training"]["weight"] > 0]
+    generator_mass_by_role: Counter[str] = Counter()
+    generator_mass_by_label: Counter[str] = Counter()
+    generator_mass_by_family: Counter[str] = Counter()
+    for row in generator_eligible_rows:
+        generator = row["generator_training"]
+        weight = float(generator["weight"])
+        generator_mass_by_role[str(generator["role"])] += weight
+        generator_mass_by_label[str(generator.get("label") or "unknown")] += weight
+        generator_mass_by_family[str(generator.get("construction_family") or "unknown")] += weight
     summary = {
         "schema_version": 1,
         "record_type": "igp24_axg_active_learning_dataset_summary",
@@ -614,6 +706,16 @@ def build_dataset(
         "class_counts": dict(class_counts),
         "score_aware_class_counts": dict(score_aware_counts),
         "score_aware_weight_by_class": score_aware_weight_by_class,
+        "generator_training": {
+            "physical_row_count": len(rows),
+            "eligible_row_count": len(generator_eligible_rows),
+            "role_counts": dict(generator_counts),
+            "eligible_role_counts": dict(Counter(row["generator_training"]["role"] for row in generator_eligible_rows)),
+            "sampling_mass_by_role": dict(sorted(generator_mass_by_role.items())),
+            "sampling_mass_by_label_top": generator_mass_by_label.most_common(20),
+            "sampling_mass_by_construction_family_top": generator_mass_by_family.most_common(20),
+            "policy": GENERATOR_TRAINING_POLICY,
+        },
         "source_role_counts": dict(source_counts),
         "label_counts_top": label_counts.most_common(20),
         "train_eval_split_counts": dict(split_counts),

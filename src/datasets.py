@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 import json
+from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
 from logging import getLogger
@@ -115,6 +116,99 @@ def _score_from_score_aware_supervision(record):
     return reward_value * min(max(weight_value, 0.25), 5.0)
 
 
+def _generator_training_contract(record):
+    contract = record.get("generator_training")
+    if isinstance(contract, dict):
+        try:
+            weight = float(contract.get("weight", 0.0))
+        except (TypeError, ValueError):
+            weight = 0.0
+        eligible = bool(contract.get("eligible")) and weight > 0.0
+        return {
+            "eligible": eligible,
+            "weight": weight if eligible else 0.0,
+            "role": str(contract.get("role") or "unknown"),
+            "reason": str(contract.get("reason") or ""),
+            "label": contract.get("label"),
+            "pair_key": contract.get("pair_key"),
+            "construction_family": contract.get("construction_family"),
+            "basin_fingerprint": contract.get("basin_fingerprint"),
+            "split_group_key": contract.get("split_group_key"),
+        }
+
+    class_label = str(record.get("derived_class_label") or "")
+    score_aware = record.get("score_aware_supervision") if isinstance(record.get("score_aware_supervision"), dict) else {}
+    score_label = str(score_aware.get("label") or "")
+    label = (record.get("sair_feedback") or {}).get("label") if isinstance(record.get("sair_feedback"), dict) else record.get("label")
+    pair = (record.get("sair_feedback") or {}).get("pair_key") if isinstance(record.get("sair_feedback"), dict) else record.get("pair_key")
+    features = record.get("features") if isinstance(record.get("features"), dict) else {}
+    family = features.get("construction_family") or features.get("template_family") or features.get("family_key") or "unknown"
+
+    if score_label == "score_positive" or class_label == "accepted_useful_score_positive":
+        role, eligible, weight = "score_positive", True, 12.0
+    elif score_label == "low_team_scoreable":
+        role, eligible, weight = "low_team_scoreable", True, 8.0
+    elif class_label == "accepted_useful_or_unknown":
+        role, eligible, weight = "accepted_useful_unknown", True, 3.0
+    elif class_label == "exact_local_valid" or score_label == "pending_or_unknown":
+        role, eligible, weight = "exact_local_exploration", True, 1.0
+    elif score_label == "accepted_but_crowded_collapse" or class_label in {
+        "accepted_duplicate_collapsed_basin",
+        "accepted_globally_covered_high_team_basin",
+    }:
+        role, eligible, weight = "crowded_collapse", False, 0.0
+    elif score_label == "accepted_duplicate":
+        role, eligible, weight = "accepted_duplicate", False, 0.0
+    elif score_label == "wrong_r" or class_label == "wrong_real_root_count":
+        role, eligible, weight = "wrong_r", False, 0.0
+    elif score_label == "invalid" or class_label == "locally_invalid":
+        role, eligible, weight = "invalid", False, 0.0
+    else:
+        role, eligible, weight = "exact_local_exploration", True, 1.0
+    return {
+        "eligible": eligible,
+        "weight": weight,
+        "role": role,
+        "reason": "derived from legacy active-learning labels",
+        "label": label,
+        "pair_key": pair,
+        "construction_family": family,
+        "basin_fingerprint": features.get("basin_fingerprint"),
+        "split_group_key": _split_group_key(record),
+    }
+
+
+def _split_group_key(record):
+    contract = record.get("generator_training") if isinstance(record.get("generator_training"), dict) else {}
+    if contract.get("split_group_key"):
+        return str(contract["split_group_key"])
+    features = record.get("features") if isinstance(record.get("features"), dict) else {}
+    for key in ("construction_family", "template_family", "family_key", "basin_fingerprint"):
+        value = features.get(key)
+        if value not in (None, ""):
+            return f"{key}:{value}"
+    canonical_hash = record.get("canonical_hash")
+    if canonical_hash:
+        return f"canonical_hash:{canonical_hash}"
+    return None
+
+
+def _cap_key(record, contract, key):
+    if key == "hash":
+        return str(record.get("canonical_hash") or "")
+    if key == "pair":
+        return str(contract.get("pair_key") or (record.get("sair_feedback") or {}).get("pair_key") or "")
+    if key == "label":
+        return str(contract.get("label") or (record.get("sair_feedback") or {}).get("label") or "")
+    if key == "family":
+        features = record.get("features") if isinstance(record.get("features"), dict) else {}
+        return str(contract.get("construction_family") or features.get("construction_family") or features.get("template_family") or features.get("family_key") or "")
+    if key == "basin":
+        features = record.get("features") if isinstance(record.get("features"), dict) else {}
+        return str(contract.get("basin_fingerprint") or features.get("basin_fingerprint") or "")
+    raise ValueError(key)
+
+
 def _load_igp24_training_jsonl(args, classname):
     paths = _jsonl_paths(getattr(args, "igp24_training_jsonl", []))
     if not paths:
@@ -131,7 +225,31 @@ def _load_igp24_training_jsonl(args, classname):
         "missing_r": 0,
         "coefficient_bound_filtered": 0,
         "invalid_datapoint": 0,
+        "generator_ineligible": 0,
+        "duplicate_canonical_hash": 0,
+        "cap_per_pair": 0,
+        "cap_per_label": 0,
+        "cap_per_family": 0,
+        "cap_per_basin_fingerprint": 0,
     }
+    seen_hashes = set()
+    cap_counts = {
+        "pair": Counter(),
+        "label": Counter(),
+        "family": Counter(),
+        "basin": Counter(),
+    }
+    cap_limits = {
+        "pair": int(getattr(args, "igp24_generator_cap_per_pair", 16) or 0),
+        "label": int(getattr(args, "igp24_generator_cap_per_label", 64) or 0),
+        "family": int(getattr(args, "igp24_generator_cap_per_family", 128) or 0),
+        "basin": int(getattr(args, "igp24_generator_cap_per_basin_fingerprint", 8) or 0),
+    }
+    role_counts = Counter()
+    role_weight = Counter()
+    label_weight = Counter()
+    family_weight = Counter()
+    split_groups = {"train": set(), "eval": set()}
 
     for path in paths:
         with path.open("r", encoding="utf-8") as handle:
@@ -156,6 +274,26 @@ def _load_igp24_training_jsonl(args, classname):
                 if max_abs_coeff > 0 and max(abs(value) for value in coeffs) > max_abs_coeff:
                     skipped["coefficient_bound_filtered"] += 1
                     continue
+                canonical_hash = str(record.get("canonical_hash") or f"{path}:{line_index}")
+                if canonical_hash in seen_hashes:
+                    skipped["duplicate_canonical_hash"] += 1
+                    continue
+                contract = _generator_training_contract(record)
+                if not contract["eligible"] or float(contract["weight"]) <= 0.0:
+                    skipped["generator_ineligible"] += 1
+                    continue
+                capped = False
+                for cap_name, limit in cap_limits.items():
+                    if limit <= 0:
+                        continue
+                    key = _cap_key(record, contract, cap_name)
+                    if key and cap_counts[cap_name][key] >= limit:
+                        skipped_key = "cap_per_basin_fingerprint" if cap_name == "basin" else f"cap_per_{cap_name}"
+                        skipped[skipped_key] += 1
+                        capped = True
+                        break
+                if capped:
+                    continue
                 try:
                     datapoint = classname(N=args.N, coeffs=coeffs, conditioning_target_r=r_value)
                 except Exception:
@@ -168,6 +306,9 @@ def _load_igp24_training_jsonl(args, classname):
                     else _score_from_active_learning_class(record.get("derived_class_label"))
                 )
                 datapoint.features = record.get("canonical_hash") or f"{path}:{line_index}"
+                datapoint.generator_training_weight = float(contract["weight"])
+                datapoint.generator_training_role = str(contract["role"])
+                datapoint.generator_training_split_group = contract.get("split_group_key") or _split_group_key(record) or canonical_hash
                 datapoint.source_metadata = {
                     "source_path": str(path),
                     "source_index": line_index,
@@ -175,28 +316,58 @@ def _load_igp24_training_jsonl(args, classname):
                     "source_role": record.get("source_role"),
                     "derived_class_label": record.get("derived_class_label"),
                     "score_aware_supervision": record.get("score_aware_supervision"),
+                    "generator_training": contract,
                     "train_eval_split": record.get("train_eval_split"),
                     "conditioning_target_r": r_value,
                 }
+                seen_hashes.add(canonical_hash)
+                for cap_name in cap_counts:
+                    key = _cap_key(record, contract, cap_name)
+                    if key:
+                        cap_counts[cap_name][key] += 1
+                role_counts[str(contract["role"])] += 1
+                role_weight[str(contract["role"])] += float(contract["weight"])
+                if contract.get("label"):
+                    label_weight[str(contract["label"])] += float(contract["weight"])
+                if contract.get("construction_family"):
+                    family_weight[str(contract["construction_family"])] += float(contract["weight"])
+                split_group = datapoint.generator_training_split_group
                 if record.get("train_eval_split") == "eval":
                     test_set.append(datapoint)
+                    split_groups["eval"].add(split_group)
                 else:
                     train_set.append(datapoint)
+                    split_groups["train"].add(split_group)
         if max_rows > 0 and len(train_set) + len(test_set) >= max_rows:
             break
 
     if not train_set and test_set:
-        train_set, test_set = make_train_test(test_set, min(len(test_set) // 2, int(args.ntest)))
-    if not test_set and len(train_set) > max(1, int(args.ntest)):
-        train_set, test_set = make_train_test(train_set, min(int(args.ntest), max(1, len(train_set) // 5)))
+        train_set, test_set = make_grouped_train_test(test_set, min(len(test_set) // 2, int(args.ntest)))
+    if not test_set and len(train_set) > 1:
+        train_set, test_set = make_grouped_train_test(train_set, min(int(args.ntest), max(1, len(train_set) // 5)))
+
+    train_groups = {getattr(row, "generator_training_split_group", None) for row in train_set}
+    test_groups = {getattr(row, "generator_training_split_group", None) for row in test_set}
+    overlap = {group for group in train_groups & test_groups if group is not None}
+    if overlap:
+        raise ValueError(f"IGP24 grouped train/eval split leakage detected for {len(overlap)} groups")
 
     logger.info(
-        "Loaded IGP24 JSONL training data: train=%s test=%s paths=%s target_rs=%s skipped=%s",
+        "Loaded IGP24 JSONL training data: train=%s test=%s paths=%s target_rs=%s skipped=%s generator_roles=%s generator_weight_by_role=%s",
         len(train_set),
         len(test_set),
         [str(path) for path in paths],
         sorted(target_rs),
         skipped,
+        dict(role_counts),
+        {key: round(value, 3) for key, value in sorted(role_weight.items())},
+    )
+    logger.info(
+        "IGP24 generator sampling mass: labels=%s families=%s cap_limits=%s family_split_overlap=%s",
+        label_weight.most_common(20),
+        family_weight.most_common(20),
+        cap_limits,
+        sorted(split_groups["train"] & split_groups["eval"])[:20],
     )
     return train_set, test_set, skipped
 
@@ -268,6 +439,48 @@ def make_train_test(data, ntest):
     indices = np.random.permutation(len(data))
     rp = [data[i] for i in indices]
     return rp[:-ntest], rp[-ntest:]
+
+
+def make_grouped_train_test(data, ntest):
+    groups = {}
+    for row in data:
+        key = getattr(row, "generator_training_split_group", None) or getattr(row, "features", None) or id(row)
+        groups.setdefault(str(key), []).append(row)
+    if len(groups) <= 1:
+        return make_train_test(data, ntest)
+    group_items = []
+    for key, rows in groups.items():
+        roles = Counter(getattr(row, "generator_training_role", "unknown") for row in rows)
+        role = roles.most_common(1)[0][0] if roles else "unknown"
+        group_items.append({"key": key, "rows": rows, "role": role, "size": len(rows)})
+    reserved_train_keys = set()
+    for role in {item["role"] for item in group_items}:
+        role_groups = [item for item in group_items if item["role"] == role]
+        reserved = sorted(role_groups, key=lambda item: (-item["size"], item["key"]))[0]
+        reserved_train_keys.add(reserved["key"])
+
+    desired_test = max(1, min(int(ntest), max(1, len(data) // 5)))
+    test_set = []
+    train_set = []
+    eval_candidates = sorted(
+        [item for item in group_items if item["key"] not in reserved_train_keys],
+        key=lambda item: (item["size"], item["role"], item["key"]),
+    )
+    for item in eval_candidates:
+        if len(test_set) < desired_test:
+            test_set.extend(item["rows"])
+        else:
+            train_set.extend(item["rows"])
+    for item in group_items:
+        if item["key"] in reserved_train_keys:
+            train_set.extend(item["rows"])
+    if not train_set:
+        return make_train_test(data, ntest)
+    if not test_set and eval_candidates:
+        moved = eval_candidates[0]
+        train_set = [row for row in train_set if row not in moved["rows"]]
+        test_set.extend(moved["rows"])
+    return train_set, test_set
 
 
 def compute_unique_data(old_data, new_data=None):
@@ -352,11 +565,17 @@ def load_initial_data(args, classname):
 
 
 class CharDataset(Dataset):
-    def __init__(self, encoded_data, max_len, stoi, block_size=None):
+    def __init__(self, encoded_data, max_len, stoi, block_size=None, sample_weights=None, sample_metadata=None):
         self.encoded_data = encoded_data
         self.max_len = max_len
         self.block_size = int(block_size or (max_len + 2))
         self.pad_token_id = stoi["PAD"]
+        self.sample_weights = list(sample_weights or [])
+        self.sample_metadata = list(sample_metadata or [])
+        if self.sample_weights and len(self.sample_weights) != len(self.encoded_data):
+            raise ValueError("sample_weights must match encoded_data length")
+        if self.sample_metadata and len(self.sample_metadata) != len(self.encoded_data):
+            raise ValueError("sample_metadata must match encoded_data length")
 
     def __len__(self):
         return len(self.encoded_data)
@@ -383,11 +602,48 @@ class InfiniteDataLoader:
     Create a infinite datalaoder in PyTorch
     """
 
-    def __init__(self, dataset, **kwargs):
-        train_sampler = torch.utils.data.RandomSampler(dataset, replacement=True, num_samples=int(1e10))
+    def __init__(self, dataset, seed=None, **kwargs):
+        self.sampled_role_counts = Counter()
+        self.sampled_label_counts = Counter()
+        self.sampled_family_counts = Counter()
+        weights = getattr(dataset, "sample_weights", None)
+        if weights:
+            generator = torch.Generator()
+            if seed is not None and int(seed) >= 0:
+                generator.manual_seed(int(seed))
+            train_sampler = TrackingWeightedReplacementSampler(
+                dataset,
+                weights=weights,
+                num_samples=int(1e10),
+                generator=generator,
+                on_sample=self._record_sample,
+            )
+        else:
+            train_sampler = torch.utils.data.RandomSampler(dataset, replacement=True, num_samples=int(1e10))
         self.train_loader = DataLoader(dataset, sampler=train_sampler, collate_fn=dataset.collate_fn, **kwargs)
         self.data_iter = iter(self.train_loader)
         self._closed = False
+
+    def _record_sample(self, index):
+        metadata = getattr(self.train_loader.dataset, "sample_metadata", None)
+        if not metadata or index >= len(metadata):
+            return
+        row = metadata[index] or {}
+        role = str(row.get("role") or "unknown")
+        self.sampled_role_counts[role] += 1
+        label = row.get("label")
+        if label:
+            self.sampled_label_counts[str(label)] += 1
+        family = row.get("construction_family")
+        if family:
+            self.sampled_family_counts[str(family)] += 1
+
+    def sampled_counts(self):
+        return {
+            "role": dict(self.sampled_role_counts),
+            "label": dict(self.sampled_label_counts),
+            "construction_family": dict(self.sampled_family_counts),
+        }
 
     def next(self):
         try:
@@ -412,3 +668,33 @@ class InfiniteDataLoader:
             self.close()
         except Exception:
             pass
+
+
+class TrackingWeightedReplacementSampler(torch.utils.data.Sampler):
+    def __init__(self, dataset, *, weights, num_samples, generator=None, on_sample=None):
+        self.dataset = dataset
+        self.weights = torch.as_tensor([float(weight) for weight in weights], dtype=torch.double)
+        if self.weights.numel() != len(dataset):
+            raise ValueError("weights length must match dataset length")
+        if not torch.all(self.weights >= 0):
+            raise ValueError("weights must be non-negative")
+        if float(self.weights.sum().item()) <= 0.0:
+            raise ValueError("at least one sampler weight must be positive")
+        self.num_samples = int(num_samples)
+        self.generator = generator
+        self.on_sample = on_sample
+
+    def __iter__(self):
+        produced = 0
+        chunk_size = 8192
+        while produced < self.num_samples:
+            take = min(chunk_size, self.num_samples - produced)
+            indices = torch.multinomial(self.weights, take, replacement=True, generator=self.generator).tolist()
+            for index in indices:
+                if self.on_sample is not None:
+                    self.on_sample(int(index))
+                yield int(index)
+            produced += take
+
+    def __len__(self):
+        return self.num_samples

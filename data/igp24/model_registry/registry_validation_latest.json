@@ -1,8 +1,8 @@
 {
-  "created_at": "2026-07-09T20:26:33.074461+00:00",
+  "created_at": "2026-07-09T21:07:56.186171+00:00",
   "issue_count": 0,
   "issues": [],
-  "model_count": 13,
+  "model_count": 14,
   "models": [
     "AXG-1",
     "AXG-1.1",
@@ -16,7 +16,8 @@
     "AXG-1.9",
     "AXG-1.10",
     "AXG-1.11",
-    "AXG-1.12"
+    "AXG-1.12",
+    "AXG-1.13"
   ],
   "record_type": "igp24_axg_registry_validation",
   "registry": "/home/zpconn/code/igp24-axplorer/data/igp24/model_registry",

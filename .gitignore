@@ -12,3 +12,5 @@ checkpoint/
 .pyre/
 
 data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_rejected_trials.jsonl
+data/igp24/**/gpu_model_sample_export_*.jsonl
+data/igp24/**/gpu_sample_export_*_dump/

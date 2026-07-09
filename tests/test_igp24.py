@@ -9,7 +9,7 @@ import pytest
 sympy = pytest.importorskip("sympy")
 
 from src.envs import ENVS, build_env
-from src.datasets import load_initial_data
+from src.datasets import CharDataset, InfiniteDataLoader, load_initial_data
 from src.envs.igp24 import (
     DEFAULT_MIXED_STRATEGY_WEIGHTS,
     IGP24DataPoint,
@@ -268,12 +268,122 @@ def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_pa
     train_set, test_set = load_initial_data(params, IGP24DataPoint)
 
     assert [row.conditioning_target_r for row in train_set] == [12]
-    assert [row.conditioning_target_r for row in test_set] == [16]
+    assert [row.conditioning_target_r for row in test_set] == []
+    assert train_set[0].generator_training_role == "score_positive"
+    assert train_set[0].generator_training_weight == 12.0
     assert train_set[0].score == 12.0
-    assert params.igp24_training_jsonl_loaded_rows == 2
+    assert params.igp24_training_jsonl_loaded_rows == 1
+    assert params.igp24_training_jsonl_skipped["generator_ineligible"] == 1
+    assert params.igp24_training_jsonl_skipped["target_r_filtered"] == 1
     env = build_env(params)
     encoded = env.tokenizer.encode(train_set[0])
     assert encoded[1] == env.tokenizer.stoi["R12"]
+
+
+def test_igp24_generator_training_rejects_family_split_leakage(tmp_path):
+    dataset_path = tmp_path / "active.jsonl"
+    rows = [
+        {
+            "coefficients": [1] + [0] * 23 + [1],
+            "r": 12,
+            "canonical_hash": "h12-a",
+            "derived_class_label": "exact_local_valid",
+            "features": {"construction_family": "same-family"},
+            "generator_training": {
+                "eligible": True,
+                "weight": 1.0,
+                "role": "exact_local_exploration",
+                "split_group_key": "construction_family:same-family",
+            },
+            "train_eval_split": "train",
+        },
+        {
+            "coefficients": [2] + [0] * 23 + [1],
+            "r": 12,
+            "canonical_hash": "h12-b",
+            "derived_class_label": "exact_local_valid",
+            "features": {"construction_family": "same-family"},
+            "generator_training": {
+                "eligible": True,
+                "weight": 1.0,
+                "role": "exact_local_exploration",
+                "split_group_key": "construction_family:same-family",
+            },
+            "train_eval_split": "eval",
+        },
+    ]
+    dataset_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    params = _igp24_params(tmp_path, encoding_tokens="decimal_coefficients", target_r_conditioning_mode="control_token")
+    params.dump_path = str(tmp_path / "dump")
+    params.ntest = 1
+    params.igp24_training_jsonl = [str(dataset_path)]
+    params.igp24_training_jsonl_target_rs = "12"
+
+    with pytest.raises(ValueError, match="grouped train/eval split leakage"):
+        load_initial_data(params, IGP24DataPoint)
+
+
+def test_igp24_generator_training_caps_by_label(tmp_path):
+    dataset_path = tmp_path / "active.jsonl"
+    rows = []
+    for index in range(3):
+        rows.append(
+            {
+                "coefficients": [index + 1] + [0] * 23 + [1],
+                "r": 8,
+                "canonical_hash": f"h{index}",
+                "derived_class_label": "accepted_useful_score_positive",
+                "sair_feedback": {"label": "24T9993", "pair_key": "24T9993|r=8"},
+                "generator_training": {
+                    "eligible": True,
+                    "weight": 12.0,
+                    "role": "score_positive",
+                    "label": "24T9993",
+                    "pair_key": "24T9993|r=8",
+                    "split_group_key": f"canonical_hash:h{index}",
+                },
+                "train_eval_split": "train",
+            }
+        )
+    dataset_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    params = _igp24_params(tmp_path, encoding_tokens="decimal_coefficients", target_r_conditioning_mode="control_token")
+    params.dump_path = str(tmp_path / "dump")
+    params.ntest = 1
+    params.igp24_training_jsonl = [str(dataset_path)]
+    params.igp24_training_jsonl_target_rs = "8"
+    params.igp24_generator_cap_per_label = 1
+    params.igp24_generator_cap_per_pair = 0
+
+    train_set, test_set = load_initial_data(params, IGP24DataPoint)
+
+    assert len(train_set) + len(test_set) == 1
+    assert params.igp24_training_jsonl_skipped["cap_per_label"] == 2
+
+
+def test_weighted_generator_sampler_never_samples_zero_weight_and_favors_positive():
+    stoi = {"PAD": 0}
+    encoded = [np.array([1, 2]), np.array([3, 4]), np.array([5, 6])]
+    dataset = CharDataset(
+        encoded,
+        max_len=4,
+        stoi=stoi,
+        sample_weights=[12.0, 1.0, 0.0],
+        sample_metadata=[
+            {"role": "score_positive", "label": "24T9993", "construction_family": "positive-family"},
+            {"role": "exact_local_exploration", "construction_family": "explore-family"},
+            {"role": "crowded_collapse", "label": "24T25000", "construction_family": "collapse-family"},
+        ],
+    )
+    loader = InfiniteDataLoader(dataset, seed=123, batch_size=1, num_workers=0)
+    try:
+        for _ in range(600):
+            loader.next()
+        counts = loader.sampled_counts()["role"]
+    finally:
+        loader.close()
+
+    assert counts.get("crowded_collapse", 0) == 0
+    assert counts["score_positive"] > counts["exact_local_exploration"] * 6
 
 
 def test_environment_seed_resets_generation(tmp_path):

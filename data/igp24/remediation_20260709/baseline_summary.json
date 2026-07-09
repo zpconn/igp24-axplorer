@@ -1,0 +1,260 @@
+{
+  "active_learning": {
+    "committed_reference_class_counts": {
+      "accepted_duplicate_collapsed_basin": 876,
+      "accepted_globally_covered_high_team_basin": 8,
+      "accepted_useful_score_positive": 12,
+      "exact_local_valid": 191,
+      "locally_invalid": 144,
+      "wrong_real_root_count": 1011
+    },
+    "committed_reference_dataset_summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260709_axg112_pivot.json",
+    "committed_reference_row_count": 2242,
+    "diagnosis": "score-aware reward/weight fields exist in rows, but current LM training samples rows uniformly and does not use them as generator-training semantics.",
+    "latest_class_counts": {
+      "accepted_duplicate_collapsed_basin": 454,
+      "accepted_globally_covered_high_team_basin": 8,
+      "accepted_useful_score_positive": 8,
+      "exact_local_valid": 60,
+      "wrong_real_root_count": 105
+    },
+    "latest_dataset_summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260709_axg113_high_real.json",
+    "latest_row_count": 635,
+    "latest_score_aware_class_counts": {
+      "accepted_but_crowded_collapse": 462,
+      "pending_or_unknown": 60,
+      "score_positive": 8,
+      "wrong_r": 105
+    },
+    "latest_score_aware_weight_by_class": {
+      "accepted_but_crowded_collapse": 2310.0,
+      "pending_or_unknown": 30.0,
+      "score_positive": 32.0,
+      "wrong_r": 157.5
+    }
+  },
+  "axg110_decode_baseline": {
+    "runs": [
+      {
+        "attempted_samples": 16384,
+        "decoded_records_scored": 12,
+        "records_written": 3163,
+        "runtime_seconds": 266.2284409290005,
+        "target_r": 8,
+        "target_r_survivor_count": 1,
+        "test_loss": null,
+        "train_loss": null,
+        "unique_decoded_coefficients": 12,
+        "valid_records": 5
+      },
+      {
+        "attempted_samples": 16384,
+        "decoded_records_scored": 3,
+        "records_written": 4246,
+        "runtime_seconds": 401.5084369600081,
+        "target_r": 12,
+        "target_r_survivor_count": 0,
+        "test_loss": null,
+        "train_loss": null,
+        "unique_decoded_coefficients": 3,
+        "valid_records": 3
+      }
+    ],
+    "target_r_survivor_per_attempt": 3.0517578125e-05,
+    "target_r_survivor_per_unique_decoded": 0.06666666666666667,
+    "total_attempted_samples": 32768,
+    "total_target_r_survivors": 1,
+    "total_unique_decoded_coefficients": 15
+  },
+  "created_at": "2026-07-09T20:42:11.765235+00:00",
+  "effective_positive_vs_collapse": {
+    "collapse_rows_committed_reference": 876,
+    "collapse_rows_latest": 454,
+    "current_generator_effective_policy": "uniform imitation of eligible token rows; collapse examples are not excluded yet",
+    "raw_collapse_to_positive_ratio_latest": 56.75,
+    "score_positive_rows_committed_reference": 12,
+    "score_positive_rows_latest": 8
+  },
+  "git": {
+    "head": "cebcc0680aea4dec66936a38089b2285265f3001",
+    "pull_ff_only": "already_up_to_date",
+    "worktree_status_short": [
+      " M TODO_IGP24.md",
+      "?? data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl",
+      "?? data/igp24/active_learning/axg_training_dataset_summary_20260709_axg113_high_real.json",
+      "?? data/igp24/axg113_high_real_20260709/",
+      "?? data/igp24/model_registry/models/AXG-1.13/"
+    ]
+  },
+  "leaderboard": {
+    "our_public_score": 0.000508,
+    "our_rank": 77,
+    "our_scoreable_pairs": 28,
+    "our_team_number": "IGP24-T00153",
+    "rank25_score_cutoff": 108.009839,
+    "rank25_scoreable_pairs": 5087,
+    "recorded_visible_points_from_user_snapshot": 0.0021,
+    "source": "GET /api/public/v1/competitions/igp24/leaderboard?limit=100 at baseline time",
+    "user_snapshot_visible_points_rows": 2
+  },
+  "phase0_conclusion": {
+    "go_no_go": "no_more_routine_gpu_iterations_until_phase1_training_semantics_pass",
+    "primary_defect": "collapse/crowded rows currently dominate imitation training despite score-aware metadata",
+    "secondary_defect": "candidate scoring does not soundly target exact Galois groups"
+  },
+  "recent_training_losses": {
+    "axg112_final_test_loss": 2.246,
+    "axg112_final_train_loss": 0.044,
+    "axg112_gpu": {
+      "avg_gpu_utilization_percent": 31.723,
+      "device": "NVIDIA GeForce RTX 5090",
+      "max_gpu_utilization_percent": 84.0,
+      "status": "used"
+    },
+    "axg113_partial_interrupted": {
+      "avg_gpu_utilization_percent": 56.258620689655174,
+      "device": "cuda",
+      "final_test_loss": 2.142430543899536,
+      "final_train_loss": 0.045847349228958285,
+      "interrupted": true,
+      "max_gpu_utilization_percent": 88.0,
+      "returncode": 130,
+      "runtime_seconds": 119.3755974079977,
+      "sample_export_decoded_records": 12,
+      "sample_export_records": 643,
+      "status": "interrupted_pre_remediation_do_not_continue",
+      "summary_path": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json"
+    },
+    "latest_completed_model": "AXG-1.12"
+  },
+  "record_type": "igp24_remediation_phase0_baseline",
+  "sair_sync": {
+    "discovered_signature_count": 118838,
+    "partial_sync": false,
+    "progress_summary_path": "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_progress_snapshot_summary.json",
+    "remaining_signature_count": 46998,
+    "sync_summary_path": "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_sync_summary.json",
+    "top_remaining_r_buckets": [
+      {
+        "allowed": 25000,
+        "average_signature_team_count": 1.8,
+        "discovered": 13632,
+        "discovered_pct": 54.53,
+        "max_signature_team_count": 45,
+        "r": 24,
+        "remaining": 11368,
+        "remaining_pct": 45.47
+      },
+      {
+        "allowed": 21421,
+        "average_signature_team_count": 2.31,
+        "discovered": 11703,
+        "discovered_pct": 54.63,
+        "max_signature_team_count": 42,
+        "r": 16,
+        "remaining": 9718,
+        "remaining_pct": 45.37
+      },
+      {
+        "allowed": 23556,
+        "average_signature_team_count": 3.66,
+        "discovered": 17570,
+        "discovered_pct": 74.59,
+        "max_signature_team_count": 48,
+        "r": 8,
+        "remaining": 5986,
+        "remaining_pct": 25.41
+      },
+      {
+        "allowed": 19934,
+        "average_signature_team_count": 3.09,
+        "discovered": 14021,
+        "discovered_pct": 70.34,
+        "max_signature_team_count": 46,
+        "r": 12,
+        "remaining": 5913,
+        "remaining_pct": 29.66
+      },
+      {
+        "allowed": 10852,
+        "average_signature_team_count": 2.24,
+        "discovered": 5678,
+        "discovered_pct": 52.32,
+        "max_signature_team_count": 42,
+        "r": 20,
+        "remaining": 5174,
+        "remaining_pct": 47.68
+      }
+    ],
+    "unmatched_rows": 7
+  },
+  "schema_version": 1,
+  "test_baseline": {
+    "command": "PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q",
+    "failed_count": 1,
+    "failure": "tests/test_igp24_r12_structured_followup.py::test_r12_followup_pair_status_records_new_pairs_and_alternates expects 14 alternates but current ledger has 20 after AXG-1.12 feedback",
+    "passed": false,
+    "passed_count": 308
+  },
+  "verified_pairs": {
+    "collapsed_label_scoreable_rows": 222,
+    "crowded_label_collapse_rate": 0.9487179487179487,
+    "current_distinct_scoreable_pair_count": 28,
+    "score_positive_pair_count_user_snapshot": 2,
+    "score_positive_pairs_user_snapshot": [
+      "24T9993|r=8",
+      "24T22770|r=12"
+    ],
+    "scoreable_rows": 234,
+    "top_scoreable_labels": [
+      [
+        "24T25000",
+        126
+      ],
+      [
+        "24T24979",
+        38
+      ],
+      [
+        "24T24932",
+        20
+      ],
+      [
+        "24T24651",
+        17
+      ],
+      [
+        "24T24984",
+        12
+      ],
+      [
+        "24T24970",
+        6
+      ],
+      [
+        "24T23883",
+        3
+      ],
+      [
+        "24T22770",
+        2
+      ],
+      [
+        "24T1310",
+        2
+      ],
+      [
+        "24T9993",
+        2
+      ],
+      [
+        "24T661",
+        1
+      ],
+      [
+        "24T657",
+        1
+      ]
+    ]
+  }
+}

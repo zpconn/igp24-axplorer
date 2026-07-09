@@ -1,0 +1,230 @@
+{
+  "candidate_source_count": 1,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 454,
+    "accepted_globally_covered_high_team_basin": 8,
+    "accepted_useful_score_positive": 8,
+    "exact_local_valid": 60,
+    "wrong_real_root_count": 105
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-09T20:54:05.356209+00:00",
+  "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl",
+  "feedback_source_count": 24,
+  "generator_training": {
+    "eligible_role_counts": {
+      "exact_local_exploration": 60,
+      "score_positive": 8
+    },
+    "eligible_row_count": 68,
+    "physical_row_count": 635,
+    "policy": {
+      "accepted_duplicate": {
+        "eligible": false,
+        "role": "accepted_duplicate",
+        "weight": 0.0
+      },
+      "accepted_useful_unknown": {
+        "eligible": true,
+        "role": "accepted_useful_unknown",
+        "weight": 3.0
+      },
+      "crowded_collapse": {
+        "eligible": false,
+        "role": "crowded_collapse",
+        "weight": 0.0
+      },
+      "exact_local_exploration": {
+        "eligible": true,
+        "role": "exact_local_exploration",
+        "weight": 1.0
+      },
+      "invalid": {
+        "eligible": false,
+        "role": "invalid",
+        "weight": 0.0
+      },
+      "low_team_scoreable": {
+        "eligible": true,
+        "role": "low_team_scoreable",
+        "weight": 8.0
+      },
+      "score_positive": {
+        "eligible": true,
+        "role": "score_positive",
+        "weight": 12.0
+      },
+      "wrong_r": {
+        "eligible": false,
+        "role": "wrong_r",
+        "weight": 0.0
+      }
+    },
+    "role_counts": {
+      "crowded_collapse": 462,
+      "exact_local_exploration": 60,
+      "score_positive": 8,
+      "wrong_r": 105
+    },
+    "sampling_mass_by_construction_family_top": [
+      [
+        "unknown",
+        72.0
+      ],
+      [
+        "model_sample_export",
+        60.0
+      ],
+      [
+        "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+        12.0
+      ],
+      [
+        "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+        12.0
+      ]
+    ],
+    "sampling_mass_by_label_top": [
+      [
+        "unknown",
+        60.0
+      ],
+      [
+        "24T22770",
+        48.0
+      ],
+      [
+        "24T9993",
+        48.0
+      ]
+    ],
+    "sampling_mass_by_role": {
+      "exact_local_exploration": 60.0,
+      "score_positive": 96.0
+    }
+  },
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "24T25000",
+      295
+    ],
+    [
+      "unknown",
+      123
+    ],
+    [
+      "24T24979",
+      73
+    ],
+    [
+      "24T24932",
+      51
+    ],
+    [
+      "24T24651",
+      34
+    ],
+    [
+      "24T24984",
+      24
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      6
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ],
+    [
+      "24T24648",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 635,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/axg113_high_real_20260709/sair_sync_full",
+  "schema_version": 1,
+  "score_aware_class_counts": {
+    "accepted_but_crowded_collapse": 462,
+    "pending_or_unknown": 60,
+    "score_positive": 8,
+    "wrong_r": 105
+  },
+  "score_aware_weight_by_class": {
+    "accepted_but_crowded_collapse": 2310.0,
+    "pending_or_unknown": 30.0,
+    "score_positive": 32.0,
+    "wrong_r": 157.5
+  },
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "cebcc0680aea4dec66936a38089b2285265f3001",
+  "source_role_counts": {
+    "accepted_feedback": 197,
+    "candidate_queue": 204,
+    "sair_submission_row": 234
+  },
+  "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260709_axg113_high_real.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 101,
+    "train": 534
+  }
+}

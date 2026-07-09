@@ -1,0 +1,13 @@
+{
+  "model_version": "AXG-1.13",
+  "notes": [
+    "No AXG-1.13 rows were submitted to SAIR.",
+    "There is no AXG-1.13 score feedback.",
+    "The next completed model must be trained after generator-training remediation and must show verified score improvement before the active goal is complete."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "schema_version": 1,
+  "score_improved": false,
+  "status": "no_submission_no_feedback"
+}

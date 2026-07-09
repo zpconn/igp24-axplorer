@@ -56,6 +56,8 @@ def train(model, args, loader, optim, test_dataset, current_best_loss=None):
             train_loss = curr_loss / args.num_eval_steps
             test_loss = evaluate(model, test_dataset, args.device, batch_size=100, max_batches=10)
             logger.info(f"step {step + 1} train loss: {train_loss} test loss: {test_loss}")
+            if hasattr(loader, "sampled_counts"):
+                logger.info(f"generator sampled counts through step {step + 1}: {loader.sampled_counts()}")
             if args.save_best and test_loss < best_loss:
                 model_path = os.path.join(args.dump_path, "model.pt")
                 optimizer_path = os.path.join(args.dump_path, "optimizer.pt")

@@ -285,7 +285,36 @@ if __name__ == "__main__":
                 "increase --max_len or reduce the JSONL training coefficient size"
             )
         # data loaders
-        train_dataset = CharDataset(train_words, args.max_len, stoi, block_size=args.block_size)
+        train_weights = [float(getattr(d, "generator_training_weight", 1.0)) for d in train_set]
+        train_metadata = [
+            {
+                "role": getattr(d, "generator_training_role", None),
+                **(
+                    getattr(d, "source_metadata", {}).get("generator_training", {})
+                    if isinstance(getattr(d, "source_metadata", {}), dict)
+                    else {}
+                ),
+            }
+            for d in train_set
+        ]
+        if train_metadata and any(row.get("role") for row in train_metadata):
+            logger.info(
+                "Generator training metadata: rows=%s total_weight=%.3f role_weight=%s",
+                len(train_metadata),
+                sum(train_weights),
+                {
+                    role: round(sum(weight for weight, row in zip(train_weights, train_metadata) if row.get("role") == role), 3)
+                    for role in sorted({row.get("role") for row in train_metadata if row.get("role")})
+                },
+            )
+        train_dataset = CharDataset(
+            train_words,
+            args.max_len,
+            stoi,
+            block_size=args.block_size,
+            sample_weights=train_weights if train_metadata and any(row.get("role") for row in train_metadata) else None,
+            sample_metadata=train_metadata if train_metadata and any(row.get("role") for row in train_metadata) else None,
+        )
         test_dataset = CharDataset(test_words, args.max_len, stoi, block_size=args.block_size)
         force_release_memory()
 
@@ -298,9 +327,11 @@ if __name__ == "__main__":
                 f"Memory allocated: {torch.mps.current_allocated_memory()/(1024*1024):.2f}MB, reserved: {torch.mps.driver_allocated_memory()/(1024*1024):.2f}MB"
             )
 
-        batch_loader = InfiniteDataLoader(train_dataset, batch_size=args.batch_size, pin_memory=args.device == "cuda", num_workers=0)
+        batch_loader = InfiniteDataLoader(train_dataset, seed=args.seed, batch_size=args.batch_size, pin_memory=args.device == "cuda", num_workers=0)
         try:
             best_loss = train(model, args, batch_loader, optimizer, test_dataset, current_best_loss=best_loss)
+            if hasattr(batch_loader, "sampled_counts"):
+                logger.info(f"Generator sampled counts: {batch_loader.sampled_counts()}")
         finally:
             batch_loader.close()
             del batch_loader

@@ -58,14 +58,26 @@ def test_r12_followup_pair_status_records_new_pairs_and_alternates():
     assert len(pairs["24T24970|r=12"]["accepted_alternates"]) == 2
     assert pairs["24T24979|r=12"]["status"] == "accepted"
     assert pairs["24T24979|r=12"]["source_row_number"] == 2
-    assert len(pairs["24T24979|r=12"]["accepted_alternates"]) == 14
+    assert len(pairs["24T24979|r=12"]["accepted_alternates"]) == 20
     followup_source = "data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json"
+    structured_probe_source = "data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json"
+    axg112_source = (
+        "data/igp24/axg112_pivot_20260709/proposal_loop/"
+        "axg112_r12_pivot_combined_gate_composed_advisory_20260709/"
+        "axg112_sair_accepted_feedback_20260709.json"
+    )
     assert sum(
         1 for alternate in pairs["24T24970|r=12"]["accepted_alternates"] if alternate["source"] == followup_source
     ) == 2
     assert sum(
         1 for alternate in pairs["24T24979|r=12"]["accepted_alternates"] if alternate["source"] == followup_source
     ) == 8
+    assert sum(
+        1 for alternate in pairs["24T24979|r=12"]["accepted_alternates"] if alternate["source"] == structured_probe_source
+    ) == 6
+    assert sum(
+        1 for alternate in pairs["24T24979|r=12"]["accepted_alternates"] if alternate["source"] == axg112_source
+    ) == 6
     assert all(pairs[key]["source"].endswith("r12_structured_probe_sair_accepted_feedback_20260706.json") for key in [
         "24T22770|r=12",
         "24T24970|r=12",

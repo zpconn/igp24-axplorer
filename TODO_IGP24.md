@@ -20,11 +20,83 @@ results change.
   polling SAIR state, or making a small documentation-only update. Live SAIR
   submissions still require explicit user approval, and `SAIR_API_KEY` must
   remain environment-only.
+- Effective 2026-07-09 remediation pivot: the "train a new AXG model each
+  substantial cycle" rule was suspended until the generator-training semantics
+  defect was fixed and regression-tested. Phase 1 now implements that contract:
+  negative accepted/crowded rows no longer act as positive language-model
+  demonstrations. Future AXG model-search cycles may resume only through the
+  explicit `generator_training` eligibility/weight contract, grouped split
+  checks, weighted sampler telemetry, and normal no-live-submission-without-
+  approval gate.
 
 ## Current Status
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 0/1 checkpoint: wrote baseline artifacts
+  `data/igp24/remediation_20260709/baseline_report.md` and
+  `data/igp24/remediation_20260709/baseline_summary.json`. Baseline evidence:
+  fresh SAIR sync has 234 scoreable rows but only 28 distinct scoreable pairs;
+  222/234 scoreable rows (94.9%) are in known crowded/collapse labels; current
+  public leaderboard rank is 77 with score 0.000508 and 28 scoreable pairs;
+  rank-25 cutoff is 108.009839 points and 5,087 scoreable pairs. AXG-1.10
+  decode baseline was 32,768 attempted samples, 15 unique decoded rows, and
+  only 1 target-r survivor. Full pre-remediation test baseline was 308 passed /
+  1 failed due a stale r12 alternate-count assertion. Implemented Phase 1
+  generator-training semantics: active-learning rows now carry explicit
+  `generator_training` contracts; accepted/crowded, duplicate, wrong-r, and
+  invalid rows get zero generator weight; `src/datasets.py` deduplicates by
+  canonical hash, caps eligible rows by pair/label/family/basin fingerprint,
+  enforces grouped train/eval splits, and feeds positive weights into a
+  tracking weighted sampler instead of using negative LM-loss weights. Refreshed
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl`
+  now has 635 physical rows but only 68 generator-eligible rows: 8
+  score-positive rows with sampling mass 96.0 and 60 exact-local-exploration
+  rows with sampling mass 60.0; all 462 crowded-collapse rows are ineligible.
+  Sampler probe under `data/igp24/remediation_20260709/` loaded 44 train rows
+  and 3 eval rows with zero train/eval group overlap; over 4,096 weighted draws
+  it sampled 887 score-positive and 3,209 exact-local-exploration rows, and no
+  zero-weight negative roles. Phase 1 report:
+  `data/igp24/remediation_20260709/phase1_generator_training_report.md`.
+- 2026-07-09 AXG-1.13 high-real pivot started after AXG-1.12 proved the r12
+  `g(x^2)` follow-up lane is another accepted/scoreable but score-bad basin.
+  Preflight completed: `git pull --ff-only` was already up to date, worktree
+  clean, `SAIR_API_KEY` present in the environment without being printed, and
+  `nvidia-smi` sees the NVIDIA GeForce RTX 5090 with 32,607 MiB. Strategy for
+  this iteration: train a fresh bounded AXG model, but target materially
+  different high-real r24/r16/r20 lanes led by the current planner's
+  `24T19906|r=24` recommendation rather than r12 composed-support follow-up
+  rows. Completion criterion remains unchanged: this goal is not complete
+  until SAIR verifies actual score improvement. Fresh live SAIR sync completed
+  under `data/igp24/axg113_high_real_20260709/sair_sync_full/`: 25,000 labels,
+  46,998 remaining signatures, 29 submissions, 234 scoreable rows, 0 pending
+  rows, 7 unmatched rows, full detail/download recovery, and
+  `partial_sync=false`. Fresh basin analysis under
+  `data/igp24/axg113_high_real_20260709/label_basin_analysis/` has 197
+  accepted observations, 12 labels, 22 pairs, and 9 anti-basin constraints.
+  Live target planning under
+  `data/igp24/axg113_high_real_20260709/target_plan_live/` again recommends
+  `materially_different_high_real_lane_after_basin_stop` with source pair
+  `24T19906|r=24` and target buckets r24/r16/r20. Current largest opportunity
+  buckets: r24 remaining 11,368, r16 remaining 9,718, r8 remaining 5,986, r12
+  remaining 5,913, and r20 remaining 5,174. Widened recent scored-export merge
+  under `data/igp24/axg113_high_real_20260709/merged_scored_exports_wide/`
+  and rebuilt
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl`:
+  635 rows total with r8/r12 positives retained for score-aware supervision:
+  454 accepted/crowded-collapse negatives, 8 globally covered high-team basin
+  rows, 8 score-positive rows, 60 exact-local-valid rows, and 105 wrong-r
+  rows. Registered `AXG-1.13` as a child of `AXG-1.12`; next step is bounded
+  CUDA training and high-real sample export from this dataset. Remediation
+  update: a corrected r24 CUDA run was started before the new fundamental
+  remediation prompt was received. It was interrupted after 119.376s once CUDA
+  use was verified (max/avg GPU 88.0% / 56.259%, final train/test loss
+  0.046 / 2.142, partial export 643 records / 12 decoded). This partial run is
+  not a submission candidate and should not be continued until the
+  generator-training contract and weighted-sampling semantics are corrected.
+  Phase 1 has now corrected those semantics, but this pre-remediation partial
+  run remains non-submittable and should be superseded by a fresh completed AXG
+  iteration trained under the corrected contract.
 - 2026-07-09 AXG sparse-submode gate/submission checkpoint: added refined
   sparse support submodes so model exports and planner rows distinguish
   `sparse_odd_single_e*`, odd-pair gap, and multi-odd sparse shapes while

@@ -1,0 +1,25 @@
+{
+  "decoded_records": 12,
+  "export_records": 643,
+  "gpu_summary": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json",
+  "model_version": "AXG-1.13",
+  "notes": [
+    "The partial raw export is intentionally not committed.",
+    "Rows from this interrupted pre-remediation run were not exact-gated, submitted, or scored."
+  ],
+  "record_type": "igp24_axg_sample_summary",
+  "sample_exports": [
+    {
+      "decoded_records": 12,
+      "export_records": 643,
+      "gpu_summary": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json",
+      "probe_report": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_report.md",
+      "status": "interrupted_pre_remediation",
+      "target_r": 24,
+      "target_r_survivors": null,
+      "valid_records": null
+    }
+  ],
+  "schema_version": 1,
+  "status": "interrupted_no_submission_no_score_improvement"
+}

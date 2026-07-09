@@ -1452,6 +1452,30 @@ class IGP24Environment(BaseEnvironment):
             default=0,
             help="Optional absolute coefficient cap for JSONL training rows; 0 disables",
         )
+        parser.add_argument(
+            "--igp24_generator_cap_per_pair",
+            type=int,
+            default=16,
+            help="Cap generator-eligible IGP24 JSONL rows per exact verified pair; 0 disables",
+        )
+        parser.add_argument(
+            "--igp24_generator_cap_per_label",
+            type=int,
+            default=64,
+            help="Cap generator-eligible IGP24 JSONL rows per verified label; 0 disables",
+        )
+        parser.add_argument(
+            "--igp24_generator_cap_per_family",
+            type=int,
+            default=128,
+            help="Cap generator-eligible IGP24 JSONL rows per construction/template family; 0 disables",
+        )
+        parser.add_argument(
+            "--igp24_generator_cap_per_basin_fingerprint",
+            type=int,
+            default=8,
+            help="Cap generator-eligible IGP24 JSONL rows per basin fingerprint; 0 disables",
+        )
         parser.add_argument("--igp24_sparse_terms", type=int, default=4, help="Number of nonzero free coefficients for sparse generation")
         parser.add_argument("--igp24_low_height_bound", type=int, default=3, help="Inner coefficient bound for low-height and structured generation")
         parser.add_argument(

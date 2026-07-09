@@ -1,0 +1,97 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_interrupted_before_remediation"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T20:32:56.622945+00:00",
+  "description": "High-real r24/r16/r20 score-aware pivot after AXG-1.12 r12 collapse; interrupted once generator-training remediation became mandatory.",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent_observed": 56.258620689655174,
+    "device": "NVIDIA GeForce RTX 5090",
+    "logged_train_device": "cuda",
+    "max_cuda_reserved_mb": 34.0,
+    "max_gpu_utilization_percent_observed": 88.0,
+    "metadata_note": "The interrupted probe summary has gpu_used=false because final metadata was not completed; train.log records device=cuda and nvidia-smi observed GPU utilization.",
+    "status": "observed_during_interrupted_probe"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "cebcc0680aea4dec66936a38089b2285265f3001",
+  "known_limitations": [
+    "AXG-1.13 is not a completed model iteration and must not be treated as submission-ready.",
+    "The run was interrupted before remediation Phase 1 fixed generator-training semantics.",
+    "The partial GPU export produced only 12 decoded records and was not exact-filtered, gated, submitted, or scored.",
+    "Routine AXG training is suspended until the remediation gate is satisfied and the next completed model proves score improvement."
+  ],
+  "model_version": "AXG-1.13",
+  "objective_loss_configuration": {
+    "loss": "pre_remediation_score_aware_rows_not_yet_governed_by_generator_training_contract",
+    "primary": "high-real proposal generation for r24/r16/r20/r12/r8 target strata",
+    "remediation_required": "accepted crowded-collapse rows must be excluded or zero-weighted before any new routine model training",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.12",
+  "purpose": "Pre-remediation high-real setup and CUDA sanity evidence for the next score-improving AXG iteration.",
+  "random_seed": 33024,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "decision": "interrupted_pre_remediation_do_not_continue",
+      "gpu_summary": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json",
+      "probe_report": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_report.md",
+      "run_id": "axg113_r24_high_real_mixed_20260709",
+      "target_r": 24
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "No AXG-1.13 rows were submitted. Submission remains explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "score_improved": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json",
+    "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_report.md"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command_summary": "train.py igp24 sample_export_target_r_conditioned r24 mixed, max_steps=2600, attempts=16384, CUDA requested, interrupted at 119.376s",
+    "status": "interrupted_pre_remediation_do_not_continue",
+    "summary": "data/igp24/axg113_high_real_20260709/r24_cuda_mixed/gpu_sampler_probe_summary.json"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg113_high_real.jsonl",
+    "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
+    "data/igp24/axg113_high_real_20260709/sair_sync_full/",
+    "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json"
+  ],
+  "training_duration": {
+    "seconds": 119.3755974079977,
+    "status": "interrupted"
+  },
+  "validation_metrics": {
+    "decoded_records": 12,
+    "decision": "do_not_submit_or_continue_until_remediation_phase1_gate_passes",
+    "final_test_loss": 2.142430543899536,
+    "final_train_loss": 0.045847349228958285,
+    "gpu_export_records": 643,
+    "interrupted": true,
+    "reason": "The goal shifted from routine training to fixing the generator-training semantics defect before further AXG iterations.",
+    "score_improved": false,
+    "status": "interrupted_no_submission_no_score_improvement",
+    "submitted_rows": 0,
+    "target_r_survivors": null
+  }
+}

@@ -247,9 +247,14 @@ def test_build_dataset_joins_candidate_to_sync_and_pair_status(tmp_path):
     assert candidate["derived_class_label"] == "accepted_useful_score_positive"
     assert candidate["score_aware_supervision"]["label"] == "score_positive"
     assert candidate["score_aware_supervision"]["reward"] > 0
+    assert candidate["generator_training"]["eligible"] is True
+    assert candidate["generator_training"]["role"] == "score_positive"
+    assert candidate["generator_training"]["weight"] == 12.0
     assert candidate["sair_feedback"]["label"] == "24T9993"
     assert summary["class_counts"]["accepted_useful_score_positive"] == 2
     assert summary["score_aware_class_counts"]["score_positive"] == 2
+    assert summary["generator_training"]["eligible_row_count"] == 2
+    assert summary["generator_training"]["sampling_mass_by_role"]["score_positive"] == 24.0
 
 
 def test_build_dataset_loads_feedback_rows_and_marks_collapsed(tmp_path):
@@ -287,4 +292,8 @@ def test_build_dataset_loads_feedback_rows_and_marks_collapsed(tmp_path):
     assert rows[0]["derived_class_label"] == "accepted_duplicate_collapsed_basin"
     assert rows[0]["score_aware_supervision"]["label"] == "accepted_but_crowded_collapse"
     assert rows[0]["score_aware_supervision"]["avoid_for_generation"] is True
+    assert rows[0]["generator_training"]["eligible"] is False
+    assert rows[0]["generator_training"]["role"] == "crowded_collapse"
+    assert rows[0]["generator_training"]["weight"] == 0.0
     assert summary["class_counts"] == {"accepted_duplicate_collapsed_basin": 1}
+    assert summary["generator_training"]["eligible_row_count"] == 0
