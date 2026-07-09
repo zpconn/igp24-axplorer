@@ -87,6 +87,31 @@ results change.
   -> 60 passed. Full-suite validation:
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 369 passed. No live SAIR submission was made.
+- 2026-07-09 broad historical group backtest checkpoint: added
+  `scripts/igp24_broad_historical_group_backtest.py`, a read-only offline
+  backtest that joins synced SAIR scoreable rows to local modular evidence by
+  canonical hash and evaluates partial-index target survival without treating
+  missing evidence as success. Real artifact:
+  `data/igp24/remediation_20260709/broad_historical_group_backtest_phase4/full_scoreable_rows_partial_index_20260709/`.
+  It scanned 503 local JSONL files under `data/igp24`, saw 43,707 rows, found
+  6,596 rows with modular patterns and 3,979 hashes with local evidence. From
+  234 scoreable SAIR rows covering 16 labels and 28 pairs, it evaluated 169
+  rows covering 12 labels and 22 pairs; 65 scoreable rows were skipped because
+  no local modular evidence was found. Within the 27-group partial index, 110
+  evaluated rows had indexed true labels and 0 containment failures; 59
+  evaluated rows had true labels outside the index and are therefore unknown
+  unindexed mass. Important negative result: 31 known historical rows still had
+  at least one valuable indexed target not ruled out, including false-positive
+  survival among crowded/outside-index labels such as `24T24651`, `24T24932`,
+  `24T24979`, and `24T25000`. Prime-budget slices 5/10/20/40/80 were identical
+  on the available stored evidence because local rows did not carry more
+  distinct stored patterns than the first budget could exploit. This confirms
+  the current partial-index filter is a useful sound exclusion smoke test, not
+  sufficient submission evidence or target discrimination. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_broad_historical_group_backtest.py tests/test_igp24_group_compatibility.py tests/test_igp24_packet_optimizer.py`
+  -> 23 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 370 passed.
 - 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
   read-only SAIR API sync after the group-compatible packet gate, with
   `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:

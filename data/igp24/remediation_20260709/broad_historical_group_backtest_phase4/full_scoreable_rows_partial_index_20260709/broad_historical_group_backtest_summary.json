@@ -1,0 +1,245 @@
+{
+  "budget_summary": {
+    "10": {
+      "evaluated_rows": 169,
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "valuable_target_survival_rows": 31
+    },
+    "20": {
+      "evaluated_rows": 169,
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "valuable_target_survival_rows": 31
+    },
+    "40": {
+      "evaluated_rows": 169,
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "valuable_target_survival_rows": 31
+    },
+    "5": {
+      "evaluated_rows": 169,
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "valuable_target_survival_rows": 31
+    },
+    "80": {
+      "evaluated_rows": 169,
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "valuable_target_survival_rows": 31
+    }
+  },
+  "budgets": [
+    5,
+    10,
+    20,
+    40,
+    80
+  ],
+  "by_actual_label": {
+    "24T1310": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 0,
+      "pair_count": 1,
+      "row_count": 2,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 0
+    },
+    "24T22770": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 2,
+      "pair_count": 1,
+      "row_count": 2,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 0
+    },
+    "24T23883": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 3,
+      "pair_count": 2,
+      "row_count": 3,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 3
+    },
+    "24T24651": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 5,
+      "pair_count": 2,
+      "row_count": 17,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 12
+    },
+    "24T24932": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "pair_count": 2,
+      "row_count": 19,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 5
+    },
+    "24T24970": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 19,
+      "pair_count": 1,
+      "row_count": 1,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 1
+    },
+    "24T24979": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 2,
+      "pair_count": 3,
+      "row_count": 24,
+      "true_label_indexed": true,
+      "valuable_false_positive_rows": 4
+    },
+    "24T24984": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 2,
+      "pair_count": 1,
+      "row_count": 11,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 2
+    },
+    "24T25000": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 1,
+      "pair_count": 6,
+      "row_count": 86,
+      "true_label_indexed": true,
+      "valuable_false_positive_rows": 4
+    },
+    "24T657": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 0,
+      "pair_count": 1,
+      "row_count": 1,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 0
+    },
+    "24T661": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 0,
+      "pair_count": 1,
+      "row_count": 1,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 0
+    },
+    "24T9993": {
+      "indexed_containment_failures": 0,
+      "median_indexed_target_survivor_count": 0,
+      "pair_count": 1,
+      "row_count": 2,
+      "true_label_indexed": false,
+      "valuable_false_positive_rows": 0
+    }
+  },
+  "created_at": "2026-07-09T23:51:42.539443+00:00",
+  "evaluated_label_count": 12,
+  "evaluated_pair_count": 22,
+  "evaluated_row_count": 169,
+  "evidence_index_stats": {
+    "files_scanned": 503,
+    "files_seen": 503,
+    "files_skipped_too_large": 0,
+    "hashes_with_evidence": 3979,
+    "rows_seen": 43707,
+    "rows_with_patterns": 6596
+  },
+  "index_metadata": {
+    "expected_global_group_count": 25000,
+    "global_index_complete": false,
+    "index_scope": "target_subset",
+    "indexed_group_count": 27,
+    "soundness": "necessary_target_exclusion_only",
+    "unindexed_label_mass_unknown": true
+  },
+  "indexed_true_label_containment_failures": 0,
+  "inputs": {
+    "evidence_jsonl": [],
+    "evidence_root": [
+      "data/igp24"
+    ],
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/degree24_group_cycle_index.sqlite",
+    "max_evidence_file_bytes": 8000000,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+    "scoreable_rows_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_scoreable_rows.jsonl"
+  },
+  "observed_label_count": 16,
+  "observed_label_counts": {
+    "24T1310": 2,
+    "24T21844": 1,
+    "24T22770": 2,
+    "24T23883": 3,
+    "24T24648": 1,
+    "24T24651": 17,
+    "24T24759": 1,
+    "24T24932": 20,
+    "24T24970": 6,
+    "24T24979": 38,
+    "24T24984": 12,
+    "24T25000": 126,
+    "24T657": 1,
+    "24T661": 1,
+    "24T9683": 1,
+    "24T9993": 2
+  },
+  "observed_pair_count": 28,
+  "observed_pair_counts": {
+    "24T1310|r=8": 2,
+    "24T21844|r=4": 1,
+    "24T22770|r=12": 2,
+    "24T23883|r=12": 2,
+    "24T23883|r=24": 1,
+    "24T24648|r=4": 1,
+    "24T24651|r=12": 8,
+    "24T24651|r=24": 9,
+    "24T24759|r=4": 1,
+    "24T24932|r=12": 4,
+    "24T24932|r=24": 16,
+    "24T24970|r=12": 3,
+    "24T24970|r=4": 3,
+    "24T24979|r=12": 21,
+    "24T24979|r=16": 13,
+    "24T24979|r=4": 3,
+    "24T24979|r=8": 1,
+    "24T24984|r=12": 12,
+    "24T25000|r=12": 3,
+    "24T25000|r=16": 23,
+    "24T25000|r=20": 25,
+    "24T25000|r=24": 29,
+    "24T25000|r=4": 26,
+    "24T25000|r=8": 20,
+    "24T657|r=8": 1,
+    "24T661|r=8": 1,
+    "24T9683|r=4": 1,
+    "24T9993|r=8": 2
+  },
+  "output_files": {
+    "report_md": "data/igp24/remediation_20260709/broad_historical_group_backtest_phase4/full_scoreable_rows_partial_index_20260709/broad_historical_group_backtest_report.md",
+    "rows_jsonl": "data/igp24/remediation_20260709/broad_historical_group_backtest_phase4/full_scoreable_rows_partial_index_20260709/broad_historical_group_backtest_rows.jsonl",
+    "skipped_jsonl": "data/igp24/remediation_20260709/broad_historical_group_backtest_phase4/full_scoreable_rows_partial_index_20260709/broad_historical_group_backtest_skipped.jsonl",
+    "summary_json": "data/igp24/remediation_20260709/broad_historical_group_backtest_phase4/full_scoreable_rows_partial_index_20260709/broad_historical_group_backtest_summary.json"
+  },
+  "record_type": "igp24_broad_historical_group_backtest",
+  "safety": {
+    "calls_sair": false,
+    "generates_candidates": false,
+    "runs_gap_magma_pari": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "scoreable_row_count": 234,
+  "skip_reason_counts": {
+    "missing_local_modular_evidence": 65
+  },
+  "skipped_row_count": 65,
+  "source_commit": "199f079589bb151393f44dc994f534310395efaf",
+  "tool": "scripts/igp24_broad_historical_group_backtest.py",
+  "true_label_indexed_row_count": 110,
+  "true_label_outside_index_row_count": 59,
+  "valuable_target_false_positive_rows": 31
+}
