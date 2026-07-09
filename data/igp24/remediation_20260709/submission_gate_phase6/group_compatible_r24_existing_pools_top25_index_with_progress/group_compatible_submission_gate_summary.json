@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "record_type": "igp24_group_compatible_submission_gate",
-  "created_at": "2026-07-09T23:08:43.968691+00:00",
+  "created_at": "2026-07-09T23:12:21.425107+00:00",
   "tool": "scripts/igp24_group_compatible_submission_gate.py",
-  "source_commit": "3f59c932cef0c807785c9382dbe37805a0beeafb",
+  "source_commit": "000fed6128d1609db5a1c0ddee8795dac77a0156",
   "command": [
     "/home/zpconn/code/axplorer/.venv/bin/python",
     "scripts/igp24_group_compatible_submission_gate.py",
@@ -13,6 +13,8 @@
     "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
     "--sair_sync_summary_json",
     "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_sync_summary.json",
+    "--sair_label_progress_jsonl",
+    "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_label_progress.jsonl",
     "--output_dir",
     "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress"
   ],
@@ -20,6 +22,7 @@
     "selected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_selected.jsonl",
     "coefficients_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
     "sair_sync_summary_json": "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_sync_summary.json",
+    "sair_label_progress_jsonl": "data/igp24/axg113_high_real_20260709/sair_sync_full/sair_label_progress.jsonl",
     "target_r": null,
     "coeff_bound": 1000000000000000000,
     "prime_limit": 11,
@@ -59,6 +62,37 @@
     "24T24979|r=24",
     "24T25000|r=24"
   ],
+  "progress_cross_check": {
+    "provided": true,
+    "labels_loaded": 25000,
+    "current_uncovered_pair_count": 18,
+    "current_low_team_pair_count": 0,
+    "stale_uncovered_pair_count": 0,
+    "unknown_pair_count": 0,
+    "current_uncovered_pairs": [
+      "24T12889|r=24",
+      "24T12891|r=24",
+      "24T19906|r=24",
+      "24T21404|r=24",
+      "24T21405|r=24",
+      "24T22306|r=24",
+      "24T22567|r=24",
+      "24T22631|r=24",
+      "24T22667|r=24",
+      "24T22736|r=24",
+      "24T23412|r=24",
+      "24T23413|r=24",
+      "24T23718|r=24",
+      "24T23722|r=24",
+      "24T23741|r=24",
+      "24T23742|r=24",
+      "24T24089|r=24",
+      "24T24093|r=24"
+    ],
+    "current_low_team_pairs": [],
+    "stale_uncovered_pairs": [],
+    "unknown_pairs": []
+  },
   "compatible_label_count_distribution": {
     "19": 1,
     "4": 1

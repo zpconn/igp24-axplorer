@@ -83,6 +83,110 @@ def expected_r(row: dict[str, Any], fallback: int | None) -> int | None:
     return int(value)
 
 
+def parse_pair_key(pair_key: str) -> tuple[str, int] | None:
+    if "|r=" not in pair_key:
+        return None
+    label, r_text = pair_key.split("|r=", 1)
+    try:
+        return label, int(r_text)
+    except ValueError:
+        return None
+
+
+def load_progress_index(path: Path | None) -> dict[str, dict[str, Any]]:
+    if path is None:
+        return {}
+    index: dict[str, dict[str, Any]] = {}
+    for row in read_jsonl(path):
+        label = str(row.get("label") or "")
+        if label:
+            index[label] = row
+    return index
+
+
+def signature_by_r(label_row: dict[str, Any]) -> dict[int, dict[str, Any]]:
+    out: dict[int, dict[str, Any]] = {}
+    for signature in label_row.get("signatures") or []:
+        if not isinstance(signature, dict):
+            continue
+        try:
+            out[int(signature.get("r"))] = signature
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def pair_progress_status(progress_index: dict[str, dict[str, Any]], pair_key: str) -> dict[str, Any]:
+    parsed = parse_pair_key(pair_key)
+    if parsed is None:
+        return {"pair_key": pair_key, "progress_state": "invalid_pair_key", "current_value_class": "unknown"}
+    label, r_value = parsed
+    label_row = progress_index.get(label)
+    if label_row is None:
+        return {"pair_key": pair_key, "label": label, "r": r_value, "progress_state": "label_missing", "current_value_class": "unknown"}
+    remaining = {int(value) for value in label_row.get("remainingSignatures") or []}
+    discovered = {int(value) for value in label_row.get("discoveredSignatures") or []}
+    signature = signature_by_r(label_row).get(r_value) or {}
+    signature_discovered = bool(signature.get("discovered"))
+    team_count = int(
+        signature.get("teamCount")
+        if signature.get("teamCount") is not None
+        else label_row.get("teamCount") or 0
+    )
+    if r_value in remaining:
+        progress_state = "remaining"
+        value_class = "uncovered"
+    elif r_value in discovered or signature_discovered:
+        progress_state = "discovered"
+        value_class = "low_team" if team_count <= 20 else "crowded"
+    else:
+        progress_state = "unknown"
+        value_class = "unknown"
+    return {
+        "pair_key": pair_key,
+        "label": label,
+        "r": r_value,
+        "progress_state": progress_state,
+        "current_value_class": value_class,
+        "team_count": team_count,
+        "minimum_disc_abs": signature.get("minimumDiscAbs") or label_row.get("minimumDiscAbs"),
+    }
+
+
+def progress_cross_check(row: dict[str, Any], progress_index: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    if not progress_index:
+        return None
+    possible_uncovered = list(row.get("possible_uncovered_pairs") or [])
+    possible_low_team = list(row.get("possible_low_team_pairs") or [])
+    possible_crowded = list(row.get("possible_crowded_pairs") or [])
+    statuses = {
+        pair: pair_progress_status(progress_index, pair)
+        for pair in sorted(set(possible_uncovered + possible_low_team + possible_crowded))
+    }
+    current_uncovered = sorted(
+        pair for pair in possible_uncovered if statuses[pair].get("current_value_class") == "uncovered"
+    )
+    current_low_team = sorted(
+        pair
+        for pair in possible_uncovered + possible_low_team
+        if statuses[pair].get("current_value_class") == "low_team"
+    )
+    stale_uncovered = sorted(
+        pair for pair in possible_uncovered if statuses[pair].get("current_value_class") != "uncovered"
+    )
+    unknown_pairs = sorted(
+        pair for pair, status in statuses.items() if status.get("current_value_class") == "unknown"
+    )
+    return {
+        "statuses": statuses,
+        "current_uncovered_pairs": current_uncovered,
+        "current_low_team_pairs": current_low_team,
+        "stale_uncovered_pairs": stale_uncovered,
+        "unknown_pairs": unknown_pairs,
+        "current_valuable_pair_count": len(set(current_uncovered + current_low_team)),
+    }
+
+
 def _bool_attr(value: Any, name: str) -> bool | None:
     raw = getattr(value, name, None)
     if raw is None:
@@ -165,7 +269,7 @@ def local_validation_record(
     }
 
 
-def row_checks(row: dict[str, Any], local: dict[str, Any]) -> dict[str, bool]:
+def row_checks(row: dict[str, Any], local: dict[str, Any], progress: dict[str, Any] | None = None) -> dict[str, bool]:
     possible_uncovered = list(row.get("possible_uncovered_pairs") or [])
     possible_low_team = list(row.get("possible_low_team_pairs") or [])
     possible_crowded = list(row.get("possible_crowded_pairs") or [])
@@ -182,6 +286,8 @@ def row_checks(row: dict[str, Any], local: dict[str, Any]) -> dict[str, bool]:
         "has_valuable_compatible_pair": bool(possible_uncovered or possible_low_team),
         "not_crowded_only": not bool(possible_crowded and not possible_uncovered and not possible_low_team),
     }
+    if progress is not None:
+        checks["progress_current_valuable_pair"] = int(progress.get("current_valuable_pair_count") or 0) > 0
     return checks
 
 
@@ -199,6 +305,7 @@ def build_gate(
     prime_limit: int = 11,
     exact_score_timeout: float = 10.0,
     sair_sync_summary_json: Path | None = None,
+    sair_label_progress_jsonl: Path | None = None,
     command: list[str] | None = None,
     source_commit: str | None = None,
     scorer: Scorer | None = None,
@@ -218,6 +325,7 @@ def build_gate(
     normalized_lines: list[str] = []
     seen_hashes: set[str] = set()
     duplicate_hashes: set[str] = set()
+    progress_index = load_progress_index(sair_label_progress_jsonl)
 
     for index, (row, line) in enumerate(zip(selected_rows, coefficient_lines, strict=True), start=1):
         coeffs25 = parse_polynomial_line(line, line_number=index)
@@ -235,7 +343,8 @@ def build_gate(
             exact_score_timeout=exact_score_timeout,
             scorer=scorer,
         )
-        checks = row_checks(row, local)
+        progress = progress_cross_check(row, progress_index)
+        checks = row_checks(row, local, progress)
         rank = int(row.get("optimizer_rank") or index)
         row_blocker_values = row_blockers(rank, checks)
         blockers.extend(row_blocker_values)
@@ -257,6 +366,7 @@ def build_gate(
                 "estimated_expected_points": row.get("estimated_expected_points"),
                 "marginal_estimated_points": row.get("marginal_estimated_points"),
                 "compatibility_ambiguity_factor": row.get("compatibility_ambiguity_factor"),
+                "progress_cross_check": progress,
                 "local_validation": local,
                 "checks": checks,
                 "blockers": row_blocker_values,
@@ -288,6 +398,34 @@ def build_gate(
     uncovered_pairs = sorted({pair for row in gate_rows for pair in row["possible_uncovered_pairs"]})
     low_team_pairs = sorted({pair for row in gate_rows for pair in row["possible_low_team_pairs"]})
     crowded_pairs = sorted({pair for row in gate_rows for pair in row["possible_crowded_pairs"]})
+    current_uncovered_pairs = sorted(
+        {
+            pair
+            for row in gate_rows
+            for pair in (row.get("progress_cross_check") or {}).get("current_uncovered_pairs", [])
+        }
+    )
+    current_low_team_pairs = sorted(
+        {
+            pair
+            for row in gate_rows
+            for pair in (row.get("progress_cross_check") or {}).get("current_low_team_pairs", [])
+        }
+    )
+    stale_uncovered_pairs = sorted(
+        {
+            pair
+            for row in gate_rows
+            for pair in (row.get("progress_cross_check") or {}).get("stale_uncovered_pairs", [])
+        }
+    )
+    unknown_progress_pairs = sorted(
+        {
+            pair
+            for row in gate_rows
+            for pair in (row.get("progress_cross_check") or {}).get("unknown_pairs", [])
+        }
+    )
     local_gate_passed = not blockers and bool(dry_run_payload.get("ok")) and bool(dry_run_payload.get("dry_run"))
     remaining_gates = [
         "compatibility_only_exact_label_unknown",
@@ -308,6 +446,7 @@ def build_gate(
             "selected_jsonl": repo_relative(selected_jsonl),
             "coefficients_txt": repo_relative(coefficients_txt),
             "sair_sync_summary_json": repo_relative(sair_sync_summary_json) if sair_sync_summary_json else None,
+            "sair_label_progress_jsonl": repo_relative(sair_label_progress_jsonl) if sair_label_progress_jsonl else None,
             "target_r": target_r,
             "coeff_bound": coeff_bound,
             "prime_limit": prime_limit,
@@ -322,6 +461,18 @@ def build_gate(
         "selected_possible_uncovered_pairs": uncovered_pairs,
         "selected_possible_low_team_pairs": low_team_pairs,
         "selected_possible_crowded_pairs": crowded_pairs,
+        "progress_cross_check": {
+            "provided": bool(progress_index),
+            "labels_loaded": len(progress_index),
+            "current_uncovered_pair_count": len(current_uncovered_pairs),
+            "current_low_team_pair_count": len(current_low_team_pairs),
+            "stale_uncovered_pair_count": len(stale_uncovered_pairs),
+            "unknown_pair_count": len(unknown_progress_pairs),
+            "current_uncovered_pairs": current_uncovered_pairs,
+            "current_low_team_pairs": current_low_team_pairs,
+            "stale_uncovered_pairs": stale_uncovered_pairs,
+            "unknown_pairs": unknown_progress_pairs,
+        },
         "compatible_label_count_distribution": dict(
             Counter(str(row.get("compatible_label_count")) for row in gate_rows)
         ),
@@ -406,16 +557,20 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
         f"- Possible uncovered pairs: `{summary.get('selected_possible_uncovered_pair_count')}`",
         f"- Possible low-team pairs: `{summary.get('selected_possible_low_team_pair_count')}`",
         f"- Possible crowded pairs: `{summary.get('selected_possible_crowded_pair_count')}`",
+        f"- Current uncovered pairs after progress cross-check: `{summary.get('progress_cross_check', {}).get('current_uncovered_pair_count')}`",
+        f"- Current low-team pairs after progress cross-check: `{summary.get('progress_cross_check', {}).get('current_low_team_pair_count')}`",
+        f"- Stale possible-uncovered pairs: `{summary.get('progress_cross_check', {}).get('stale_uncovered_pair_count')}`",
         f"- Body bytes: `{summary.get('local_sair_dry_run', {}).get('body_bytes')}`",
         f"- Coefficient SHA256: `{sha256_text(coefficient_lines)}`",
         "",
         "## Selected Rows",
         "",
-        "| rank | hash | r | compatible labels | uncovered | low-team | crowded | local status |",
+        "| rank | hash | r | compatible labels | current uncovered | current low-team | crowded | local status |",
         "| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for row in rows:
         local = row.get("local_validation", {})
+        progress = row.get("progress_cross_check") or {}
         lines.append(
             "| "
             + " | ".join(
@@ -424,8 +579,8 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
                     f"`{row.get('short_hash')}`",
                     str(local.get("real_root_count")),
                     str(row.get("compatible_label_count")),
-                    str(len(row.get("possible_uncovered_pairs") or [])),
-                    str(len(row.get("possible_low_team_pairs") or [])),
+                    str(len(progress.get("current_uncovered_pairs") or [])),
+                    str(len(progress.get("current_low_team_pairs") or [])),
                     str(len(row.get("possible_crowded_pairs") or [])),
                     str(row.get("review_status")),
                 ]
@@ -469,6 +624,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--prime_limit", type=int, default=11)
     parser.add_argument("--exact_score_timeout", type=float, default=10.0)
     parser.add_argument("--sair_sync_summary_json", type=Path)
+    parser.add_argument("--sair_label_progress_jsonl", type=Path)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
     return parser
 
@@ -491,6 +647,7 @@ def main(argv: list[str] | None = None) -> int:
             prime_limit=int(args.prime_limit),
             exact_score_timeout=float(args.exact_score_timeout),
             sair_sync_summary_json=args.sair_sync_summary_json.resolve() if args.sair_sync_summary_json else None,
+            sair_label_progress_jsonl=args.sair_label_progress_jsonl.resolve() if args.sair_label_progress_jsonl else None,
             command=command,
             source_commit=get_source_commit(args.repo_root.resolve()),
         )

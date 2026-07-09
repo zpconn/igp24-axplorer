@@ -8,6 +8,31 @@ def _write_jsonl(path, rows):
     path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
 
 
+def _progress_row(label, *, remaining=None, discovered=None, teams_by_r=None):
+    remaining = remaining or []
+    discovered = discovered or []
+    teams_by_r = teams_by_r or {}
+    allowed = sorted(set(remaining + discovered))
+    return {
+        "label": label,
+        "t": int(label.removeprefix("24T")),
+        "allowedR": allowed,
+        "remainingSignatures": remaining,
+        "discoveredSignatures": discovered,
+        "teamCount": max(teams_by_r.values(), default=0),
+        "minimumDiscAbs": None,
+        "signatures": [
+            {
+                "r": r,
+                "discovered": r in discovered,
+                "teamCount": teams_by_r.get(r, 0),
+                "minimumDiscAbs": None,
+            }
+            for r in allowed
+        ],
+    }
+
+
 def _line(constant):
     coeffs = [constant] + [0] * 23 + [1]
     return ",".join(str(value) for value in coeffs)
@@ -78,12 +103,22 @@ def test_group_compatible_gate_writes_local_review_packet_without_live_submissio
         json.dumps({"created_at": "2026-07-09T00:00:00+00:00", "sync_status": {"partial_sync": False, "submissions_requested": 2}}),
         encoding="utf-8",
     )
+    progress_jsonl = tmp_path / "sair_label_progress.jsonl"
+    _write_jsonl(
+        progress_jsonl,
+        [
+            _progress_row("24T1", remaining=[24]),
+            _progress_row("24T2", remaining=[24]),
+            _progress_row("24T25000", discovered=[24], teams_by_r={24: 35}),
+        ],
+    )
 
     paths = build_gate(
         selected_jsonl=selected_jsonl,
         coefficients_txt=coefficients_txt,
         output_dir=tmp_path / "gate",
         sair_sync_summary_json=sync_summary,
+        sair_label_progress_jsonl=progress_jsonl,
         source_commit="abc123",
         scorer=_fake_scorer_by_constant({2: hash_a, 3: hash_b}),
     )
@@ -99,6 +134,8 @@ def test_group_compatible_gate_writes_local_review_packet_without_live_submissio
     assert summary["safety"]["sair_submission"] is False
     assert summary["safety"]["api_key_required"] is False
     assert summary["selected_possible_uncovered_pair_count"] == 2
+    assert summary["progress_cross_check"]["current_uncovered_pair_count"] == 2
+    assert summary["progress_cross_check"]["stale_uncovered_pair_count"] == 0
     assert summary["sair_sync"]["partial_sync"] is False
     assert dry_run["dry_run"] is True
     assert dry_run["network_calls"] is False
@@ -142,3 +179,32 @@ def test_group_compatible_gate_blocks_hash_mismatch_and_crowded_only_packet(tmp_
     assert "row_1_hash_matches_optimizer_row" in summary["check_failures"]
     assert "row_1_has_valuable_compatible_pair" in summary["check_failures"]
     assert "row_1_not_crowded_only" in summary["check_failures"]
+
+
+def test_group_compatible_gate_blocks_stale_uncovered_pairs_when_progress_is_provided(tmp_path):
+    hash_value = "a" * 64
+    selected_jsonl = tmp_path / "selected.jsonl"
+    coefficients_txt = tmp_path / "coefficients.txt"
+    progress_jsonl = tmp_path / "sair_label_progress.jsonl"
+    _write_jsonl(
+        selected_jsonl,
+        [_selected_row(hash_value, rank=1, uncovered=["24T1|r=24"], crowded=[])],
+    )
+    coefficients_txt.write_text(_line(2) + "\n", encoding="utf-8")
+    _write_jsonl(progress_jsonl, [_progress_row("24T1", discovered=[24], teams_by_r={24: 44})])
+
+    paths = build_gate(
+        selected_jsonl=selected_jsonl,
+        coefficients_txt=coefficients_txt,
+        output_dir=tmp_path / "gate",
+        sair_label_progress_jsonl=progress_jsonl,
+        source_commit="abc123",
+        scorer=_fake_scorer_by_constant({2: hash_value}),
+    )
+
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+
+    assert summary["local_gate_passed"] is False
+    assert summary["progress_cross_check"]["current_uncovered_pair_count"] == 0
+    assert summary["progress_cross_check"]["stale_uncovered_pairs"] == ["24T1|r=24"]
+    assert "row_1_progress_current_valuable_pair" in summary["check_failures"]

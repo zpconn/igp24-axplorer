@@ -41,18 +41,21 @@ results change.
   checks optimizer eligibility, hash agreement, r-count, irreducibility,
   squarefreeness, valuable compatible pairs, and crowded-only status, then
   runs the SAIR helper in local dry-run mode without reading `SAIR_API_KEY` or
-  making network calls. Real artifacts:
+  making network calls. It also consumes the synced
+  `sair_label_progress.jsonl` to verify whether possible-uncovered pairs are
+  still current. Real artifacts:
   `data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/`.
   Result: 2 selected r24 rows passed local review; both hashes matched the
   optimizer rows, both were valid/irreducible/squarefree with exact r=24, the
   local SAIR dry-run accepted 2 normalized coefficient lines (`body_bytes=280`),
   and the packet covers 18 possible uncovered r24 pairs plus crowded
-  `24T24979|r=24`/`24T25000|r=24`. Live submission remains recommended
-  `false` because evidence is compatibility-only, exact labels remain unknown,
-  a fresh sync should be repeated immediately before any live packet, and
-  explicit user approval is still required. Validation: py-compile passed and
-  focused submission-gate/SAIR dry-run/packet-optimizer tests passed
-  (`11 passed`).
+  `24T24979|r=24`/`24T25000|r=24`. Progress cross-check loaded 25,000 labels
+  and found all 18 possible uncovered pairs still uncovered, with 0 stale and
+  0 unknown progress pairs. Live submission remains recommended `false`
+  because evidence is compatibility-only, exact labels remain unknown, a fresh
+  sync should be repeated immediately before any live packet, and explicit
+  user approval is still required. Validation: py-compile passed and focused
+  submission-gate/SAIR dry-run/packet-optimizer tests passed (`12 passed`).
 - 2026-07-09 remediation Phase 5 checkpoint: added a conservative
   construction-family registry under `src/igp24/constructions/` plus
   `scripts/igp24_construction_registry_report.py`. The registry formalizes 8

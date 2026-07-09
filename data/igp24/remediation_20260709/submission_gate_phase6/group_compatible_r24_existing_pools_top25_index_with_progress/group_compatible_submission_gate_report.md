@@ -18,12 +18,15 @@ Reason: local gate passed, but compatibility is necessary evidence only; exact l
 - Possible uncovered pairs: `18`
 - Possible low-team pairs: `0`
 - Possible crowded pairs: `2`
+- Current uncovered pairs after progress cross-check: `18`
+- Current low-team pairs after progress cross-check: `0`
+- Stale possible-uncovered pairs: `0`
 - Body bytes: `280`
 - Coefficient SHA256: `4466c0796f20d8a877e7713cefa3afa1b1641abbaca2044b44256c2d05a76a76`
 
 ## Selected Rows
 
-| rank | hash | r | compatible labels | uncovered | low-team | crowded | local status |
+| rank | hash | r | compatible labels | current uncovered | current low-team | crowded | local status |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | 1 | `c814e1de3e8d` | 24 | 19 | 17 | 0 | 2 | local_gate_passed_compatibility_only |
 | 2 | `2c8838b3f843` | 24 | 4 | 2 | 0 | 2 | local_gate_passed_compatibility_only |
