@@ -42,12 +42,19 @@ results change.
   29/29 details and downloads recovered, and `partial_sync=false`. Regenerated
   the local group-compatible gate against this fresh progress snapshot under
   `data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_fresh_sync_20260709T231426Z/`.
-  The 2-row r24 packet still passes exact local validation and local SAIR
-  dry-run formatting; progress cross-check still finds all 18 possible
-  uncovered r24 pairs current, with 0 stale and 0 unknown progress pairs.
-  Live submission remains recommended `false` by automation because exact
-  labels are unknown and explicit user approval is required for the exact
-  packet.
+  Initial progress-only gate evidence still found all 18 possible uncovered
+  r24 pairs current, with 0 stale and 0 unknown progress pairs, but a follow-up
+  duplicate-hash audit exposed a missing blocker: both selected hashes already
+  appear in synced SAIR submission history. Updated
+  `scripts/igp24_group_compatible_submission_gate.py` to consume
+  `sair_submission_rows.jsonl` and hard-block known submitted hashes. The
+  corrected fresh gate now fails as intended: `c814e1de3e8d` is already
+  scoreable as `24T25000|r=24` from `sub_11fc452b521044619796f738cc4b22c3`,
+  and `2c8838b3f843` is already scoreable as `24T24932|r=24` from
+  `sub_25c17affdf3c4505a8f10cfda2d94217`. This packet is therefore not viable
+  for live submission despite compatibility with uncovered labels in the
+  limited 27-label GAP index. Next required fix: move the same known-hash
+  rejection upstream into the packet optimizer and regenerate the r24 pool.
 - 2026-07-09 remediation Phase 6 submission-gate checkpoint: added
   `scripts/igp24_group_compatible_submission_gate.py`, a local/file-only
   review gate for packet-optimizer rows that have group-compatibility evidence

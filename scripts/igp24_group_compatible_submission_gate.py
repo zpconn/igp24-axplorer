@@ -187,6 +187,48 @@ def progress_cross_check(row: dict[str, Any], progress_index: dict[str, dict[str
     }
 
 
+def load_submission_hash_index(path: Path | None) -> dict[str, list[dict[str, Any]]]:
+    if path is None:
+        return {}
+    index: dict[str, list[dict[str, Any]]] = {}
+    for row in read_jsonl(path):
+        candidate_hash = str(row.get("canonical_hash") or "")
+        if not candidate_hash:
+            continue
+        index.setdefault(candidate_hash, []).append(
+            {
+                "submission_id": row.get("submission_id"),
+                "submitted_line_number": row.get("submitted_line_number"),
+                "status": row.get("status"),
+                "status_class": row.get("status_class"),
+                "label": row.get("label"),
+                "t": row.get("t"),
+                "r": row.get("r"),
+                "pair_key": row.get("pair_key"),
+                "scoreable": row.get("scoreable"),
+                "scoring_status": row.get("scoring_status"),
+                "disc_source": row.get("disc_source"),
+                "field_disc_abs": row.get("field_disc_abs"),
+            }
+        )
+    return index
+
+
+def submission_hash_cross_check(row: dict[str, Any], submission_hash_index: dict[str, list[dict[str, Any]]]) -> dict[str, Any] | None:
+    if not submission_hash_index:
+        return None
+    candidate_hash = str(row.get("canonical_hash") or "")
+    matches = submission_hash_index.get(candidate_hash, [])
+    return {
+        "known_submission_match_count": len(matches),
+        "known_submission_matches": matches,
+        "known_labels": sorted({str(match.get("label")) for match in matches if match.get("label")}),
+        "known_pairs": sorted({str(match.get("pair_key")) for match in matches if match.get("pair_key")}),
+        "known_scoreable_match_count": sum(1 for match in matches if match.get("scoreable") is True),
+        "duplicate_submission_hash": bool(matches),
+    }
+
+
 def _bool_attr(value: Any, name: str) -> bool | None:
     raw = getattr(value, name, None)
     if raw is None:
@@ -269,7 +311,12 @@ def local_validation_record(
     }
 
 
-def row_checks(row: dict[str, Any], local: dict[str, Any], progress: dict[str, Any] | None = None) -> dict[str, bool]:
+def row_checks(
+    row: dict[str, Any],
+    local: dict[str, Any],
+    progress: dict[str, Any] | None = None,
+    submission_hash: dict[str, Any] | None = None,
+) -> dict[str, bool]:
     possible_uncovered = list(row.get("possible_uncovered_pairs") or [])
     possible_low_team = list(row.get("possible_low_team_pairs") or [])
     possible_crowded = list(row.get("possible_crowded_pairs") or [])
@@ -288,6 +335,8 @@ def row_checks(row: dict[str, Any], local: dict[str, Any], progress: dict[str, A
     }
     if progress is not None:
         checks["progress_current_valuable_pair"] = int(progress.get("current_valuable_pair_count") or 0) > 0
+    if submission_hash is not None:
+        checks["not_known_submission_hash"] = int(submission_hash.get("known_submission_match_count") or 0) == 0
     return checks
 
 
@@ -306,6 +355,7 @@ def build_gate(
     exact_score_timeout: float = 10.0,
     sair_sync_summary_json: Path | None = None,
     sair_label_progress_jsonl: Path | None = None,
+    sair_submission_rows_jsonl: Path | None = None,
     command: list[str] | None = None,
     source_commit: str | None = None,
     scorer: Scorer | None = None,
@@ -326,6 +376,7 @@ def build_gate(
     seen_hashes: set[str] = set()
     duplicate_hashes: set[str] = set()
     progress_index = load_progress_index(sair_label_progress_jsonl)
+    submission_hash_index = load_submission_hash_index(sair_submission_rows_jsonl)
 
     for index, (row, line) in enumerate(zip(selected_rows, coefficient_lines, strict=True), start=1):
         coeffs25 = parse_polynomial_line(line, line_number=index)
@@ -344,7 +395,8 @@ def build_gate(
             scorer=scorer,
         )
         progress = progress_cross_check(row, progress_index)
-        checks = row_checks(row, local, progress)
+        submission_hash = submission_hash_cross_check(row, submission_hash_index)
+        checks = row_checks(row, local, progress, submission_hash)
         rank = int(row.get("optimizer_rank") or index)
         row_blocker_values = row_blockers(rank, checks)
         blockers.extend(row_blocker_values)
@@ -367,6 +419,7 @@ def build_gate(
                 "marginal_estimated_points": row.get("marginal_estimated_points"),
                 "compatibility_ambiguity_factor": row.get("compatibility_ambiguity_factor"),
                 "progress_cross_check": progress,
+                "submission_hash_cross_check": submission_hash,
                 "local_validation": local,
                 "checks": checks,
                 "blockers": row_blocker_values,
@@ -426,6 +479,23 @@ def build_gate(
             for pair in (row.get("progress_cross_check") or {}).get("unknown_pairs", [])
         }
     )
+    known_submission_hash_rows = [
+        row for row in gate_rows if (row.get("submission_hash_cross_check") or {}).get("duplicate_submission_hash")
+    ]
+    known_submission_pairs = sorted(
+        {
+            pair
+            for row in known_submission_hash_rows
+            for pair in (row.get("submission_hash_cross_check") or {}).get("known_pairs", [])
+        }
+    )
+    known_submission_labels = sorted(
+        {
+            label
+            for row in known_submission_hash_rows
+            for label in (row.get("submission_hash_cross_check") or {}).get("known_labels", [])
+        }
+    )
     local_gate_passed = not blockers and bool(dry_run_payload.get("ok")) and bool(dry_run_payload.get("dry_run"))
     remaining_gates = [
         "compatibility_only_exact_label_unknown",
@@ -447,6 +517,7 @@ def build_gate(
             "coefficients_txt": repo_relative(coefficients_txt),
             "sair_sync_summary_json": repo_relative(sair_sync_summary_json) if sair_sync_summary_json else None,
             "sair_label_progress_jsonl": repo_relative(sair_label_progress_jsonl) if sair_label_progress_jsonl else None,
+            "sair_submission_rows_jsonl": repo_relative(sair_submission_rows_jsonl) if sair_submission_rows_jsonl else None,
             "target_r": target_r,
             "coeff_bound": coeff_bound,
             "prime_limit": prime_limit,
@@ -472,6 +543,14 @@ def build_gate(
             "current_low_team_pairs": current_low_team_pairs,
             "stale_uncovered_pairs": stale_uncovered_pairs,
             "unknown_pairs": unknown_progress_pairs,
+        },
+        "submission_hash_cross_check": {
+            "provided": bool(submission_hash_index),
+            "hashes_loaded": len(submission_hash_index),
+            "known_submission_hash_count": len(known_submission_hash_rows),
+            "known_submission_hashes": [row.get("canonical_hash") for row in known_submission_hash_rows],
+            "known_submission_labels": known_submission_labels,
+            "known_submission_pairs": known_submission_pairs,
         },
         "compatible_label_count_distribution": dict(
             Counter(str(row.get("compatible_label_count")) for row in gate_rows)
@@ -560,17 +639,20 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
         f"- Current uncovered pairs after progress cross-check: `{summary.get('progress_cross_check', {}).get('current_uncovered_pair_count')}`",
         f"- Current low-team pairs after progress cross-check: `{summary.get('progress_cross_check', {}).get('current_low_team_pair_count')}`",
         f"- Stale possible-uncovered pairs: `{summary.get('progress_cross_check', {}).get('stale_uncovered_pair_count')}`",
+        f"- Known submitted hashes: `{summary.get('submission_hash_cross_check', {}).get('known_submission_hash_count')}`",
+        f"- Known submitted pairs: `{summary.get('submission_hash_cross_check', {}).get('known_submission_pairs')}`",
         f"- Body bytes: `{summary.get('local_sair_dry_run', {}).get('body_bytes')}`",
         f"- Coefficient SHA256: `{sha256_text(coefficient_lines)}`",
         "",
         "## Selected Rows",
         "",
-        "| rank | hash | r | compatible labels | current uncovered | current low-team | crowded | local status |",
-        "| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| rank | hash | r | compatible labels | current uncovered | known pair | local status |",
+        "| ---: | --- | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         local = row.get("local_validation", {})
         progress = row.get("progress_cross_check") or {}
+        submission_hash = row.get("submission_hash_cross_check") or {}
         lines.append(
             "| "
             + " | ".join(
@@ -580,8 +662,7 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
                     str(local.get("real_root_count")),
                     str(row.get("compatible_label_count")),
                     str(len(progress.get("current_uncovered_pairs") or [])),
-                    str(len(progress.get("current_low_team_pairs") or [])),
-                    str(len(row.get("possible_crowded_pairs") or [])),
+                    ", ".join(f"`{pair}`" for pair in submission_hash.get("known_pairs") or []) or "-",
                     str(row.get("review_status")),
                 ]
             )
@@ -625,6 +706,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--exact_score_timeout", type=float, default=10.0)
     parser.add_argument("--sair_sync_summary_json", type=Path)
     parser.add_argument("--sair_label_progress_jsonl", type=Path)
+    parser.add_argument("--sair_submission_rows_jsonl", type=Path)
     parser.add_argument("--repo_root", type=Path, default=REPO_ROOT)
     return parser
 
@@ -648,6 +730,7 @@ def main(argv: list[str] | None = None) -> int:
             exact_score_timeout=float(args.exact_score_timeout),
             sair_sync_summary_json=args.sair_sync_summary_json.resolve() if args.sair_sync_summary_json else None,
             sair_label_progress_jsonl=args.sair_label_progress_jsonl.resolve() if args.sair_label_progress_jsonl else None,
+            sair_submission_rows_jsonl=args.sair_submission_rows_jsonl.resolve() if args.sair_submission_rows_jsonl else None,
             command=command,
             source_commit=get_source_commit(args.repo_root.resolve()),
         )

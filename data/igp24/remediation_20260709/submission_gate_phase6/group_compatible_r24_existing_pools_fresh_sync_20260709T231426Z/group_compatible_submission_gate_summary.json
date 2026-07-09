@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "record_type": "igp24_group_compatible_submission_gate",
-  "created_at": "2026-07-09T23:15:52.312921+00:00",
+  "created_at": "2026-07-09T23:20:22.609647+00:00",
   "tool": "scripts/igp24_group_compatible_submission_gate.py",
-  "source_commit": "5801cf52692beb4e0f5c080a4a2315a09a9071f1",
+  "source_commit": "adc182f416040af24aaaa7c901d6f946a30d9846",
   "command": [
     "/home/zpconn/code/axplorer/.venv/bin/python",
     "scripts/igp24_group_compatible_submission_gate.py",
@@ -15,6 +15,8 @@
     "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_sync_summary.json",
     "--sair_label_progress_jsonl",
     "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+    "--sair_submission_rows_jsonl",
+    "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl",
     "--output_dir",
     "data/igp24/remediation_20260709/submission_gate_phase6/group_compatible_r24_existing_pools_fresh_sync_20260709T231426Z"
   ],
@@ -23,6 +25,7 @@
     "coefficients_txt": "data/igp24/remediation_20260709/packet_optimizer_phase6/group_compatible_r24_existing_pools_top25_index_with_progress/packet_optimizer_coefficients.txt",
     "sair_sync_summary_json": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_sync_summary.json",
     "sair_label_progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+    "sair_submission_rows_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl",
     "target_r": null,
     "coeff_bound": 1000000000000000000,
     "prime_limit": 11,
@@ -93,11 +96,31 @@
     "stale_uncovered_pairs": [],
     "unknown_pairs": []
   },
+  "submission_hash_cross_check": {
+    "provided": true,
+    "hashes_loaded": 233,
+    "known_submission_hash_count": 2,
+    "known_submission_hashes": [
+      "c814e1de3e8d4f15fb70c19201b27ff9bdc4a10425494cb712e9383eab5a92b9",
+      "2c8838b3f843551218164f9e8581fc372987931042f36e5acb16d8585c6c0098"
+    ],
+    "known_submission_labels": [
+      "24T24932",
+      "24T25000"
+    ],
+    "known_submission_pairs": [
+      "24T24932|r=24",
+      "24T25000|r=24"
+    ]
+  },
   "compatible_label_count_distribution": {
     "19": 1,
     "4": 1
   },
-  "check_failures": [],
+  "check_failures": [
+    "row_1_not_known_submission_hash",
+    "row_2_not_known_submission_hash"
+  ],
   "local_sair_dry_run": {
     "ok": true,
     "dry_run": true,
@@ -115,12 +138,12 @@
     "partial_sync": false,
     "submissions_requested": 29
   },
-  "local_gate_passed": true,
-  "local_packet_ready_for_human_review": true,
+  "local_gate_passed": false,
+  "local_packet_ready_for_human_review": false,
   "exact_label_verified": false,
   "dry_run_validation_passed": true,
   "live_submission_recommended_now": false,
-  "live_submission_reason": "local gate passed, but compatibility is necessary evidence only; exact labels remain unknown and live SAIR submission requires explicit user approval",
+  "live_submission_reason": "local gate failed; see check_failures",
   "remaining_submission_gates": [
     "compatibility_only_exact_label_unknown",
     "fresh_sair_sync_present_but_should_refresh_immediately_before_live_submission",

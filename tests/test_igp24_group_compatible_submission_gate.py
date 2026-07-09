@@ -208,3 +208,51 @@ def test_group_compatible_gate_blocks_stale_uncovered_pairs_when_progress_is_pro
     assert summary["progress_cross_check"]["current_uncovered_pair_count"] == 0
     assert summary["progress_cross_check"]["stale_uncovered_pairs"] == ["24T1|r=24"]
     assert "row_1_progress_current_valuable_pair" in summary["check_failures"]
+
+
+def test_group_compatible_gate_blocks_known_submission_hashes(tmp_path):
+    hash_value = "a" * 64
+    selected_jsonl = tmp_path / "selected.jsonl"
+    coefficients_txt = tmp_path / "coefficients.txt"
+    submission_rows = tmp_path / "sair_submission_rows.jsonl"
+    _write_jsonl(
+        selected_jsonl,
+        [_selected_row(hash_value, rank=1, uncovered=["24T1|r=24"], crowded=[])],
+    )
+    coefficients_txt.write_text(_line(2) + "\n", encoding="utf-8")
+    _write_jsonl(
+        submission_rows,
+        [
+            {
+                "canonical_hash": hash_value,
+                "submission_id": "sub_existing",
+                "submitted_line_number": 4,
+                "status": "accepted",
+                "status_class": "scoreable",
+                "label": "24T25000",
+                "t": 25000,
+                "r": 24,
+                "pair_key": "24T25000|r=24",
+                "scoreable": True,
+                "scoring_status": "scoreable",
+            }
+        ],
+    )
+
+    paths = build_gate(
+        selected_jsonl=selected_jsonl,
+        coefficients_txt=coefficients_txt,
+        output_dir=tmp_path / "gate",
+        sair_submission_rows_jsonl=submission_rows,
+        source_commit="abc123",
+        scorer=_fake_scorer_by_constant({2: hash_value}),
+    )
+
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    row = json.loads(paths["rows_jsonl"].read_text(encoding="utf-8").splitlines()[0])
+
+    assert summary["local_gate_passed"] is False
+    assert summary["submission_hash_cross_check"]["known_submission_hash_count"] == 1
+    assert summary["submission_hash_cross_check"]["known_submission_pairs"] == ["24T25000|r=24"]
+    assert row["submission_hash_cross_check"]["known_labels"] == ["24T25000"]
+    assert "row_1_not_known_submission_hash" in summary["check_failures"]
