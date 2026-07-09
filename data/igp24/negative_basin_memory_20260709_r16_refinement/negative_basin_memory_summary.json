@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_negative_basin_memory_summary",
+  "created_at": "2026-07-09",
+  "source_submission_id": "sub_997ed4ad0f75476b888b42bea2e3a3d0",
+  "source_feedback_json": "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+  "source_sync_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "gpu_training": false,
+    "model_training": false,
+    "api_key_recorded": false
+  },
+  "sync_state": {
+    "partial_sync": true,
+    "submission_state_complete": false,
+    "degraded_mode_summary": "20/23 details recovered; 20/20 downloads recovered",
+    "failed_submission_detail_reads": [
+      "sub_be2f16728afa4ff2aa03fbec2898d997",
+      "sub_d7bc66004b0c4db2a89071c651c7583e",
+      "sub_743fdd6e963c41498817f10ebdd39b5d"
+    ],
+    "label_count": 25000,
+    "remaining_signature_count": 49354,
+    "submission_count": 23,
+    "submission_row_count": 184,
+    "scoreable_rows": 176,
+    "pending_rows": 8,
+    "unmatched_rows": 0,
+    "pending_pair_counts": {
+      "24T25000|r=16": 4,
+      "24T25000|r=8": 4
+    }
+  },
+  "negative_constraints": [
+    {
+      "name": "stop_r16_model_mixed_dense_medium_24T25000_lane",
+      "severity": "hard_stop",
+      "resulting_pair": "24T25000|r=16",
+      "source_submission_id": "sub_997ed4ad0f75476b888b42bea2e3a3d0",
+      "observed_rows": 4,
+      "construction_family": "model_sample_export",
+      "generation_strategy": "mixed",
+      "target_conditioning": "r16",
+      "template_families": [
+        "model:mixed:r16:medium_mixed_support_gcd1",
+        "model:mixed:r16:dense_mixed_support_gcd1"
+      ],
+      "basin_fingerprints": [
+        "4d91c3d0fe2fa1d3bebf04e0",
+        "6f8f07fe7a66bdc7c4d0be58",
+        "6034e5dd17ee25c1245534e5",
+        "25548a9429bf4bd396091d24"
+      ],
+      "perturbation_modes": [
+        "medium_mixed_support_gcd1",
+        "dense_mixed_support_gcd1"
+      ],
+      "result": "accepted_but_no_novelty_pending_discriminants",
+      "rule": "Reject or heavily penalize future r16 model:mixed dense/medium support rows from these template families or basin fingerprints unless the construction and label discriminator change materially."
+    },
+    {
+      "name": "preserve_r8_quartic_x6_24T25000_stop",
+      "severity": "hard_stop",
+      "resulting_pair": "24T25000|r=8",
+      "source_submission_id": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+      "rule": "Do not widen r8 quartic-in-x^6 odd off-core score-followup variants from the same neighborhood."
+    },
+    {
+      "name": "hold_24T25000_r20_pending_basin",
+      "severity": "high_pending",
+      "resulting_pair": "24T25000|r=20",
+      "rule": "Do not widen r20 AXG/high-real 24T25000 variants until pending/scored evidence resolves and the lane clears anti-24T25000 gates."
+    }
+  ],
+  "planner_updates": {
+    "default_feedback_includes_r16_refinement": true,
+    "accepted_feedback_cli_preserves_default_memory": true,
+    "r24_high_real_probe_metadata_supported": true
+  },
+  "gate_replays": {
+    "r16_replay": {
+      "candidate_count": 32,
+      "eligible_candidate_count": 0,
+      "selected_rows": 0,
+      "local_recommended_for_sair_packet": false,
+      "recommended_for_sair_packet": false,
+      "output_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/r16_replay_gate"
+    },
+    "r24_model_mixed_replay": {
+      "candidate_count": 44,
+      "eligible_candidate_count": 3,
+      "selected_rows": 3,
+      "local_recommended_for_sair_packet": false,
+      "recommended_for_sair_packet": false,
+      "output_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_replay_gate"
+    },
+    "r24_tiny_local_probe_gate": {
+      "candidate_count": 8,
+      "eligible_candidate_count": 8,
+      "selected_rows": 4,
+      "local_recommended_for_sair_packet": true,
+      "recommended_for_sair_packet": false,
+      "hold_reason": "locally_ready_but_blocked_by_incomplete_sair_state",
+      "output_dir": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate"
+    }
+  },
+  "next_lane": "r24_positive_quadratic_product_plus_low_odd_perturbation",
+  "submission_recommended_now": false,
+  "artifacts": {
+    "sync_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry/sair_sync_summary.json",
+    "r16_replay_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r16_replay_gate/anti_basin_planner_summary.json",
+    "r24_replay_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_replay_gate/anti_basin_planner_summary.json",
+    "r24_tiny_probe_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe/r24_high_real_summary.json",
+    "r24_tiny_probe_gate_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_planner_summary.json",
+    "next_lane_recommendation": "data/igp24/negative_basin_memory_20260709_r16_refinement/next_lane_recommendation.json"
+  }
+}

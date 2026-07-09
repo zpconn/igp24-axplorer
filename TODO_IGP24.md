@@ -8,6 +8,36 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- Active negative-basin memory pass started 2026-07-09. Preflight:
+  `git pull --ff-only` reported already up to date and the worktree was clean.
+  Objective: convert the accepted-but-collapsed r16 refinement packet
+  `sub_997ed4ad0f75476b888b42bea2e3a3d0` into durable anti-basin steering,
+  replay the recent r16/r24 gates under that new memory, and write a clear
+  next-lane recommendation. Constraints: no live SAIR submission, no large GPU
+  training run, no widening of the same `model:mixed` r16 dense/medium support
+  basin, and no SAIR API key recorded in files or logs. Planner update:
+  `scripts/igp24_anti_basin_planner.py` now loads the r16 feedback artifact by
+  default, preserves default hard stops when extra feedback files are supplied,
+  and extracts provenance for the deterministic r24 high-real probe. Focused
+  tests now cover default r16 feedback ingestion, r16 model-mixed dense/medium
+  rejection, and r24 high-real probe metadata. Read-only SAIR sync retry wrote
+  `data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry/`;
+  it is still partial because 3 old submission-detail reads returned transient
+  503s, but it recovered 23 submissions, 184 rows, 176 scoreable rows, 8
+  pending rows, and 0 unmatched rows. Replay results: r16 old pool = 32
+  candidates / 0 eligible / 0 selected; r24 model-mixed old pool = 44
+  candidates / 3 eligible / 3 selected / held below packet gate. Tiny
+  CPU-only r24 deterministic probe
+  `positive_quadratic_product_plus_low_odd_perturbation` ran 80 trials in a
+  local-only mode, found 67 valid r24 candidates, selected 8 for queue, and
+  anti-basin gating selected a locally ready 4-row packet with 0 risk reasons,
+  4 basin fingerprints, and 3 perturbation modes; submission remains held
+  because sync state is incomplete and this goal forbids live submission.
+  Reports:
+  `data/igp24/negative_basin_memory_20260709_r16_refinement/negative_basin_memory_report.md`
+  and
+  `data/igp24/negative_basin_memory_20260709_r16_refinement/next_lane_recommendation.md`.
+  Next: run final validation, secret scan, commit, and push.
 - r16 high-real refinement live submission completed 2026-07-09 after explicit
   user approval. Submitted
   `data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/anti_basin_candidate_coefficients.txt`

@@ -1,6 +1,7 @@
 import json
 
 from scripts.igp24_anti_basin_planner import (
+    DEFAULT_ACCEPTED_FEEDBACK_JSONS,
     build_basin_profile,
     build_submission_recommendation,
     candidate_features,
@@ -8,6 +9,7 @@ from scripts.igp24_anti_basin_planner import (
     normalize_progress_cache,
     score_candidate_row,
     select_diverse_scores,
+    sample_export_source,
     write_outputs,
 )
 
@@ -217,10 +219,16 @@ def _alt_r8_candidate(candidate_hash):
     }
 
 
-def _axg_model_candidate(candidate_hash, *, template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"):
+def _axg_model_candidate(
+    candidate_hash,
+    *,
+    r=20,
+    template="model:mixed:r20:dense_mixed_support_gcd1",
+    basin="basin-a",
+):
     return {
         "canonical_hash": candidate_hash,
-        "real_root_count": 20,
+        "real_root_count": r,
         "coefficient_height": 64,
         "irreducible": True,
         "squarefree": True,
@@ -241,11 +249,17 @@ def _axg_model_candidate(candidate_hash, *, template="model:mixed:r20:dense_mixe
     }
 
 
-def _axg_model_pending_observation(label="24T25000", template="model:mixed:r20:dense_mixed_support_gcd1", basin="basin-a"):
+def _axg_model_pending_observation(
+    label="24T25000",
+    *,
+    r=20,
+    template="model:mixed:r20:dense_mixed_support_gcd1",
+    basin="basin-a",
+):
     return {
         "label": label,
-        "pair_key": f"{label}|r=20",
-        "r": 20,
+        "pair_key": f"{label}|r={r}",
+        "r": r,
         "canonical_hash": f"pending-{label}-{basin}",
         "status": "accepted",
         "scoreable": False,
@@ -271,6 +285,31 @@ def test_load_accepted_feedback_observations_reads_rows(tmp_path):
     assert len(rows) == 1
     assert rows[0]["label"] == "24T25000"
     assert rows[0]["construction_family"] == "r8_quartic_lift_perturbed"
+
+
+def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
+    paths = [str(path) for path in DEFAULT_ACCEPTED_FEEDBACK_JSONS]
+
+    assert any("r16_high_real_refinement_sair_accepted_feedback_20260709.json" in path for path in paths)
+
+    observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    r16_observations = [
+        row
+        for row in observations
+        if row.get("submission_id") == "sub_997ed4ad0f75476b888b42bea2e3a3d0"
+        or row.get("pair_key") == "24T25000|r=16"
+    ]
+
+    assert {row["template_family_id"] for row in r16_observations} >= {
+        "model:mixed:r16:medium_mixed_support_gcd1",
+        "model:mixed:r16:dense_mixed_support_gcd1",
+    }
+    assert {row["basin_fingerprint"] for row in r16_observations} >= {
+        "4d91c3d0fe2fa1d3bebf04e0",
+        "6f8f07fe7a66bdc7c4d0be58",
+        "6034e5dd17ee25c1245534e5",
+        "25548a9429bf4bd396091d24",
+    }
 
 
 def test_candidate_features_reads_r8_quartic_lift_perturbed_metadata():
@@ -341,6 +380,40 @@ def test_candidate_features_reads_axg14_generic_provenance_metadata():
     assert features["even_support"] is False
     assert features["basin_fingerprint"] == "basin-a"
     assert features["coefficient_hash"] == "coeff-hash"
+
+
+def test_candidate_features_reads_r24_high_real_probe_metadata():
+    row = {
+        "canonical_hash": "r24-high-real-hash",
+        "real_root_count": 24,
+        "coefficient_height": 1000,
+        "irreducible": True,
+        "squarefree": True,
+        "exported_coefficients": [1, 0, 1, 0, 1] + [0] * 19 + [1],
+        "mod_p_factorization_degree_patterns": [{"prime": 7, "degrees": [1, 2, 21]}],
+        "generation_metadata": {
+            "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+            "r24_high_real_exact_composed_seed_divisor": 2,
+            "r24_high_real_family_key": "single_low_odd_break|roots=1,2|odd=9",
+            "r24_high_real_mode": "single_low_odd_break",
+            "r24_high_real_odd_perturbations": [{"x_exponent": 9, "delta": 1}],
+            "r24_high_real_odd_support_after_perturbation": [9],
+        },
+    }
+
+    features = candidate_features(row)
+
+    assert features["construction_family"] == "positive_quadratic_product_plus_low_odd_perturbation"
+    assert features["decomposition_pattern"] == "near_composed_quadratic_product_d2"
+    assert features["perturbation_mode"] == "single_low_odd_break"
+    assert features["perturbation_terms"] == 1
+    assert features["template_family_id"] == "r24_high_real:single_low_odd_break"
+    assert features["basin_fingerprint"] == "single_low_odd_break|roots=1,2|odd=9"
+    assert features["family_key"] == "single_low_odd_break|roots=1,2|odd=9"
+    assert features["odd_support_exponents"] == [9]
+    assert sample_export_source({"source_strategy": "r24_high_real_quadratic_product_probe"}) == (
+        "r24_high_real_quadratic_product_probe"
+    )
 
 
 def test_r8_quartic_in_x6_feedback_holds_repeat_packet_even_with_new_modp_signature():
@@ -450,6 +523,61 @@ def test_model_template_and_basin_feedback_hold_24t25000_repeat():
     assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in repeat["risk_reasons"]
     assert novel["eligible_for_packet"] is True
     assert novel["score"] > repeat["score"]
+
+
+def test_r16_model_mixed_dense_medium_feedback_holds_24t25000_repeats():
+    progress = normalize_progress_cache(_progress_snapshot(), target_rs=[16])
+    observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    basin_profile = build_basin_profile(
+        observations,
+        {"24T25000": {"global_progress": {"fully_covered": True, "team_count": 49}}},
+        avoid_labels={"24T25000"},
+        crowded_team_threshold=20,
+    )
+
+    medium_repeat = score_candidate_row(
+        _axg_model_candidate(
+            "r16-repeat-medium",
+            r=16,
+            template="model:mixed:r16:medium_mixed_support_gcd1",
+            basin="4d91c3d0fe2fa1d3bebf04e0",
+        ),
+        target_rs={16},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+    dense_repeat = score_candidate_row(
+        _axg_model_candidate(
+            "r16-repeat-dense",
+            r=16,
+            template="model:mixed:r16:dense_mixed_support_gcd1",
+            basin="6034e5dd17ee25c1245534e5",
+        ),
+        target_rs={16},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+    novel = score_candidate_row(
+        _axg_model_candidate(
+            "r16-novel-sparse",
+            r=16,
+            template="model:mixed:r16:sparse_mixed_support_gcd1",
+            basin="novel-r16-basin",
+        ),
+        target_rs={16},
+        progress_cache=progress,
+        basin_profile=basin_profile,
+    )
+
+    assert medium_repeat["eligible_for_packet"] is False
+    assert dense_repeat["eligible_for_packet"] is False
+    assert "model_template_family_known_high_label_collapse=24T25000" in medium_repeat["risk_reasons"]
+    assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in medium_repeat["risk_reasons"]
+    assert "model_template_family_known_high_label_collapse=24T25000" in dense_repeat["risk_reasons"]
+    assert "model_basin_fingerprint_known_high_label_collapse=24T25000" in dense_repeat["risk_reasons"]
+    assert novel["eligible_for_packet"] is True
+    assert novel["score"] > medium_repeat["score"]
+    assert novel["score"] > dense_repeat["score"]
 
 
 def test_submission_recommendation_can_require_model_generated_rows():

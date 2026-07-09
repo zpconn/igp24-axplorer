@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_next_lane_recommendation",
+  "created_at": "2026-07-09",
+  "recommended_lane": "r24_positive_quadratic_product_plus_low_odd_perturbation",
+  "recommended_action": "Continue bounded local r24 deterministic high-real probing; submit only after complete sync or explicit user approval.",
+  "submission_recommended_now": false,
+  "live_submission_forbidden_by_goal": true,
+  "why": [
+    "The r16 model-mixed dense/medium support refinement collapsed to 24T25000|r=16 and is now a hard negative basin.",
+    "The r24 model-mixed replay has only 3 eligible rows, selected rows still carry loose crowded-basin risk, and it remains below packet gates.",
+    "The tiny deterministic r24 probe produced 8 eligible rows and a locally ready 4-row packet with 4 basin fingerprints, 3 perturbation modes, and 0 risk reasons.",
+    "r24 remains the largest open bucket in the latest progress snapshot, with 11814 remaining signatures."
+  ],
+  "blocked_or_held_lanes": [
+    {
+      "lane": "r16_model_mixed_dense_medium_support",
+      "status": "hard_stop",
+      "reason": "Accepted r16 refinement rows all landed in 24T25000|r=16."
+    },
+    {
+      "lane": "r8_quartic_in_x6_odd_off_core",
+      "status": "hard_stop",
+      "reason": "Prior r8 follow-up rows collapsed to 24T25000|r=8."
+    },
+    {
+      "lane": "r20_high_real_24T25000_neighborhood",
+      "status": "hold",
+      "reason": "Existing r20 basin remains high-risk/pending; do not widen without fresh scored evidence."
+    },
+    {
+      "lane": "r24_model_mixed_dense_medium_support",
+      "status": "refine_before_submit",
+      "reason": "Replay selected only 3 rows and all selected rows had loose crowded-basin risk."
+    }
+  ],
+  "tiny_probe_result": {
+    "probe_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe/r24_high_real_summary.json",
+    "gate_summary": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_planner_summary.json",
+    "candidate_count": 8,
+    "eligible_candidate_count": 8,
+    "selected_rows": 4,
+    "local_recommended_for_sair_packet": true,
+    "recommended_for_sair_packet": false,
+    "hold_reason": "locally_ready_but_blocked_by_incomplete_sair_state",
+    "selected_source_counts": {
+      "r24_high_real_quadratic_product_probe": 4
+    },
+    "selected_mode_counts": {
+      "single_low_odd_break": 1,
+      "three_low_odd_break": 2,
+      "two_low_odd_break": 1
+    }
+  },
+  "next_steps": [
+    "Retry SAIR sync until submission detail state is complete, or explicitly decide that partial sync is acceptable for manual review.",
+    "If submitting is deferred, run a slightly larger bounded r24 deterministic probe with per-mode and per-family caps to build an 8-12 row review pool.",
+    "Keep the r16 model-mixed dense/medium support templates and observed r16 basin fingerprints in the hard-negative default memory.",
+    "Do not start a large GPU training run until deterministic r24 probing either scores new pairs or clearly collapses."
+  ]
+}

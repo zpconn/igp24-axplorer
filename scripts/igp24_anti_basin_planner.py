@@ -42,6 +42,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     REPO_ROOT / "data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
     REPO_ROOT
     / "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+    REPO_ROOT
+    / "data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
@@ -173,6 +175,8 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     perturbations = (
         metadata.get("alt_outer_perturbations")
         or metadata.get("r8_quartic_lift_perturbation_exponents")
+        or metadata.get("r24_high_real_odd_perturbations")
+        or metadata.get("r24_high_real_odd_support_after_perturbation")
         or metadata.get("odd_support_exponents")
         or []
     )
@@ -181,6 +185,8 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or row.get("perturbation_mode")
         or metadata.get("alt_perturbation_mode")
         or metadata.get("r8_quartic_lift_perturbation_mode")
+        or metadata.get("r24_high_real_perturbation_mode")
+        or metadata.get("r24_high_real_mode")
         or metadata.get("r24_tower_mode")
         or metadata.get("r20_linear_mode")
         or metadata.get("r16_diversity_mode")
@@ -193,6 +199,11 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or row.get("decomposition_pattern")
         or metadata.get("support_pattern")
         or row.get("support_pattern")
+        or (
+            f"near_composed_quadratic_product_d{metadata.get('r24_high_real_exact_composed_seed_divisor')}"
+            if metadata.get("r24_high_real_exact_composed_seed_divisor")
+            else ""
+        )
         or ("quartic_in_x6" if metadata.get("source_family") in R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES else "")
     )
     construction = str(
@@ -203,8 +214,18 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("resolved_generation_strategy")
         or ""
     )
-    template_family_id = str(metadata.get("template_family_id") or row.get("template_family_id") or "")
-    basin_fingerprint = str(metadata.get("basin_fingerprint") or row.get("basin_fingerprint") or "")
+    high_real_mode = metadata.get("r24_high_real_perturbation_mode") or metadata.get("r24_high_real_mode")
+    template_family_id = str(
+        metadata.get("template_family_id")
+        or row.get("template_family_id")
+        or (f"r24_high_real:{high_real_mode}" if high_real_mode else "")
+    )
+    basin_fingerprint = str(
+        metadata.get("basin_fingerprint")
+        or row.get("basin_fingerprint")
+        or metadata.get("r24_high_real_family_key")
+        or ""
+    )
     coefficient_hash = str(metadata.get("coefficient_hash") or row.get("coefficient_hash") or "")
     decoded_hash = str(metadata.get("decoded_hash") or row.get("decoded_hash") or "")
     source_seed_hash = str(metadata.get("source_seed_hash") or row.get("source_seed_hash") or "")
@@ -238,6 +259,7 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "odd_support_exponents": (
             metadata.get("alt_odd_support_exponents")
             or metadata.get("odd_support_exponents")
+            or metadata.get("r24_high_real_odd_support_after_perturbation")
             or support.get("odd_support_exponents")
             or []
         ),
@@ -255,6 +277,9 @@ def sample_export_source(row: dict[str, Any] | None) -> str:
     source = row.get("sample_export_source")
     if source:
         return str(source)
+    source = row.get("source_strategy")
+    if source:
+        return str(source)
     source_sample_export = row.get("source_sample_export")
     if isinstance(source_sample_export, dict):
         source = source_sample_export.get("sample_export_source")
@@ -262,7 +287,12 @@ def sample_export_source(row: dict[str, Any] | None) -> str:
             return str(source)
     generation_metadata = row.get("generation_metadata")
     if isinstance(generation_metadata, dict):
-        source = generation_metadata.get("sample_export_source") or generation_metadata.get("source")
+        source = (
+            generation_metadata.get("sample_export_source")
+            or generation_metadata.get("source")
+            or generation_metadata.get("strategy")
+            or generation_metadata.get("construction_family")
+        )
         if source:
             return str(source)
     return "unknown"
@@ -1198,7 +1228,9 @@ def main(argv: list[str] | None = None) -> int:
     for path in args.candidate_jsonl:
         candidate_rows.extend(read_jsonl(path))
     label_basin_summary = json.loads(args.label_basin_summary_json.read_text(encoding="utf-8"))
-    feedback_paths = args.accepted_feedback_json if args.accepted_feedback_json is not None else DEFAULT_ACCEPTED_FEEDBACK_JSONS
+    feedback_paths = list(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
+    if args.accepted_feedback_json is not None:
+        feedback_paths.extend(args.accepted_feedback_json)
     observations = read_jsonl(args.label_basin_observations_jsonl)
     observations.extend(load_accepted_feedback_observations(feedback_paths))
     sync_status = None

@@ -1,0 +1,593 @@
+{
+  "basin_profile": {
+    "accepted_hash_count": 160,
+    "avoid_labels": [
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T25000"
+    ],
+    "collapsed_basin_r_count": 8,
+    "collapsed_family_pattern_count": 20,
+    "collapsed_model_basin_r_count": 4,
+    "collapsed_model_template_r_count": 2,
+    "collapsed_pair_count": 20,
+    "collapsed_template_r_count": 4,
+    "crowded_labels": [
+      "24T1310",
+      "24T22770",
+      "24T23883",
+      "24T24651",
+      "24T24932",
+      "24T24970",
+      "24T24979",
+      "24T24984",
+      "24T25000",
+      "24T657",
+      "24T661",
+      "24T9993"
+    ],
+    "crowded_observation_count": 174,
+    "exact_fingerprint_count": 125,
+    "loose_fingerprint_count": 38,
+    "mod_p_signature_count": 108
+  },
+  "candidate_count": 8,
+  "command": [
+    "/usr/bin/python3",
+    "scripts/igp24_anti_basin_planner.py",
+    "--candidate_jsonl",
+    "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe/r24_high_real_candidate_queue.jsonl",
+    "--label_basin_summary_json",
+    "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_summary.json",
+    "--label_basin_observations_jsonl",
+    "data/igp24/negative_basin_memory_20260708/label_basin_analysis/label_basin_observations.jsonl",
+    "--sair_sync_dir",
+    "data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry",
+    "--output_dir",
+    "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate",
+    "--target_rs",
+    "24",
+    "--crowded_team_threshold",
+    "20",
+    "--packet_limit",
+    "8",
+    "--min_packet_rows",
+    "4",
+    "--min_model_generated_rows",
+    "0",
+    "--min_perturbation_mode_count",
+    "2",
+    "--per_mode_cap",
+    "3",
+    "--per_pattern_cap",
+    "4",
+    "--min_template_family_count",
+    "2",
+    "--min_basin_fingerprint_count",
+    "4",
+    "--reject_unknown_provenance"
+  ],
+  "created_at": "2026-07-09T03:38:59.551170+00:00",
+  "eligible_candidate_count": 8,
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe/r24_high_real_candidate_queue.jsonl"
+    ],
+    "label_basin_summary_record_type": "igp24_label_basin_analysis",
+    "progress_source": {
+      "created_at": "2026-07-09T03:33:33.002217+00:00",
+      "first_generated_at": "2026-07-09T03:33:15Z",
+      "label_count": 25000,
+      "last_generated_at": "2026-07-09T03:33:15Z",
+      "page_count": 5,
+      "published": true,
+      "query": {
+        "source": "data/igp24/negative_basin_memory_20260709_r16_refinement/sair_sync_retry"
+      },
+      "record_type": "igp24_sair_label_progress_snapshot"
+    },
+    "target_rs": [
+      24
+    ]
+  },
+  "next_decision": "Do not submit this packet; local packet is ready, but wait for complete SAIR state and pending rows to resolve.",
+  "output_files": {
+    "coefficients_txt": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_candidate_hashes.txt",
+    "report_md": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_planner_report.md",
+    "scores_jsonl": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_candidate_scores.jsonl",
+    "selected_jsonl": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_selected_queue.jsonl",
+    "summary_json": "data/igp24/negative_basin_memory_20260709_r16_refinement/r24_tiny_local_probe_gate/anti_basin_planner_summary.json"
+  },
+  "record_type": "igp24_anti_basin_planner",
+  "safety": {
+    "api_key_recorded": false,
+    "gpu_training": false,
+    "magma": false,
+    "model_training": false,
+    "pari": false,
+    "sair_dry_run": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "score_classification_counts": {
+    "strong_packet_candidate": 8
+  },
+  "selected_rows": 4,
+  "selected_rows_summary": [
+    {
+      "features": {
+        "basin_fingerprint": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1",
+        "canonical_hash": "c5dc17f68854cd8e543da909bc2a26d46dcaeaed98ed5cd5868597c71ee6bfc5",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p3:1-4-19;p5:1-2-2-19;p7:1-2-5-16",
+        "odd_support_exponents": [
+          1
+        ],
+        "pair_key": "",
+        "perturbation_mode": "single_low_odd_break",
+        "perturbation_terms": 1,
+        "r": 24,
+        "short_hash": "c5dc17f68854",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:single_low_odd_break"
+      },
+      "rank": 1,
+      "score": 203.771,
+      "short_hash": "c5dc17f68854"
+    },
+    {
+      "features": {
+        "basin_fingerprint": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,3,7",
+        "canonical_hash": "63b9f340d15fb339310a5465e3af63a4aac67850d38d464c3b828e6b12ff2d79",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,3,7",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p2:1-2-4-17;p3:1-2-5-8-8;p5:1-2-4-17;p7:1-2-3-8-10",
+        "odd_support_exponents": [
+          1,
+          3,
+          7
+        ],
+        "pair_key": "",
+        "perturbation_mode": "three_low_odd_break",
+        "perturbation_terms": 3,
+        "r": 24,
+        "short_hash": "63b9f340d15f",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:three_low_odd_break"
+      },
+      "rank": 2,
+      "score": 203.771,
+      "short_hash": "63b9f340d15f"
+    },
+    {
+      "features": {
+        "basin_fingerprint": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,13|odd=1,5",
+        "canonical_hash": "b51dc9fc89b4277a4615ae9de15436fa833e890b8639c407d8f5a1803ccc174c",
+        "coefficient_hash": "",
+        "coefficient_height": 2082477528,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,13|odd=1,5",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p3:1-4-4-7-8;p5:1-2-2-2-4-5-8;p7:1-5-6-12",
+        "odd_support_exponents": [
+          1,
+          5
+        ],
+        "pair_key": "",
+        "perturbation_mode": "two_low_odd_break",
+        "perturbation_terms": 2,
+        "r": 24,
+        "short_hash": "b51dc9fc89b4",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:two_low_odd_break"
+      },
+      "rank": 3,
+      "score": 203.722,
+      "short_hash": "b51dc9fc89b4"
+    },
+    {
+      "features": {
+        "basin_fingerprint": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,11,12,13|odd=1,3,5",
+        "canonical_hash": "8727263019b9d3c1ac77bbc332f75c8f5052594154a207448ffad94ef8419d2d",
+        "coefficient_hash": "",
+        "coefficient_height": 2467871136,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,11,12,13|odd=1,3,5",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p2:1-4-9-10;p5:1-3-20;p7:1-2-2-4-4-5-6",
+        "odd_support_exponents": [
+          1,
+          3,
+          5
+        ],
+        "pair_key": "",
+        "perturbation_mode": "three_low_odd_break",
+        "perturbation_terms": 3,
+        "r": 24,
+        "short_hash": "8727263019b9",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:three_low_odd_break"
+      },
+      "rank": 4,
+      "score": 203.612,
+      "short_hash": "8727263019b9"
+    }
+  ],
+  "source_commit": "81e6100b7c8d1406c1a91fa67f247e85918da80c",
+  "submission_recommendation": {
+    "local_recommended_for_sair_packet": true,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 0,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 2,
+    "model_generated_selected_rows": 0,
+    "reason": "locally_ready_but_blocked_by_incomplete_sair_state",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {
+      "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1": 1,
+      "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,3,7": 1,
+      "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,11,12,13|odd=1,3,5": 1,
+      "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,13|odd=1,5": 1
+    },
+    "selected_mod_p_signature_counts": {
+      "p2:1-2-4-17;p3:1-2-5-8-8;p5:1-2-4-17;p7:1-2-3-8-10": 1,
+      "p2:1-4-9-10;p5:1-3-20;p7:1-2-2-4-4-5-6": 1,
+      "p3:1-4-19;p5:1-2-2-19;p7:1-2-5-16": 1,
+      "p3:1-4-4-7-8;p5:1-2-2-2-4-5-8;p7:1-5-6-12": 1
+    },
+    "selected_mode_counts": {
+      "single_low_odd_break": 1,
+      "three_low_odd_break": 2,
+      "two_low_odd_break": 1
+    },
+    "selected_rows": 4,
+    "selected_source_counts": {
+      "r24_high_real_quadratic_product_probe": 4
+    },
+    "selected_template_family_counts": {
+      "r24_high_real:single_low_odd_break": 1,
+      "r24_high_real:three_low_odd_break": 2,
+      "r24_high_real:two_low_odd_break": 1
+    },
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "20/23 details recovered; 20/20 downloads recovered",
+      "download_complete": false,
+      "full_submission_state_complete": false,
+      "hold_reasons": [
+        "locally_ready_but_blocked_by_incomplete_sair_state"
+      ],
+      "partial_sync": true,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {
+        "24T25000|r=16": 4,
+        "24T25000|r=8": 4
+      },
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        24
+      ],
+      "submission_detail_complete": false
+    }
+  },
+  "tool": "scripts/igp24_anti_basin_planner.py",
+  "top_scored_rows": [
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,3,7",
+        "canonical_hash": "63b9f340d15fb339310a5465e3af63a4aac67850d38d464c3b828e6b12ff2d79",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1,3,7",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p2:1-2-4-17;p3:1-2-5-8-8;p5:1-2-4-17;p7:1-2-3-8-10",
+        "odd_support_exponents": [
+          1,
+          3,
+          7
+        ],
+        "pair_key": "",
+        "perturbation_mode": "three_low_odd_break",
+        "perturbation_terms": 3,
+        "r": 24,
+        "short_hash": "63b9f340d15f",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:three_low_odd_break"
+      },
+      "rank": 1,
+      "risk_reasons": [],
+      "score": 203.771,
+      "short_hash": "63b9f340d15f"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1",
+        "canonical_hash": "c5dc17f68854cd8e543da909bc2a26d46dcaeaed98ed5cd5868597c71ee6bfc5",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=1",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p3:1-4-19;p5:1-2-2-19;p7:1-2-5-16",
+        "odd_support_exponents": [
+          1
+        ],
+        "pair_key": "",
+        "perturbation_mode": "single_low_odd_break",
+        "perturbation_terms": 1,
+        "r": 24,
+        "short_hash": "c5dc17f68854",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:single_low_odd_break"
+      },
+      "rank": 2,
+      "risk_reasons": [],
+      "score": 203.771,
+      "short_hash": "c5dc17f68854"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,13|odd=1,5",
+        "canonical_hash": "b51dc9fc89b4277a4615ae9de15436fa833e890b8639c407d8f5a1803ccc174c",
+        "coefficient_hash": "",
+        "coefficient_height": 2082477528,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,13|odd=1,5",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p3:1-4-4-7-8;p5:1-2-2-2-4-5-8;p7:1-5-6-12",
+        "odd_support_exponents": [
+          1,
+          5
+        ],
+        "pair_key": "",
+        "perturbation_mode": "two_low_odd_break",
+        "perturbation_terms": 2,
+        "r": 24,
+        "short_hash": "b51dc9fc89b4",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:two_low_odd_break"
+      },
+      "rank": 3,
+      "risk_reasons": [],
+      "score": 203.722,
+      "short_hash": "b51dc9fc89b4"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,11,12,13|odd=1,3,5",
+        "canonical_hash": "8727263019b9d3c1ac77bbc332f75c8f5052594154a207448ffad94ef8419d2d",
+        "coefficient_hash": "",
+        "coefficient_height": 2467871136,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "three_low_odd_break|roots=1,2,3,4,5,6,7,8,9,11,12,13|odd=1,3,5",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": "p2:1-4-9-10;p5:1-3-20;p7:1-2-2-4-4-5-6",
+        "odd_support_exponents": [
+          1,
+          3,
+          5
+        ],
+        "pair_key": "",
+        "perturbation_mode": "three_low_odd_break",
+        "perturbation_terms": 3,
+        "r": 24,
+        "short_hash": "8727263019b9",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:three_low_odd_break"
+      },
+      "rank": 4,
+      "risk_reasons": [],
+      "score": 203.612,
+      "short_hash": "8727263019b9"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=9",
+        "canonical_hash": "36843df231d8de44003ab1be039f91edb8d7a887251efef60da7317ed2fb7d1c",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=9",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": null,
+        "odd_support_exponents": [
+          9
+        ],
+        "pair_key": "",
+        "perturbation_mode": "single_low_odd_break",
+        "perturbation_terms": 1,
+        "r": 24,
+        "short_hash": "36843df231d8",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:single_low_odd_break"
+      },
+      "rank": 5,
+      "risk_reasons": [],
+      "score": 188.771,
+      "short_hash": "36843df231d8"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=3,7",
+        "canonical_hash": "b4d8d742bb831292f49a58accbf9132df77a1f5296f7a9a44b440a2fea799888",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "two_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=3,7",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": null,
+        "odd_support_exponents": [
+          3,
+          7
+        ],
+        "pair_key": "",
+        "perturbation_mode": "two_low_odd_break",
+        "perturbation_terms": 2,
+        "r": 24,
+        "short_hash": "b4d8d742bb83",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:two_low_odd_break"
+      },
+      "rank": 6,
+      "risk_reasons": [],
+      "score": 188.771,
+      "short_hash": "b4d8d742bb83"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=5",
+        "canonical_hash": "81536275b4464e72ae6ae99d6bfda32b5c80fa07252fb3b4f8cd3d210d17a037",
+        "coefficient_hash": "",
+        "coefficient_height": 1931559552,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "single_low_odd_break|roots=1,2,3,4,5,6,7,8,9,10,11,12|odd=5",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": null,
+        "odd_support_exponents": [
+          5
+        ],
+        "pair_key": "",
+        "perturbation_mode": "single_low_odd_break",
+        "perturbation_terms": 1,
+        "r": 24,
+        "short_hash": "81536275b446",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:single_low_odd_break"
+      },
+      "rank": 7,
+      "risk_reasons": [],
+      "score": 188.771,
+      "short_hash": "81536275b446"
+    },
+    {
+      "classification": "strong_packet_candidate",
+      "eligible_for_packet": true,
+      "features": {
+        "basin_fingerprint": "two_low_odd_break|roots=1,2,3,4,5,6,7,9,10,11,12,13|odd=3,7",
+        "canonical_hash": "b74324d92baad51e7493612078f5e9099c9d57e0376c1082bccf0d96de729811",
+        "coefficient_hash": "",
+        "coefficient_height": 3027333672,
+        "construction_family": "positive_quadratic_product_plus_low_odd_perturbation",
+        "decoded_hash": "",
+        "decomposition_pattern": "near_composed_quadratic_product_d2",
+        "even_support": false,
+        "family_key": "two_low_odd_break|roots=1,2,3,4,5,6,7,9,10,11,12,13|odd=3,7",
+        "irreducible": true,
+        "label": "",
+        "mod_p_pattern_signature": null,
+        "odd_support_exponents": [
+          3,
+          7
+        ],
+        "pair_key": "",
+        "perturbation_mode": "two_low_odd_break",
+        "perturbation_terms": 2,
+        "r": 24,
+        "short_hash": "b74324d92baa",
+        "source_seed_hash": "",
+        "squarefree": true,
+        "support_gcd": 1,
+        "template_family_id": "r24_high_real:two_low_odd_break"
+      },
+      "rank": 8,
+      "risk_reasons": [],
+      "score": 188.478,
+      "short_hash": "b74324d92baa"
+    }
+  ]
+}
