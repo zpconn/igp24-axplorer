@@ -25,6 +25,47 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 AXG sparse-submode gate/submission checkpoint: added refined
+  sparse support submodes so model exports and planner rows distinguish
+  `sparse_odd_single_e*`, odd-pair gap, and multi-odd sparse shapes while
+  preserving the coarse `sparse_mixed_support_gcd1` support pattern for export
+  filters. Focused validation passed with 51 tests across sample export,
+  anti-basin planner, and proposal-loop coverage, plus `py_compile` for the
+  touched Python files. Replayed the previously held AXG-1.10 sparse/hash
+  exclusion r8/r12 spillover packet: the refined gate made the packet locally
+  ready; a fresh full SAIR sync under
+  `data/igp24/axg110_hash_exclusion_20260709/sair_sync_sparse_submode_retry/`
+  found 25,000 labels, 47,019 remaining signatures, 27 submissions, 224
+  scoreable rows, 0 pending rows, and full detail/download recovery. The
+  packet then passed anti-basin gates and SAIR dry-run validation as a 4-row
+  packet. First live submit attempt returned temporary
+  `IGP24_SERVICE_UNAVAILABLE`; retry succeeded at 2026-07-09T19:45:12Z as
+  `sub_e558f7c55b3d45a0a926c5a9c6d05d75`, queued 4 rows, rejected 0 rows, and
+  had no verified rows yet. Follow-up poll resolved all 4 rows as accepted and
+  scoreable with exact nfdisc, but all collapsed to crowded `24T25000`: r4 x3
+  and r8 x1. Full post-submit sync under
+  `data/igp24/axg110_hash_exclusion_20260709/sair_sync_after_sparse_submode_submit/`
+  found 28 submissions, 228 scoreable rows, 0 pending rows, and full
+  detail/download recovery. Current `24T25000` progress shows r4 teamCount 50
+  and r8 teamCount 35, so this is hard negative feedback, not score
+  improvement. Wrote accepted feedback to
+  `data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json`
+  and added it to the default anti-basin planner history.
+- 2026-07-09 AXG-1.11 bounded training checkpoint: registered `AXG-1.11` as a
+  child of `AXG-1.10` and ran a fresh r8 sparse-submode/hash-exclusion CUDA
+  probe under `data/igp24/axg111_sparse_submode_20260709/`. GPU utilization was
+  real on the RTX 5090: runtime 278.957s, max/avg GPU 87.0% / 35.17%, final
+  train/test loss 0.040 / 2.971. Export attempted 12,288 samples, wrote 6,013
+  records, decoded 12 unique rows, skipped 2,840 excluded hashes, and stopped
+  at attempt budget; raw export/checkpoint binaries were removed after
+  lightweight summaries and scored artifacts were retained. CPU scoring read
+  6,013 rows, scored 12 decoded rows, found 5 valid rows and 7 rejected rows.
+  Gate `axg111_r8_sparse_submode_gate_refresh_20260709` scored 12 candidates,
+  filtered 4, selected 1, and held with no submission: the newly ingested
+  AXG-1.10 feedback correctly blocked repeated `model:sparse:r8` sparse-template
+  `24T25000` basins, leaving only one loose-basin r6 survivor. Goal remains
+  active/incomplete because neither AXG-1.10 nor AXG-1.11 produced verified
+  score improvement.
 - Active AXG-1.7 score-aware anti-collapse goal started 2026-07-09 from clean
   commit `b07ec73`. Objective: build/train AXG-1.7 and do not mark complete
   until SAIR verifies actual score improvement, not merely accepted/scoreable

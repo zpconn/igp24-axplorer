@@ -1,0 +1,86 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T19:46:10.946709+00:00",
+  "description": "Sparse-submode continuation after AXG-1.10 local-ready packet submission",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent": 35.169117647058826,
+    "device": "NVIDIA GeForce RTX 5090",
+    "max_gpu_utilization_percent": 87.0,
+    "status": "used"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "186ebe02e2788099704db4d288edf7b0e139e50d",
+  "known_limitations": [
+    "Still learns the model:sparse r8 sparse-template basin strongly; most target-r survivors were blocked by new 24T25000 collapse feedback.",
+    "Raw sample export and checkpoint binaries were intentionally removed from repo artifacts; summaries and scored/gate outputs are retained."
+  ],
+  "model_version": "AXG-1.11",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.10",
+  "purpose": "Sparse-submode continuation that exercises bounded GPU training after AXG-1.10 negative feedback.",
+  "random_seed": 33008,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "gpu_summary": "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/gpu_sampler_probe_summary.json",
+      "proposal_summary": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/proposal_loop_summary.json",
+      "run_id": "axg111_r8_sparse_submode_20260709",
+      "score_summary": "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json",
+      "target_r": 8
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "AXG-1.11 produced no submit-ready packet; gate selected only one eligible row.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl.summary.json",
+    "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "command_summary": "scripts/igp24_gpu_sampler_probe.py sample_export_target_r_conditioned r8 sparse, max_steps=2400, attempts=12288, hash exclusions enabled",
+    "status": "completed",
+    "summary": "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/gpu_sampler_probe_summary.json"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260709_axg19_sparse_escape.jsonl",
+    "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
+    "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json"
+  ],
+  "training_duration": {
+    "seconds": 278.9567716169986,
+    "status": "completed"
+  },
+  "validation_metrics": {
+    "decision": "hold_no_submission",
+    "decoded_records": 12,
+    "filtered_gate_rows": 4,
+    "gpu_export_records": 6013,
+    "reason": "Only one eligible row after AXG-1.10 sparse-template 24T25000 feedback was added; no submission.",
+    "selected_gate_rows": 1,
+    "status": "completed_hold_no_submission",
+    "valid_records": 5
+  }
+}

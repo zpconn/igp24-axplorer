@@ -1,0 +1,199 @@
+{
+  "accepted_feedback_paths": [
+    "/home/zpconn/code/igp24-axplorer/data/igp24/alt_composition_8x3_sair_probe_20260707/alt_composition_8x3_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_4x6_steering_20260707/anti_basin_4x6_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/anti_basin_steering_20260707/anti_basin_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_followup_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_structured_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r12_tower_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_anti_collapse_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_diversity_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r16_quadratic_lift_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r20_linear_real_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_high_real_probe_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_r16_high_real_refinement_20260708/r16_gate/r16_high_real_refinement_sair_accepted_feedback_20260709.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_odd_escape_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r24_tower_probe_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_perturbed_sair_accepted_feedback_20260707.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_quartic_lift_sair_accepted_feedback_20260706.json",
+    "/home/zpconn/code/igp24-axplorer/data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json"
+  ],
+  "candidate_paths": [
+    "data/igp24/axg111_sparse_submode_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/scored_samples.jsonl"
+  ],
+  "created_at": "2026-07-09T19:52:38.344309+00:00",
+  "decision": "hold_no_submission",
+  "diversity_gates": {
+    "crowded_team_threshold": 20,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_packet_rows": 4,
+    "min_template_family_count": 1,
+    "packet_limit": 4,
+    "per_mode_cap": 2,
+    "per_pattern_cap": 4,
+    "reject_unknown_provenance": true
+  },
+  "extra_submission_status_paths": [],
+  "gpu_phase": {
+    "command_templates": [
+      "python3 scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_split_dedup ...",
+      "python3 scripts/igp24_score_sample_export.py --source_export_path ..."
+    ],
+    "status": "not_executed_in_dry_run"
+  },
+  "model_version": "AXG-1.11",
+  "outputs": {
+    "basin_risk_scores": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/basin_risk_scores.jsonl",
+    "filtered_candidates": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/filtered_candidates.jsonl",
+    "rejected_candidates": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/rejected_candidates.jsonl",
+    "report": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/proposal_loop_report.md",
+    "run_manifest": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/run_manifest.json",
+    "selected_review_coefficients": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/selected_review_coefficients.txt",
+    "selected_review_packet": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/selected_review_packet.jsonl",
+    "summary": "data/igp24/axg111_sparse_submode_20260709/proposal_loop/axg111_r8_sparse_submode_gate_refresh_20260709/proposal_loop_summary.json"
+  },
+  "recommendation": {
+    "advisory_risk_count": 1,
+    "fatal_risk_count": 0,
+    "local_recommended_for_sair_packet": false,
+    "min_basin_fingerprint_count": 4,
+    "min_model_generated_rows": 4,
+    "min_perturbation_mode_count": 2,
+    "min_template_family_count": 1,
+    "model_generated_selected_rows": 1,
+    "reason": "only_1_eligible_rows_below_min_4; only_1_model_generated_rows_below_min_4; selected_rows_do_not_have_min_perturbation_mode_count_2; selected_rows_do_not_have_enough_mod_p_diversity; selected_rows_do_not_have_enough_basin_fingerprint_diversity",
+    "recommended_for_sair_packet": false,
+    "reject_unknown_provenance": true,
+    "risk_count": 0,
+    "selected_basin_fingerprint_counts": {
+      "f354addebc98b7484454ad1c": 1
+    },
+    "selected_mod_p_signature_counts": {
+      "p2:10-14;p3:3-21;p5:1-4-6-13;p7:7-8-9": 1
+    },
+    "selected_mode_counts": {
+      "sparse_odd_single_e11_support_gcd1": 1
+    },
+    "selected_rows": 1,
+    "selected_source_counts": {
+      "model_generate": 1
+    },
+    "selected_template_family_counts": {
+      "model:sparse:r8:sparse_mixed_support_gcd1": 1
+    },
+    "status": "hold_no_submission",
+    "sync_submission_gate": {
+      "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+      "download_complete": true,
+      "full_submission_state_complete": true,
+      "hold_reasons": [],
+      "partial_sync": false,
+      "pending_high_label_basin_collisions": {},
+      "pending_pair_counts": {},
+      "selected_exact_pair_pending_collisions": {},
+      "selected_pair_keys": [],
+      "selected_r_values": [
+        6
+      ],
+      "submission_detail_complete": true
+    }
+  },
+  "record_type": "igp24_axg_proposal_run",
+  "registry": "/home/zpconn/code/igp24-axplorer/data/igp24/model_registry",
+  "run_id": "axg111_r8_sparse_submode_gate_refresh_20260709",
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair_post": false,
+    "dry_run_only": true,
+    "raw_gpu_samples_submitted": false
+  },
+  "sair_sync_dir": "data/igp24/axg110_hash_exclusion_20260709/sair_sync_sparse_submode_retry",
+  "sair_sync_gate": {
+    "degraded_mode_summary": "27/27 details recovered; 27/27 downloads recovered",
+    "download_complete": true,
+    "full_submission_state_complete": true,
+    "hold_reasons": [],
+    "partial_sync": false,
+    "pending_high_label_basin_collisions": {},
+    "pending_pair_counts": {},
+    "selected_exact_pair_pending_collisions": {},
+    "selected_pair_keys": [],
+    "selected_r_values": [
+      6
+    ],
+    "submission_detail_complete": true
+  },
+  "schema_version": 1,
+  "source_basin_summary": {
+    "basin_fingerprint_counts_by_source": {
+      "model_generate": {
+        "5982ec2d4d72617aa3624cb5": 2,
+        "9ef607f0f883c102333f1b9a": 1,
+        "f354addebc98b7484454ad1c": 1
+      }
+    },
+    "candidate_rows_by_source": {
+      "model_generate": 12
+    },
+    "classification_counts_by_source": {
+      "model_generate": {
+        "reject_or_hold_known_basin_risk": 3,
+        "review_packet_candidate_loose_basin_match": 1
+      }
+    },
+    "eligible_rows_by_source": {
+      "model_generate": 1
+    },
+    "model_generated_eligible_rows": 1,
+    "model_generated_selected_rows": 1,
+    "model_generated_target_r_survivor_rows": 4,
+    "perturbation_mode_counts_by_source": {
+      "model_generate": {
+        "sparse_odd_pair_gap2_support_gcd1": 2,
+        "sparse_odd_pair_gap4_support_gcd1": 1,
+        "sparse_odd_single_e11_support_gcd1": 1
+      }
+    },
+    "rejected_basin_rows_by_source": {
+      "model_generate": 3
+    },
+    "risk_reason_counts_by_source": {
+      "model_generate": {
+        "crowded_mod_p_signature_hits=2": 2,
+        "exact_crowded_basin_fingerprint_hits=1": 2,
+        "loose_crowded_basin_fingerprint_hits=1": 1,
+        "loose_crowded_basin_fingerprint_hits=2": 1,
+        "model_template_family_known_high_label_collapse=24T25000": 3,
+        "template_family_known_high_label_collapse=24T25000": 3
+      }
+    },
+    "scored_rows_by_source": {
+      "model_generate": 4
+    },
+    "seed_bank_target_r_survivor_rows": 0,
+    "selected_rows_by_source": {
+      "model_generate": 1
+    },
+    "target_r_survivor_rows_by_source": {
+      "model_generate": 4
+    },
+    "template_family_counts_by_source": {
+      "model_generate": {
+        "model:sparse:r8:sparse_mixed_support_gcd1": 4
+      }
+    }
+  },
+  "source_commit": "186ebe02e2788099704db4d288edf7b0e139e50d",
+  "training_phase": {
+    "status": "not_started_in_this_run",
+    "uses_existing_candidate_files": true
+  }
+}

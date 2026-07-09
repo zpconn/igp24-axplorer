@@ -1,0 +1,10 @@
+{
+  "model_version": "AXG-1.11",
+  "notes": [
+    "No AXG-1.11 rows were submitted; gate held after AXG-1.10 feedback blocked repeated sparse-template 24T25000 basins."
+  ],
+  "record_type": "igp24_axg_feedback_summary",
+  "sair_feedback_rows": 0,
+  "schema_version": 1,
+  "status": "no_submission_feedback_from_gate"
+}

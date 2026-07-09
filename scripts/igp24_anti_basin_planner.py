@@ -57,6 +57,8 @@ DEFAULT_ACCEPTED_FEEDBACK_JSONS = [
     / "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
     REPO_ROOT
     / "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+    REPO_ROOT
+    / "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
 ]
 DEFAULT_AVOID_LABELS = {"24T24932", "24T25000", "24T24979", "24T24970", "24T24651", "24T23883"}
 DEFAULT_TARGET_RS = [24, 20, 16, 12, 8]
@@ -167,7 +169,7 @@ def mod_pattern_signature(row: dict[str, Any] | None) -> str | None:
 
 def support_summary(coefficients: Iterable[int] | None) -> dict[str, Any]:
     if not coefficients:
-        return {"support_gcd": None, "even_support": None, "odd_support_exponents": []}
+        return {"support_gcd": None, "even_support": None, "odd_support_exponents": [], "support_count": 0}
     coeffs = [int(value) for value in coefficients]
     support = [index for index, value in enumerate(coeffs) if value != 0]
     positive_support = [index for index in support if index > 0]
@@ -178,7 +180,19 @@ def support_summary(coefficients: Iterable[int] | None) -> dict[str, Any]:
         "support_gcd": support_gcd or None,
         "even_support": all(exponent % 2 == 0 for exponent in support),
         "odd_support_exponents": [exponent for exponent in support if exponent % 2 == 1],
+        "support_count": len(support),
     }
+
+
+def classify_sparse_support_submode(odd_support_exponents: Iterable[int] | None) -> str:
+    odd_support = sorted({int(exponent) for exponent in (odd_support_exponents or [])})
+    if not odd_support:
+        return "sparse_no_odd_support_gcd1"
+    if len(odd_support) == 1:
+        return f"sparse_odd_single_e{odd_support[0]}_support_gcd1"
+    if len(odd_support) == 2:
+        return f"sparse_odd_pair_gap{odd_support[1] - odd_support[0]}_support_gcd1"
+    return f"sparse_odd_multi_n{len(odd_support)}_span{odd_support[-1] - odd_support[0]}_support_gcd1"
 
 
 def family_key(metadata: dict[str, Any], row: dict[str, Any]) -> str:
@@ -245,6 +259,16 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("odd_support_exponents")
         or []
     )
+    odd_support_exponents = (
+        metadata.get("alt_odd_support_exponents")
+        or metadata.get("r24_tower_odd_escape_odd_support_exponents")
+        or metadata.get("r20_linear_odd_support_exponents")
+        or metadata.get("r16_diversity_off_block_perturbation_exponents")
+        or metadata.get("odd_support_exponents")
+        or metadata.get("r24_high_real_odd_support_after_perturbation")
+        or support.get("odd_support_exponents")
+        or []
+    )
     mode = str(
         metadata.get("perturbation_mode")
         or row.get("perturbation_mode")
@@ -281,6 +305,12 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         or metadata.get("strategy")
         or ""
     )
+    sparse_support_submode_value = metadata.get("sparse_support_submode") or row.get("sparse_support_submode")
+    sparse_support_submode = str(sparse_support_submode_value) if sparse_support_submode_value else ""
+    if construction == "model_sample_export" and pattern == "sparse_mixed_support_gcd1":
+        sparse_support_submode = sparse_support_submode or classify_sparse_support_submode(odd_support_exponents)
+        if mode in {"", "sparse_mixed_support_gcd1"}:
+            mode = sparse_support_submode or mode
     high_real_mode = metadata.get("r24_high_real_perturbation_mode") or metadata.get("r24_high_real_mode")
     template_family_id = str(
         metadata.get("template_family_id")
@@ -330,16 +360,8 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "source_seed_hash": source_seed_hash,
         "support_gcd": int(support_gcd) if support_gcd is not None else None,
         "even_support": bool(even_support) if even_support is not None else None,
-        "odd_support_exponents": (
-            metadata.get("alt_odd_support_exponents")
-            or metadata.get("r24_tower_odd_escape_odd_support_exponents")
-            or metadata.get("r20_linear_odd_support_exponents")
-            or metadata.get("r16_diversity_off_block_perturbation_exponents")
-            or metadata.get("odd_support_exponents")
-            or metadata.get("r24_high_real_odd_support_after_perturbation")
-            or support.get("odd_support_exponents")
-            or []
-        ),
+        "odd_support_exponents": odd_support_exponents,
+        "sparse_support_submode": sparse_support_submode or None,
         "mod_p_pattern_signature": mod_pattern_signature(row),
         "irreducible": bool(row.get("irreducible")),
         "squarefree": bool(row.get("squarefree")),

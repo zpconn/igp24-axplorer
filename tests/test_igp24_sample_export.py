@@ -62,6 +62,42 @@ def test_build_sample_export_record_marks_unscored_and_safe():
     assert not record["safety"]["auto_submits"]
 
 
+def test_build_sample_export_record_refines_sparse_support_submode():
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="exp",
+        exp_id="run",
+        device="cuda",
+        max_len=24,
+        coeff_bound=4,
+        igp24_generation_strategy="mixed",
+        igp24_generation_preset="none",
+        target_r=8,
+        sample_export_target_r_conditioning_mode="control_token",
+    )
+    decoded = [0] * 24
+    decoded[0] = 1
+    decoded[9] = 1
+    decoded[11] = -1
+    decoded[18] = -8
+
+    record = build_sample_export_record(
+        sample_index=0,
+        batch_index=0,
+        batch_row=0,
+        token_ids=[1, 2, 3],
+        decoded_coefficients=decoded,
+        args=args,
+        temperature=0.8,
+        top_k=12,
+    )
+
+    assert record["support_pattern"] == "sparse_mixed_support_gcd1"
+    assert record["sparse_support_submode"] == "sparse_odd_pair_gap2_support_gcd1"
+    assert record["perturbation_mode"] == "sparse_odd_pair_gap2_support_gcd1"
+    assert record["generation_metadata"]["sparse_support_submode"] == "sparse_odd_pair_gap2_support_gcd1"
+
+
 def test_sample_support_profile_identifies_axg14_basin_shapes():
     even = [0] * 24
     even[0] = 2
@@ -76,6 +112,7 @@ def test_sample_support_profile_identifies_axg14_basin_shapes():
     assert sample_support_profile(even)["even_support_like"] is True
     assert sample_support_profile(mixed)["support_pattern"] == "sparse_mixed_support_gcd1"
     assert sample_support_profile(mixed)["support_gcd"] == 1
+    assert sample_support_profile(mixed)["sparse_support_submode"] == "sparse_odd_single_e1_support_gcd1"
 
 
 def test_sample_and_export_dedup_skips_duplicate_decoded_coefficients(tmp_path):
@@ -296,7 +333,9 @@ def test_sample_and_export_axg14_provenance_controls_skip_bad_basins(tmp_path):
     }
     assert records[0]["generation_metadata"]["generation_strategy"] == "mixed"
     assert records[0]["generation_metadata"]["support_gcd"] == 1
-    assert records[0]["generation_metadata"]["perturbation_mode"] == "sparse_mixed_support_gcd1"
+    assert records[0]["generation_metadata"]["support_pattern"] == "sparse_mixed_support_gcd1"
+    assert records[0]["generation_metadata"]["perturbation_mode"] == "sparse_odd_single_e1_support_gcd1"
+    assert records[0]["generation_metadata"]["sparse_support_submode"] == "sparse_odd_single_e1_support_gcd1"
 
 
 def test_sample_and_export_can_require_sparse_support_pattern(tmp_path):

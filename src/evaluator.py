@@ -310,6 +310,19 @@ def _load_excluded_hashes(path_text: str | None) -> tuple[set[str], dict[str, An
     return hashes, stats
 
 
+def classify_sparse_support_submode(odd_support_exponents: list[int]) -> str:
+    odd_support = sorted({int(exponent) for exponent in odd_support_exponents})
+    if not odd_support:
+        return "sparse_no_odd_support_gcd1"
+    if len(odd_support) == 1:
+        return f"sparse_odd_single_e{odd_support[0]}_support_gcd1"
+    if len(odd_support) == 2:
+        gap = odd_support[1] - odd_support[0]
+        return f"sparse_odd_pair_gap{gap}_support_gcd1"
+    span = odd_support[-1] - odd_support[0]
+    return f"sparse_odd_multi_n{len(odd_support)}_span{span}_support_gcd1"
+
+
 def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, Any]:
     if decoded_coefficients is None:
         return {
@@ -319,6 +332,7 @@ def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, 
             "even_support_like": None,
             "odd_support_exponents": [],
             "support_pattern": "invalid_decode",
+            "sparse_support_submode": None,
         }
     coeffs = [int(value) for value in decoded_coefficients]
     support = [index for index, value in enumerate(coeffs) if value != 0]
@@ -343,6 +357,9 @@ def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, 
         support_pattern = "medium_mixed_support_gcd1"
     else:
         support_pattern = "dense_mixed_support_gcd1"
+    sparse_support_submode = (
+        classify_sparse_support_submode(odd_support) if support_pattern == "sparse_mixed_support_gcd1" else None
+    )
     return {
         "support": support,
         "support_count": len(support),
@@ -350,6 +367,7 @@ def sample_support_profile(decoded_coefficients: list[int] | None) -> dict[str, 
         "even_support_like": even_support_like,
         "odd_support_exponents": odd_support,
         "support_pattern": support_pattern,
+        "sparse_support_submode": sparse_support_submode,
     }
 
 
@@ -370,6 +388,7 @@ def build_sample_provenance(
     support_gcd = support["support_gcd"]
     even_support_like = support["even_support_like"]
     support_pattern = str(support["support_pattern"])
+    sparse_support_submode = support.get("sparse_support_submode")
     if decoded_coefficients is None:
         perturbation_mode = "invalid_decode"
     elif even_support_like:
@@ -377,7 +396,7 @@ def build_sample_provenance(
     elif support_gcd and int(support_gcd) > 1:
         perturbation_mode = f"support_gcd_{int(support_gcd)}_composed_like"
     elif support["support_count"] <= 6:
-        perturbation_mode = "sparse_mixed_support_gcd1"
+        perturbation_mode = str(sparse_support_submode or "sparse_mixed_support_gcd1")
     elif support["support_count"] <= 14:
         perturbation_mode = "medium_mixed_support_gcd1"
     else:
@@ -391,6 +410,7 @@ def build_sample_provenance(
         "support": support["support"],
         "support_count": support["support_count"],
         "odd_support_exponents": support["odd_support_exponents"],
+        "sparse_support_submode": sparse_support_submode,
         "support_gcd": support_gcd,
         "even_support_like": even_support_like,
         "perturbation_mode": perturbation_mode,
@@ -424,6 +444,7 @@ def build_sample_provenance(
         "support_gcd": support_gcd,
         "even_support_like": even_support_like,
         "odd_support_exponents": support["odd_support_exponents"],
+        "sparse_support_submode": sparse_support_submode,
         "coefficient_hash": coefficient_hash,
         "decoded_hash": coefficient_hash,
         "exported_coefficient_hash": exported_hash,
@@ -631,6 +652,7 @@ def build_sample_export_record(
         "template_family_id": provenance.get("template_family_id"),
         "perturbation_mode": provenance.get("perturbation_mode"),
         "support_pattern": provenance.get("support_pattern"),
+        "sparse_support_submode": provenance.get("sparse_support_submode"),
         "support_gcd": provenance.get("support_gcd"),
         "even_support_like": provenance.get("even_support_like"),
         "coefficient_hash": provenance.get("coefficient_hash"),
@@ -656,6 +678,7 @@ def build_sample_export_record(
             "family_key": provenance.get("family_key"),
             "perturbation_mode": provenance.get("perturbation_mode"),
             "support_pattern": provenance.get("support_pattern"),
+            "sparse_support_submode": provenance.get("sparse_support_submode"),
             "support_gcd": provenance.get("support_gcd"),
             "even_support_like": provenance.get("even_support_like"),
             "odd_support_exponents": provenance.get("odd_support_exponents"),

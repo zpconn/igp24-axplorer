@@ -294,6 +294,7 @@ def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
     assert any("r16_high_real_refinement_sair_accepted_feedback_20260709.json" in path for path in paths)
     assert any("axg16_sair_accepted_feedback_20260709.json" in path for path in paths)
     assert any("axg17_sair_accepted_feedback_20260709.json" in path for path in paths)
+    assert any("axg110_sair_accepted_feedback_20260709.json" in path for path in paths)
 
     observations = load_accepted_feedback_observations(DEFAULT_ACCEPTED_FEEDBACK_JSONS)
     r16_observations = [
@@ -313,6 +314,10 @@ def test_default_accepted_feedback_includes_latest_r16_refinement_collapse():
         "6034e5dd17ee25c1245534e5",
         "25548a9429bf4bd396091d24",
     }
+
+    axg110_observations = [row for row in observations if row.get("submission_id") == "sub_e558f7c55b3d45a0a926c5a9c6d05d75"]
+    assert len(axg110_observations) == 4
+    assert {row["pair_key"] for row in axg110_observations} == {"24T25000|r=4", "24T25000|r=8"}
 
 
 def test_default_accepted_feedback_includes_r24_deterministic_collapse():
@@ -396,7 +401,8 @@ def test_candidate_features_reads_axg14_generic_provenance_metadata():
     assert features["decomposition_pattern"] == "sparse_mixed_support_gcd1"
     assert features["template_family_id"] == "model:mixed:r20:sparse_mixed_support_gcd1"
     assert features["family_key"] == "model:mixed:r20:sparse_mixed_support_gcd1:basin-a"
-    assert features["perturbation_mode"] == "sparse_mixed_support_gcd1"
+    assert features["perturbation_mode"] == "sparse_odd_single_e1_support_gcd1"
+    assert features["sparse_support_submode"] == "sparse_odd_single_e1_support_gcd1"
     assert features["support_gcd"] == 1
     assert features["even_support"] is False
     assert features["basin_fingerprint"] == "basin-a"
@@ -1052,6 +1058,58 @@ def test_submission_recommendation_can_allow_single_mode_with_template_diversity
     assert r8_lane_passed["recommended_for_sair_packet"] is True
     assert r8_lane_passed["model_generated_selected_rows"] == 4
     assert r8_lane_passed["min_perturbation_mode_count"] == 1
+
+
+def test_submission_recommendation_counts_sparse_model_submodes_as_mode_diversity():
+    selected = []
+    odd_supports = ([11], [13], [9, 11], [9, 13])
+    for index, odd_support in enumerate(odd_supports):
+        row = {
+            "canonical_hash": f"sparse-{index}",
+            "sample_export_source": "model_generate",
+            "real_root_count": 8,
+            "irreducible": True,
+            "squarefree": True,
+            "exported_coefficients": [1, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, -1, 16, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, 0, 1],
+            "mod_p_factorization_degree_patterns": [{"prime": index + 3, "degrees": [1, 23]}],
+            "generation_metadata": {
+                "construction_family": "model_sample_export",
+                "template_family_id": "model:mixed:r8:sparse_mixed_support_gcd1",
+                "family_key": f"model:mixed:r8:sparse_mixed_support_gcd1:basin-{index}",
+                "basin_fingerprint": f"basin-{index}",
+                "perturbation_mode": "sparse_mixed_support_gcd1",
+                "support_pattern": "sparse_mixed_support_gcd1",
+                "support_gcd": 1,
+                "even_support_like": False,
+                "odd_support_exponents": list(odd_support),
+            },
+        }
+        selected.append(
+            {
+                "risk_reasons": [],
+                "fatal_risk_reasons": [],
+                "advisory_risk_reasons": [],
+                "candidate": row,
+                "features": candidate_features(row),
+            }
+        )
+
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=1,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+
+    assert recommendation["recommended_for_sair_packet"] is True
+    assert recommendation["selected_mode_counts"] == {
+        "sparse_odd_pair_gap2_support_gcd1": 1,
+        "sparse_odd_pair_gap4_support_gcd1": 1,
+        "sparse_odd_single_e11_support_gcd1": 1,
+        "sparse_odd_single_e13_support_gcd1": 1,
+    }
 
 
 def test_submission_recommendation_treats_loose_crowded_risk_as_advisory():

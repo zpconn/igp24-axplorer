@@ -117,6 +117,87 @@ def test_anti_basin_feedback_joins_rows_and_updates_pairs(tmp_path):
     assert pairs["24T24932|r=12"]["basin_fingerprint"] == "basin:hash-b"
 
 
+def test_anti_basin_feedback_unwraps_proposal_loop_selected_rows(tmp_path):
+    candidate = _selected_row("hash-wrapper")
+    candidate["generation_metadata"] = {
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:sparse:r8:sparse_mixed_support_gcd1",
+        "family_key": "model:sparse:r8:sparse_mixed_support_gcd1:basin-wrapper",
+        "support_gcd": 1,
+        "even_support_like": False,
+        "odd_support_exponents": [11],
+    }
+    selected_path = tmp_path / "selected.jsonl"
+    selected_path.write_text(
+        json.dumps(
+            {
+                "candidate": candidate,
+                "score": 118.5,
+                "anti_basin_classification": "strong_packet_candidate",
+                "features": {
+                    "construction_family": "model_sample_export",
+                    "decomposition_pattern": "sparse_mixed_support_gcd1",
+                    "perturbation_mode": "sparse_odd_single_e11_support_gcd1",
+                    "family_key": "model:sparse:r8:sparse_mixed_support_gcd1:basin-wrapper",
+                    "template_family_id": "model:sparse:r8:sparse_mixed_support_gcd1",
+                    "basin_fingerprint": "basin-wrapper",
+                    "support_gcd": 1,
+                    "even_support": False,
+                    "odd_support_exponents": [11],
+                    "mod_p_pattern_signature": "p3:3-21",
+                },
+                "risk_reasons": [],
+                "score_explanation": ["test"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    status_path = tmp_path / "status.json"
+    status_path.write_text(
+        json.dumps(
+            {
+                "data": {
+                    "submissionId": "sub_wrapper",
+                    "competitionId": "igp24",
+                    "verifiedPolynomials": [
+                        {
+                            "polynomialIndex": 0,
+                            "status": "accepted",
+                            "label": "24T25000",
+                            "t": 25000,
+                            "r": 8,
+                            "scoreable": True,
+                            "scoringStatus": "scoreable",
+                            "discSource": "exact_nfdisc",
+                            "fieldDiscAbs": "123",
+                            "inBaseline": False,
+                            "baselineUnlocked": False,
+                        }
+                    ],
+                    "failedPolynomials": [],
+                    "payload": {"queuedPolynomials": []},
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    feedback = build_feedback(
+        status_response_path=status_path,
+        selected_jsonl_path=selected_path,
+        output_json_path=tmp_path / "feedback.json",
+    )
+
+    row = feedback["accepted_rows"][0]
+    assert row["canonical_hash"] == "hash-wrapper"
+    assert row["submission_line"] == "2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1"
+    assert row["anti_basin_score"] == 118.5
+    assert row["perturbation_mode"] == "sparse_odd_single_e11_support_gcd1"
+    assert row["template_family_id"] == "model:sparse:r8:sparse_mixed_support_gcd1"
+    assert row["disc_source"] == "exact_nfdisc"
+
+
 def test_update_pair_status_enriches_existing_alternate_metadata(tmp_path):
     feedback = {
         "accepted_rows": [

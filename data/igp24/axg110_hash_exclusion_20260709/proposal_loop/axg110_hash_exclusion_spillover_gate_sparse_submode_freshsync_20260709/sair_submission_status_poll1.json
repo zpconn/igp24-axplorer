@@ -1,0 +1,71 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-09T19:45:12Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "AXG-1.10-sparse-submode-local-ready-20260709"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_e558f7c55b3d45a0a926c5a9c6d05d75",
+    "updatedAt": "2026-07-09T19:45:12Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "31090626333737937516816325717584483649763833",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 0,
+        "r": 4,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "1603524602430806043967900458435520383277552269962040625",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 1,
+        "r": 4,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "3208788618479288456483653576248524949495352655944663660",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 2,
+        "r": 4,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "43250212288022116493761107467964599059576",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 3,
+        "r": 8,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      }
+    ]
+  },
+  "ok": true
+}

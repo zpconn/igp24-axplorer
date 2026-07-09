@@ -54,13 +54,23 @@
     {
       "proposal_summary": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_20260709/proposal_loop_summary.json",
       "run_id": "axg110_hash_exclusion_spillover_gate_20260709"
+    },
+    {
+      "proposal_summary": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/proposal_loop_summary.json",
+      "run_id": "axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709",
+      "sair_feedback": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+      "sair_submission_id": "sub_e558f7c55b3d45a0a926c5a9c6d05d75"
     }
   ],
   "sair_submission": {
     "automatic_live_submission": false,
-    "notes": "No AXG-1.10 packet passed gates; no live submission was made.",
+    "notes": "Sparse-submode gate made the previous spillover packet locally ready; SAIR accepted all 4 rows, but labels collapsed to 24T25000 (r4 x3, r8 x1), so this is negative feedback and not score improvement.",
     "raw_gpu_samples_submitted": false,
-    "submitted_to_sair": false
+    "result": "accepted_scoreable_but_crowded_24T25000_collapse",
+    "scoreable_rows": 4,
+    "submission_id": "sub_e558f7c55b3d45a0a926c5a9c6d05d75",
+    "submitted_rows": 4,
+    "submitted_to_sair": true
   },
   "sample_export_paths": [
     "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl.summary.json",

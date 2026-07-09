@@ -57,6 +57,36 @@ def load_status_response(path: Path) -> dict[str, Any]:
     return data
 
 
+def selected_candidate(row: dict[str, Any]) -> dict[str, Any]:
+    candidate = row.get("candidate")
+    return candidate if isinstance(candidate, dict) else row
+
+
+def selected_candidate_value(row: dict[str, Any], candidate: dict[str, Any], key: str) -> Any:
+    return candidate.get(key) if key in candidate else row.get(key)
+
+
+def selected_metadata(row: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
+    metadata = candidate.get("generation_metadata")
+    if isinstance(metadata, dict):
+        return metadata
+    metadata = row.get("generation_metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def selected_features(row: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
+    features = row.get("features")
+    if isinstance(features, dict):
+        return features
+    features = row.get("anti_basin_features")
+    if isinstance(features, dict):
+        return features
+    features = candidate.get("anti_basin_features")
+    if isinstance(features, dict):
+        return features
+    return candidate_features(candidate)
+
+
 def build_feedback(
     *,
     status_response_path: Path,
@@ -70,9 +100,10 @@ def build_feedback(
     for verified in sorted(response.get("verifiedPolynomials") or [], key=lambda row: int(row["polynomialIndex"])):
         index = int(verified["polynomialIndex"])
         selected = selected_by_index[index]
-        metadata = selected.get("generation_metadata") or {}
-        features = selected.get("anti_basin_features") or candidate_features(selected)
-        exported = selected.get("exported_coefficients")
+        candidate = selected_candidate(selected)
+        metadata = selected_metadata(selected, candidate)
+        features = selected_features(selected, candidate)
+        exported = selected_candidate_value(selected, candidate, "exported_coefficients")
         label = str(verified["label"])
         r_value = int(verified["r"])
         field_disc = _int_or_none(verified.get("fieldDiscAbs"))
@@ -80,8 +111,11 @@ def build_feedback(
             {
                 "row_number": index + 1,
                 "polynomial_index": index,
-                "canonical_hash": selected.get("canonical_hash"),
-                "short_hash": str(selected.get("canonical_hash") or "")[:12],
+                "submission_id": response.get("submissionId"),
+                "submitted_at": response.get("createdAt"),
+                "submission_description": (response.get("meta") or {}).get("description") or response.get("description"),
+                "canonical_hash": selected_candidate_value(selected, candidate, "canonical_hash"),
+                "short_hash": str(selected_candidate_value(selected, candidate, "canonical_hash") or "")[:12],
                 "submission_line": coefficient_line(exported) if isinstance(exported, list) else None,
                 "exported_coefficients": exported,
                 "label": label,
@@ -97,10 +131,10 @@ def build_feedback(
                 "fieldDiscAbs": str(field_disc) if field_disc is not None else None,
                 "in_baseline": bool(verified.get("inBaseline")),
                 "baseline_unlocked": bool(verified.get("baselineUnlocked")),
-                "coefficient_height": selected.get("coefficient_height"),
-                "real_root_count": selected.get("real_root_count"),
-                "irreducible": selected.get("irreducible"),
-                "squarefree": selected.get("squarefree"),
+                "coefficient_height": selected_candidate_value(selected, candidate, "coefficient_height"),
+                "real_root_count": selected_candidate_value(selected, candidate, "real_root_count"),
+                "irreducible": selected_candidate_value(selected, candidate, "irreducible"),
+                "squarefree": selected_candidate_value(selected, candidate, "squarefree"),
                 "construction_family": metadata.get("construction_family") or features.get("construction_family"),
                 "decomposition_pattern": metadata.get("decomposition_degree_pattern") or features.get("decomposition_pattern"),
                 "template_family_id": metadata.get("template_family_id") or features.get("template_family_id"),
@@ -111,10 +145,10 @@ def build_feedback(
                 "even_support": metadata.get("alt_even_support") if metadata.get("alt_even_support") is not None else features.get("even_support"),
                 "odd_support_exponents": metadata.get("alt_odd_support_exponents") or features.get("odd_support_exponents"),
                 "mod_p_pattern_signature": features.get("mod_p_pattern_signature"),
-                "anti_basin_score": selected.get("anti_basin_score"),
+                "anti_basin_score": selected.get("anti_basin_score", selected.get("score")),
                 "anti_basin_classification": selected.get("anti_basin_classification"),
-                "anti_basin_risk_reasons": selected.get("anti_basin_risk_reasons") or [],
-                "anti_basin_score_explanation": selected.get("anti_basin_score_explanation") or [],
+                "anti_basin_risk_reasons": selected.get("anti_basin_risk_reasons") or selected.get("risk_reasons") or [],
+                "anti_basin_score_explanation": selected.get("anti_basin_score_explanation") or selected.get("score_explanation") or [],
                 "alt_metadata": {
                     "perturbation_mode": metadata.get("alt_perturbation_mode"),
                     "inner_parameter_s": metadata.get("alt_inner_parameter_s"),

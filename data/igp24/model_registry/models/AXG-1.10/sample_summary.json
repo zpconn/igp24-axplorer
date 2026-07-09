@@ -6,6 +6,18 @@
   "hash_exclusion_jsonl": "data/igp24/active_learning/axg20_hash_exclusions_20260709.jsonl",
   "model_version": "AXG-1.10",
   "record_type": "igp24_axg_sample_summary",
+  "sair_result": {
+    "accepted_rows": 4,
+    "label_counts": {
+      "24T25000": 4
+    },
+    "pair_counts": {
+      "24T25000|r=4": 3,
+      "24T25000|r=8": 1
+    },
+    "scoreable_rows": 4
+  },
+  "sair_submission_id": "sub_e558f7c55b3d45a0a926c5a9c6d05d75",
   "sample_exports": [
     "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/gpu_model_sample_export_target_r8_conditioned.jsonl.summary.json",
     "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl.summary.json"
@@ -15,7 +27,7 @@
     "data/igp24/axg110_hash_exclusion_20260709/r8_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json",
     "data/igp24/axg110_hash_exclusion_20260709/r12_sparse_cuda/cpu_scored_samples_bound1e15/score_summary.json"
   ],
-  "status": "held_no_submission",
+  "status": "submitted_late_negative_feedback",
   "target_survivors": {
     "r12": 0,
     "r8": 1
