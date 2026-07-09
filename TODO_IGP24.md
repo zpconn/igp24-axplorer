@@ -33,6 +33,27 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 7 checkpoint: added
+  `scripts/igp24_replay_benchmark.py`, a read-only chronological replay
+  benchmark that joins historical selected packets with later SAIR
+  accepted-label feedback, then replays the original pre-feedback rows through
+  the current packet optimizer. It reports old accepted rows, crowded-collapse
+  rate, distinct verified pairs, estimated points per 100 submitted rows,
+  remediated optimizer selection count, and whether each major collapse case
+  would now be rejected or heavily downranked. Real replay artifacts:
+  `data/igp24/remediation_20260709/replay_benchmark_phase7/`. Result: 7
+  historical major collapse cases replayed, 41 old accepted rows, 100.0%
+  crowded-collapse rate, 7 distinct crowded verified pairs, estimated old
+  points per 100 submitted rows `3.79846e-07`, and 0 rows selected by the
+  remediated optimizer. All 7 major collapse cases were stopped/downranked,
+  so the Phase 7 minimum gate passed. All rejections were for
+  `missing_pair_or_compatibility_evidence`, which matches the new submission
+  discipline: anti-basin-clean rows are insufficient without exact pair or
+  sound compatibility evidence. This is not score improvement and does not
+  complete the active goal. Validation so far: py-compile passed for the replay
+  benchmark; focused replay/packet/scoring/target-planner tests passed
+  (`16 passed`); Phase 7 JSON/JSONL artifacts parse cleanly with 7 replay
+  cases.
 - 2026-07-09 remediation Phase 6 checkpoint: added
   `scripts/igp24_packet_optimizer.py`, a conservative packet selector that
   greedily maximizes the union of plausible valuable `(24Tt,r)` pairs while

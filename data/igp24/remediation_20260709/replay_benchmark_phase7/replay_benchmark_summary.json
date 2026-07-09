@@ -1,0 +1,485 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_chronological_replay_benchmark",
+  "created_at": "2026-07-09T21:59:50.716587+00:00",
+  "tool": "scripts/igp24_replay_benchmark.py",
+  "source_commit": "2b3a15a57fa73325f0e93b1ebd3f628a81e61012",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "feedback_paths": [
+      "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+      "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+      "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+      "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+      "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+      "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+      "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json"
+    ],
+    "case_count": 7,
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    }
+  },
+  "old_pipeline_totals": {
+    "accepted_rows": 41,
+    "crowded_collapse_rows": 41,
+    "crowded_collapse_rate": 1.0,
+    "distinct_verified_pair_count": 7,
+    "distinct_verified_pairs": [
+      "24T24979|r=12",
+      "24T25000|r=12",
+      "24T25000|r=16",
+      "24T25000|r=20",
+      "24T25000|r=24",
+      "24T25000|r=4",
+      "24T25000|r=8"
+    ],
+    "estimated_points_per_100_submitted": 3.79846e-07
+  },
+  "remediated_totals": {
+    "optimizer_selected_rows": 0,
+    "major_collapse_case_count": 7,
+    "major_collapse_cases_stopped_or_downranked": 7,
+    "all_major_collapse_cases_stopped_or_downranked": true
+  },
+  "phase7_minimum_gate_passed": true,
+  "cases": [
+    {
+      "feedback_path": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/r8_score_followup_sair_accepted_feedback_20260708.json",
+      "submission_id": "sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7",
+      "submitted_at": "2026-07-08T22:20:42Z",
+      "source_commit": "cc860d615340361c6aeb66b5ed6dd41d06915858",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 4,
+        "scoreable_rows": 0,
+        "label_counts": {
+          "24T25000": 4
+        },
+        "pair_counts": {
+          "24T25000|r=8": 4
+        },
+        "distinct_verified_pair_count": 1,
+        "distinct_verified_pairs": [
+          "24T25000|r=8"
+        ],
+        "crowded_collapse_rows": 4,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 5.8e-11,
+        "estimated_points_per_100_submitted": 1.45e-09,
+        "pair_values": {
+          "24T25000|r=8": {
+            "pair_key": "24T25000|r=8",
+            "maximum_possible_points": 5.8e-11,
+            "estimated_expected_points": 5.8e-11,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/r8_score_followup_20260708/anti_collapse_gate/anti_basin_selected_queue.jsonl",
+        "source_available": true,
+        "source_candidate_count": 4,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 4
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/r24_deterministic_high_real_expansion_20260709/submission/r24_deterministic_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_55fba0a7253d4a72b8ab7a6e80d5cede",
+      "submitted_at": "2026-07-09T14:26:00Z",
+      "source_commit": "a1714902fc4347dba51f8e7ceb7c9dfd4ddf5d7d",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 11,
+        "scoreable_rows": 5,
+        "label_counts": {
+          "24T25000": 11
+        },
+        "pair_counts": {
+          "24T25000|r=24": 11
+        },
+        "distinct_verified_pair_count": 1,
+        "distinct_verified_pairs": [
+          "24T25000|r=24"
+        ],
+        "crowded_collapse_rows": 11,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 5.1916e-08,
+        "estimated_points_per_100_submitted": 4.71964e-07,
+        "pair_values": {
+          "24T25000|r=24": {
+            "pair_key": "24T25000|r=24",
+            "maximum_possible_points": 1.19209e-07,
+            "estimated_expected_points": 5.1916e-08,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/r24_deterministic_high_real_expansion_20260709/anti_basin_gate/anti_basin_selected_queue.jsonl",
+        "source_available": true,
+        "source_candidate_count": 11,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 11
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_11fc452b521044619796f738cc4b22c3",
+      "submitted_at": "2026-07-09T16:06:17Z",
+      "source_commit": "a6fe2290f3924da40b9cb14070b6ce619678ee7c",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 7,
+        "scoreable_rows": 7,
+        "label_counts": {
+          "24T25000": 7
+        },
+        "pair_counts": {
+          "24T25000|r=24": 2,
+          "24T25000|r=20": 2,
+          "24T25000|r=12": 3
+        },
+        "distinct_verified_pair_count": 3,
+        "distinct_verified_pairs": [
+          "24T25000|r=12",
+          "24T25000|r=20",
+          "24T25000|r=24"
+        ],
+        "crowded_collapse_rows": 7,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 7.644e-08,
+        "estimated_points_per_100_submitted": 1.092e-06,
+        "pair_values": {
+          "24T25000|r=12": {
+            "pair_key": "24T25000|r=12",
+            "maximum_possible_points": 7.451e-09,
+            "estimated_expected_points": 1.51e-09,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          },
+          "24T25000|r=20": {
+            "pair_key": "24T25000|r=20",
+            "maximum_possible_points": 5.9605e-08,
+            "estimated_expected_points": 2.3014e-08,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          },
+          "24T25000|r=24": {
+            "pair_key": "24T25000|r=24",
+            "maximum_possible_points": 1.19209e-07,
+            "estimated_expected_points": 5.1916e-08,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/selected_review_packet.jsonl",
+        "source_available": true,
+        "source_candidate_count": 7,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 7
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/axg17_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_cdd210208d4e4c0b9b692c1389458c2c",
+      "submitted_at": null,
+      "source_commit": null,
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 6,
+        "scoreable_rows": 6,
+        "label_counts": {
+          "24T25000": 6
+        },
+        "pair_counts": {
+          "24T25000|r=8": 6
+        },
+        "distinct_verified_pair_count": 1,
+        "distinct_verified_pairs": [
+          "24T25000|r=8"
+        ],
+        "crowded_collapse_rows": 6,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 5.8e-11,
+        "estimated_points_per_100_submitted": 9.67e-10,
+        "pair_values": {
+          "24T25000|r=8": {
+            "pair_key": "24T25000|r=8",
+            "maximum_possible_points": 5.8e-11,
+            "estimated_expected_points": 5.8e-11,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/axg17_score_aware_20260709/proposal_loop/axg17_score_aware_gate_20260709/selected_review_packet.jsonl",
+        "source_available": true,
+        "source_candidate_count": 6,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 6
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/axg18_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_2f897a63341b46b382139d6d8de88792",
+      "submitted_at": "2026-07-09T18:40:58Z",
+      "source_commit": "c35cbf97ace324877fa5cb07ff525cebb2364ea5",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 3,
+        "scoreable_rows": 3,
+        "label_counts": {
+          "24T25000": 3
+        },
+        "pair_counts": {
+          "24T25000|r=16": 2,
+          "24T25000|r=20": 1
+        },
+        "distinct_verified_pair_count": 2,
+        "distinct_verified_pairs": [
+          "24T25000|r=16",
+          "24T25000|r=20"
+        ],
+        "crowded_collapse_rows": 3,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 2.7205e-08,
+        "estimated_points_per_100_submitted": 9.06833e-07,
+        "pair_values": {
+          "24T25000|r=16": {
+            "pair_key": "24T25000|r=16",
+            "maximum_possible_points": 1.4901e-08,
+            "estimated_expected_points": 4.191e-09,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          },
+          "24T25000|r=20": {
+            "pair_key": "24T25000|r=20",
+            "maximum_possible_points": 5.9605e-08,
+            "estimated_expected_points": 2.3014e-08,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/axg18_escape_20260709/proposal_loop/axg18_high_real_escape_combined_gate_20260709/selected_review_packet.jsonl",
+        "source_available": true,
+        "source_candidate_count": 3,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 3
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/axg110_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_e558f7c55b3d45a0a926c5a9c6d05d75",
+      "submitted_at": "2026-07-09T19:45:12Z",
+      "source_commit": "186ebe02e2788099704db4d288edf7b0e139e50d",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 4,
+        "scoreable_rows": 4,
+        "label_counts": {
+          "24T25000": 4
+        },
+        "pair_counts": {
+          "24T25000|r=4": 3,
+          "24T25000|r=8": 1
+        },
+        "distinct_verified_pair_count": 2,
+        "distinct_verified_pairs": [
+          "24T25000|r=4",
+          "24T25000|r=8"
+        ],
+        "crowded_collapse_rows": 4,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 5.8e-11,
+        "estimated_points_per_100_submitted": 1.45e-09,
+        "pair_values": {
+          "24T25000|r=4": {
+            "pair_key": "24T25000|r=4",
+            "maximum_possible_points": 0.0,
+            "estimated_expected_points": 0.0,
+            "score_ceiling_class": null,
+            "category": null
+          },
+          "24T25000|r=8": {
+            "pair_key": "24T25000|r=8",
+            "maximum_possible_points": 5.8e-11,
+            "estimated_expected_points": 5.8e-11,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/axg110_hash_exclusion_20260709/proposal_loop/axg110_hash_exclusion_spillover_gate_sparse_submode_freshsync_20260709/selected_review_packet.jsonl",
+        "source_available": true,
+        "source_candidate_count": 4,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 4
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    },
+    {
+      "feedback_path": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/axg112_sair_accepted_feedback_20260709.json",
+      "submission_id": "sub_51983ad56663418187e9adc3142c1162",
+      "submitted_at": "2026-07-09T20:18:19Z",
+      "source_commit": "29bd6815ca91d5b574b1a8fc9f18bf222a9be297",
+      "major_crowded_collapse_batch": true,
+      "remediated_stops_or_downranks": true,
+      "old_pipeline": {
+        "accepted_rows": 6,
+        "scoreable_rows": 6,
+        "label_counts": {
+          "24T24979": 6
+        },
+        "pair_counts": {
+          "24T24979|r=12": 6
+        },
+        "distinct_verified_pair_count": 1,
+        "distinct_verified_pairs": [
+          "24T24979|r=12"
+        ],
+        "crowded_collapse_rows": 6,
+        "crowded_collapse_rate": 1.0,
+        "all_rows_hit_crowded_labels": true,
+        "low_team_pair_yield": 0,
+        "low_team_pairs": [],
+        "estimated_points_unique_pairs": 2e-12,
+        "estimated_points_per_100_submitted": 3.3e-11,
+        "pair_values": {
+          "24T24979|r=12": {
+            "pair_key": "24T24979|r=12",
+            "maximum_possible_points": 7e-12,
+            "estimated_expected_points": 2e-12,
+            "score_ceiling_class": "crowded_near_zero_ceiling",
+            "category": "api_scoreable_pair_followup"
+          }
+        }
+      },
+      "remediated_replay": {
+        "source_selected_jsonl": "data/igp24/axg112_pivot_20260709/proposal_loop/axg112_r12_pivot_combined_gate_composed_advisory_20260709/selected_review_packet.jsonl",
+        "source_available": true,
+        "source_candidate_count": 6,
+        "optimizer_eligible_count": 0,
+        "optimizer_selected_rows": 0,
+        "optimizer_selected_possible_uncovered_pair_count": 0,
+        "optimizer_selected_possible_low_team_pair_count": 0,
+        "optimizer_selected_possible_uncovered_pairs": [],
+        "optimizer_selected_possible_low_team_pairs": [],
+        "optimizer_reject_reason_counts": {
+          "missing_pair_or_compatibility_evidence": 6
+        },
+        "optimizer_rejected_all": true,
+        "optimizer_downrank_fraction": 0.0,
+        "optimizer_heavily_downranked": true
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/remediation_20260709/replay_benchmark_phase7/replay_benchmark_summary.json",
+    "report_md": "data/igp24/remediation_20260709/replay_benchmark_phase7/replay_benchmark_report.md",
+    "cases_jsonl": "data/igp24/remediation_20260709/replay_benchmark_phase7/replay_benchmark_cases.jsonl"
+  }
+}

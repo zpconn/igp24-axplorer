@@ -1,0 +1,30 @@
+# IGP24 Chronological Replay Benchmark
+
+This benchmark replays historical selected packets against later SAIR feedback and the current remediated packet optimizer. It does not use live APIs or authorize submission.
+
+## Aggregate
+
+- Cases: 7
+- Old accepted rows: 41
+- Old crowded-collapse rate: 1.0
+- Old distinct verified pairs: 7
+- Estimated old points per 100 submitted rows: 3.79846e-07
+- Major collapse cases: 7
+- Major collapse cases stopped/downranked by remediated replay: 7
+- Phase 7 minimum gate passed: `True`
+
+## Cases
+
+| case | submitted | accepted | labels | pairs | collapse rate | old points/100 | remediated selected | stop/downrank |
+| --- | --- | ---: | --- | --- | ---: | ---: | ---: | --- |
+| `sub_87b36ed9fbe84cd4aa3c6075c0ce3cd7` | 2026-07-08T22:20:42Z | 4 | {"24T25000": 4} | {"24T25000|r=8": 4} | 1.0 | 1.45e-09 | 0 | True |
+| `sub_55fba0a7253d4a72b8ab7a6e80d5cede` | 2026-07-09T14:26:00Z | 11 | {"24T25000": 11} | {"24T25000|r=24": 11} | 1.0 | 4.71964e-07 | 0 | True |
+| `sub_11fc452b521044619796f738cc4b22c3` | 2026-07-09T16:06:17Z | 7 | {"24T25000": 7} | {"24T25000|r=12": 3, "24T25000|r=20": 2, "24T25000|r=24": 2} | 1.0 | 1.092e-06 | 0 | True |
+| `sub_cdd210208d4e4c0b9b692c1389458c2c` | None | 6 | {"24T25000": 6} | {"24T25000|r=8": 6} | 1.0 | 9.67e-10 | 0 | True |
+| `sub_2f897a63341b46b382139d6d8de88792` | 2026-07-09T18:40:58Z | 3 | {"24T25000": 3} | {"24T25000|r=16": 2, "24T25000|r=20": 1} | 1.0 | 9.06833e-07 | 0 | True |
+| `sub_e558f7c55b3d45a0a926c5a9c6d05d75` | 2026-07-09T19:45:12Z | 4 | {"24T25000": 4} | {"24T25000|r=4": 3, "24T25000|r=8": 1} | 1.0 | 1.45e-09 | 0 | True |
+| `sub_51983ad56663418187e9adc3142c1162` | 2026-07-09T20:18:19Z | 6 | {"24T24979": 6} | {"24T24979|r=12": 6} | 1.0 | 3.3e-11 | 0 | True |
+
+## Interpretation
+
+A pass here is not leaderboard progress. It is evidence that the remediated stack no longer approves the historical collapse packets that produced crowded-label outcomes such as `24T25000` and `24T24979`.
