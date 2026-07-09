@@ -1,0 +1,124 @@
+{
+  "avoid_labels": [
+    "24T24970",
+    "24T24979",
+    "24T25000",
+    "24T24651",
+    "24T23883"
+  ],
+  "blocking_reason_counts": {
+    "missing_group_invariants": 125
+  },
+  "created_at": "2026-07-09T22:15:30.015065+00:00",
+  "families_per_target": 5,
+  "family_route_counts": {
+    "composition_8x3": 25,
+    "gx2_degree12_lift": 25,
+    "positive_quadratic_product": 25,
+    "quartic_in_x6": 25,
+    "tower_6x4": 25
+  },
+  "generation_ready_route_count": 0,
+  "generation_ready_target_count": 0,
+  "group_index_provided": false,
+  "input_group_index": null,
+  "input_score_plan": "data/igp24/remediation_20260709/score_economics_phase4/score_aware_target_plan.json",
+  "input_score_plan_created_at": "2026-07-09T21:43:28.841522+00:00",
+  "live_submission_recommended_now": false,
+  "record_type": "igp24_construction_target_router",
+  "require_group_invariants": true,
+  "route_count": 125,
+  "safety_note": "Read-only target-to-construction router. It does not generate candidates, call external algebra systems or SAIR, or recommend live submission.",
+  "schema_version": 1,
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+  "source_commit": "1c435377bce8d5fb18843647b38f067df709558a",
+  "target_category_filter": "uncovered_signature",
+  "target_group_record_hit_count": 0,
+  "target_group_record_missing_count": 25,
+  "target_pair_count": 25,
+  "tool": "scripts/igp24_construction_target_router.py",
+  "top_generation_ready_routes": [],
+  "top_proxy_routes": [
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "quartic_in_x6",
+      "pair_key": "24T19906|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T19906|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "quartic_in_x6",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "blocking_reasons": [
+        "missing_group_invariants"
+      ],
+      "combined_priority_score": 1448.491,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T23413|r=24"
+    }
+  ],
+  "top_targets_requested": 25
+}

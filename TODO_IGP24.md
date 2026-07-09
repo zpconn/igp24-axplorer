@@ -55,6 +55,28 @@ results change.
   and does not satisfy live-submission gates. Validation so far:
   py-compile passed for the new registry/report code and focused construction
   registry tests passed (`5 passed`).
+- 2026-07-09 remediation Phase 5 routing checkpoint: added
+  `scripts/igp24_construction_target_router.py`, which consumes the
+  score-aware target plan and maps valuable target pairs to ranked
+  construction-family routes. The router is read-only and separates proxy
+  route metadata from generation-ready routes. By default, a route is not
+  generation-ready unless the target label has group invariants from a
+  group-cycle index; without that, it reports `missing_group_invariants`
+  instead of pretending real-root/family history is target-label evidence.
+  Generated real artifacts under
+  `data/igp24/remediation_20260709/construction_router_phase5/high_real_top25_no_group_index/`.
+  Result: 25 top uncovered r24 target pairs, 125 target-family routes,
+  0 target group records found, 0 generation-ready routes, and 125/125 routes
+  blocked by `missing_group_invariants`. The top proxy routes are still
+  `24T19906|r=24` and nearby r24 uncovered targets paired with
+  `quartic_in_x6`/`gx2_degree12_lift`, but every top family carries
+  known-collapse warnings and none is a live-generation or submission signal
+  until the real group index exists. This moves Phase 5 from a static registry
+  to planner-facing target-family routing, while making the Phase 3 GAP/index
+  dependency the explicit bottleneck for true group-directed search.
+  Validation so far: py-compile passed for the router; focused construction
+  router/registry tests passed (`8 passed`); real Phase 5 routing artifacts
+  parse cleanly.
 - 2026-07-09 remediation Phase 7 checkpoint: added
   `scripts/igp24_replay_benchmark.py`, a read-only chronological replay
   benchmark that joins historical selected packets with later SAIR
