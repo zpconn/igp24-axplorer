@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-07-09T21:32:02.458504+00:00",
+  "dependency_available": false,
+  "gap_path": null,
+  "no_approximation_written": true,
+  "note": "GAP is not available on PATH; full Phase 3 index precomputation is blocked.",
+  "record_type": "igp24_group_cycle_index_dependency_report",
+  "required_dependency": "GAP with TransitiveGroup(24,t), ConjugacyClasses, CycleLengthsPerm, SignPerm",
+  "schema_version": 1,
+  "status": "blocked_missing_gap"
+}

@@ -15,7 +15,7 @@ import threading
 from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from numbers import Integral
-from typing import Any, Iterable, Iterator, Sequence
+from typing import Any, Iterable, Iterator, Mapping, Sequence
 
 try:  # Keep upstream environments importable before the SymPy env is active.
     import sympy as sp
@@ -359,6 +359,9 @@ def score_candidate(
     coeff_bound: int,
     target_r: int | None = None,
     target_t: str | None = None,
+    target_label: str | None = None,
+    target_label_set: Iterable[str] | None = None,
+    group_compatibility: Mapping[str, Any] | None = None,
     prime_limit: int = 31,
     discriminant_weight: float = 1.0,
     height_weight: float = 1.0,
@@ -389,9 +392,11 @@ def score_candidate(
         target_r_distance = -1
     novelty_component = 25.0 if analysis.canonical_hash not in seen else 0.0
 
-    # target_t is intentionally metadata-only in stage 0. Exact 24Tt labels need
-    # later external verification; do not score against unverified labels here.
-    _ = target_t
+    target_labels = set(str(label) for label in (target_label_set or []) if label)
+    if target_label:
+        target_labels.add(str(target_label))
+    if target_t:
+        target_labels.add(str(target_t))
 
     base_score = 10_000.0
     cycle_component = float(cycle_diversity_weight) * diversity
@@ -405,6 +410,37 @@ def score_candidate(
         - discriminant_penalty
         - height_penalty
     )
+    warnings = list(analysis.warnings)
+    compatibility_penalty = 0.0
+    target_label_applied = False
+    if target_labels:
+        if group_compatibility is not None:
+            compatible_labels = set(str(label) for label in group_compatibility.get("compatible_labels") or [])
+            target_label_applied = True
+            if target_labels.isdisjoint(compatible_labels):
+                components = {
+                    "base_score": base_score,
+                    "target_r_bonus": root_component,
+                    "target_r_distance": target_r_distance,
+                    "novelty_bonus": novelty_component,
+                    "is_novel": analysis.canonical_hash not in seen,
+                    "cycle_diversity_count": diversity,
+                    "cycle_diversity_bonus": cycle_component,
+                    "log_abs_discriminant_penalty": discriminant_penalty,
+                    "height_penalty": height_penalty,
+                    "target_label_applied": True,
+                    "target_label_rejected": True,
+                    "raw_score": -1.0,
+                    "final_score": -1.0,
+                }
+                warnings.append("target_label_incompatible_with_group_cycle_evidence")
+                return -1.0, replace(analysis, score_components=components, warnings=tuple(warnings))
+            compatible_count = int(group_compatibility.get("compatible_label_count") or len(compatible_labels))
+            compatibility_penalty = min(250.0, math.log1p(max(0, compatible_count - 1)) * 25.0)
+        else:
+            warnings.append("target_label_not_applied_missing_group_compatibility_index")
+
+    raw_score -= compatibility_penalty
     score = max(0.0, raw_score)
     components: dict[str, float | int | bool] = {
         "base_score": base_score,
@@ -416,10 +452,13 @@ def score_candidate(
         "cycle_diversity_bonus": cycle_component,
         "log_abs_discriminant_penalty": discriminant_penalty,
         "height_penalty": height_penalty,
+        "target_label_requested": bool(target_labels),
+        "target_label_applied": target_label_applied,
+        "target_label_ambiguity_penalty": compatibility_penalty,
         "raw_score": raw_score,
         "final_score": score,
     }
-    return score, replace(analysis, score_components=components)
+    return score, replace(analysis, score_components=components, warnings=tuple(warnings))
 
 
 def analysis_to_record(

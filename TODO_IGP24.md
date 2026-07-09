@@ -33,6 +33,29 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 3 checkpoint: added the first sound
+  group-cycle compatibility layer. New files:
+  `src/igp24/group_compatibility.py`,
+  `scripts/igp24_build_group_cycle_index.py`, and
+  `scripts/igp24_candidate_group_compatibility.py`. The engine stores
+  degree-24 group cycle types in SQLite, intersects candidate Frobenius cycle
+  types from unramified-prime factorization patterns, reports compatible label
+  sets as necessary evidence only, projects compatible uncovered/low-team/
+  crowded pairs from progress data, and validates historical true-label
+  containment. `score_candidate()` no longer silently treats `target_t` as
+  meaningful targeting: without a compatibility result it records
+  `target_label_not_applied_missing_group_compatibility_index`, and with a
+  supplied compatibility result it can hard-reject incompatible target labels
+  or apply an ambiguity penalty. Local dependency probe found GAP is not on
+  `PATH`, so the real all-25,000-label group-cycle index is blocked; report:
+  `data/igp24/remediation_20260709/group_compatibility_phase3/gap_dependency_report.md`.
+  A tiny synthetic SQLite index under
+  `data/igp24/remediation_20260709/group_compatibility_phase3/synthetic_demo/`
+  validates the CLI/report shape only and is explicitly not real GAP data.
+  Synthetic containment check: 1/1 true labels retained, compatible label
+  count 2. No live submission is recommended until GAP is installed and the
+  historical containment check passes on real SAIR-verified rows with 100%
+  true-label retention.
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints
