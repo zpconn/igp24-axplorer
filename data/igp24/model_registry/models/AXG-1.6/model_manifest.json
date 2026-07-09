@@ -33,7 +33,7 @@
     "known_limitations": [
         "AXG-1.6 is a bounded iteration, not a long full-scale training run.",
         "Decoded yield was lower than AXG-1.5 under stricter anti-collapse caps.",
-        "The selected packet is locally dry-run-ready, but no live submission was authorized.",
+        "The selected packet was live-submitted after explicit authorization and collapsed to 24T25000.",
         "GPU samples must pass CPU filters and basin gates before any submission review."
   ],
   "model_version": "AXG-1.6",
@@ -53,12 +53,16 @@
       "run_manifest": "data/igp24/model_registry/runs/AXG-1.6/axg16_anti_collapse_multir_gate_20260709/run_manifest.json"
     }
   ],
-  "sair_submission": {
-    "automatic_live_submission": false,
-    "notes": "Submission is explicit and gated outside model training.",
-    "raw_gpu_samples_submitted": false,
-    "submitted_to_sair": false
-  },
+    "sair_submission": {
+        "automatic_live_submission": false,
+        "notes": "Submitted after explicit user authorization; all rows accepted/scoreable but collapsed to 24T25000.",
+        "raw_gpu_samples_submitted": false,
+        "submitted_to_sair": true,
+        "submission_id": "sub_11fc452b521044619796f738cc4b22c3",
+        "accepted_rows": 7,
+        "scoreable_rows": 7,
+        "score_improved": false
+    },
     "sample_export_paths": [
         "data/igp24/axg16_conditioned_20260709/r12_cuda/gpu_model_sample_export_target_r12_conditioned.jsonl",
         "data/igp24/axg16_conditioned_20260709/r16_cuda/gpu_model_sample_export_target_r16_conditioned.jsonl",

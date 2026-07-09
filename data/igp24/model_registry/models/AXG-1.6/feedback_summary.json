@@ -2,13 +2,14 @@
   "record_type": "igp24_axg_feedback_summary",
   "schema_version": 1,
   "model_version": "AXG-1.6",
-  "status": "local_feedback_only_advisory_packet_ready_no_sair_submission",
-  "sair_feedback_rows": 0,
+  "status": "sair_submitted_scoreable_collapsed_to_24T25000",
+  "sair_feedback_rows": 7,
   "notes": [
     "Fresh SAIR sync was complete: 24/24 submission details and downloads recovered, 208 scoreable rows, 0 pending rows, 0 unmatched rows.",
-    "No AXG-1.6 rows were live-submitted to SAIR.",
-    "A 7-row model-generated packet passed local coefficient sanity and dry-run validation under the advisory/fatal risk split.",
-    "The selected packet has 0 fatal risks, 7 advisory loose-basin warnings, 7 basin fingerprints, and selected r values 12, 20, and 24."
+    "AXG-1.6 was live-submitted after explicit user authorization as sub_11fc452b521044619796f738cc4b22c3.",
+    "All 7 rows were accepted and became scoreable.",
+    "All 7 rows collapsed to 24T25000: three r12, two r20, and two r24 rows.",
+    "The API did not expose row-level points, but label-progress/team-count evidence shows no meaningful score improvement."
   ],
   "sair_sync": {
     "partial_sync": false,
@@ -16,7 +17,7 @@
     "download_complete": true,
     "pending_rows": 0,
     "remaining_signature_count": 47811,
-    "scoreable_rows": 208,
-    "submission_recommended_now": true
+    "scoreable_rows": 215,
+    "submission_recommended_now": false
   }
 }

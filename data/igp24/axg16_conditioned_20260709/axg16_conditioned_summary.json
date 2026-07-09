@@ -94,7 +94,20 @@
     "dry_run_ok": true,
     "polynomial_count": 7,
     "dry_run_body_bytes": 929,
-    "live_submission_made": false,
+    "live_submission_made": true,
+    "submission_id": "sub_11fc452b521044619796f738cc4b22c3",
+    "accepted_rows": 7,
+    "scoreable_rows": 7,
+    "pending_rows_after_poll": 0,
+    "label_counts_after_submit": {
+      "24T25000": 7
+    },
+    "pair_counts_after_submit": {
+      "24T25000|r=12": 3,
+      "24T25000|r=20": 2,
+      "24T25000|r=24": 2
+    },
+    "api_points_available": false,
     "significant_verifiable_score_progress": false
   },
   "registry_run": "data/igp24/model_registry/runs/AXG-1.6/axg16_anti_collapse_multir_gate_20260709/run_manifest.json"

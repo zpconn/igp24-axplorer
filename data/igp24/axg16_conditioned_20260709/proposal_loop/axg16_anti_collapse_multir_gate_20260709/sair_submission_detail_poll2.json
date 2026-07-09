@@ -1,0 +1,107 @@
+{
+  "data": {
+    "competitionId": "igp24",
+    "createdAt": "2026-07-09T16:06:17Z",
+    "failedPolynomials": [],
+    "kind": "igp24-polynomial",
+    "meta": {
+      "description": "AXG-1.6 anti-collapse multi-r packet 20260709"
+    },
+    "payload": {
+      "queuedPolynomials": []
+    },
+    "submissionId": "sub_11fc452b521044619796f738cc4b22c3",
+    "updatedAt": "2026-07-09T16:06:17Z",
+    "verifiedPolynomials": [
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "688210153608392263581773403971976606970148324336904632784987637945129753",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 0,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "9454057148944133654029256563245192036470497298683308233316641805562926952155619238091215998600903597095373599800100",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 1,
+        "r": 24,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "6436583191589792329554991645404665921028525026886227553925375527687831810673021177787661574970197125969794187259630991104331761523831416977366043061109840900",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 2,
+        "r": 20,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 3,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "exact_nfdisc",
+        "fieldDiscAbs": "14311355614004873366626637876214974409948099062438421018298565126142639840383820517842377146823379531878208707893282972496072003900333215145880405686891300537305787492885026352780668157625511070464",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 4,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 5,
+        "r": 20,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      },
+      {
+        "baselineUnlocked": false,
+        "discSource": "mixed_disc",
+        "inBaseline": false,
+        "label": "24T25000",
+        "polynomialIndex": 6,
+        "r": 12,
+        "scoreable": true,
+        "scoringStatus": "scoreable",
+        "status": "accepted",
+        "t": 25000
+      }
+    ]
+  },
+  "ok": true
+}

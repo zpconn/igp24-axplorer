@@ -1,0 +1,687 @@
+{
+  "record_type": "igp24_sair_progress_snapshot_summary",
+  "created_at": "2026-07-09T16:07:22.150185+00:00",
+  "source_snapshot": {
+    "record_type": "igp24_sair_label_progress_snapshot",
+    "created_at": "2026-07-09T16:06:57.548818+00:00",
+    "page_count": 5,
+    "label_count": 25000,
+    "first_generated_at": "2026-07-09T16:06:49Z",
+    "last_generated_at": "2026-07-09T16:06:56Z",
+    "published": true
+  },
+  "coverage_by_r": [
+    {
+      "r": 0,
+      "allowed": 24839,
+      "discovered": 20888,
+      "remaining": 3951,
+      "discovered_pct": 84.09,
+      "remaining_pct": 15.91,
+      "average_signature_team_count": 5.28,
+      "max_signature_team_count": 58
+    },
+    {
+      "r": 2,
+      "allowed": 5760,
+      "discovered": 5618,
+      "remaining": 142,
+      "discovered_pct": 97.53,
+      "remaining_pct": 2.47,
+      "average_signature_team_count": 7.09,
+      "max_signature_team_count": 56
+    },
+    {
+      "r": 4,
+      "allowed": 20057,
+      "discovered": 16615,
+      "remaining": 3442,
+      "discovered_pct": 82.84,
+      "remaining_pct": 17.16,
+      "average_signature_team_count": 4.4,
+      "max_signature_team_count": 57
+    },
+    {
+      "r": 6,
+      "allowed": 6004,
+      "discovered": 5522,
+      "remaining": 482,
+      "discovered_pct": 91.97,
+      "remaining_pct": 8.03,
+      "average_signature_team_count": 5.61,
+      "max_signature_team_count": 49
+    },
+    {
+      "r": 8,
+      "allowed": 23556,
+      "discovered": 17450,
+      "remaining": 6106,
+      "discovered_pct": 74.08,
+      "remaining_pct": 25.92,
+      "average_signature_team_count": 3.62,
+      "max_signature_team_count": 47
+    },
+    {
+      "r": 10,
+      "allowed": 3288,
+      "discovered": 2931,
+      "remaining": 357,
+      "discovered_pct": 89.14,
+      "remaining_pct": 10.86,
+      "average_signature_team_count": 5.69,
+      "max_signature_team_count": 40
+    },
+    {
+      "r": 12,
+      "allowed": 19934,
+      "discovered": 13860,
+      "remaining": 6074,
+      "discovered_pct": 69.53,
+      "remaining_pct": 30.47,
+      "average_signature_team_count": 3.05,
+      "max_signature_team_count": 46
+    },
+    {
+      "r": 14,
+      "allowed": 2581,
+      "discovered": 2232,
+      "remaining": 349,
+      "discovered_pct": 86.48,
+      "remaining_pct": 13.52,
+      "average_signature_team_count": 5.69,
+      "max_signature_team_count": 43
+    },
+    {
+      "r": 16,
+      "allowed": 21421,
+      "discovered": 11614,
+      "remaining": 9807,
+      "discovered_pct": 54.22,
+      "remaining_pct": 45.78,
+      "average_signature_team_count": 2.29,
+      "max_signature_team_count": 42
+    },
+    {
+      "r": 18,
+      "allowed": 2168,
+      "discovered": 1823,
+      "remaining": 345,
+      "discovered_pct": 84.09,
+      "remaining_pct": 15.91,
+      "average_signature_team_count": 5.97,
+      "max_signature_team_count": 41
+    },
+    {
+      "r": 20,
+      "allowed": 10852,
+      "discovered": 5658,
+      "remaining": 5194,
+      "discovered_pct": 52.14,
+      "remaining_pct": 47.86,
+      "average_signature_team_count": 2.23,
+      "max_signature_team_count": 42
+    },
+    {
+      "r": 22,
+      "allowed": 376,
+      "discovered": 376,
+      "remaining": 0,
+      "discovered_pct": 100.0,
+      "remaining_pct": 0.0,
+      "average_signature_team_count": 17.63,
+      "max_signature_team_count": 38
+    },
+    {
+      "r": 24,
+      "allowed": 25000,
+      "discovered": 13515,
+      "remaining": 11485,
+      "discovered_pct": 54.06,
+      "remaining_pct": 45.94,
+      "average_signature_team_count": 1.78,
+      "max_signature_team_count": 45
+    }
+  ],
+  "remaining_signature_count": 47734,
+  "discovered_signature_count": 118102,
+  "top_remaining_r_buckets": [
+    {
+      "r": 24,
+      "allowed": 25000,
+      "discovered": 13515,
+      "remaining": 11485,
+      "discovered_pct": 54.06,
+      "remaining_pct": 45.94,
+      "average_signature_team_count": 1.78,
+      "max_signature_team_count": 45
+    },
+    {
+      "r": 16,
+      "allowed": 21421,
+      "discovered": 11614,
+      "remaining": 9807,
+      "discovered_pct": 54.22,
+      "remaining_pct": 45.78,
+      "average_signature_team_count": 2.29,
+      "max_signature_team_count": 42
+    },
+    {
+      "r": 8,
+      "allowed": 23556,
+      "discovered": 17450,
+      "remaining": 6106,
+      "discovered_pct": 74.08,
+      "remaining_pct": 25.92,
+      "average_signature_team_count": 3.62,
+      "max_signature_team_count": 47
+    },
+    {
+      "r": 12,
+      "allowed": 19934,
+      "discovered": 13860,
+      "remaining": 6074,
+      "discovered_pct": 69.53,
+      "remaining_pct": 30.47,
+      "average_signature_team_count": 3.05,
+      "max_signature_team_count": 46
+    },
+    {
+      "r": 20,
+      "allowed": 10852,
+      "discovered": 5658,
+      "remaining": 5194,
+      "discovered_pct": 52.14,
+      "remaining_pct": 47.86,
+      "average_signature_team_count": 2.23,
+      "max_signature_team_count": 42
+    },
+    {
+      "r": 0,
+      "allowed": 24839,
+      "discovered": 20888,
+      "remaining": 3951,
+      "discovered_pct": 84.09,
+      "remaining_pct": 15.91,
+      "average_signature_team_count": 5.28,
+      "max_signature_team_count": 58
+    },
+    {
+      "r": 4,
+      "allowed": 20057,
+      "discovered": 16615,
+      "remaining": 3442,
+      "discovered_pct": 82.84,
+      "remaining_pct": 17.16,
+      "average_signature_team_count": 4.4,
+      "max_signature_team_count": 57
+    },
+    {
+      "r": 6,
+      "allowed": 6004,
+      "discovered": 5522,
+      "remaining": 482,
+      "discovered_pct": 91.97,
+      "remaining_pct": 8.03,
+      "average_signature_team_count": 5.61,
+      "max_signature_team_count": 49
+    }
+  ],
+  "top_zero_team_remaining_labels": [
+    {
+      "label": "24T24093",
+      "t": 24093,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23413",
+      "t": 23413,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22667",
+      "t": 22667,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22631",
+      "t": 22631,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22306",
+      "t": 22306,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T19906",
+      "t": 19906,
+      "remaining_count": 12,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T24424",
+      "t": 24424,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T24189",
+      "t": 24189,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T24089",
+      "t": 24089,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23742",
+      "t": 23742,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23741",
+      "t": 23741,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23722",
+      "t": 23722,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23719",
+      "t": 23719,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23718",
+      "t": 23718,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T23412",
+      "t": 23412,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22736",
+      "t": 22736,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22735",
+      "t": 22735,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T22567",
+      "t": 22567,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T21405",
+      "t": 21405,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T21404",
+      "t": 21404,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T15092",
+      "t": 15092,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T15083",
+      "t": 15083,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T15069",
+      "t": 15069,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T12891",
+      "t": 12891,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    },
+    {
+      "label": "24T12889",
+      "t": 12889,
+      "remaining_count": 11,
+      "remaining_r": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        24
+      ]
+    }
+  ]
+}

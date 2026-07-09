@@ -1,0 +1,45 @@
+{
+  "record_type": "igp24_axg16_sair_submission_summary",
+  "schema_version": 1,
+  "created_at": "2026-07-09T16:10:30Z",
+  "submission_id": "sub_11fc452b521044619796f738cc4b22c3",
+  "batch_id": "igp24_batch_8efa96c1afd6465a",
+  "model_version": "AXG-1.6",
+  "description": "AXG-1.6 anti-collapse multi-r packet 20260709",
+  "queued_rows": 7,
+  "rejected_rows": 0,
+  "accepted_rows": 7,
+  "scoreable_rows": 7,
+  "pending_rows": 0,
+  "failed_rows": 0,
+  "unmatched_rows": 0,
+  "label_counts": {
+    "24T25000": 7
+  },
+  "pair_counts": {
+    "24T25000|r=12": 3,
+    "24T25000|r=20": 2,
+    "24T25000|r=24": 2
+  },
+  "disc_source_counts": {
+    "exact_nfdisc": 4,
+    "mixed_disc": 3
+  },
+  "progress_delta": {
+    "24T25000|r=12": {
+      "team_count_before": 27,
+      "team_count_after": 28
+    },
+    "24T25000|r=20": {
+      "team_count_before": 25,
+      "team_count_after": 25
+    },
+    "24T25000|r=24": {
+      "team_count_before": 24,
+      "team_count_after": 24
+    }
+  },
+  "api_points_available": false,
+  "score_improved": false,
+  "interpretation": "All rows became scoreable, but every row collapsed to already discovered crowded 24T25000 signatures; no meaningful score improvement was observed."
+}

@@ -61,11 +61,31 @@ results change.
   signatures, 4 template families, 2 modes, complete SAIR sync state, and
   `decision=reviewed_packet_ready_for_dry_run`. Local SAIR dry-run validation
   passed with `ok=true`, 7 polynomials, and 929 request bytes. No live SAIR
-  submission was made. Reports:
+  submission was made during the original cycle. Reports:
   `data/igp24/axg16_conditioned_20260709/axg16_conditioned_report.md` and
   `data/igp24/axg16_conditioned_20260709/axg16_conditioned_summary.json`.
-  Next: validate artifacts, remove generated checkpoint dumps, commit/push,
-  then ask for explicit approval before any live submission.
+  Follow-up live submission was explicitly authorized and completed as
+  `sub_11fc452b521044619796f738cc4b22c3` at 2026-07-09T16:06:17Z. SAIR
+  queued 7 rows and rejected 0. Post-submit polling completed fully under
+  `data/igp24/axg16_conditioned_20260709/sair_sync_after_submit_poll2/`:
+  25/25 submission details and downloads recovered, 215 submission rows, 215
+  scoreable rows, 0 pending rows, 0 failed rows, 0 unmatched rows, and
+  `partial_sync=false`. Final status: all 7 rows accepted and scoreable, but
+  all collapsed to `24T25000`: `24T25000|r=12` x3, `24T25000|r=20` x2, and
+  `24T25000|r=24` x2. Disc sources: 4 exact `nfdisc`, 3 mixed-disc rows. The
+  fetched SAIR submission-detail API did not expose row-level points; progress
+  comparison showed no meaningful score improvement because these signatures
+  were already discovered and crowded. Team-count deltas: `24T25000|r=12`
+  27 -> 28, `24T25000|r=20` 25 -> 25, and `24T25000|r=24` 24 -> 24. Feedback
+  ingest wrote
+  `data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/axg16_sair_accepted_feedback_20260709.json`
+  and updated `data/igp24/pair_status_20260706.json` with 6 alternates and
+  one locally new pair-status key (`24T25000|r=12`, already discovered in
+  SAIR progress). Submission report:
+  `data/igp24/axg16_conditioned_20260709/proposal_loop/axg16_anti_collapse_multir_gate_20260709/submission_report.md`.
+  Lesson: advisory/fatal gating alone is not enough; future AXG cycles must
+  avoid the selected `model:mixed` r12/r20/r24 `24T25000` basin and target
+  fresh zero/low-team labels from progress snapshots.
 - Active AXG full-stack autonomous research cycle started 2026-07-09 from
   clean commit `689baac`. Preflight: `git pull --ff-only` reported already up
   to date; `SAIR_API_KEY` is present in the environment but was not printed or
