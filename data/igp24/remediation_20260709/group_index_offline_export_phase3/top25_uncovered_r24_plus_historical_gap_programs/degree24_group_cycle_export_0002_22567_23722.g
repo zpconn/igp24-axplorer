@@ -3,7 +3,7 @@ LoadPackage("transgrp");
 SizeScreen([1000000, 1000000]);
 Print("[\n");
 first := true;
-for t in [19906,22306,22631,22667,23413,24093,7872,12889,12891,15069] do
+for t in [22567,22631,22667,22735,22736,23412,23413,23718,23719,23722] do
   label := Concatenation("24T", String(t));
   g := TransitiveGroup(24, t);
   classes := ConjugacyClasses(g);
@@ -48,18 +48,18 @@ for t in [19906,22306,22631,22667,23413,24093,7872,12889,12891,15069] do
   Print("\"status\":\"complete\",\"block_sizes\":[");
   for i in [1..Length(block_sizes)] do
     if i > 1 then
-      Print(",");
+      Print(",\n");
     fi;
     Print(block_sizes[i]);
   od;
-  Print("],\"cycle_types\":[");
+  Print("],\"cycle_types\":[\n");
   for i in [1..Length(cycles)] do
     if i > 1 then
-      Print(",");
+      Print(",\n");
     fi;
     Print("\"", cycles[i], "\"");
   od;
-  Print("]}");
+  Print("\n]}");
 od;
 Print("\n]\n");
 QUIT;

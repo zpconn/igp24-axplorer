@@ -99,6 +99,7 @@ def gap_program(labels: list[str]) -> str:
     domain_text = ",".join(str(i) for i in range(1, DEGREE + 1))
     return f"""
 LoadPackage("transgrp");
+SizeScreen([1000000, 1000000]);
 Print("[\\n");
 first := true;
 for t in [{numbers_text}] do
@@ -108,8 +109,8 @@ for t in [{numbers_text}] do
   cycles := [];
   all_even := true;
   block_sizes := [];
-  if not IsPrimitive(g, [{domain_text}]) then
-    for b in AllBlocks(g, [{domain_text}]) do
+  if not IsPrimitive(g) then
+    for b in AllBlocks(g) do
       if Length(b) > 1 and Length(b) < {DEGREE} and {DEGREE} mod Length(b) = 0 then
         AddSet(block_sizes, Length(b));
       fi;
@@ -117,7 +118,7 @@ for t in [{numbers_text}] do
   fi;
   for c in classes do
     rep := Representative(c);
-    lengths := SortedList(CycleLengthsPerm(rep, [{domain_text}]));
+    lengths := SortedList(CycleLengths(rep, [{domain_text}]));
     cycle_text := "";
     for i in [1..Length(lengths)] do
       if i > 1 then
@@ -136,7 +137,7 @@ for t in [{numbers_text}] do
   first := false;
   Print("{{\\"label\\":\\"", label, "\\",\\"t\\":", t, ",\\"degree\\":{DEGREE},");
   Print("\\"group_order\\":\\"", String(Size(g)), "\\",");
-  Print("\\"primitive\\":", IsPrimitive(g, [{domain_text}]), ",");
+  Print("\\"primitive\\":", IsPrimitive(g), ",");
   Print("\\"solvable\\":", IsSolvableGroup(g), ",");
   if all_even then
     Print("\\"parity\\":\\"even\\",");
@@ -146,32 +147,46 @@ for t in [{numbers_text}] do
   Print("\\"status\\":\\"complete\\",\\"block_sizes\\":[");
   for i in [1..Length(block_sizes)] do
     if i > 1 then
-      Print(",");
+      Print(",\\n");
     fi;
     Print(block_sizes[i]);
   od;
-  Print("],\\"cycle_types\\":[");
+  Print("],\\"cycle_types\\":[\\n");
   for i in [1..Length(cycles)] do
     if i > 1 then
-      Print(",");
+      Print(",\\n");
     fi;
     Print("\\"", cycles[i], "\\"");
   od;
-  Print("]}}");
+  Print("\\n]}}");
 od;
 Print("\\n]\\n");
 QUIT;
 """
 
 
-def run_gap(gap_path: str, labels: list[str], *, timeout: int) -> list[dict[str, Any]]:
+def gap_command(gap_path: str, program_path: Path, *, library_path: Path | None = None) -> list[str]:
+    command = [gap_path]
+    if library_path is not None:
+        command.extend(["-l", str(library_path)])
+    command.extend(["-q", str(program_path)])
+    return command
+
+
+def run_gap(
+    gap_path: str,
+    labels: list[str],
+    *,
+    timeout: int,
+    library_path: Path | None = None,
+) -> list[dict[str, Any]]:
     program = gap_program(labels)
     with tempfile.NamedTemporaryFile("w", suffix=".g", encoding="utf-8", delete=False) as handle:
         handle.write(program)
         program_path = Path(handle.name)
     try:
         result = subprocess.run(
-            [gap_path, "-q", str(program_path)],
+            gap_command(gap_path, program_path, library_path=library_path),
             text=True,
             capture_output=True,
             check=False,
@@ -339,6 +354,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output_dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--labels", default="1-10", help="Comma/range labels, e.g. 24T1,24T2 or 1-100")
     parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--gap_library_path", type=Path)
     parser.add_argument("--report_missing_gap_ok", action="store_true")
     parser.add_argument("--import_rows", type=Path, help="Import GAP JSON/JSONL rows instead of running GAP")
     parser.add_argument("--write_gap_program_dir", type=Path, help="Write chunked GAP export programs and exit")
@@ -391,7 +407,7 @@ def main(argv: list[str] | None = None) -> int:
             "labels": labels,
         }
     )
-    rows = run_gap(gap_path, labels, timeout=args.timeout)
+    rows = run_gap(gap_path, labels, timeout=args.timeout, library_path=args.gap_library_path)
     for row in rows:
         index.upsert_group(record_from_gap(row))
     summary = {

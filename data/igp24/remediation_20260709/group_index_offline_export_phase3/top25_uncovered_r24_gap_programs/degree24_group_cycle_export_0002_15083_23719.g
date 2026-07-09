@@ -1,5 +1,6 @@
 
 LoadPackage("transgrp");
+SizeScreen([1000000, 1000000]);
 Print("[\n");
 first := true;
 for t in [15083,15092,21404,21405,22567,22735,22736,23412,23718,23719] do
@@ -9,8 +10,8 @@ for t in [15083,15092,21404,21405,22567,22735,22736,23412,23718,23719] do
   cycles := [];
   all_even := true;
   block_sizes := [];
-  if not IsPrimitive(g, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]) then
-    for b in AllBlocks(g, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]) do
+  if not IsPrimitive(g) then
+    for b in AllBlocks(g) do
       if Length(b) > 1 and Length(b) < 24 and 24 mod Length(b) = 0 then
         AddSet(block_sizes, Length(b));
       fi;
@@ -18,7 +19,7 @@ for t in [15083,15092,21404,21405,22567,22735,22736,23412,23718,23719] do
   fi;
   for c in classes do
     rep := Representative(c);
-    lengths := SortedList(CycleLengthsPerm(rep, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]));
+    lengths := SortedList(CycleLengths(rep, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]));
     cycle_text := "";
     for i in [1..Length(lengths)] do
       if i > 1 then
@@ -37,7 +38,7 @@ for t in [15083,15092,21404,21405,22567,22735,22736,23412,23718,23719] do
   first := false;
   Print("{\"label\":\"", label, "\",\"t\":", t, ",\"degree\":24,");
   Print("\"group_order\":\"", String(Size(g)), "\",");
-  Print("\"primitive\":", IsPrimitive(g, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]), ",");
+  Print("\"primitive\":", IsPrimitive(g), ",");
   Print("\"solvable\":", IsSolvableGroup(g), ",");
   if all_even then
     Print("\"parity\":\"even\",");

@@ -192,3 +192,51 @@ def test_gap_workflow_imports_captured_outputs_and_runs_readiness(tmp_path, monk
     readiness = json.loads((output_dir / "readiness/group_index_readiness_summary.json").read_text(encoding="utf-8"))
     assert readiness["historical_containment"]["failure_count"] == 0
     assert readiness["ready_for_group_directed_generation"] is True
+
+
+def test_gap_workflow_passes_library_path_to_gap_runner(tmp_path):
+    manifest, _program = _manifest(tmp_path, ["24T101"])
+    output_dir = tmp_path / "workflow"
+    index_path = tmp_path / "groups.sqlite"
+    args_path = tmp_path / "gap_args.txt"
+    fake_gap = tmp_path / "fake_gap.sh"
+    fake_gap.write_text(
+        "#!/bin/sh\n"
+        f"printf '%s\\n' \"$@\" > {args_path}\n"
+        "cat <<'JSON'\n"
+        "[{\"label\":\"24T101\",\"t\":101,\"degree\":24,\"group_order\":\"24\","
+        "\"primitive\":false,\"solvable\":true,\"parity\":\"mixed\","
+        "\"block_sizes\":[2,12],\"status\":\"complete\",\"cycle_types\":[\"1.23\"]}]\n"
+        "JSON\n",
+        encoding="utf-8",
+    )
+    fake_gap.chmod(0o755)
+    library_path = tmp_path / "gaplib"
+    library_path.mkdir()
+
+    assert (
+        workflow_main(
+            [
+                "--manifest",
+                str(manifest),
+                "--output_dir",
+                str(output_dir),
+                "--index",
+                str(index_path),
+                "--gap_path",
+                str(fake_gap),
+                "--gap_library_path",
+                str(library_path),
+                "--skip_readiness",
+            ]
+        )
+        == 0
+    )
+
+    summary = json.loads((output_dir / "gap_group_index_workflow_summary.json").read_text(encoding="utf-8"))
+    assert summary["program_status_counts"] == {"ran_gap": 1}
+    assert summary["rows_imported"] == 1
+    assert summary["gap_library_path"] == str(library_path)
+    args = args_path.read_text(encoding="utf-8").splitlines()
+    assert args[:2] == ["-l", str(library_path)]
+    assert "-q" in args

@@ -247,6 +247,30 @@ results change.
   readiness gate. Validation: py-compile passed; focused GAP workflow/
   compatibility/readiness/historical-extractor tests passed (`19 passed`);
   full test suite passed (`354 passed`).
+- 2026-07-09 remediation Phase 3 exact local GAP checkpoint: local system
+  install via `sudo apt-get install` was blocked by passworded sudo, but a
+  non-root `/tmp` GAP extraction succeeded from Ubuntu packages
+  `gap-core`, `gap-libs`, `gap-gapdoc`, and `gap-transgrp`. The extracted GAP
+  4.12.1 binary loaded `transgrp=true`. Updated the GAP exporter/workflow for
+  this real GAP version: it now supports `--gap_library_path`, uses
+  `IsPrimitive(g)`, `AllBlocks(g)`, and `CycleLengths(rep, domain)`, and emits
+  pretty JSON cycle arrays to avoid GAP line-wrapping corrupting stdout.
+  Generated a combined target+historical manifest under
+  `data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_plus_historical_gap_programs/`
+  containing the top 25 uncovered r24 target labels plus the 2 historical
+  containment labels (`24T24979`, `24T25000`). Ran the exact workflow under
+  `data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/`.
+  Result: 3 GAP chunks ran, 27 exact GAP rows imported into SQLite, target
+  coverage is 25/25, historical rows checked = 35, containment failures = 0,
+  true-label containment = 1.0, median compatible-label count = 1, 97.14% of
+  historical rows narrowed below 5 labels, generation-ready routes = 125
+  across 25 targets, and readiness blockers = none. Live submission remains
+  `false`; this is a Phase 3/5 unblock, not verified score improvement. Next
+  move: use these generation-ready routes to produce group-compatible
+  candidate pools for the 25 uncovered r24 targets, then run packet optimizer
+  and replay gates before asking for any live submission approval. Validation:
+  py-compile passed; focused GAP workflow/compatibility/readiness/historical
+  tests passed (`20 passed`); full test suite passed (`355 passed`).
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints

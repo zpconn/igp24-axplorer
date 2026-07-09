@@ -180,7 +180,12 @@ def test_gap_dependency_report_never_claims_approximation(tmp_path):
 def test_gap_program_exports_block_sizes_and_cycle_types():
     program = gap_program(["24T1", "24T2"])
 
-    assert "AllBlocks" in program
+    assert "AllBlocks(g)" in program
+    assert "AllBlocks(g, " not in program
+    assert "IsPrimitive(g)" in program
+    assert "CycleLengths(rep," in program
+    assert "CycleLengthsPerm" not in program
+    assert "SizeScreen([1000000, 1000000]);" in program
     assert '\\"block_sizes\\":[' in program
     assert '\\"cycle_types\\":[' in program
     assert "TransitiveGroup(24, t)" in program

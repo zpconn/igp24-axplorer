@@ -1,0 +1,85 @@
+{
+  "blocking_reasons": [],
+  "combined_rows_jsonl": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_group_cycle_rows_combined.jsonl",
+  "created_at": "2026-07-09T22:52:39.971652+00:00",
+  "gap_library_path": "/tmp/igp24_gap_local/usr/share/gap",
+  "gap_path": "/tmp/igp24_gap_local/usr/lib/x86_64-linux-gnu/gap/gap",
+  "group_count": 27,
+  "import_summary_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/group_cycle_index_import_summary.json",
+  "index_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/degree24_group_cycle_index.sqlite",
+  "labels_imported": [
+    "24T7872",
+    "24T12889",
+    "24T12891",
+    "24T15069",
+    "24T15083",
+    "24T15092",
+    "24T19906",
+    "24T21404",
+    "24T21405",
+    "24T22306",
+    "24T22567",
+    "24T22631",
+    "24T22667",
+    "24T22735",
+    "24T22736",
+    "24T23412",
+    "24T23413",
+    "24T23718",
+    "24T23719",
+    "24T23722",
+    "24T23741",
+    "24T23742",
+    "24T24089",
+    "24T24093",
+    "24T24189",
+    "24T24979",
+    "24T25000"
+  ],
+  "live_submission_recommended_now": false,
+  "manifest_label_count": 27,
+  "manifest_path": "data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_plus_historical_gap_programs/gap_export_manifest.json",
+  "missing_output_files": [],
+  "no_approximation_written": false,
+  "output_files": {
+    "combined_rows_jsonl": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_group_cycle_rows_combined.jsonl",
+    "import_summary_json": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/group_cycle_index_import_summary.json",
+    "report_md": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_group_index_workflow_report.md",
+    "summary_json": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_group_index_workflow_summary.json"
+  },
+  "program_count": 3,
+  "program_results": [
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_outputs/degree24_group_cycle_export_0001_7872_22306.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_plus_historical_gap_programs/degree24_group_cycle_export_0001_7872_22306.g",
+      "row_count": 10,
+      "status": "ran_gap"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_outputs/degree24_group_cycle_export_0002_22567_23722.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_plus_historical_gap_programs/degree24_group_cycle_export_0002_22567_23722.g",
+      "row_count": 10,
+      "status": "ran_gap"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/gap_outputs/degree24_group_cycle_export_0003_23741_25000.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_plus_historical_gap_programs/degree24_group_cycle_export_0003_23741_25000.g",
+      "row_count": 7,
+      "status": "ran_gap"
+    }
+  ],
+  "program_status_counts": {
+    "ran_gap": 3
+  },
+  "readiness_blocking_reasons": [],
+  "readiness_output_dir": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_plus_historical_local_gap_v2/readiness",
+  "ready_for_group_directed_generation": true,
+  "record_type": "igp24_gap_group_index_workflow",
+  "rows_available": 27,
+  "rows_imported": 27,
+  "safety_note": "Exact GAP group-index workflow. It runs GAP only when available, reuses captured GAP JSON outputs when present, calls no SAIR/network APIs, does not generate candidates, and does not submit anything.",
+  "schema_version": 1,
+  "source_commit": "81ae5a34281b4eccec1ca8fc9044672f895c06de",
+  "status": "index_imported_readiness_ready",
+  "tool": "scripts/igp24_run_gap_group_index_workflow.py"
+}

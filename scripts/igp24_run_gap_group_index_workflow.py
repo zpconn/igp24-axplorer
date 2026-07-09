@@ -30,6 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.igp24_build_group_cycle_index import (  # noqa: E402
     GAP_EXPORT_MANIFEST,
     IMPORT_SUMMARY_JSON,
+    gap_command,
     import_rows_into_index,
     load_import_rows,
 )
@@ -85,6 +86,7 @@ def write_report(output_dir: Path, summary: dict[str, Any]) -> None:
         f"- Source commit: `{summary['source_commit']}`",
         f"- Status: `{summary['status']}`",
         f"- GAP path: `{summary['gap_path']}`",
+        f"- GAP library path: `{summary.get('gap_library_path')}`",
         f"- Manifest: `{summary['manifest_path']}`",
         f"- Programs: `{summary['program_count']}`",
         f"- Programs loaded from captured output: `{summary['program_status_counts'].get('loaded_existing_output', 0)}`",
@@ -130,12 +132,13 @@ def write_summary(output_dir: Path, summary: dict[str, Any]) -> None:
 def run_gap_program(
     *,
     gap_path: str,
+    gap_library_path: Path | None,
     program_path: Path,
     output_path: Path,
     timeout: int,
 ) -> list[dict[str, Any]]:
     result = subprocess.run(
-        [gap_path, "-q", str(program_path)],
+        gap_command(gap_path, program_path, library_path=gap_library_path),
         text=True,
         capture_output=True,
         check=False,
@@ -154,6 +157,7 @@ def load_or_run_programs(
     manifest_path: Path,
     output_dir: Path,
     gap_path: str | None,
+    gap_library_path: Path | None,
     timeout: int,
     reuse_existing_outputs: bool,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
@@ -169,6 +173,7 @@ def load_or_run_programs(
         elif gap_path:
             program_rows = run_gap_program(
                 gap_path=gap_path,
+                gap_library_path=gap_library_path,
                 program_path=program_path,
                 output_path=output_path,
                 timeout=timeout,
@@ -200,6 +205,7 @@ def build_blocked_summary(
     manifest: dict[str, Any],
     output_dir: Path,
     gap_path: str | None,
+    gap_library_path: Path | None,
     rows: list[dict[str, Any]],
     program_results: list[dict[str, Any]],
     missing_outputs: list[str],
@@ -215,6 +221,7 @@ def build_blocked_summary(
         "manifest_label_count": manifest.get("label_count"),
         "program_count": len(manifest.get("programs") or []),
         "gap_path": gap_path,
+        "gap_library_path": str(gap_library_path) if gap_library_path else None,
         "status": "blocked_missing_gap_outputs",
         "blocking_reasons": ["missing_gap_and_missing_captured_outputs"],
         "program_status_counts": status_counts(program_results),
@@ -241,11 +248,13 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     gap_path = args.gap_path or shutil.which("gap")
+    gap_library_path = args.gap_library_path
     rows, program_results, missing_outputs = load_or_run_programs(
         manifest=manifest,
         manifest_path=manifest_path,
         output_dir=output_dir,
         gap_path=gap_path,
+        gap_library_path=gap_library_path,
         timeout=int(args.timeout),
         reuse_existing_outputs=not args.no_reuse_existing_outputs,
     )
@@ -255,6 +264,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
             manifest=manifest,
             output_dir=output_dir,
             gap_path=gap_path,
+            gap_library_path=gap_library_path,
             rows=rows,
             program_results=program_results,
             missing_outputs=missing_outputs,
@@ -304,6 +314,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
         "manifest_label_count": manifest.get("label_count"),
         "program_count": len(manifest.get("programs") or []),
         "gap_path": gap_path,
+        "gap_library_path": str(gap_library_path) if gap_library_path else None,
         "status": "index_imported_readiness_blocked" if blocking_reasons else "index_imported_readiness_ready",
         "blocking_reasons": blocking_reasons,
         "program_status_counts": status_counts(program_results),
@@ -338,6 +349,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--index", type=Path, required=True)
     parser.add_argument("--gap_path")
+    parser.add_argument("--gap_library_path", type=Path)
     parser.add_argument("--timeout", type=int, default=900)
     parser.add_argument("--no_reuse_existing_outputs", action="store_true")
     parser.add_argument("--score_plan", type=Path, default=DEFAULT_SCORE_PLAN)
