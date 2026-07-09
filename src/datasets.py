@@ -96,6 +96,25 @@ def _score_from_active_learning_class(class_label):
     return score_map.get(str(class_label), 0.0)
 
 
+def _score_from_score_aware_supervision(record):
+    supervision = record.get("score_aware_supervision")
+    if not isinstance(supervision, dict):
+        return None
+    reward = supervision.get("reward")
+    weight = supervision.get("weight")
+    try:
+        reward_value = float(reward)
+    except (TypeError, ValueError):
+        return None
+    try:
+        weight_value = float(weight) if weight is not None else 1.0
+    except (TypeError, ValueError):
+        weight_value = 1.0
+    # Keep the magnitude modest for compatibility with existing stats/logging,
+    # but preserve the AXG-1.7 distinction between weak and strong supervision.
+    return reward_value * min(max(weight_value, 0.25), 5.0)
+
+
 def _load_igp24_training_jsonl(args, classname):
     paths = _jsonl_paths(getattr(args, "igp24_training_jsonl", []))
     if not paths:
@@ -142,7 +161,12 @@ def _load_igp24_training_jsonl(args, classname):
                 except Exception:
                     skipped["invalid_datapoint"] += 1
                     continue
-                datapoint.score = _score_from_active_learning_class(record.get("derived_class_label"))
+                score_aware = _score_from_score_aware_supervision(record)
+                datapoint.score = (
+                    score_aware
+                    if score_aware is not None
+                    else _score_from_active_learning_class(record.get("derived_class_label"))
+                )
                 datapoint.features = record.get("canonical_hash") or f"{path}:{line_index}"
                 datapoint.source_metadata = {
                     "source_path": str(path),
@@ -150,6 +174,7 @@ def _load_igp24_training_jsonl(args, classname):
                     "dataset_row_id": record.get("dataset_row_id"),
                     "source_role": record.get("source_role"),
                     "derived_class_label": record.get("derived_class_label"),
+                    "score_aware_supervision": record.get("score_aware_supervision"),
                     "train_eval_split": record.get("train_eval_split"),
                     "conditioning_target_r": r_value,
                 }

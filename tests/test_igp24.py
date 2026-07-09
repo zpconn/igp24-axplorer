@@ -240,6 +240,7 @@ def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_pa
             "r": 12,
             "canonical_hash": "h12",
             "derived_class_label": "accepted_useful_score_positive",
+            "score_aware_supervision": {"label": "score_positive", "reward": 3.0, "weight": 4.0},
             "train_eval_split": "train",
         },
         {
@@ -268,6 +269,7 @@ def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_pa
 
     assert [row.conditioning_target_r for row in train_set] == [12]
     assert [row.conditioning_target_r for row in test_set] == [16]
+    assert train_set[0].score == 12.0
     assert params.igp24_training_jsonl_loaded_rows == 2
     env = build_env(params)
     encoded = env.tokenizer.encode(train_set[0])

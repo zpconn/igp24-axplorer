@@ -65,6 +65,32 @@ results change.
   passed with 31 tests. Next in progress: rebuild the AXG-1.7 training dataset
   from fresh SAIR sync plus recent scored exports, then register/train AXG-1.7
   on GPU.
+- AXG-1.7 dataset/registry checkpoint: rebuilt
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg17_score_aware.jsonl`
+  from 11 recent scored-sample exports, 20 accepted-feedback artifacts, and the
+  fresh full SAIR sync. Dataset has 610 rows: old class counts are 475
+  accepted duplicate/collapsed basin, 8 globally covered high-team basin, 8
+  useful score-positive, 39 exact local valid, 3 locally invalid, and 77
+  wrong-r rows. New score-aware counts are 483
+  `accepted_but_crowded_collapse`, 8 `score_positive`, 39
+  `pending_or_unknown`, 77 `wrong_r`, and 3 `invalid`; `low_team_scoreable` is
+  defined but currently has no synced rows. Registered `AXG-1.7` as child of
+  `AXG-1.6` with description "Score-aware anti-collapse iteration trained
+  against AXG-1.6 24T25000 failure". Next in progress: bounded CUDA target-r
+  training/inference using this dataset, with r8/r12 included for score-positive
+  signal and r16/r24 included for large remaining buckets while the planner
+  blocks the known r12/r20/r24 dense/medium AXG-1.6 collapse pattern.
+- AXG-1.7 training-loader checkpoint: updated `src/datasets.py` so
+  `score_aware_supervision.reward * bounded(weight)` is used as the datapoint
+  score when present, with the older `derived_class_label` scoring kept as
+  fallback for legacy datasets. Validation: `python3 -m py_compile
+  src/datasets.py scripts/igp24_active_learning_dataset.py
+  scripts/igp24_anti_basin_planner.py` passed. A combined pytest run with
+  `PYTHONPATH=.:/tmp/igp24_pydeps` reproduced the known incompatible NumPy
+  C-extension issue for the AXG Python 3.10 venv; rerun correctly with
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24.py tests/test_igp24_active_learning_dataset.py
+  tests/test_igp24_anti_basin_planner.py` passed with 60 tests.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

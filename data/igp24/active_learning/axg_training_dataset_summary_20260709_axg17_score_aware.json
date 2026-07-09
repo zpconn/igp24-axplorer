@@ -1,0 +1,141 @@
+{
+  "candidate_source_count": 11,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 475,
+    "accepted_globally_covered_high_team_basin": 8,
+    "accepted_useful_score_positive": 8,
+    "exact_local_valid": 39,
+    "locally_invalid": 3,
+    "wrong_real_root_count": 77
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-09T17:42:21.700510+00:00",
+  "dataset_path": "data/igp24/active_learning/axg_training_dataset_20260709_axg17_score_aware.jsonl",
+  "feedback_source_count": 20,
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "24T25000",
+      298
+    ],
+    [
+      "unknown",
+      86
+    ],
+    [
+      "24T24932",
+      63
+    ],
+    [
+      "24T24979",
+      61
+    ],
+    [
+      "24T24651",
+      34
+    ],
+    [
+      "24T24984",
+      33
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      6
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ],
+    [
+      "24T24648",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 610,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/axg17_score_aware_20260709/sair_sync",
+  "schema_version": 1,
+  "score_aware_class_counts": {
+    "accepted_but_crowded_collapse": 483,
+    "invalid": 3,
+    "pending_or_unknown": 39,
+    "score_positive": 8,
+    "wrong_r": 77
+  },
+  "score_aware_weight_by_class": {
+    "accepted_but_crowded_collapse": 2415.0,
+    "invalid": 4.5,
+    "pending_or_unknown": 19.5,
+    "score_positive": 32.0,
+    "wrong_r": 115.5
+  },
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "a1aa0c52852aec5fe692b22a4d3b479da460f111",
+  "source_role_counts": {
+    "accepted_feedback": 178,
+    "artifact_row": 217,
+    "sair_submission_row": 215
+  },
+  "summary_path": "data/igp24/active_learning/axg_training_dataset_summary_20260709_axg17_score_aware.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 81,
+    "train": 529
+  }
+}

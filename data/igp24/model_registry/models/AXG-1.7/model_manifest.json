@@ -1,0 +1,79 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-09T17:42:38.459771+00:00",
+  "description": "Score-aware anti-collapse iteration trained against AXG-1.6 24T25000 failure",
+  "device_gpu_info": {
+    "expected": "CUDA GPU when --cpu false",
+    "status": "not_started"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "a1aa0c52852aec5fe692b22a4d3b479da460f111",
+  "known_limitations": [
+    "AXG-1 is initially a registry and dry-run scaffold, not a completed long training run.",
+    "GPU samples must pass CPU filters and basin gates before any submission review."
+  ],
+  "model_version": "AXG-1.7",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.6",
+  "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "Submission is explicit and gated outside model training.",
+    "raw_gpu_samples_submitted": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [],
+  "schema_version": 1,
+  "training_command": {
+    "command": null,
+    "recommended_template": [
+      "python3",
+      "scripts/igp24_gpu_sampler_probe.py",
+      "--probe_mode",
+      "sample_export_split_dedup"
+    ],
+    "status": "not_started"
+  },
+  "training_data_inputs": [
+    "data/igp24/pair_status_20260706.json",
+    "data/igp24/sair_sync_basin_gate_20260707/",
+    "data/igp24/*accepted_feedback*.json",
+    "data/igp24/**/*candidate_queue.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 0,
+    "status": "not_started"
+  },
+  "validation_metrics": {
+    "status": "not_started",
+    "success_metrics": [
+      "valid exact-r yield after CPU filters",
+      "diversity by family/mod-p/support",
+      "basin-risk distribution",
+      "reviewed candidates surviving strict gate",
+      "information value per SAIR row if later submitted"
+    ]
+  }
+}
