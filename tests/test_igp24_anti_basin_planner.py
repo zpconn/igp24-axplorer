@@ -5,6 +5,7 @@ from scripts.igp24_anti_basin_planner import (
     build_basin_profile,
     build_submission_recommendation,
     candidate_features,
+    is_fatal_risk_reason,
     load_accepted_feedback_observations,
     normalize_progress_cache,
     score_candidate_row,
@@ -929,6 +930,84 @@ def test_submission_recommendation_can_allow_single_mode_with_template_diversity
     assert r8_lane_passed["recommended_for_sair_packet"] is True
     assert r8_lane_passed["model_generated_selected_rows"] == 4
     assert r8_lane_passed["min_perturbation_mode_count"] == 1
+
+
+def test_submission_recommendation_treats_loose_crowded_risk_as_advisory():
+    selected = []
+    for index in range(4):
+        selected.append(
+            {
+                "risk_reasons": ["loose_crowded_basin_fingerprint_hits=2"],
+                "fatal_risk_reasons": [],
+                "advisory_risk_reasons": ["loose_crowded_basin_fingerprint_hits=2"],
+                "candidate": {"sample_export_source": "model_generate"},
+                "features": {
+                    "r": 20 if index < 2 else 24,
+                    "perturbation_mode": "dense_mixed_support_gcd1" if index % 2 else "medium_mixed_support_gcd1",
+                    "mod_p_pattern_signature": f"p{index + 3}:1-23",
+                    "template_family_id": "model:mixed:r20:dense_mixed_support_gcd1"
+                    if index < 2
+                    else "model:mixed:r24:medium_mixed_support_gcd1",
+                    "family_key": f"family-{index}",
+                    "basin_fingerprint": f"basin-{index}",
+                },
+            }
+        )
+
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+
+    assert is_fatal_risk_reason("loose_crowded_basin_fingerprint_hits=2") is False
+    assert recommendation["recommended_for_sair_packet"] is True
+    assert recommendation["risk_count"] == 0
+    assert recommendation["fatal_risk_count"] == 0
+    assert recommendation["advisory_risk_count"] == 4
+    assert recommendation["reason"] == "anti-basin gates passed"
+
+
+def test_submission_recommendation_still_blocks_fatal_known_collapse_risk():
+    selected = []
+    for index in range(4):
+        selected.append(
+            {
+                "risk_reasons": ["model_template_family_known_high_label_collapse=24T25000"],
+                "fatal_risk_reasons": ["model_template_family_known_high_label_collapse=24T25000"],
+                "advisory_risk_reasons": [],
+                "candidate": {"sample_export_source": "model_generate"},
+                "features": {
+                    "r": 20,
+                    "perturbation_mode": "dense_mixed_support_gcd1" if index % 2 else "medium_mixed_support_gcd1",
+                    "mod_p_pattern_signature": f"p{index + 3}:1-23",
+                    "template_family_id": "model:mixed:r20:dense_mixed_support_gcd1"
+                    if index < 2
+                    else "model:mixed:r20:medium_mixed_support_gcd1",
+                    "family_key": f"family-{index}",
+                    "basin_fingerprint": f"basin-{index}",
+                },
+            }
+        )
+
+    recommendation = build_submission_recommendation(
+        selected,
+        min_packet_rows=4,
+        min_model_generated_rows=4,
+        min_template_family_count=2,
+        min_basin_fingerprint_count=4,
+        reject_unknown_provenance=True,
+    )
+
+    assert is_fatal_risk_reason("model_template_family_known_high_label_collapse=24T25000") is True
+    assert recommendation["recommended_for_sair_packet"] is False
+    assert recommendation["risk_count"] == 4
+    assert recommendation["fatal_risk_count"] == 4
+    assert recommendation["advisory_risk_count"] == 0
+    assert "fatal_risk_reasons" in recommendation["reason"]
 
 
 def test_submission_recommendation_holds_local_ready_packet_on_partial_sync_and_pending_basin():

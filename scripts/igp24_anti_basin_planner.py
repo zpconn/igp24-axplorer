@@ -59,6 +59,26 @@ R8_QUARTIC_IN_X6_COLLAPSE_FAMILIES = {
     "r8_quartic_lift_perturbed",
     "r8_quartic_lift_score_followup",
 }
+FATAL_RISK_REASON_PREFIXES = (
+    "real_root_count_not_target",
+    "missing_local_irreducible_squarefree",
+    "support_gcd_not_one",
+    "even_support",
+    "accepted_hash_duplicate",
+    "known_repeated_pair_collision",
+    "outer_constant_shift",
+    "construction_family_known_high_label_collapse",
+    "r8_quartic_in_x6_known_label_collapse",
+    "template_family_known_high_label_collapse",
+    "basin_fingerprint_known_high_label_collapse",
+    "model_template_family_known_high_label_collapse",
+    "model_basin_fingerprint_known_high_label_collapse",
+    "exact_crowded_basin_fingerprint",
+)
+
+
+def is_fatal_risk_reason(reason: str) -> bool:
+    return reason.startswith(FATAL_RISK_REASON_PREFIXES)
 CONSTRUCTION_FAMILY_HARD_STOP_COLLAPSES = {
     "odd_perturbed_r24_6x4_tower_escape",
     "positive_quadratic_product_plus_low_odd_perturbation",
@@ -834,26 +854,9 @@ def score_candidate_row(
         score -= height_penalty
         explanation.append(f"height_penalty={height_penalty:.2f}")
 
-    high_risk = any(
-        reason.startswith(prefix)
-        for reason in risk_reasons
-        for prefix in (
-            "real_root_count_not_target",
-            "missing_local_irreducible_squarefree",
-            "support_gcd_not_one",
-            "even_support",
-            "accepted_hash_duplicate",
-            "known_repeated_pair_collision",
-            "outer_constant_shift",
-            "construction_family_known_high_label_collapse",
-            "r8_quartic_in_x6_known_label_collapse",
-            "template_family_known_high_label_collapse",
-            "basin_fingerprint_known_high_label_collapse",
-            "model_template_family_known_high_label_collapse",
-            "model_basin_fingerprint_known_high_label_collapse",
-            "exact_crowded_basin_fingerprint",
-        )
-    )
+    fatal_risk_reasons = [reason for reason in risk_reasons if is_fatal_risk_reason(str(reason))]
+    advisory_risk_reasons = [reason for reason in risk_reasons if not is_fatal_risk_reason(str(reason))]
+    high_risk = bool(fatal_risk_reasons)
     eligible = not high_risk and features.get("exported_coefficients") is not None
     classification = "packet_candidate" if eligible else "reject_or_hold_known_basin_risk"
     if eligible and loose_hits:
@@ -868,6 +871,8 @@ def score_candidate_row(
         "eligible_for_packet": bool(eligible),
         "anti_basin_classification": classification,
         "risk_reasons": risk_reasons,
+        "fatal_risk_reasons": fatal_risk_reasons,
+        "advisory_risk_reasons": advisory_risk_reasons,
         "score_explanation": explanation,
         "features": {key: value for key, value in features.items() if key != "exported_coefficients"},
         "candidate": row,
@@ -942,14 +947,25 @@ def build_submission_recommendation(
     basin_counts = Counter(str((row.get("features") or {}).get("basin_fingerprint") or "unknown") for row in selected)
     source_counts = Counter(scored_sample_export_source(row) for row in selected)
     model_generated_rows = sum(count for source, count in source_counts.items() if is_model_generated_source(source))
-    risk_count = sum(1 for row in selected if row.get("risk_reasons"))
+    fatal_risk_count = sum(
+        1
+        for row in selected
+        if row.get("fatal_risk_reasons")
+        or any(is_fatal_risk_reason(str(reason)) for reason in row.get("risk_reasons") or [])
+    )
+    advisory_risk_count = sum(
+        1
+        for row in selected
+        if row.get("advisory_risk_reasons")
+        or any(not is_fatal_risk_reason(str(reason)) for reason in row.get("risk_reasons") or [])
+    )
     unknown_modes = sum(count for mode, count in mode_counts.items() if mode in {"", "unknown", "manual_or_unknown"})
     unknown_families = sum(count for family, count in family_counts.items() if family in {"", "unknown"})
     unknown_basins = sum(count for basin, count in basin_counts.items() if basin in {"", "unknown"})
     local_recommended = (
         len(selected) >= min_packet_rows
         and model_generated_rows >= int(min_model_generated_rows)
-        and risk_count == 0
+        and fatal_risk_count == 0
         and "outer_constant_shift" not in mode_counts
         and len(mode_counts) >= int(min_perturbation_mode_count)
         and len(mod_counts) >= max(2, min_packet_rows // 2)
@@ -962,8 +978,8 @@ def build_submission_recommendation(
         reasons.append(f"only_{len(selected)}_eligible_rows_below_min_{min_packet_rows}")
     if model_generated_rows < int(min_model_generated_rows):
         reasons.append(f"only_{model_generated_rows}_model_generated_rows_below_min_{int(min_model_generated_rows)}")
-    if risk_count:
-        reasons.append(f"{risk_count}_selected_rows_have_risk_reasons")
+    if fatal_risk_count:
+        reasons.append(f"{fatal_risk_count}_selected_rows_have_fatal_risk_reasons")
     if "outer_constant_shift" in mode_counts:
         reasons.append("selected_rows_include_outer_constant_shift")
     if len(mode_counts) < int(min_perturbation_mode_count):
@@ -1009,7 +1025,9 @@ def build_submission_recommendation(
         "min_template_family_count": int(min_template_family_count),
         "min_basin_fingerprint_count": int(min_basin_fingerprint_count),
         "reject_unknown_provenance": bool(reject_unknown_provenance),
-        "risk_count": risk_count,
+        "risk_count": fatal_risk_count,
+        "fatal_risk_count": fatal_risk_count,
+        "advisory_risk_count": advisory_risk_count,
         "sync_submission_gate": sync_gate,
     }
 

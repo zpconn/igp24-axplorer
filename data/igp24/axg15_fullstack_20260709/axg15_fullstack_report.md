@@ -59,7 +59,7 @@ environment lessons matter for future cycles:
 Aggregate runtime was 382.610 seconds. Aggregate scored decoded rows: 49.
 Valid rows: 49. Target-r survivors: 42.
 
-## Gate Result
+## Initial Gate Result
 
 - Proposal summary: `data/igp24/axg15_fullstack_20260709/proposal_loop/axg15_fullstack_high_real_gate_20260709/proposal_loop_summary.json`
 - Candidate rows: 49
@@ -80,16 +80,40 @@ validation:
 - Polynomial count: 5
 - Request body bytes: 741
 
+## Advisory Replay
+
+Planner refinement split risk reasons into fatal and advisory buckets. Accepted
+duplicates, known high-label collapse, exact crowded basin fingerprints, and
+unknown provenance still block packets. Weak loose crowded-basin and crowded
+mod-p hints are now advisory, because they should guide review without
+automatically discarding otherwise diverse model-generated rows.
+
+- Replay summary: `data/igp24/axg15_fullstack_20260709/proposal_loop_advisory/axg15_fullstack_high_real_gate_advisory_20260709/proposal_loop_summary.json`
+- Candidate rows: 49
+- Filtered target-r rows: 42
+- Eligible model-generated rows: 6
+- Selected rows: 5
+- Decision: `reviewed_packet_ready_for_dry_run`
+- Fatal risk count: 0
+- Advisory risk count: 5
+- Selected r values: r20 and r24
+- Selected diversity: 5 basin fingerprints, 5 mod-p signatures, 3 template families, 2 perturbation modes
+- Sync hold reasons: none
+- Dry run: `ok=true`, 5 polynomials, 741 request bytes
+
+No live SAIR submission was made. The packet is now locally submission-ready
+under the advisory/fatal split, but it still requires explicit user approval
+before a live POST.
+
 ## Decision
 
 This is meaningful model-stack progress but not significant verified SAIR score
-progress. The full AXG path worked end to end and produced a valid target-r
-model-generated advisory packet, but strict anti-basin gates still recommend
-holding live submission because the selected rows are near loose crowded
-basins.
+progress. The full AXG path worked end to end, produced valid target-r
+model-generated rows, and now produces a dry-run-ready r20/r24 packet after an
+explicit planner improvement with tests. The score bottleneck remains live SAIR
+verification and later scoring, which is intentionally gated on user approval.
 
-Best next step: run another AXG iteration with a specific planner/model change
-for this bottleneck. Either make `loose_crowded_basin_fingerprint_hits` an
-advisory warning rather than a fatal packet risk with tests, or train/export
-with stronger negative conditioning against dense/medium mixed-support basins
-that repeatedly shadow `24T25000`.
+Best next step: commit/push this planner correction, then run AXG-1.6 with
+stronger negative conditioning against dense/medium mixed-support basins that
+repeatedly shadow `24T25000`, using the advisory/fatal split during proposal
+selection.

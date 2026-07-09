@@ -68,27 +68,38 @@ results change.
   49/49 valid decoded rows and 42 target-r survivors. Proposal loop
   `axg15_fullstack_high_real_gate_20260709` saw 49 model-generated candidate
   rows, 42 target-r filtered rows, 6 eligible rows, and 5 selected advisory
-  rows from r20/r24, but held live submission because all selected rows had
-  `loose_crowded_basin_fingerprint_hits=2`. Coefficient sanity passed for the
-  5 selected rows, and local SAIR dry-run validation passed with `ok=true`,
-  5 polynomials, and 741 request bytes. No live SAIR submission was made.
+  rows from r20/r24, but initially held live submission because all selected
+  rows had `loose_crowded_basin_fingerprint_hits=2`. Planner refinement:
+  `loose_crowded_basin_fingerprint_hits` and similarly weak crowded mod-p
+  hints are now advisory rather than fatal, while accepted duplicates, known
+  high-label collapse, exact crowded basin fingerprints, and unknown
+  provenance remain fatal. Focused planner/proposal-loop tests pass for both
+  advisory loose-basin acceptance and fatal known-collapse blocking. Replay
+  proposal loop `axg15_fullstack_high_real_gate_advisory_20260709` selected
+  the same 5 model-generated r20/r24 rows with 0 fatal risks, 5 advisory
+  risks, 5 basin fingerprints, 5 mod-p signatures, 3 template families,
+  2 modes, complete SAIR sync state, and
+  `decision=reviewed_packet_ready_for_dry_run`. Local SAIR dry-run validation
+  passed with `ok=true`, 5 polynomials, and 741 request bytes. No live SAIR
+  submission was made.
   Report:
   `data/igp24/axg15_fullstack_20260709/axg15_fullstack_report.md`. Summary:
   `data/igp24/axg15_fullstack_20260709/axg15_fullstack_summary.json`.
-  Registry validation now includes `AXG-1.5` with 6 models, 19 runs, and 0
-  issues. Validation: JSON/JSONL parse checks passed for 36 JSON files and 24
-  JSONL files / 29,441 rows across AXG-1.5 artifacts, the AXG-1.5 registry
-  entries, and active-learning outputs; coefficient sanity passed for the
-  5-row advisory packet; py_compile passed for the GPU sampler, scorer,
-  proposal loop, active-learning builder, SAIR sync/API helper, and model
-  registry; focused clean-path tests passed with `63 passed in 1.07s`; the
-  first focused test attempt with the AXG venv plus `/tmp/igp24_pydeps` failed
-  as expected due the same incompatible NumPy injection diagnosed during
-  training; `git diff --check` passed; key-shaped secret scan found no
-  matches; and generated checkpoint/pickle artifacts were removed before
-  staging. Next: either make `loose_crowded_basin_fingerprint_hits` advisory
-  instead of fatal with explicit tests, or train/export AXG-1.6 with stronger
-  anti-collapse conditioning away from dense/medium mixed-support basins.
+  Registry validation now includes `AXG-1.5` with 6 models, 20 runs, and 0
+  issues after recording the advisory replay. Validation so far: JSON/JSONL
+  parse checks passed for 36 JSON files and 24 JSONL files / 29,441 rows
+  before the advisory replay; coefficient sanity passed for the 5-row packet;
+  py_compile passed for the GPU sampler, scorer, proposal loop,
+  active-learning builder, SAIR sync/API helper, and model registry; focused
+  clean-path tests passed with `63 passed in 1.07s`, and the advisory planner
+  regression subset passed with `30 passed in 0.22s`; the first focused test
+  attempt with the AXG venv plus `/tmp/igp24_pydeps` failed as expected due
+  the same incompatible NumPy injection diagnosed during training; `git diff
+  --check` passed; key-shaped secret scan found no matches; and generated
+  checkpoint/pickle artifacts were removed before staging. Next: finalize
+  validation for the advisory replay, commit/push the planner change, then run
+  AXG-1.6 with stronger anti-collapse conditioning away from dense/medium
+  mixed-support basins and with the advisory/fatal risk split active.
 - Active escape-lane scout started 2026-07-09 from clean commit `59a3dcc`.
   Preflight: `git pull --ff-only` reported already up to date and the
   worktree was clean; `SAIR_API_KEY` is present in the environment but was not

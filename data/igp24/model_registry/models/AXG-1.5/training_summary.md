@@ -14,7 +14,7 @@ so PyTorch 2.12.0+cu130 could access the RTX 5090.
 
 ## Results
 
-| r | gpu s | max gpu % | avg gpu % | export rows | decoded | scored | valid | target survivors | selected | decision |
+| r | gpu s | max gpu % | avg gpu % | export rows | decoded | scored | valid | target survivors | selected | initial decision |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | 16 | 135.900 | 89.000 | 77.076 | 214 | 17 | 17 | 17 | 16 | 0 | `hold_no_submission` |
 | 20 | 123.224 | 88.000 | 77.900 | 662 | 16 | 16 | 16 | 12 | 3 | `hold_no_submission` |
@@ -34,11 +34,16 @@ submission because all selected rows carried
 `loose_crowded_basin_fingerprint_hits=2`. There were no pending sync holds and
 no direct selected exact-pair pending collisions.
 
+After splitting risks into fatal and advisory buckets, replay run
+`axg15_fullstack_high_real_gate_advisory_20260709` selected the same 5-row
+r20/r24 packet with 0 fatal risks and 5 advisory loose-basin warnings. It
+passed the diversity gates and local SAIR dry-run validation (`ok=true`,
+5 polynomials, 741 bytes). No live SAIR submission was made.
+
 ## Decision
 
-Do not live-submit automatically. The packet is format-ready and potentially
-interesting, but it is not a strict planner recommendation yet. The next AXG
-iteration should either make the loose-crowded warning advisory instead of
-fatal with explicit tests, or train/export with stronger anti-collapse
-conditioning that avoids repeated dense/medium mixed-support basins before
-selection.
+Do not live-submit automatically. The packet is now locally ready under the
+advisory/fatal gate split, but live SAIR submission still requires explicit
+approval. The next AXG iteration should train/export with stronger
+anti-collapse conditioning that avoids repeated dense/medium mixed-support
+basins before selection.

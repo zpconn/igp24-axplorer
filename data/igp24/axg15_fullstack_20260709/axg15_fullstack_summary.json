@@ -1,11 +1,11 @@
 {
   "advisory_packet": {
-    "coefficient_file": "data/igp24/axg15_fullstack_20260709/proposal_loop/axg15_fullstack_high_real_gate_20260709/selected_review_coefficients.txt",
+        "coefficient_file": "data/igp24/axg15_fullstack_20260709/proposal_loop_advisory/axg15_fullstack_high_real_gate_advisory_20260709/selected_review_coefficients.txt",
     "dry_run_body_bytes": 741,
     "dry_run_ok": true,
     "polynomial_count": 5,
     "selected_rows": 5,
-    "status": "dry_run_valid_hold_no_submission"
+        "status": "dry_run_ready_requires_explicit_live_submission_approval"
   },
   "aggregate": {
     "candidate_rows": 49,
@@ -18,8 +18,8 @@
   "created_at": "2026-07-09T15:21:30Z",
   "decision": {
     "live_submission_made": false,
-    "planner_decision": "hold_no_submission",
-    "reason": "5_selected_rows_have_risk_reasons",
+        "planner_decision": "reviewed_packet_ready_for_dry_run",
+        "reason": "anti-basin gates passed after advisory/fatal risk split",
     "selected_r_values": [
       20,
       24
@@ -35,7 +35,7 @@
   ],
   "model_version": "AXG-1.5",
   "record_type": "igp24_axg15_fullstack_cycle_summary",
-  "registry_run": "data/igp24/model_registry/runs/AXG-1.5/axg15_fullstack_high_real_gate_20260709/run_manifest.json",
+    "registry_run": "data/igp24/model_registry/runs/AXG-1.5/axg15_fullstack_high_real_gate_advisory_20260709/run_manifest.json",
   "sair_sync": {
     "download_complete": true,
     "full_submission_state_complete": true,
