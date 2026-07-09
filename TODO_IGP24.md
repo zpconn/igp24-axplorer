@@ -142,6 +142,50 @@ results change.
   tests/test_igp24_active_learning_dataset.py tests/test_igp24_anti_basin_planner.py`
   passed with 61 tests. Goal remains active and incomplete until a future
   AXG iteration produces verified score improvement.
+- AXG continuation / AXG-1.8 escape preflight started 2026-07-09 after the
+  AXG-1.7 failure. `git pull --ff-only` reported already up to date,
+  worktree was clean, `SAIR_API_KEY` was present without being printed, and
+  `nvidia-smi` saw the NVIDIA GeForce RTX 5090 at low idle utilization.
+  Fresh full SAIR sync completed under
+  `data/igp24/axg18_escape_20260709/sair_sync/`: 25,000 labels, 47,112
+  remaining signatures, 26/26 submission details and downloads recovered, 221
+  scoreable rows, 0 pending rows, 0 unmatched rows, and `partial_sync=false`.
+  Top remaining buckets are r24 = 11,403, r16 = 9,742, r8 = 5,997, r12 =
+  5,932, and r20 = 5,183. Our scoreable rows remain dominated by
+  `24T25000` (119 rows), especially `24T25000|r=24` (29), `r=20` (24),
+  `r=4` (23), `r=16` (21), and `r=8` (19). The top zero-team labels with all
+  12 non-r22 signatures still remaining are `24T19906`, `24T22306`,
+  `24T22631`, `24T22667`, `24T23413`, and `24T24093`.
+- Refreshed score-aware planning after AXG-1.7: a first target-plan run with
+  stale basin summary still recommended the `r8_quartic_lift_score_followup`
+  lane from `24T9993|r=8`, but that lane is known to have collapsed to
+  `24T25000|r=8`. Reran `scripts/igp24_label_basin_analysis.py` against the
+  current local feedback plus fresh sync progress under
+  `data/igp24/axg18_escape_20260709/label_basin_analysis/`, yielding 184
+  accepted observations, 12 labels, 21 pairs, and 9 anti-basin constraints.
+  Reran `scripts/igp24_score_aware_target_planner.py` with the refreshed
+  basin summary under
+  `data/igp24/axg18_escape_20260709/target_plan_refreshed_basin/`; the planner
+  now correctly stops `r8_quartic_lift_score_followup` and recommends
+  `materially_different_high_real_lane_after_basin_stop`, targeting r24/r16/r20
+  and led by `24T19906|r=24`. Next in progress: rebuild AXG training data with
+  AXG-1.7 negative feedback, register AXG-1.8, and run bounded GPU inference
+  in high-real lanes with the stopped r8 and known `24T25000` model basins
+  excluded from submission.
+- AXG-1.8 dataset/registry checkpoint: rebuilt
+  `data/igp24/active_learning/axg_training_dataset_20260709_axg18_escape.jsonl`
+  from 16 scored-sample exports, 21 accepted-feedback artifacts, and the fresh
+  full SAIR sync. Dataset has 666 rows: old class counts are 528 accepted
+  duplicate/collapsed basin, 8 globally covered high-team basin, 8 useful
+  score-positive, 40 exact local valid, 4 locally invalid, and 78 wrong-r
+  rows. Score-aware counts are 536 `accepted_but_crowded_collapse`, 8
+  `score_positive`, 40 `pending_or_unknown`, 78 `wrong_r`, and 4 `invalid`;
+  the top label is now `24T25000` with 346 training rows. Registered `AXG-1.8`
+  as child of `AXG-1.7` with description "High-real escape iteration after
+  AXG-1.7 r8 24T25000 collapse". Next in progress: bounded CUDA target-r
+  inference for the refreshed high-real lane (r24/r16/r20) using the AXG-1.8
+  dataset and stricter submission gating against both r8 and high-real
+  `24T25000` model basins.
 - Active AXG-1.6 anti-collapse iteration started 2026-07-09 from clean commit
   `b6f832e` after pushing the AXG-1.5 advisory planner replay. Objective:
   continue the standing operating rule toward significant verifiable score

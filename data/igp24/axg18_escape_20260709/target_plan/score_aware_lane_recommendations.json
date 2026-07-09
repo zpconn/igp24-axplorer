@@ -1,0 +1,72 @@
+[
+  {
+    "lane": "r8_quartic_lift_score_followup",
+    "rank_reason": "visible score outlier 24T9993|r=8 at 0.0019 with 10 solved teams",
+    "source_pair": "24T9993|r=8",
+    "source_points": "0.0019",
+    "source_solved_teams": 10,
+    "source_family": "r8_quartic_lift",
+    "construction_family_counts": {
+      "r8_quartic_lift": 2
+    },
+    "stopped_by_constraint": null,
+    "recommended_for_generation_now": true,
+    "recommended_for_submission_now": false,
+    "submission_gate": "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first"
+  },
+  {
+    "lane": "r12_gx2_structured_score_followup",
+    "rank_reason": "visible score outlier 24T22770|r=12 at 0.0002 with 12 solved teams",
+    "source_pair": "24T22770|r=12",
+    "source_points": "0.0002",
+    "source_solved_teams": 12,
+    "source_family": "degree12_base_six_positive_roots_lifted_by_x2",
+    "construction_family_counts": {
+      "degree12_base_six_positive_roots_lifted_by_x2": 2
+    },
+    "stopped_by_constraint": null,
+    "recommended_for_generation_now": true,
+    "recommended_for_submission_now": false,
+    "submission_gate": "fresh queue must pass local exact checks, score-aware planner, anti-basin planner, and SAIR dry-run first"
+  },
+  {
+    "lane": "api_scoreable_discriminant_review",
+    "rank_reason": "API scoreable row for 24T9993|r=8 has fieldDiscAbs available and log10(field/global-min)=4.042847",
+    "source_pair": "24T9993|r=8",
+    "source_submission_id": "sub_5f42a87ac9bf484eaf2eafdcfe76808d",
+    "source_field_disc_abs": "1307820986002621416454731276833908982808576",
+    "source_global_minimum_disc_abs": "118495339126629900844605413086090756096",
+    "recommended_for_generation_now": false,
+    "recommended_for_submission_now": false,
+    "submission_gate": "review API scoreable rows for discriminant-improvement evidence before generating nearby variants"
+  },
+  {
+    "lane": "zero_team_high_real_target_conditioning",
+    "rank_reason": "live progress still has many zero-team/uncovered signatures; current generators cannot directly condition exact labels",
+    "source_pair": "24T19906|r=24",
+    "top_uncovered_pairs": [
+      "24T19906|r=24",
+      "24T22306|r=24",
+      "24T22631|r=24",
+      "24T22667|r=24",
+      "24T23413|r=24"
+    ],
+    "target_r_buckets": "24,16,8,12",
+    "recommended_for_generation_now": false,
+    "recommended_for_submission_now": false,
+    "submission_gate": "requires a stronger exact-label steering mechanism before spending a packet"
+  },
+  {
+    "lane": "no_more_collapsed_composition_lanes",
+    "rank_reason": "basin constraints show 6x4, ordinary 8x3, and current 4x6 inner-root family are exhausted",
+    "avoid_families": [
+      "nearby r24 6x4 towers",
+      "ordinary 8x3 outer coefficient perturbations",
+      "current 4x6 inner roots -3,-2,-1,1,2,4",
+      "product/quadratic low-odd perturbation lanes into 24T25000"
+    ],
+    "recommended_for_generation_now": false,
+    "recommended_for_submission_now": false,
+    "submission_gate": "avoidance rule only"
+  }
+]
