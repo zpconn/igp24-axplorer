@@ -1,0 +1,56 @@
+{
+  "blocking_reasons": [
+    "missing_gap_and_missing_captured_outputs"
+  ],
+  "created_at": "2026-07-09T22:42:39.892838+00:00",
+  "gap_path": null,
+  "group_count": 0,
+  "index_path": null,
+  "live_submission_recommended_now": false,
+  "manifest_label_count": 25,
+  "manifest_path": "data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_gap_programs/gap_export_manifest.json",
+  "missing_output_files": [
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0001_19906_15069.json",
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0002_15083_23719.json",
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0003_23722_24189.json"
+  ],
+  "no_approximation_written": true,
+  "output_files": {
+    "report_md": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_group_index_workflow_report.md",
+    "summary_json": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_group_index_workflow_summary.json"
+  },
+  "program_count": 3,
+  "program_results": [
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0001_19906_15069.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_gap_programs/degree24_group_cycle_export_0001_19906_15069.g",
+      "row_count": 0,
+      "status": "blocked_missing_gap_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0002_15083_23719.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_gap_programs/degree24_group_cycle_export_0002_15083_23719.g",
+      "row_count": 0,
+      "status": "blocked_missing_gap_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/gap_outputs/degree24_group_cycle_export_0003_23722_24189.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/top25_uncovered_r24_gap_programs/degree24_group_cycle_export_0003_23722_24189.g",
+      "row_count": 0,
+      "status": "blocked_missing_gap_output"
+    }
+  ],
+  "program_status_counts": {
+    "blocked_missing_gap_output": 3
+  },
+  "readiness_blocking_reasons": null,
+  "readiness_output_dir": null,
+  "record_type": "igp24_gap_group_index_workflow",
+  "rows_available": 0,
+  "rows_imported": 0,
+  "safety_note": "Exact GAP group-index workflow. It runs GAP only when available, reuses captured GAP JSON outputs when present, calls no SAIR/network APIs, does not generate candidates, and does not submit anything.",
+  "schema_version": 1,
+  "source_commit": "beae117d08f4289a71e5b68efd255ba62e42a03f",
+  "status": "blocked_missing_gap_outputs",
+  "tool": "scripts/igp24_run_gap_group_index_workflow.py"
+}

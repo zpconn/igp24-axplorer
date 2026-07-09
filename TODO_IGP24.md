@@ -225,6 +225,28 @@ results change.
   or recommended. Validation: py-compile passed; focused extractor/readiness/
   compatibility tests passed (`17 passed`); full test suite passed
   (`352 passed`).
+- 2026-07-09 remediation Phase 3 GAP workflow checkpoint: added
+  `scripts/igp24_run_gap_group_index_workflow.py`, a read-only orchestration
+  wrapper for the exact GAP -> JSON rows -> SQLite group-cycle index ->
+  readiness-gate path. It consumes the chunked GAP export manifest, reuses
+  captured GAP JSON outputs when present, runs GAP chunks when `gap` is
+  available, imports rows through the existing `GroupCycleIndex` importer, and
+  reruns the readiness gate with historical validation rows. If GAP is missing
+  and no captured outputs exist, it writes a blocked report and no approximate
+  index. Real artifact:
+  `data/igp24/remediation_20260709/group_index_workflow_phase3/top25_uncovered_r24_blocked_no_gap/`.
+  Result: current top-25 uncovered r24 manifest has 3 GAP program chunks and
+  25 target labels, but local `gap` is still absent and no captured
+  `gap_outputs/*.json` files exist, so status is
+  `blocked_missing_gap_outputs`, rows available/imported are 0, group count is
+  0, `no_approximation_written=true`, and live submission remains `false`.
+  This makes the next exact unblock action mechanical: run the three
+  `degree24_group_cycle_export_*.g` programs under GAP, place their JSON
+  outputs at the paths listed in the workflow report, then rerun the workflow
+  to import the target-label index and execute the historical-containment
+  readiness gate. Validation: py-compile passed; focused GAP workflow/
+  compatibility/readiness/historical-extractor tests passed (`19 passed`);
+  full test suite passed (`354 passed`).
 - 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
   advisory reward/collapse-risk model required by the remediation plan under
   `src/igp24/reward_model.py`, with CLI entrypoints
