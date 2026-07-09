@@ -33,6 +33,26 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09 remediation Phase 2 checkpoint: implemented the separate
+  advisory reward/collapse-risk model required by the remediation plan under
+  `src/igp24/reward_model.py`, with CLI entrypoints
+  `scripts/igp24_train_reward_model.py` and
+  `scripts/igp24_score_reward_model.py`. This is intentionally not a fatal
+  gate and not an exact-label verifier. Training artifacts live under
+  `data/igp24/remediation_20260709/reward_model_phase2/`. Training input was
+  the refreshed AXG-1.13 active-learning dataset: 635 rows with outcomes
+  462 `crowded_accepted_collapse`, 105 `wrong_r`, 60 `unknown`, and only
+  8 `score_positive`; unknown rows are excluded from supervised training and
+  are not treated as negative. Grouped validation split had 519 train rows,
+  116 eval rows, and zero train/eval group overlap. Eval metrics are useful
+  but not submission-grade: crowded-collapse precision/recall 1.000/0.943,
+  wrong-r precision/recall 1.000/0.778, and score-positive support only 1
+  with precision/recall 0.111/1.000. Scoring the full dataset produced
+  605 `avoid_high_collapse_risk`, 28 `advisory_sparse_positive_candidate`,
+  and 2 `advisory_review` decisions. Important negative result: 38 known-risk
+  rows still appear in the top 50 reward-ranked rows, so the model must remain
+  advisory until Phase 3 group-cycle compatibility and richer labels are in
+  place. No live submission is recommended from Phase 2 alone.
 - 2026-07-09 remediation Phase 0/1 checkpoint: wrote baseline artifacts
   `data/igp24/remediation_20260709/baseline_report.md` and
   `data/igp24/remediation_20260709/baseline_summary.json`. Baseline evidence:

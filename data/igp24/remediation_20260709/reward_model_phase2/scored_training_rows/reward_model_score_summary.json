@@ -1,0 +1,1577 @@
+{
+  "decision_counts": {
+    "advisory_review": 2,
+    "advisory_sparse_positive_candidate": 28,
+    "avoid_high_collapse_risk": 605
+  },
+  "observed_outcome_counts": {
+    "crowded_accepted_collapse": 462,
+    "score_positive": 8,
+    "unknown": 60,
+    "wrong_r": 105
+  },
+  "record_type": "igp24_reward_model_score_summary",
+  "row_count": 635,
+  "schema_version": 1,
+  "top_collapse_risk_rows": [
+    {
+      "canonical_hash": "ec615e569a94bec4841da263c1470e6ece17b1b60ca946f7cc6c39da9af1a379",
+      "collapse_risk_probability": 0.999999999999989,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.1025780312751879e-14,
+      "row_index": 157
+    },
+    {
+      "canonical_hash": "7e103d37da0d8bcaa6e760f5ade87c04437a2f6089ebb2eaee71f739dfc43c87",
+      "collapse_risk_probability": 0.9999999999999836,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.6426162506751222e-14,
+      "row_index": 145
+    },
+    {
+      "canonical_hash": "4f80dec2b3d682a13d82d5528064f0a5195d37f76e27372c5a013b3f77b36eec",
+      "collapse_risk_probability": 0.9999999999999836,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.6426162506751222e-14,
+      "row_index": 158
+    },
+    {
+      "canonical_hash": "2b7d467fac65c7e240376f118eb3a0649dfd60b1a89cfa435ad3c73436ccbab6",
+      "collapse_risk_probability": 0.9999999999999835,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.6426162506751774e-14,
+      "row_index": 160
+    },
+    {
+      "canonical_hash": "82561657c540c8b1675024d6392904a06124ab2e6d0f8cce10afd2a6d21f7f41",
+      "collapse_risk_probability": 0.9999999999999835,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.6426162506751774e-14,
+      "row_index": 162
+    },
+    {
+      "canonical_hash": "0d4f608f26e6b494b60046c6b3e195b634f7cff8ae40b2cf245d852d497e6d55",
+      "collapse_risk_probability": 0.9999999999999817,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.8376300521252708e-14,
+      "row_index": 149
+    },
+    {
+      "canonical_hash": "c98699cae428560ada7d6652fcb232fd2df59b9d4bbac68b668c7074a37d7fdd",
+      "collapse_risk_probability": 0.9999999999999816,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.8376300521253232e-14,
+      "row_index": 22
+    },
+    {
+      "canonical_hash": "e11245aa933282743b6c26993ce00240316f3f0d9536a5bc2a8ba666807aad64",
+      "collapse_risk_probability": 0.9999999999999748,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.5186782510354055e-14,
+      "row_index": 170
+    },
+    {
+      "canonical_hash": "a4a52f84d126ac8daedf173b1410ab5bc8f6d832a48a921f8479ed10da44cb25",
+      "collapse_risk_probability": 0.9999999999999748,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.5186782510354055e-14,
+      "row_index": 173
+    },
+    {
+      "canonical_hash": "00b393a6e420e2e2be81f6245838f15f019ba1e32e93d6abd23bd279824acda4",
+      "collapse_risk_probability": 0.9999999999999748,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.5186782510354055e-14,
+      "row_index": 176
+    },
+    {
+      "canonical_hash": "d63770a7b78c2c16090412d914c7d0520944d07a9ef373fb948e1882353e0909",
+      "collapse_risk_probability": 0.9999999999999748,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.5186782510354055e-14,
+      "row_index": 180
+    },
+    {
+      "canonical_hash": "eee206a2e8f41835b50493a5e5eb4b3f59209338817226d4bc9dd4167f7178b6",
+      "collapse_risk_probability": 0.9999999999999727,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.7376937511254134e-14,
+      "row_index": 155
+    },
+    {
+      "canonical_hash": "2d891e76edc35088079341f695fbdea4bc1c4b49011ff0b1a8cba1fd42ae7c4c",
+      "collapse_risk_probability": 0.9999999999999727,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.7376937511254134e-14,
+      "row_index": 161
+    },
+    {
+      "canonical_hash": "1ffd69bfa99d0f698eb93fda8d6e733737a6f3c2578d63199921b127037d9e8c",
+      "collapse_risk_probability": 0.9999999999999719,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.8176994132588233e-14,
+      "row_index": 186
+    },
+    {
+      "canonical_hash": "524ece4d50a5d7ed045ec50837b01430d5ec636d8a53bac3462a90a846ed3e95",
+      "collapse_risk_probability": 0.9999999999999617,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.842317381716551e-14,
+      "row_index": 37
+    },
+    {
+      "canonical_hash": "013999699fe91de255ab735d5125dc4d0253c3cf8b6ed4d6a0c91f0469b63dae",
+      "collapse_risk_probability": 0.9999999999999617,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.842317381716551e-14,
+      "row_index": 41
+    },
+    {
+      "canonical_hash": "d5632e9e318d297ce96cfaa517782eca974410cd832efc7ef02c59ef5ddc982c",
+      "collapse_risk_probability": 0.9999999999999301,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 6.99632847509802e-14,
+      "row_index": 61
+    },
+    {
+      "canonical_hash": "174e2334199dabed3d7be169dbe9f768f4a637e067b70927e828b846146af7a6",
+      "collapse_risk_probability": 0.9999999999999301,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 6.99632847509802e-14,
+      "row_index": 65
+    },
+    {
+      "canonical_hash": "f41235a443fa6f3a3c714966ac4cea3a845387c6a53731b4023c33f1f6c46bc6",
+      "collapse_risk_probability": 0.9999999999999296,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 7.042504253047246e-14,
+      "row_index": 174
+    },
+    {
+      "canonical_hash": "b8c2bb66b2259a548ffb978bf9ad1bc2ed4053d7feb8d000f93d1616d3ca6e9b",
+      "collapse_risk_probability": 0.9999999999999296,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 7.042504253047246e-14,
+      "row_index": 175
+    },
+    {
+      "canonical_hash": "ba809525221365c540df4aeef95b9c0d2ab9532aa923e3e3de8f45944e1de512",
+      "collapse_risk_probability": 0.9999999999999106,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 8.943132920342668e-14,
+      "row_index": 109
+    },
+    {
+      "canonical_hash": "63898861f528e148975247773e9ea352c87c1f5cd912f41b42268428a1ea1253",
+      "collapse_risk_probability": 0.9999999999998825,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.173750708841234e-13,
+      "row_index": 106
+    },
+    {
+      "canonical_hash": "ebfdcdb85a5ce3fe2a4b2f097c1f9ccafad2ca5854105726cb1762e23eb951bb",
+      "collapse_risk_probability": 0.9999999999998825,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.173750708841234e-13,
+      "row_index": 179
+    },
+    {
+      "canonical_hash": "0a8e135ddca715d06b3832618b4e440b0863293e7437d91cff58327adc24e842",
+      "collapse_risk_probability": 0.9999999999998825,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.173750708841234e-13,
+      "row_index": 181
+    },
+    {
+      "canonical_hash": "98ecd44e6b4ee5564befdae784f5ce2ddf549eb93d644c2f2b7d6113c2c2be49",
+      "collapse_risk_probability": 0.9999999999998825,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.173750708841234e-13,
+      "row_index": 184
+    },
+    {
+      "canonical_hash": "5e0a0556054b1d3a68c59ea8583e735157afca441c6aa0f74f8605b979a5029c",
+      "collapse_risk_probability": 0.9999999999998825,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.1737507088412076e-13,
+      "row_index": 107
+    },
+    {
+      "canonical_hash": "431141f28ff9d3476d8c3c3d0483be677f376324c9422dc0ac1de7a27ed24949",
+      "collapse_risk_probability": 0.9999999999998509,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.4905221533903567e-13,
+      "row_index": 66
+    },
+    {
+      "canonical_hash": "63b446f22d4d5e1a4621787de3759809a657b6c519513fa722f73db65d81353b",
+      "collapse_risk_probability": 0.9999999999998402,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.5975951218714194e-13,
+      "row_index": 39
+    },
+    {
+      "canonical_hash": "ca381052dad516c6a045002a92ffa2a48e3cf0cac0ad357b4acaa1539b6b774f",
+      "collapse_risk_probability": 0.9999999999998402,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.5975951218714194e-13,
+      "row_index": 40
+    },
+    {
+      "canonical_hash": "e76240319a6c062347e3d8b400bbfa05316a27573358d8ca2e9c9f1d8c4b8952",
+      "collapse_risk_probability": 0.9999999999998084,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.9163856257871654e-13,
+      "row_index": 133
+    },
+    {
+      "canonical_hash": "c582f0968a7afba71f83fb1988a0bf3a514714f095976037d0470b098823f9bf",
+      "collapse_risk_probability": 0.9999999999998047,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.9526162600649902e-13,
+      "row_index": 59
+    },
+    {
+      "canonical_hash": "20d72fa50870ad6a1045ba510918e9ade65b7e94b1f8230853ef0163603f7c19",
+      "collapse_risk_probability": 0.9999999999997574,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.4250829543717185e-13,
+      "row_index": 166
+    },
+    {
+      "canonical_hash": "05aac4086e613fe222b8e82d2e07a2ed791eb29678274b4b84abc836163cea64",
+      "collapse_risk_probability": 0.9999999999997489,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.510506620083411e-13,
+      "row_index": 131
+    },
+    {
+      "canonical_hash": "5f3ff63211978f9b9582e87b577529d81777af944e3eba83a915ac3d0c1894aa",
+      "collapse_risk_probability": 0.9999999999996229,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.7708168665466166e-13,
+      "row_index": 19
+    },
+    {
+      "canonical_hash": "3858aff8ce5e90c53e303307155448e054dec2e5f8ef8cdac547ec36f4352f7d",
+      "collapse_risk_probability": 0.9999999999996144,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.8566094719043767e-13,
+      "row_index": 134
+    },
+    {
+      "canonical_hash": "e0091555897663b3efc0ae3e6d8d26ca066cc0058921c725ed54f851106efc7d",
+      "collapse_risk_probability": 0.9999999999996143,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.856609471905836e-13,
+      "row_index": 98
+    },
+    {
+      "canonical_hash": "aa33652c8690001c6cbab99ca26e1be02b84fcef762820fc689abfa055631197",
+      "collapse_risk_probability": 0.9999999999996143,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 3.856609471905836e-13,
+      "row_index": 138
+    },
+    {
+      "canonical_hash": "d5440bc7633a9216f58fa712301c8eee3fe333d9710aa80797db285b44965aee",
+      "collapse_risk_probability": 0.9999999999994602,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 5.399253260663143e-13,
+      "row_index": 154
+    },
+    {
+      "canonical_hash": "a54195b5b8e89103540bd6159f8672a6a5bac70f9274cbd46d6b02f6e53b5dd5",
+      "collapse_risk_probability": 0.9999999999994601,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 5.399253260666877e-13,
+      "row_index": 60
+    },
+    {
+      "canonical_hash": "65f82584f632b9f970314e45a9d4f598c516d74ace4dbef07fd914c117a41399",
+      "collapse_risk_probability": 0.9999999999994601,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 5.399253260663796e-13,
+      "row_index": 64
+    },
+    {
+      "canonical_hash": "c63a754a19e49dc8fe09183f271df86535a1e8d491dbbdd75fa1daf544b65b08",
+      "collapse_risk_probability": 0.9999999999994382,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.617747575292186e-13,
+      "row_index": 151
+    },
+    {
+      "canonical_hash": "f749dfde7a2e847f75b0743f4ef741c88984cd15a86303f2f9e054db075f9abd",
+      "collapse_risk_probability": 0.9999999999994382,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.617747575292186e-13,
+      "row_index": 165
+    },
+    {
+      "canonical_hash": "7d6bd67c4b2909e2d055e90d9c9de27aa784f3027cd63145d6e73735e8356b07",
+      "collapse_risk_probability": 0.9999999999994381,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.617747574486477e-13,
+      "row_index": 103
+    },
+    {
+      "canonical_hash": "a6574e87f788590d65a6020f01d8b9bb5fd73eed670904d8f819e22d9706e8d4",
+      "collapse_risk_probability": 0.9999999999990521,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 9.478689057610695e-13,
+      "row_index": 182
+    },
+    {
+      "canonical_hash": "9d9b3b6d043151eb723b10d500e2f18d412b03c368f2a7a0f2a3a4794bcba006",
+      "collapse_risk_probability": 0.9999999999990521,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 9.478689057610695e-13,
+      "row_index": 183
+    },
+    {
+      "canonical_hash": "628972a8ce7f4e1e875d2f0698261151017888eecddd9de69a8b7983592e185e",
+      "collapse_risk_probability": 0.9999999999990521,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 9.478689057598572e-13,
+      "row_index": 168
+    },
+    {
+      "canonical_hash": "9147e925caf15af08e510dbd2ed15bf2dfcba15f217579342b7b3413236c3f9b",
+      "collapse_risk_probability": 0.9999999999987479,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.2520290736975354e-12,
+      "row_index": 7
+    },
+    {
+      "canonical_hash": "301a7383e55e674e84448126535b2fba6f7e03a6bda3cfd0a0e4dd47a3f7decc",
+      "collapse_risk_probability": 0.9999999999986653,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 1.3347541734183242e-12,
+      "row_index": 34
+    },
+    {
+      "canonical_hash": "7276cb500199f97905062c377417200212739bbcaec2cabecad4906ddb74218b",
+      "collapse_risk_probability": 0.999999999997935,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 2.0649711407825213e-12,
+      "row_index": 129
+    },
+    {
+      "canonical_hash": "360a69d536143b4379d8000936dd8f10e4b5fabdc67ee02e3e48f7a240c9d4d9",
+      "collapse_risk_probability": 0.999999999997702,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.2981694631548914e-12,
+      "row_index": 163
+    }
+  ],
+  "top_families": {
+    "alt_composition_4x6": 12,
+    "alt_composition_8x3": 20,
+    "degree12_base_six_positive_roots_lifted_by_x2": 6,
+    "model_sample_export": 218,
+    "odd_perturbed_r24_6x4_tower_escape": 8,
+    "positive_quadratic_product_plus_low_odd_perturbation": 11,
+    "r8_quartic_lift_perturbed": 10,
+    "r8_quartic_lift_score_followup": 4,
+    "split_group_key:canonical_hash:073a919fccc1a23dd3f80c672c6d0979720eb77a6bb578e36ae13e8ce4c28591": 2,
+    "split_group_key:canonical_hash:27e4d2c3bed7dab0f01b9dc3719a7103dcd76059fca3f1eb4bb2402963d8e1b5": 2,
+    "split_group_key:canonical_hash:3e8fad1c89acdaa94dd2484eedbda1a84aca93e0b428efce30b0b3b404318e70": 3,
+    "split_group_key:canonical_hash:4f3d5d381b1d02b200bf49c9a8789e1e7d6a4f6df6d53e29cd2924042573da67": 2,
+    "split_group_key:canonical_hash:6b6bc6581bdffb2539a80317d7316cef79eee2f0a4f985ee8d220c2eb837ee96": 2,
+    "split_group_key:canonical_hash:b09ebcbb8403514fa69391c0879f31789aa7edbb5e16ea94595d434cbd022893": 2,
+    "split_group_key:canonical_hash:b5f008e4cc5087d346ebf2224803641f887dfd41ce8094ac2102284e82ad37db": 2,
+    "split_group_key:canonical_hash:c814e1de3e8d4f15fb70c19201b27ff9bdc4a10425494cb712e9383eab5a92b9": 2,
+    "split_group_key:canonical_hash:ec129a4a33091cab1778a9b12d4ce73997f39f1ee5aa27dd922df98d86788ac9": 2,
+    "split_group_key:canonical_hash:f48ecb66049abb991363c5866720406d6e5d4be8e19f62bbb872185da45b94cb": 2,
+    "split_group_key:canonical_hash:f8e4f26aec2456e03bad823a38c39b3dec94d5e98a6b8467f94b43cc6e439b26": 2,
+    "twenty_linear_real_roots_two_no_real_quadratics_plus_coefficient_perturbation": 8
+  },
+  "top_reward_known_risk_count": 38,
+  "top_reward_known_risk_rows": [
+    {
+      "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "collapse_risk_probability": 3.968363322188593e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9999603163667782,
+      "row_index": 599
+    },
+    {
+      "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "collapse_risk_probability": 0.00015430537593248274,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9998456946240676,
+      "row_index": 598
+    },
+    {
+      "canonical_hash": "9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131",
+      "collapse_risk_probability": 0.00022487629476289502,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.9997751237052371,
+      "row_index": 630
+    },
+    {
+      "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "collapse_risk_probability": 0.0006095710540587156,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9993904289459414,
+      "row_index": 596
+    },
+    {
+      "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "collapse_risk_probability": 0.0006095710540587156,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9993904289459414,
+      "row_index": 597
+    },
+    {
+      "canonical_hash": "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "collapse_risk_probability": 0.0010773250296289704,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.9989226749703711,
+      "row_index": 602
+    },
+    {
+      "canonical_hash": "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+      "collapse_risk_probability": 0.002897151022709915,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=5",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9971028489772901,
+      "row_index": 274
+    },
+    {
+      "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "collapse_risk_probability": 0.008030237550446639,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9919697624495534,
+      "row_index": 394
+    },
+    {
+      "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "collapse_risk_probability": 0.030520668932261397,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9694793310677386,
+      "row_index": 393
+    },
+    {
+      "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "collapse_risk_probability": 0.11046320854176038,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.8895367914582397,
+      "row_index": 391
+    },
+    {
+      "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "collapse_risk_probability": 0.11046320854176038,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.8895367914582397,
+      "row_index": 392
+    },
+    {
+      "canonical_hash": "72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+      "collapse_risk_probability": 0.15082376288132068,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.8491762371186794,
+      "row_index": 603
+    },
+    {
+      "canonical_hash": "5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+      "collapse_risk_probability": 0.16814620450175194,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.831853795498248,
+      "row_index": 263
+    },
+    {
+      "canonical_hash": "33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+      "collapse_risk_probability": 0.22138955134392208,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.778610448656078,
+      "row_index": 604
+    },
+    {
+      "canonical_hash": "a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a",
+      "collapse_risk_probability": 0.22138955134392208,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.778610448656078,
+      "row_index": 633
+    },
+    {
+      "canonical_hash": "4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+      "collapse_risk_probability": 0.24106713560510395,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,6",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.7589328643948959,
+      "row_index": 262
+    },
+    {
+      "canonical_hash": "95dd827ceadb2482572fd9f504917b34c067491fec88bacc78b6893165f18490",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:95dd827ceadb2482572fd9f504917b34c067491fec88bacc78b6893165f18490",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 605
+    },
+    {
+      "canonical_hash": "2ba8637f2f40b567c6d9b73274a0e55f4dfc4f71b542a4d7e8a2d6941b2376bd",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2ba8637f2f40b567c6d9b73274a0e55f4dfc4f71b542a4d7e8a2d6941b2376bd",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 606
+    },
+    {
+      "canonical_hash": "981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 631
+    },
+    {
+      "canonical_hash": "b51dc9fc89b4277a4615ae9de15436fa833e890b8639c407d8f5a1803ccc174c",
+      "collapse_risk_probability": 0.6652449412642463,
+      "decision": "advisory_review",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.33475505873575373,
+      "row_index": 342
+    }
+  ],
+  "top_reward_rows": [
+    {
+      "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "collapse_risk_probability": 5.015246406201593e-10,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999999994984754,
+      "row_index": 272
+    },
+    {
+      "canonical_hash": "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "collapse_risk_probability": 5.015246406201593e-10,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999999994984754,
+      "row_index": 276
+    },
+    {
+      "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "collapse_risk_probability": 5.707503106398795e-06,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999942924968938,
+      "row_index": 538
+    },
+    {
+      "canonical_hash": "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "collapse_risk_probability": 5.707503106398795e-06,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999942924968938,
+      "row_index": 542
+    },
+    {
+      "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "collapse_risk_probability": 3.968363322188593e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9999603163667782,
+      "row_index": 599
+    },
+    {
+      "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "collapse_risk_probability": 5.06799218645867e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999493200781355,
+      "row_index": 600
+    },
+    {
+      "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "collapse_risk_probability": 5.06799218645867e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999493200781355,
+      "row_index": 601
+    },
+    {
+      "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "collapse_risk_probability": 0.00015430537593248274,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9998456946240676,
+      "row_index": 598
+    },
+    {
+      "canonical_hash": "9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131",
+      "collapse_risk_probability": 0.00022487629476289502,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:9c45c5493e7a4e3ade9700843b66b32c21c8f50868f0ddd9eb8c42c386730131",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.9997751237052371,
+      "row_index": 630
+    },
+    {
+      "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "collapse_risk_probability": 0.0006095710540587156,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9993904289459414,
+      "row_index": 596
+    },
+    {
+      "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "collapse_risk_probability": 0.0006095710540587156,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9993904289459414,
+      "row_index": 597
+    },
+    {
+      "canonical_hash": "33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "collapse_risk_probability": 0.0010773250296289704,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:33772dd90765a2726c35d5d653cd17725b50ffdac30bb4e7cf195068b94851da",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.9989226749703711,
+      "row_index": 602
+    },
+    {
+      "canonical_hash": "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+      "collapse_risk_probability": 0.002897151022709915,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=5",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9971028489772901,
+      "row_index": 274
+    },
+    {
+      "canonical_hash": "86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "collapse_risk_probability": 0.008030237550446639,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:86f62f433b3f8da285f21aeea33f1ee08bc732e5a818d7e9601659d4aafbca7b",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9919697624495534,
+      "row_index": 394
+    },
+    {
+      "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "collapse_risk_probability": 0.01023258272813257,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9897674172718676,
+      "row_index": 395
+    },
+    {
+      "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "collapse_risk_probability": 0.01023258272813257,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9897674172718676,
+      "row_index": 396
+    },
+    {
+      "canonical_hash": "de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "collapse_risk_probability": 0.030520668932261397,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:de699993e8a94a05a618350522d7eaacd34f0caf956c8c74302cca32b00dbf29",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.9694793310677386,
+      "row_index": 393
+    },
+    {
+      "canonical_hash": "85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "collapse_risk_probability": 0.11046320854176038,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:85cefa437fa2615f6b3a5ff1e9eacd41a1dbabc37a1f2faff42dd863e9300c73",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.8895367914582397,
+      "row_index": 391
+    },
+    {
+      "canonical_hash": "778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "collapse_risk_probability": 0.11046320854176038,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:778075741c827ea333a5c0d58f13373e1e4b2c0b8ef0dd4a596a864c584db5e9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.8895367914582397,
+      "row_index": 392
+    },
+    {
+      "canonical_hash": "72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+      "collapse_risk_probability": 0.15082376288132068,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:72ed23a8d8bf5d9bd2401b0fb3b94b134794c1a5b51de7262daf2663bbdfad50",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.8491762371186794,
+      "row_index": 603
+    },
+    {
+      "canonical_hash": "5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+      "collapse_risk_probability": 0.16814620450175194,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,5,9",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.831853795498248,
+      "row_index": 263
+    },
+    {
+      "canonical_hash": "33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+      "collapse_risk_probability": 0.22138955134392208,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:33e431d55c37368ed565f364fb75690cad8e5e7d8dc2c83422a1db895e3a4b4d",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.778610448656078,
+      "row_index": 604
+    },
+    {
+      "canonical_hash": "a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a",
+      "collapse_risk_probability": 0.22138955134392208,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:a97caa584baa93fa2b610cb0a7882ba766d5ffe13d2450b23aceb6ea0f361d7a",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.778610448656078,
+      "row_index": 633
+    },
+    {
+      "canonical_hash": "4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+      "collapse_risk_probability": 0.24106713560510395,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "pos=1,2,4,5,7,9|neg=1,2,4,5,7,9|y=1,6",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.7589328643948959,
+      "row_index": 262
+    },
+    {
+      "canonical_hash": "95dd827ceadb2482572fd9f504917b34c067491fec88bacc78b6893165f18490",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:95dd827ceadb2482572fd9f504917b34c067491fec88bacc78b6893165f18490",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 605
+    },
+    {
+      "canonical_hash": "2ba8637f2f40b567c6d9b73274a0e55f4dfc4f71b542a4d7e8a2d6941b2376bd",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2ba8637f2f40b567c6d9b73274a0e55f4dfc4f71b542a4d7e8a2d6941b2376bd",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 606
+    },
+    {
+      "canonical_hash": "981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5",
+      "collapse_risk_probability": 0.3141224951541419,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:981a94588aab9c05713953e0d6feef907b2d55ba4cd01ef386b57cae274248c5",
+      "observed_outcome": "wrong_r",
+      "reward_probability": 0.6858775048458581,
+      "row_index": 631
+    },
+    {
+      "canonical_hash": "b2fbebc5f0208ba246a56514491385c3229838d41aed2614d5826af424df1f57",
+      "collapse_risk_probability": 0.3752869918738063,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.6247130081261938,
+      "row_index": 28
+    },
+    {
+      "canonical_hash": "b51dc9fc89b4277a4615ae9de15436fa833e890b8639c407d8f5a1803ccc174c",
+      "collapse_risk_probability": 0.6652449412642463,
+      "decision": "advisory_review",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.33475505873575373,
+      "row_index": 342
+    },
+    {
+      "canonical_hash": "cea3bd6380d37a3c8afc4f235c076ff8aae6163bc684167b03cd1445eadf9f83",
+      "collapse_risk_probability": 0.6652449412642463,
+      "decision": "advisory_review",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.33475505873575373,
+      "row_index": 345
+    },
+    {
+      "canonical_hash": "5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+      "collapse_risk_probability": 0.7004144381335112,
+      "decision": "avoid_high_collapse_risk",
+      "family": "split_group_key:canonical_hash:5eee184fe28f0bb3fafc54c456a53f598584b8629d0c75fa7e37b9b0484b0b31",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.29958556186648877,
+      "row_index": 529
+    },
+    {
+      "canonical_hash": "e2a187758d379fb50fa7a79099fcb7c24d9eceb9646c6d43f6c906008ab939d2",
+      "collapse_risk_probability": 0.7569509142960376,
+      "decision": "avoid_high_collapse_risk",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.24304908570396247,
+      "row_index": 340
+    },
+    {
+      "canonical_hash": "63b9f340d15fb339310a5465e3af63a4aac67850d38d464c3b828e6b12ff2d79",
+      "collapse_risk_probability": 0.7569509142960376,
+      "decision": "avoid_high_collapse_risk",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.24304908570396247,
+      "row_index": 341
+    },
+    {
+      "canonical_hash": "25bd60ebd9dd5f420c0101525cf324c06aa21d299f735e7c4f894bae7cea5fc7",
+      "collapse_risk_probability": 0.7569509142960376,
+      "decision": "avoid_high_collapse_risk",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.24304908570396247,
+      "row_index": 343
+    },
+    {
+      "canonical_hash": "09a8f62da068aa5ede19b9e30fbf2ee7c6875d077e158ddc58a139566c8f3d89",
+      "collapse_risk_probability": 0.7569509142960376,
+      "decision": "avoid_high_collapse_risk",
+      "family": "positive_quadratic_product_plus_low_odd_perturbation",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.24304908570396247,
+      "row_index": 344
+    },
+    {
+      "canonical_hash": "4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+      "collapse_risk_probability": 0.7860456035915114,
+      "decision": "avoid_high_collapse_risk",
+      "family": "split_group_key:canonical_hash:4d7fcabc2a862652a1604e5247b067af2d5293f066b1b1cbfbea5cb1d8e08bac",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.21395439640848843,
+      "row_index": 528
+    },
+    {
+      "canonical_hash": "694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+      "collapse_risk_probability": 0.7860456035915114,
+      "decision": "avoid_high_collapse_risk",
+      "family": "split_group_key:canonical_hash:694d5370d9534db09c0a84bd5e6ca001215ae659a4d96840dbccf68d9e38ba73",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.21395439640848843,
+      "row_index": 540
+    },
+    {
+      "canonical_hash": "75db800d94dbbe36afb15e7b8c3048c0237b1d23bf0fc47118980a1a07f2a4d3",
+      "collapse_risk_probability": 0.8244648427410244,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.17553515725897562,
+      "row_index": 245
+    },
+    {
+      "canonical_hash": "7bf15e9a1190c9d0d9f08236a659af5cdeb366b4694af67ab6e31c0f46d73510",
+      "collapse_risk_probability": 0.8837828754790383,
+      "decision": "avoid_high_collapse_risk",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,7|neg=1,2,3,4,5,6|y=0",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.11621712452096168,
+      "row_index": 280
+    },
+    {
+      "canonical_hash": "395f2427b6b8a8a6c297997c8ccf7ba2752b66d28d1579dd93d3595d11f5470f",
+      "collapse_risk_probability": 0.8867254356829065,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.11327456431709353,
+      "row_index": 241
+    },
+    {
+      "canonical_hash": "9ffdb88ccdba3c2dd235ca9285ff02dcaa88189d1c2f15ea6d3dca50e03e94ea",
+      "collapse_risk_probability": 0.8867254356829065,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.11327456431709353,
+      "row_index": 243
+    },
+    {
+      "canonical_hash": "8f6c6077463423ac4718d396ef4a57240908586a57aa8c0874732468b5952fcb",
+      "collapse_risk_probability": 0.9283254775486295,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.07167452245137057,
+      "row_index": 244
+    },
+    {
+      "canonical_hash": "3ca48f26962f1f4129b30e3e029ba4c12cf736f850562fbfa6a6a00504424b6f",
+      "collapse_risk_probability": 0.9479770785961185,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.052022921403881685,
+      "row_index": 38
+    },
+    {
+      "canonical_hash": "23b53fd88f5193840b88ec85b9a28ae7f379153f0524fe1fc66e3072016bf357",
+      "collapse_risk_probability": 0.9479770785961185,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.052022921403881685,
+      "row_index": 42
+    },
+    {
+      "canonical_hash": "b3e1e9a8b42c70d58f1383ef09e028a5829c9108bde9d4d1a791804a59f2e27b",
+      "collapse_risk_probability": 0.9557259577847352,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.04427404221526475,
+      "row_index": 240
+    },
+    {
+      "canonical_hash": "4c74f492540d50407f2893cba04b4573ec0b114c5b5778bc09f7d41c3a3f40ba",
+      "collapse_risk_probability": 0.9557259577847352,
+      "decision": "avoid_high_collapse_risk",
+      "family": "degree12_base_six_positive_roots_lifted_by_x2",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.04427404221526475,
+      "row_index": 242
+    },
+    {
+      "canonical_hash": "5927a1af8dd6017a576b2cffaf3d7cca3abe65cf811f4f549bc1791bef57a3f4",
+      "collapse_risk_probability": 0.9580074286459884,
+      "decision": "avoid_high_collapse_risk",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,7|y=4",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.041992571354011445,
+      "row_index": 278
+    },
+    {
+      "canonical_hash": "e8f187d5e7f29e227108c40164eaf7f48d60c998c6e2d87d112664f5bf3633cf",
+      "collapse_risk_probability": 0.9580074286459884,
+      "decision": "avoid_high_collapse_risk",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,7|neg=1,2,3,4,5,6|y=3",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.041992571354011445,
+      "row_index": 279
+    },
+    {
+      "canonical_hash": "4ba559ad7f24c1603d468f4c7e45a6acdbc7813359cb682ccb2dbec5513e915e",
+      "collapse_risk_probability": 0.9580074286459884,
+      "decision": "avoid_high_collapse_risk",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,7|y=1",
+      "observed_outcome": "crowded_accepted_collapse",
+      "reward_probability": 0.041992571354011445,
+      "row_index": 281
+    },
+    {
+      "canonical_hash": "0f82ebad9d19c152b82445f8d78be50a1b932545a62472729d7b0932fcedcff8",
+      "collapse_risk_probability": 0.9622801136565553,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.03771988634344467,
+      "row_index": 189
+    }
+  ],
+  "top_reward_safe_or_unknown_rows": [
+    {
+      "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "collapse_risk_probability": 5.015246406201593e-10,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999999994984754,
+      "row_index": 272
+    },
+    {
+      "canonical_hash": "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "collapse_risk_probability": 5.015246406201593e-10,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999999994984754,
+      "row_index": 276
+    },
+    {
+      "canonical_hash": "23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "collapse_risk_probability": 5.707503106398795e-06,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999942924968938,
+      "row_index": 538
+    },
+    {
+      "canonical_hash": "9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "collapse_risk_probability": 5.707503106398795e-06,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:9eff4260b12d6bcfbaface640f8ec3e24e18e5e54bc7cd91fbdd3fce38a938d2",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999942924968938,
+      "row_index": 542
+    },
+    {
+      "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "collapse_risk_probability": 5.06799218645867e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999493200781355,
+      "row_index": 600
+    },
+    {
+      "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "collapse_risk_probability": 5.06799218645867e-05,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9999493200781355,
+      "row_index": 601
+    },
+    {
+      "canonical_hash": "eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "collapse_risk_probability": 0.01023258272813257,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9897674172718676,
+      "row_index": 395
+    },
+    {
+      "canonical_hash": "2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "collapse_risk_probability": 0.01023258272813257,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "split_group_key:canonical_hash:2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "observed_outcome": "score_positive",
+      "reward_probability": 0.9897674172718676,
+      "row_index": 396
+    },
+    {
+      "canonical_hash": "b2fbebc5f0208ba246a56514491385c3229838d41aed2614d5826af424df1f57",
+      "collapse_risk_probability": 0.3752869918738063,
+      "decision": "advisory_sparse_positive_candidate",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.6247130081261938,
+      "row_index": 28
+    },
+    {
+      "canonical_hash": "3ca48f26962f1f4129b30e3e029ba4c12cf736f850562fbfa6a6a00504424b6f",
+      "collapse_risk_probability": 0.9479770785961185,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.052022921403881685,
+      "row_index": 38
+    },
+    {
+      "canonical_hash": "23b53fd88f5193840b88ec85b9a28ae7f379153f0524fe1fc66e3072016bf357",
+      "collapse_risk_probability": 0.9479770785961185,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.052022921403881685,
+      "row_index": 42
+    },
+    {
+      "canonical_hash": "0f82ebad9d19c152b82445f8d78be50a1b932545a62472729d7b0932fcedcff8",
+      "collapse_risk_probability": 0.9622801136565553,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.03771988634344467,
+      "row_index": 189
+    },
+    {
+      "canonical_hash": "3574a88b24a0587a2374d031125080b9da78fcb41340019642c4f18abc7afbd3",
+      "collapse_risk_probability": 0.9945716165299959,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.00542838347000407,
+      "row_index": 23
+    },
+    {
+      "canonical_hash": "8e74d1b6d47ca580d08db7f3e953450f8bf0e50b8b901822d25f6b71bd032a2c",
+      "collapse_risk_probability": 0.9945716165299959,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.00542838347000407,
+      "row_index": 25
+    },
+    {
+      "canonical_hash": "7f021b8c552549aaa2631b8843d1b04eefd51c3e81cd3273e56c2a4c3c73320d",
+      "collapse_risk_probability": 0.9961165601483476,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.0038834398516524138,
+      "row_index": 187
+    },
+    {
+      "canonical_hash": "2c416bd65d8ceaab47f604cfe6d982b6119b18c0c563cd4b330e840e642ef061",
+      "collapse_risk_probability": 0.9999997729043352,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.2709566473453282e-07,
+      "row_index": 192
+    },
+    {
+      "canonical_hash": "349cbe0e312958d405234aa9edee3ad0d155a217e0691711b59a8b5fe9af1c98",
+      "collapse_risk_probability": 0.9999997729043352,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.2709566473453282e-07,
+      "row_index": 198
+    },
+    {
+      "canonical_hash": "e1bedb11d71b35e1857a9f673de1ae6e4f2d2740ef8cbee6fb8a2d64e12e505b",
+      "collapse_risk_probability": 0.9999999747671433,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.523285673074598e-08,
+      "row_index": 191
+    },
+    {
+      "canonical_hash": "994f1f5a03907117857a01a995fa0d3a10d989d3165ef4fc2f1a0531791449a4",
+      "collapse_risk_probability": 0.9999999747671433,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.523285673074598e-08,
+      "row_index": 196
+    },
+    {
+      "canonical_hash": "66a4113164ddf4d643e3a685a064e0ea235a75e8c1aac205e83c47d69b5c25b2",
+      "collapse_risk_probability": 0.9999999747671433,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.523285673074598e-08,
+      "row_index": 199
+    },
+    {
+      "canonical_hash": "04a9c25ae0f87916d641980757e5e1b8c3862090155ec39dd1bebb5c288dcd4c",
+      "collapse_risk_probability": 0.9999999747671433,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.523285673074598e-08,
+      "row_index": 200
+    },
+    {
+      "canonical_hash": "3c4b3331d4dfc40d5a437c74c88d5075f6e3a2c20e746bc8cdcf14ab72c713b4",
+      "collapse_risk_probability": 0.9999999913880586,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 8.61194137539789e-09,
+      "row_index": 195
+    },
+    {
+      "canonical_hash": "e03cb4ed1997a0413fe6011824d99218c42cf71a40668d95cfb650bc9b9ab95d",
+      "collapse_risk_probability": 0.9999999913880586,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 8.61194137539789e-09,
+      "row_index": 197
+    },
+    {
+      "canonical_hash": "57287a6067110f5f20264e0493020c3ca22aeab1fa20f4f0409ad4bc40257909",
+      "collapse_risk_probability": 0.9999999929538662,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 7.046133863629623e-09,
+      "row_index": 1
+    },
+    {
+      "canonical_hash": "7f9f4cecfad5abf0e5e7435eaf04726b5ce6de3a023cf7485cfaf604a39f5a2e",
+      "collapse_risk_probability": 0.9999999929538662,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 7.046133863629623e-09,
+      "row_index": 2
+    },
+    {
+      "canonical_hash": "3761456bca6975210685ebe09af17fe4559be6c9ecb31a9d5156d63669b41f59",
+      "collapse_risk_probability": 0.9999999956061523,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 4.393847659042859e-09,
+      "row_index": 201
+    },
+    {
+      "canonical_hash": "2b50ba24f2a6b63aa5098b8601ee8effc6047e610f544cc0124d09ddd66ac12e",
+      "collapse_risk_probability": 0.9999999984022994,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 1.5977007429981386e-09,
+      "row_index": 188
+    },
+    {
+      "canonical_hash": "4343b6f9b0861e530f22092651112ba35fb65da8e2b549332ca53b93d6d4ca48",
+      "collapse_risk_probability": 0.9999999985353841,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 1.4646158906378319e-09,
+      "row_index": 194
+    },
+    {
+      "canonical_hash": "5ef4beaf479b4a4b06506aa5827de8c287cbe8dbfdc38fc23235d3fb3e3f3825",
+      "collapse_risk_probability": 0.9999999986927904,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 1.3072096989894665e-09,
+      "row_index": 27
+    },
+    {
+      "canonical_hash": "95852eb0c3ae2bf98af9c833be8659e287aa59e06979f6a27250f938c2da7f18",
+      "collapse_risk_probability": 0.9999999986927904,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 1.3072096451665766e-09,
+      "row_index": 124
+    },
+    {
+      "canonical_hash": "8f5627f9f84ebca02a16f737392b93c45e17566e5dcce03f01e8edd1b730188f",
+      "collapse_risk_probability": 0.9999999988016779,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 1.1983220926591053e-09,
+      "row_index": 0
+    },
+    {
+      "canonical_hash": "124d4eb9c97f981e97679b33546f67a74a3dedbb95a180d5680cad91944c4cc7",
+      "collapse_risk_probability": 0.9999999996635619,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.364380981193828e-10,
+      "row_index": 190
+    },
+    {
+      "canonical_hash": "7ae453f05e7412f70b7e1650e7cc44954e84433002deff4bf437d88457bba00d",
+      "collapse_risk_probability": 0.9999999996635619,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.364380981193828e-10,
+      "row_index": 193
+    },
+    {
+      "canonical_hash": "af21bb5d357b414b40418ff83648a5af9bfbbd5174f799f310b387aefd422e64",
+      "collapse_risk_probability": 0.9999999997230182,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.7698169216635494e-10,
+      "row_index": 24
+    },
+    {
+      "canonical_hash": "61f4f5b0ca21e609eb40ad604bcd1498e5e3a3369615d063adab71be05d25574",
+      "collapse_risk_probability": 0.9999999997230182,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.7698169216635494e-10,
+      "row_index": 29
+    },
+    {
+      "canonical_hash": "fab3c500109d4456a9cd43f4184a11f8c2456b04eb4ac0eef170ea20faad4953",
+      "collapse_risk_probability": 0.9999999997230182,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.7698169216635494e-10,
+      "row_index": 30
+    },
+    {
+      "canonical_hash": "171afd68384066dbb193fda7342ee318aa09d87dcae4c648e43da11565e5dfbb",
+      "collapse_risk_probability": 0.9999999997230182,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.7698169034898785e-10,
+      "row_index": 111
+    },
+    {
+      "canonical_hash": "9a2847991d70ef6fad2b722bb07d2316315767d4eee8a1d62ef6b3c5d7e07723",
+      "collapse_risk_probability": 0.9999999997733786,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.266213844222755e-10,
+      "row_index": 150
+    },
+    {
+      "canonical_hash": "d5d94c36a36533fcb9f382c4fea8aaa80451df82392cc8bf8207d1a4ad76e764",
+      "collapse_risk_probability": 0.9999999997981371,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.018628588987958e-10,
+      "row_index": 202
+    },
+    {
+      "canonical_hash": "15fde057e976229018b15c358d1b7038664d43f212a2b44301ec0939931de26c",
+      "collapse_risk_probability": 0.9999999999446036,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.539633837154567e-11,
+      "row_index": 77
+    },
+    {
+      "canonical_hash": "70c6e21c73955e2fec23864989413b6b6acffa431e93545aebf5245f8d89cd06",
+      "collapse_risk_probability": 0.9999999999446036,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.539633837154567e-11,
+      "row_index": 100
+    },
+    {
+      "canonical_hash": "5d8e5c0048d9a9644e4f0e518e59609241f493e21f44c5769c43104d0f3c41d4",
+      "collapse_risk_probability": 0.9999999999446036,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 5.539633837154567e-11,
+      "row_index": 101
+    },
+    {
+      "canonical_hash": "e408737b742b648fa3fe09c687b47cd6fce535089fb87b36a2fd176c65f0dcda",
+      "collapse_risk_probability": 0.9999999999538541,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 4.6145782905346096e-11,
+      "row_index": 130
+    },
+    {
+      "canonical_hash": "1c8e7e65bd0346a86dd50c9cb165e8e3649473f1c768b8ffe876bed135cab82a",
+      "collapse_risk_probability": 0.9999999999588883,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 4.111169817606474e-11,
+      "row_index": 43
+    },
+    {
+      "canonical_hash": "35f5e4fa1929d7d454d212f9a13610f54cd127e01b4a1969203219689d7a0ab2",
+      "collapse_risk_probability": 0.9999999999622442,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.775564101594375e-11,
+      "row_index": 135
+    },
+    {
+      "canonical_hash": "c97e62ea72c6512269c7faaac2ce388d1c4f866ae59254943f4e1bdb7ab1864a",
+      "collapse_risk_probability": 0.9999999999662721,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.372786196968242e-11,
+      "row_index": 56
+    },
+    {
+      "canonical_hash": "7df9eae0a3101d9764e8567fd041cb9774603e9dcadc95c6ccee0f297f8bc010",
+      "collapse_risk_probability": 0.9999999999675827,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.241711637661971e-11,
+      "row_index": 169
+    },
+    {
+      "canonical_hash": "79d50771cbb41a5fc1b6d5539c1a60d2a8af3e779feb89101c529c38f1f5bf4c",
+      "collapse_risk_probability": 0.9999999999690254,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 3.097456320590752e-11,
+      "row_index": 128
+    },
+    {
+      "canonical_hash": "c22cc44b6aa0059a814d3aef5565f1f554cfbfb488a7df30ba79ca79d0956729",
+      "collapse_risk_probability": 0.9999999999746572,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.5342827635998833e-11,
+      "row_index": 136
+    },
+    {
+      "canonical_hash": "551c73393858c09fe93366da333eabf07fb245f63411e247cd072198b3fce390",
+      "collapse_risk_probability": 0.9999999999759738,
+      "decision": "avoid_high_collapse_risk",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 2.4026317117006216e-11,
+      "row_index": 33
+    }
+  ]
+}
