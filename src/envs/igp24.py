@@ -1453,6 +1453,43 @@ class IGP24Environment(BaseEnvironment):
             help="Optional absolute coefficient cap for JSONL training rows; 0 disables",
         )
         parser.add_argument(
+            "--igp24_training_run_kind",
+            choices=["named_iteration", "smoke_test"],
+            default="named_iteration",
+            help=(
+                "Named iterations must pass the hard post-loader corpus-readiness gate; "
+                "smoke_test is an explicit non-model plumbing probe"
+            ),
+        )
+        parser.add_argument(
+            "--igp24_corpus_readiness_only",
+            type=bool_flag,
+            default="false",
+            help="Load and assess the post-filter corpus, write its report, and exit before model initialization",
+        )
+        parser.add_argument(
+            "--igp24_min_unique_train_examples",
+            type=int,
+            default=1_000_000,
+            help="Hard minimum unique post-dedup training examples for a named AXG iteration",
+        )
+        parser.add_argument(
+            "--igp24_min_unique_eval_examples",
+            type=int,
+            default=100_000,
+            help="Hard minimum unique held-out examples for a named AXG iteration",
+        )
+        parser.add_argument(
+            "--igp24_min_train_effective_sample_size",
+            type=int,
+            default=500_000,
+            help="Hard minimum weighted effective sample size for a named AXG iteration",
+        )
+        parser.add_argument("--igp24_min_train_split_groups", type=int, default=32)
+        parser.add_argument("--igp24_min_eval_split_groups", type=int, default=8)
+        parser.add_argument("--igp24_min_train_construction_families", type=int, default=4)
+        parser.add_argument("--igp24_min_eval_construction_families", type=int, default=1)
+        parser.add_argument(
             "--igp24_generator_cap_per_pair",
             type=int,
             default=16,

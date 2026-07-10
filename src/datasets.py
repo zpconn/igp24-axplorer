@@ -312,11 +312,13 @@ def _load_igp24_training_jsonl(args, classname):
                 datapoint.source_metadata = {
                     "source_path": str(path),
                     "source_index": line_index,
+                    "canonical_hash": record.get("canonical_hash"),
                     "dataset_row_id": record.get("dataset_row_id"),
                     "source_role": record.get("source_role"),
                     "derived_class_label": record.get("derived_class_label"),
                     "score_aware_supervision": record.get("score_aware_supervision"),
                     "generator_training": contract,
+                    "construction_family": contract.get("construction_family"),
                     "train_eval_split": record.get("train_eval_split"),
                     "conditioning_target_r": r_value,
                 }

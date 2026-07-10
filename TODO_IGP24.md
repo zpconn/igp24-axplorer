@@ -28,11 +28,43 @@ results change.
   explicit `generator_training` eligibility/weight contract, grouped split
   checks, weighted sampler telemetry, and normal no-live-submission-without-
   approval gate.
+- Effective 2026-07-10 corpus-scale correction: a numbered AXG model iteration
+  must train on at least **1,000,000 unique, canonical-deduplicated,
+  generator-eligible training polynomials after the evaluation holdout**.
+  Repeated weighted-sampler draws, epochs, and augmented/canonical duplicates
+  do not count as new examples. The default hard gate also requires at least
+  100,000 separate evaluation examples, weighted train effective sample size
+  of at least 500,000, balanced coverage across every requested conditioning
+  `r`, and construction-family/split-group-disjoint evaluation. Explicit
+  `smoke_test` runs may exercise plumbing or hardware below these thresholds,
+  but must be labeled `smoke_only_not_model_iteration` and may not be promoted
+  or cited as evidence that AXG learned a useful distribution.
 
 ## Current Status
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.22 corpus-size audit and hard training gate: the apparent
+  AXG-1.22 run was an end-to-end plumbing smoke test, not a meaningful model
+  iteration. Its real post-loader corpus had only 16 unique training rows and
+  4 held-out rows across requested `r=8,12,16,20,24`. Training repeatedly
+  sampled those rows for 1,200 steps, producing train/test loss `0.022/2.341`,
+  7,926 known-hash reproductions from 8,192 inference attempts, and zero fresh
+  valid decoded rows. Reclassified status:
+  `smoke_only_not_model_iteration`.
+
+  Added a post-loader corpus-readiness gate in
+  `src/igp24/training_readiness.py` and wired it into `train.py`. Named IGP24
+  training now fails closed unless the actual filtered/deduplicated train set
+  contains at least 1,000,000 unique rows plus a separate 100,000-row holdout,
+  satisfies weighted effective-sample-size and per-`r` requirements, and has
+  no canonical-hash, split-group, or construction-family leakage. Hardware
+  probes require an explicit `smoke_test` run kind. The post-hoc AXG-1.22
+  report is at
+  `data/igp24/axg122_quartic9993_descent_20260710/corpus_readiness/axg122_corpus_readiness_allr/posthoc/igp24_training_readiness.json`.
+  Focused readiness/loader/probe validation: 62 passed. No further numbered
+  AXG run is permitted until a scalable structural data build clears the new
+  gate.
 - 2026-07-10 AXG-1.21 cross-r escape / exact r8 feedback checkpoint:
   extended `scripts/igp24_positive_seed_escape.py` with opt-in
   `--accepted_output_rs` support so exact positive seeds can provide bounded

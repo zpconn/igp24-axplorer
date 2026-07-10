@@ -2,6 +2,7 @@ import argparse
 import os
 import time
 from logging import getLogger
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -10,6 +11,12 @@ from src.datasets import CharDataset, InfiniteDataLoader, load_initial_data, upd
 from src.envs import ENVS, build_env
 from src.envs.environment import do_stats
 from src.evaluator import sample_and_export, sample_and_score
+from src.igp24.training_readiness import (
+    TrainingReadinessThresholds,
+    assess_training_readiness,
+    enforce_training_readiness,
+    write_training_readiness_report,
+)
 from src.models.model import Transformer
 from src.trainer import reload_model_optimizer, train
 from src.utils import bool_flag, force_release_memory, initialize_exp, log_resources, write_important_metrics
@@ -243,6 +250,45 @@ if __name__ == "__main__":
     # system inits
     torch.manual_seed(args.seed)
 
+    train_set, test_set = load_initial_data(args, classname)
+    if args.env_name == "igp24":
+        target_rs = parse_int_csv(getattr(args, "igp24_training_jsonl_target_rs", ""))
+        readiness = assess_training_readiness(
+            train_set,
+            test_set,
+            target_rs=target_rs,
+            thresholds=TrainingReadinessThresholds(
+                min_unique_train_examples=int(args.igp24_min_unique_train_examples),
+                min_unique_eval_examples=int(args.igp24_min_unique_eval_examples),
+                min_train_effective_sample_size=int(args.igp24_min_train_effective_sample_size),
+                min_train_split_groups=int(args.igp24_min_train_split_groups),
+                min_eval_split_groups=int(args.igp24_min_eval_split_groups),
+                min_train_construction_families=int(args.igp24_min_train_construction_families),
+                min_eval_construction_families=int(args.igp24_min_eval_construction_families),
+            ),
+        )
+        readiness["run_kind"] = args.igp24_training_run_kind
+        readiness["exp_name"] = args.exp_name
+        readiness["exp_id"] = args.exp_id
+        readiness_path = os.path.join(args.dump_path, "igp24_training_readiness.json")
+        write_training_readiness_report(Path(readiness_path), readiness)
+        logger.info(
+            "IGP24 training readiness: status=%s train=%s eval=%s failed=%s report=%s",
+            readiness["status"],
+            readiness["train"]["unique_canonical_example_count"],
+            readiness["eval"]["unique_canonical_example_count"],
+            readiness["failed_checks"],
+            readiness_path,
+        )
+        if bool(args.igp24_corpus_readiness_only):
+            logger.info("IGP24 corpus-readiness-only mode. Exiting before model initialization.")
+            raise SystemExit(0 if readiness["ready_for_named_iteration"] else 2)
+        enforce_training_readiness(readiness, args.igp24_training_run_kind)
+
+    if args.data_generation_only:
+        logger.info("Data generation only mode. Exiting...")
+        exit(0)
+
     args.vocab_size = len(env.tokenizer.itos)
 
     args.block_size = env.tokenizer.block_size_for_max_len(args.max_len)
@@ -255,10 +301,6 @@ if __name__ == "__main__":
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay, betas=(0.9, 0.99), eps=1e-8, fused=fused)
     reload_model_optimizer(args, model, optimizer)
 
-    train_set, test_set = load_initial_data(args, classname)
-    if args.data_generation_only:
-        logger.info("Data generation only mode. Exiting...")
-        exit(0)
     train_data_path = os.path.join(args.dump_path, "train_data.pkl")
     test_data_path = os.path.join(args.dump_path, "test_data.pkl")
 

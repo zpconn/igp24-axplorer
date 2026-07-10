@@ -396,6 +396,8 @@ def build_sampler_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -490,6 +492,8 @@ def build_train_only_utilization_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -591,6 +595,8 @@ def build_sample_export_split_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -695,6 +701,8 @@ def build_sample_export_split_medium_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -807,6 +815,8 @@ def build_sample_export_diversity_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -928,6 +938,8 @@ def build_sample_export_dedup_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -1058,6 +1070,8 @@ def build_sample_export_target_r_seeded_command(
         "train.py",
         "--env_name",
         "igp24",
+        "--igp24_training_run_kind",
+        "smoke_test",
         "--exp_name",
         exp_name,
         "--dump_path",
@@ -1199,6 +1213,7 @@ def build_sample_export_target_r_conditioned_command(
     excluded_hashes_jsonl: str = "",
     family_cap: int = 0,
     basin_fingerprint_cap: int = 0,
+    training_run_kind: str = "named_iteration",
 ) -> dict[str, Any]:
     seed_text = str(seed if seed is not None else 33000 + int(target_r))
     exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
@@ -1227,6 +1242,8 @@ def build_sample_export_target_r_conditioned_command(
         str(training_jsonl),
         "--igp24_training_jsonl_target_rs",
         str(target_rs),
+        "--igp24_training_run_kind",
+        str(training_run_kind),
         "--coeff_bound",
         "1000000000000000",
         "--target_r",
@@ -1806,6 +1823,12 @@ def get_parser() -> argparse.ArgumentParser:
         default="12,16,20,24",
         help="comma-separated r values loaded from --target_r_training_jsonl for sample_export_target_r_conditioned",
     )
+    parser.add_argument(
+        "--target_r_training_run_kind",
+        choices=["named_iteration", "smoke_test"],
+        default="named_iteration",
+        help="Named runs must pass the million-example readiness gate; smoke_test is never an AXG iteration",
+    )
     parser.add_argument("--target_r_conditioned_max_steps", type=int, default=1800, help="training steps for sample_export_target_r_conditioned")
     parser.add_argument("--target_r_conditioned_max_len", type=int, default=640, help="max token payload for decimal conditioned training")
     parser.add_argument(
@@ -2053,6 +2076,7 @@ def main() -> int:
                 excluded_hashes_jsonl=str(args.target_r_conditioned_excluded_hashes_jsonl),
                 family_cap=int(args.target_r_conditioned_family_cap),
                 basin_fingerprint_cap=int(args.target_r_conditioned_basin_fingerprint_cap),
+                training_run_kind=str(args.target_r_training_run_kind),
             )
         else:
             command_config = build_sampler_command(

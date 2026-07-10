@@ -1,0 +1,295 @@
+{
+  "checks": {
+    "eval_canonical_deduplicated": {
+      "actual_duplicates": 0,
+      "maximum_duplicates": 0,
+      "passed": true
+    },
+    "eval_construction_families": {
+      "actual": 4,
+      "minimum": 1,
+      "passed": true
+    },
+    "eval_examples_r12": {
+      "actual": 2,
+      "minimum": 20000,
+      "passed": false
+    },
+    "eval_examples_r16": {
+      "actual": 0,
+      "minimum": 20000,
+      "passed": false
+    },
+    "eval_examples_r20": {
+      "actual": 0,
+      "minimum": 20000,
+      "passed": false
+    },
+    "eval_examples_r24": {
+      "actual": 0,
+      "minimum": 20000,
+      "passed": false
+    },
+    "eval_examples_r8": {
+      "actual": 2,
+      "minimum": 20000,
+      "passed": false
+    },
+    "eval_rows_have_canonical_identity": {
+      "actual_missing": 0,
+      "maximum_missing": 0,
+      "passed": true
+    },
+    "eval_split_groups": {
+      "actual": 4,
+      "minimum": 8,
+      "passed": false
+    },
+    "train_canonical_deduplicated": {
+      "actual_duplicates": 0,
+      "maximum_duplicates": 0,
+      "passed": true
+    },
+    "train_construction_families": {
+      "actual": 3,
+      "minimum": 4,
+      "passed": false
+    },
+    "train_effective_sample_size": {
+      "actual": 5.207207207207207,
+      "minimum": 500000,
+      "passed": false
+    },
+    "train_eval_construction_family_disjoint": {
+      "overlap_count": 1,
+      "overlap_examples": [
+        "unknown"
+      ],
+      "passed": false
+    },
+    "train_eval_hash_disjoint": {
+      "overlap_count": 0,
+      "overlap_examples": [],
+      "passed": true
+    },
+    "train_eval_split_group_disjoint": {
+      "overlap_count": 0,
+      "overlap_examples": [],
+      "passed": true
+    },
+    "train_examples_r12": {
+      "actual": 0,
+      "minimum": 200000,
+      "passed": false
+    },
+    "train_examples_r16": {
+      "actual": 0,
+      "minimum": 200000,
+      "passed": false
+    },
+    "train_examples_r20": {
+      "actual": 0,
+      "minimum": 200000,
+      "passed": false
+    },
+    "train_examples_r24": {
+      "actual": 15,
+      "minimum": 200000,
+      "passed": false
+    },
+    "train_examples_r8": {
+      "actual": 1,
+      "minimum": 200000,
+      "passed": false
+    },
+    "train_rows_have_canonical_identity": {
+      "actual_missing": 0,
+      "maximum_missing": 0,
+      "passed": true
+    },
+    "train_split_groups": {
+      "actual": 3,
+      "minimum": 32,
+      "passed": false
+    },
+    "unique_eval_examples": {
+      "actual": 4,
+      "minimum": 100000,
+      "passed": false
+    },
+    "unique_train_examples": {
+      "actual": 16,
+      "minimum": 1000000,
+      "passed": false
+    }
+  },
+  "counting_semantics": {
+    "augmented_duplicates_count": false,
+    "epochs_count_as_new_examples": false,
+    "evaluation_is_separate": true,
+    "repeated_sampler_draws_count": false,
+    "training_examples": "unique canonical generator-eligible rows after loader filters and holdout"
+  },
+  "eval": {
+    "conditioning_r_counts": {
+      "12": 2,
+      "8": 2
+    },
+    "construction_families": [
+      "quartic_in_x6_discriminant_descent",
+      "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+      "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+      "unknown"
+    ],
+    "construction_family_count": 4,
+    "duplicate_canonical_identity_count": 0,
+    "effective_sample_size": 3.161662817551963,
+    "physical_row_count": 4,
+    "positive_sampling_mass": 37.0,
+    "role_counts": {
+      "exact_local_exploration": 1,
+      "score_positive": 3
+    },
+    "rows_missing_canonical_identity": 0,
+    "split_group_count": 4,
+    "split_group_examples": [
+      "canonical_hash:eb604c239982e2f545abd3ceda231a055861b13f2f496f41241aa47b1236d878",
+      "construction_family:quartic_in_x6_discriminant_descent",
+      "family_key:single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+      "family_key:single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8"
+    ],
+    "unique_canonical_example_count": 4
+  },
+  "exp_id": "posthoc",
+  "exp_name": "axg122_corpus_readiness_allr",
+  "failed_checks": [
+    "eval_examples_r12",
+    "eval_examples_r16",
+    "eval_examples_r20",
+    "eval_examples_r24",
+    "eval_examples_r8",
+    "eval_split_groups",
+    "train_construction_families",
+    "train_effective_sample_size",
+    "train_eval_construction_family_disjoint",
+    "train_examples_r12",
+    "train_examples_r16",
+    "train_examples_r20",
+    "train_examples_r24",
+    "train_examples_r8",
+    "train_split_groups",
+    "unique_eval_examples",
+    "unique_train_examples"
+  ],
+  "per_r_requirements": {
+    "12": {
+      "eval": {
+        "actual": 2,
+        "minimum": 20000,
+        "passed": false
+      },
+      "train": {
+        "actual": 0,
+        "minimum": 200000,
+        "passed": false
+      }
+    },
+    "16": {
+      "eval": {
+        "actual": 0,
+        "minimum": 20000,
+        "passed": false
+      },
+      "train": {
+        "actual": 0,
+        "minimum": 200000,
+        "passed": false
+      }
+    },
+    "20": {
+      "eval": {
+        "actual": 0,
+        "minimum": 20000,
+        "passed": false
+      },
+      "train": {
+        "actual": 0,
+        "minimum": 200000,
+        "passed": false
+      }
+    },
+    "24": {
+      "eval": {
+        "actual": 0,
+        "minimum": 20000,
+        "passed": false
+      },
+      "train": {
+        "actual": 15,
+        "minimum": 200000,
+        "passed": false
+      }
+    },
+    "8": {
+      "eval": {
+        "actual": 2,
+        "minimum": 20000,
+        "passed": false
+      },
+      "train": {
+        "actual": 1,
+        "minimum": 200000,
+        "passed": false
+      }
+    }
+  },
+  "ready_for_named_iteration": false,
+  "requested_conditioning_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "run_kind": "smoke_test",
+  "schema_version": "igp24_training_readiness_v1",
+  "status": "smoke_only_not_model_iteration",
+  "thresholds": {
+    "min_eval_construction_families": 1,
+    "min_eval_split_groups": 8,
+    "min_train_construction_families": 4,
+    "min_train_effective_sample_size": 500000,
+    "min_train_split_groups": 32,
+    "min_unique_eval_examples": 100000,
+    "min_unique_train_examples": 1000000
+  },
+  "train": {
+    "conditioning_r_counts": {
+      "24": 15,
+      "8": 1
+    },
+    "construction_families": [
+      "model_sample_export",
+      "tower_6x4",
+      "unknown"
+    ],
+    "construction_family_count": 3,
+    "duplicate_canonical_identity_count": 0,
+    "effective_sample_size": 5.207207207207207,
+    "physical_row_count": 16,
+    "positive_sampling_mass": 34.0,
+    "role_counts": {
+      "exact_local_exploration": 14,
+      "low_team_scoreable": 1,
+      "score_positive": 1
+    },
+    "rows_missing_canonical_identity": 0,
+    "split_group_count": 3,
+    "split_group_examples": [
+      "canonical_hash:2fe4b5059101f087ac87a10d1889e3ded1aaa881d6f343c50d0373fdb41182ba",
+      "construction_family:model_sample_export",
+      "construction_family:tower_6x4"
+    ],
+    "unique_canonical_example_count": 16
+  }
+}
