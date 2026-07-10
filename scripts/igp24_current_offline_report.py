@@ -59,6 +59,102 @@ def optional_json(path: Path | None) -> dict[str, Any] | None:
     return read_json(path)
 
 
+def parse_utc_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    text = value.strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def evaluate_sair_sync_status(
+    sync_summary: dict[str, Any] | None,
+    *,
+    max_sync_age_hours: float,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Classify a saved read-only SAIR sync artifact for the go/no-go gate."""
+
+    if sync_summary is None:
+        return {
+            "provided": False,
+            "status": "missing",
+            "fresh_complete": False,
+            "blockers": ["fresh_sair_sync_required_immediately_before_live_submission"],
+            "warnings": [],
+            "max_sync_age_hours": max_sync_age_hours,
+        }
+
+    now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    sync_status = sync_summary.get("sync_status") if isinstance(sync_summary.get("sync_status"), dict) else {}
+    safety = sync_summary.get("safety") if isinstance(sync_summary.get("safety"), dict) else {}
+    created_at = parse_utc_datetime(sync_summary.get("created_at"))
+    age_hours = None
+    if created_at is not None:
+        age_hours = max(0.0, (now - created_at).total_seconds() / 3600.0)
+
+    complete = (
+        bool(sync_status.get("global_progress_complete"))
+        and bool(sync_status.get("submission_index_complete"))
+        and bool(sync_status.get("submission_detail_complete"))
+        and bool(sync_status.get("download_complete"))
+        and bool(sync_status.get("full_submission_state_complete", sync_status.get("submission_state_complete")))
+        and not bool(sync_status.get("partial_sync"))
+    )
+    fresh = age_hours is not None and age_hours <= max_sync_age_hours
+    blockers: list[str] = []
+    warnings: list[str] = []
+    if bool(safety.get("sair_submission")):
+        blockers.append("sair_sync_artifact_claims_submission")
+    if not complete:
+        blockers.append("fresh_sair_sync_incomplete")
+    if created_at is None:
+        blockers.append("fresh_sair_sync_timestamp_missing")
+    elif not fresh:
+        blockers.append("fresh_sair_sync_stale")
+    if safety and bool(safety.get("api_key_recorded")):
+        blockers.append("sair_sync_artifact_records_api_key")
+    if not bool(safety.get("live_fetch")):
+        warnings.append("sair_sync_artifact_not_live_fetch")
+
+    status = "fresh_complete" if complete and fresh and not blockers else "not_usable"
+    return {
+        "provided": True,
+        "status": status,
+        "fresh_complete": status == "fresh_complete",
+        "created_at": sync_summary.get("created_at"),
+        "age_hours": round(age_hours, 6) if age_hours is not None else None,
+        "max_sync_age_hours": max_sync_age_hours,
+        "sync_status": {
+            "partial_sync": sync_status.get("partial_sync"),
+            "global_progress_complete": sync_status.get("global_progress_complete"),
+            "submission_index_complete": sync_status.get("submission_index_complete"),
+            "submission_detail_complete": sync_status.get("submission_detail_complete"),
+            "download_complete": sync_status.get("download_complete"),
+            "full_submission_state_complete": sync_status.get("full_submission_state_complete"),
+            "submission_state_complete": sync_status.get("submission_state_complete"),
+            "failing_endpoint": sync_status.get("failing_endpoint"),
+        },
+        "submissions": sync_summary.get("submissions") if isinstance(sync_summary.get("submissions"), dict) else {},
+        "progress": sync_summary.get("progress") if isinstance(sync_summary.get("progress"), dict) else {},
+        "safety": {
+            "api_key_recorded": safety.get("api_key_recorded"),
+            "sair_submission": safety.get("sair_submission"),
+            "live_fetch": safety.get("live_fetch"),
+            "network_calls": safety.get("network_calls"),
+        },
+        "blockers": blockers,
+        "warnings": warnings,
+    }
+
+
 def load_triage_rows(path: Path | None, triage_summary: dict[str, Any]) -> list[dict[str, Any]]:
     if path is None:
         output_files = triage_summary.get("output_files") if isinstance(triage_summary.get("output_files"), dict) else {}
@@ -104,6 +200,7 @@ def build_gate_status(
     index_summary: dict[str, Any],
     historical: dict[str, Any],
     replay: dict[str, Any] | None,
+    sair_sync_status: dict[str, Any],
 ) -> dict[str, Any]:
     blockers: list[str] = []
     warnings: list[str] = []
@@ -164,7 +261,8 @@ def build_gate_status(
     if construction_counts and len(construction_counts) == 1 and int_count(packet, "selected_rows") > 1:
         warnings.append("packet_uses_single_construction_family")
 
-    blockers.append("fresh_sair_sync_required_immediately_before_live_submission")
+    blockers.extend(str(item) for item in sair_sync_status.get("blockers") or [])
+    warnings.extend(str(item) for item in sair_sync_status.get("warnings") or [])
     blockers.append("explicit_user_live_submission_approval_missing")
 
     return {
@@ -186,6 +284,8 @@ def build_summary(
     baseline_summary_path: Path | None,
     replay_summary_path: Path | None,
     gpu_summary_path: Path | None,
+    sair_sync_summary_path: Path | None = None,
+    max_sync_age_hours: float = 6.0,
     output_dir: Path,
     command: list[str],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -197,6 +297,8 @@ def build_summary(
     baseline = optional_json(baseline_summary_path)
     replay = optional_json(replay_summary_path)
     gpu = optional_json(gpu_summary_path)
+    sair_sync = optional_json(sair_sync_summary_path)
+    sair_sync_status = evaluate_sair_sync_status(sair_sync, max_sync_age_hours=max_sync_age_hours)
     triage_rows = load_triage_rows(triage_rows_path, triage)
 
     selected_hashes = [hash_from_row(row) for row in triage_rows if hash_from_row(row)]
@@ -219,6 +321,7 @@ def build_summary(
         index_summary=index_summary,
         historical=historical,
         replay=replay,
+        sair_sync_status=sair_sync_status,
     )
 
     selected_rows = []
@@ -269,6 +372,7 @@ def build_summary(
             "baseline_summary_json": str(baseline_summary_path) if baseline_summary_path else None,
             "replay_summary_json": str(replay_summary_path) if replay_summary_path else None,
             "gpu_summary_json": str(gpu_summary_path) if gpu_summary_path else None,
+            "sair_sync_summary_json": str(sair_sync_summary_path) if sair_sync_summary_path else None,
         },
         "architecture_status": {
             "full_group_index_complete": bool(index_summary.get("global_index_complete")),
@@ -289,6 +393,7 @@ def build_summary(
             else None,
             "baseline_leaderboard": baseline.get("leaderboard") if baseline else None,
         },
+        "sair_sync_status": sair_sync_status,
         "packet_status": {
             "selected_rows": packet.get("selected_rows"),
             "candidate_count": packet.get("candidate_count"),
@@ -343,6 +448,7 @@ def render_report(summary: dict[str, Any]) -> str:
     gate = summary["go_no_go"]
     candidates = summary["candidate_status"]
     arch = summary["architecture_status"]
+    sync = summary.get("sair_sync_status") or {}
     lines = [
         "# IGP24 Current Offline Go/No-Go Report",
         "",
@@ -391,6 +497,16 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Historical containment failures: `{arch.get('historical_indexed_containment_failures')}`",
         f"- Historical valuable false-positive rows at 10 primes: `{arch.get('historical_valuable_false_positive_rows_at_10_primes')}`",
         f"- Chronological replay minimum gate passed: `{arch.get('chronological_replay_minimum_gate_passed')}`",
+        "",
+        "## SAIR Sync",
+        "",
+        f"- Sync artifact provided: `{sync.get('provided')}`",
+        f"- Sync status: `{sync.get('status')}`",
+        f"- Created at: `{sync.get('created_at')}`",
+        f"- Age hours: `{sync.get('age_hours')}`",
+        f"- Full submission state complete: `{(sync.get('sync_status') or {}).get('full_submission_state_complete')}`",
+        f"- Pending rows: `{(sync.get('submissions') or {}).get('pending_rows')}`",
+        f"- Scoreable rows: `{(sync.get('submissions') or {}).get('scoreable_rows')}`",
         "",
         "## Candidates",
         "",
@@ -453,6 +569,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--baseline_summary_json", type=Path)
     parser.add_argument("--replay_summary_json", type=Path)
     parser.add_argument("--gpu_summary_json", type=Path)
+    parser.add_argument("--sair_sync_summary_json", type=Path)
+    parser.add_argument("--max_sync_age_hours", type=float, default=6.0)
     parser.add_argument("--output_dir", type=Path, required=True)
     return parser
 
@@ -470,6 +588,8 @@ def main(argv: list[str] | None = None) -> int:
         baseline_summary_path=args.baseline_summary_json.resolve() if args.baseline_summary_json else None,
         replay_summary_path=args.replay_summary_json.resolve() if args.replay_summary_json else None,
         gpu_summary_path=args.gpu_summary_json.resolve() if args.gpu_summary_json else None,
+        sair_sync_summary_path=args.sair_sync_summary_json.resolve() if args.sair_sync_summary_json else None,
+        max_sync_age_hours=float(args.max_sync_age_hours),
         output_dir=args.output_dir.resolve(),
         command=command,
     )

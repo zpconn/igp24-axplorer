@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta, timezone
 
 from scripts.igp24_current_offline_report import build_summary, render_report
 
@@ -273,3 +274,163 @@ def test_current_offline_report_supersedes_adaptive_missing_label_when_triage_ve
     assert "adaptive_rows_still_missing_exact_labels" not in summary["go_no_go"]["blockers"]
     assert "exact_magma_labels_missing" not in summary["go_no_go"]["blockers"]
     assert "adaptive_exact_label_missing_field_superseded_by_score_aware_triage" in summary["go_no_go"]["warnings"]
+
+
+def test_current_offline_report_uses_fresh_complete_sair_sync(tmp_path):
+    packet = tmp_path / "packet.json"
+    triage = tmp_path / "triage.json"
+    triage_rows = tmp_path / "triage.jsonl"
+    adaptive = tmp_path / "adaptive.json"
+    index = tmp_path / "index.json"
+    historical = tmp_path / "historical.json"
+    sync = tmp_path / "sync.json"
+
+    _write_json(packet, {"selected_rows": 1, "candidate_count": 1, "expected_points_status": "unavailable_uncalibrated"})
+    _write_json(
+        triage,
+        {
+            "reviewed_rows": 1,
+            "verified_rows": 0,
+            "pending_exact_label_rows": 1,
+            "known_submission_hash_rows": 0,
+            "submission_grade_rows": 0,
+            "exact_r_status_counts": {"ok": 1},
+            "exact_nfdisc_status_counts": {"ok": 1},
+        },
+    )
+    _write_jsonl(
+        triage_rows,
+        [
+            {
+                "canonical_hash": "e" * 64,
+                "known_submission_hash_match": False,
+                "submission_grade_candidate": False,
+            }
+        ],
+    )
+    _write_json(
+        adaptive,
+        {
+            "evaluated_row_count": 1,
+            "failed_row_count": 0,
+            "exact_label_missing_row_count": 1,
+            "intended_target_failure_rows": 0,
+            "final_valuable_target_survival_rows": 1,
+        },
+    )
+    _write_json(
+        index,
+        {
+            "global_index_complete": True,
+            "group_count": 25000,
+            "expected_global_group_count": 25000,
+            "integrity": {"integrity_ok": True},
+        },
+    )
+    _write_json(historical, {"evaluated_row_count": 1, "indexed_true_label_containment_failures": 0})
+    _write_json(
+        sync,
+        {
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "safety": {"api_key_recorded": False, "sair_submission": False, "live_fetch": True, "network_calls": True},
+            "sync_status": {
+                "partial_sync": False,
+                "global_progress_complete": True,
+                "submission_index_complete": True,
+                "submission_detail_complete": True,
+                "download_complete": True,
+                "full_submission_state_complete": True,
+                "submission_state_complete": True,
+            },
+            "submissions": {"pending_rows": 0, "scoreable_rows": 234},
+        },
+    )
+
+    summary, _rows = build_summary(
+        packet_summary_path=packet,
+        triage_summary_path=triage,
+        triage_rows_path=triage_rows,
+        adaptive_summary_path=adaptive,
+        index_summary_path=index,
+        historical_summary_path=historical,
+        baseline_summary_path=None,
+        replay_summary_path=None,
+        gpu_summary_path=None,
+        sair_sync_summary_path=sync,
+        max_sync_age_hours=6.0,
+        output_dir=tmp_path / "out",
+        command=[],
+    )
+
+    assert summary["sair_sync_status"]["status"] == "fresh_complete"
+    assert "fresh_sair_sync_required_immediately_before_live_submission" not in summary["go_no_go"]["blockers"]
+    assert "fresh_sair_sync_incomplete" not in summary["go_no_go"]["blockers"]
+
+
+def test_current_offline_report_blocks_partial_or_stale_sair_sync(tmp_path):
+    packet = tmp_path / "packet.json"
+    triage = tmp_path / "triage.json"
+    adaptive = tmp_path / "adaptive.json"
+    index = tmp_path / "index.json"
+    historical = tmp_path / "historical.json"
+    sync = tmp_path / "sync.json"
+
+    _write_json(packet, {"selected_rows": 0, "candidate_count": 0, "expected_points_status": "unavailable_uncalibrated"})
+    _write_json(
+        triage,
+        {
+            "reviewed_rows": 0,
+            "verified_rows": 0,
+            "known_submission_hash_rows": 0,
+            "submission_grade_rows": 0,
+            "exact_r_status_counts": {},
+            "exact_nfdisc_status_counts": {},
+        },
+    )
+    _write_json(adaptive, {"evaluated_row_count": 0, "failed_row_count": 0, "final_valuable_target_survival_rows": 0})
+    _write_json(
+        index,
+        {
+            "global_index_complete": True,
+            "group_count": 25000,
+            "expected_global_group_count": 25000,
+            "integrity": {"integrity_ok": True},
+        },
+    )
+    _write_json(historical, {"evaluated_row_count": 1, "indexed_true_label_containment_failures": 0})
+    _write_json(
+        sync,
+        {
+            "created_at": (datetime.now(timezone.utc) - timedelta(hours=12)).isoformat(),
+            "safety": {"api_key_recorded": False, "sair_submission": False, "live_fetch": True, "network_calls": True},
+            "sync_status": {
+                "partial_sync": True,
+                "global_progress_complete": True,
+                "submission_index_complete": True,
+                "submission_detail_complete": False,
+                "download_complete": False,
+                "full_submission_state_complete": False,
+                "submission_state_complete": False,
+            },
+        },
+    )
+
+    summary, _rows = build_summary(
+        packet_summary_path=packet,
+        triage_summary_path=triage,
+        triage_rows_path=None,
+        adaptive_summary_path=adaptive,
+        index_summary_path=index,
+        historical_summary_path=historical,
+        baseline_summary_path=None,
+        replay_summary_path=None,
+        gpu_summary_path=None,
+        sair_sync_summary_path=sync,
+        max_sync_age_hours=6.0,
+        output_dir=tmp_path / "out",
+        command=[],
+    )
+
+    assert summary["sair_sync_status"]["status"] == "not_usable"
+    assert "fresh_sair_sync_incomplete" in summary["go_no_go"]["blockers"]
+    assert "fresh_sair_sync_stale" in summary["go_no_go"]["blockers"]

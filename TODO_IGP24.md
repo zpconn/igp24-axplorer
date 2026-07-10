@@ -33,6 +33,44 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 fresh-sync / exact-label gate checkpoint:
+  attempted the next exact-label step for the AXG-1.19 one-row candidate
+  `ee63944ba7bf` using the public Magma calculator path. Local `magma`, `gap`,
+  and `gp` are still absent from `PATH`; the generated online Magma copy/paste
+  script remains at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/copy_paste_scripts/0001_ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825.m`.
+  Both sandboxed and escalated `curl -I --max-time 20 -s
+  https://magma.maths.usyd.edu.au/calc/` attempts timed out with exit 28, so
+  no exact online Magma label was obtained and no SAIR submission/POST was
+  made.
+
+  Ran a read-only SAIR sync with
+  `/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_sair_sync.py
+  --fetch_live --allow_partial --output_dir
+  data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/sair_sync_20260710_exact_label_gate`.
+  The first sandboxed attempt failed DNS; the escalated GET-only run succeeded
+  with full state: 25,000 labels, 46,638 remaining signatures, 29 submissions,
+  234/234 scoreable rows, 0 pending rows, 0 failed rows, and 0 unmatched rows.
+  The refreshed top remaining buckets are r24=11,309, r16=9,677, r8=5,917,
+  r12=5,855, and r20=5,161.
+
+  Fixed `scripts/igp24_current_offline_report.py` so the local go/no-go report
+  can consume a saved SAIR sync summary and distinguish fresh complete syncs
+  from missing, stale, or partial syncs. Previously the report always added
+  `fresh_sair_sync_required_immediately_before_live_submission`, even right
+  after a complete read-only sync. New regression coverage in
+  `tests/test_igp24_current_offline_report.py` proves a fresh complete sync
+  clears that blocker, while stale/partial sync artifacts still block.
+  Regenerated the current report at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_fresh_sync/`.
+  Recommendation remains `do_not_submit`; blocker count is now 4:
+  `adaptive_rows_still_missing_exact_labels`, `exact_magma_labels_missing`,
+  `score_aware_triage_has_no_submission_grade_rows`, and
+  `explicit_user_live_submission_approval_missing`. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_current_offline_report.py` -> 5 passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 437 passed. No live SAIR submission was made.
 - 2026-07-10 AXG-1.19 / tower-r24 exploration checkpoint:
   strengthened the previously exact-negative `quartic_in_x6` / `24T24134|r=8`
   pool from 40 to 80 usable primes across all 16 rows at
