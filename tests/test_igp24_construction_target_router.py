@@ -104,6 +104,8 @@ def test_router_blocks_proxy_routes_when_group_invariants_are_missing(tmp_path):
     )
 
     assert len(routes) == 3
+    assert {row["structurally_eligible"] for row in routes} == {False}
+    assert {row["executable_generation_ready"] for row in routes} == {False}
     assert {row["generation_ready"] for row in routes} == {False}
     assert all(row["blocking_reasons"] == ["missing_group_invariants"] for row in routes)
     summary = summarize_routes(
@@ -118,6 +120,7 @@ def test_router_blocks_proxy_routes_when_group_invariants_are_missing(tmp_path):
         require_group_invariants=True,
     )
     assert summary["target_group_record_missing_count"] == 1
+    assert summary["structurally_eligible_route_count"] == 0
     assert summary["blocking_reason_counts"] == {"missing_group_invariants": 3}
     assert summary["live_submission_recommended_now"] is False
 
@@ -137,15 +140,19 @@ def test_router_uses_group_invariants_to_rank_imprimitive_and_primitive_targets(
 
     imprimitive_routes = [row for row in routes if row["pair_key"] == "24T101|r=16"]
     primitive_routes = [row for row in routes if row["pair_key"] == "24T102|r=24"]
-    assert any(row["generation_ready"] for row in imprimitive_routes)
+    assert any(row["structurally_eligible"] for row in imprimitive_routes)
+    assert not any(row["executable_generation_ready"] for row in routes)
     gx2 = next(row for row in imprimitive_routes if row["family"] == "gx2_degree12_lift")
-    assert gx2["generation_ready"] is True
+    assert gx2["structurally_eligible"] is True
+    assert gx2["generation_ready"] is False
+    assert "executable_generator_not_bound_to_target" in gx2["generation_ready_blocking_reasons"]
     assert "matching_block_sizes=2,12" in gx2["family_reasons"]
 
     primitive_generic = next(row for row in primitive_routes if row["family"] == "generic_sparse_random")
     primitive_gx2 = next(row for row in primitive_routes if row["family"] == "gx2_degree12_lift")
-    assert primitive_generic["generation_ready"] is True
-    assert primitive_gx2["generation_ready"] is False
+    assert primitive_generic["structurally_eligible"] is True
+    assert primitive_generic["generation_ready"] is False
+    assert primitive_gx2["structurally_eligible"] is False
     assert "forced_imprimitive_family_for_primitive_target" in primitive_gx2["blocking_reasons"]
     assert primitive_generic["combined_priority_score"] > primitive_gx2["combined_priority_score"]
 
@@ -178,13 +185,16 @@ def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):
     summary = json.loads((output_dir / "construction_target_router_summary.json").read_text(encoding="utf-8"))
     assert summary["target_pair_count"] == 2
     assert summary["target_group_record_hit_count"] == 2
-    assert summary["generation_ready_route_count"] >= 1
+    assert summary["structurally_eligible_route_count"] >= 1
+    assert summary["generation_ready_route_count"] == 0
     rows = [
         json.loads(line)
         for line in (output_dir / "construction_target_routes.jsonl").read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
     assert len(rows) == 8
+    assert any(row["structurally_eligible"] for row in rows)
+    assert all(row["generation_ready"] is False for row in rows)
     assert all(row["live_submission_recommended_now"] is False for row in rows)
     report = (output_dir / "construction_target_router_report.md").read_text(encoding="utf-8")
     assert "IGP24 Construction Target Router" in report

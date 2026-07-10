@@ -117,7 +117,7 @@ def test_readiness_gate_reports_missing_index_without_crashing(tmp_path):
     assert summary["live_submission_recommended_now"] is False
 
 
-def test_readiness_gate_passes_with_complete_index_and_containment(tmp_path):
+def test_readiness_gate_reports_structural_routes_but_blocks_executable_generation(tmp_path):
     score_plan = _score_plan(tmp_path)
     index_path = tmp_path / "groups.sqlite"
     _index(index_path)
@@ -147,15 +147,19 @@ def test_readiness_gate_passes_with_complete_index_and_containment(tmp_path):
     summary = json.loads((output_dir / "group_index_readiness_summary.json").read_text(encoding="utf-8"))
     assert summary["index_coverage"]["complete"] is True
     assert summary["historical_containment"]["failure_count"] == 0
-    assert summary["generation_ready_route_count"] > 0
-    assert summary["blocking_reasons"] == []
-    assert summary["ready_for_group_directed_generation"] is True
+    assert summary["structurally_eligible_route_count"] > 0
+    assert summary["generation_ready_route_count"] == 0
+    assert "no_executable_generation_ready_routes" in summary["blocking_reasons"]
+    assert summary["ready_for_structural_route_review"] is True
+    assert summary["ready_for_group_directed_generation"] is False
     routes = [
         json.loads(line)
         for line in (output_dir / "group_index_readiness_routes.jsonl").read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    assert any(row["generation_ready"] for row in routes)
+    assert any(row["structurally_eligible"] for row in routes)
+    assert all(row["generation_ready"] is False for row in routes)
+    assert all(row["executable_generation_ready"] is False for row in routes)
 
 
 def test_readiness_gate_blocks_true_label_outside_partial_index(tmp_path):

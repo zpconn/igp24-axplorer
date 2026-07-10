@@ -5,9 +5,12 @@ This is the Phase 5 bridge between the score-aware target planner and the
 construction-family registry. It is read-only: it does not generate
 polynomials, call SAIR, call Magma/PARI/GAP, or submit anything.
 
-Routes are generation-ready only when target group invariants are available
-from a group-cycle index. Without that index, family rankings are proxy audit
-metadata and must not be treated as target-group compatibility.
+Routes are structurally eligible only when target group invariants are
+available from a group-cycle index and the registry family is not ruled out by
+those invariants. That is still not generation-ready: a generation-ready route
+must also have an executable target-bound generator, demonstrated structure
+preservation, instantiated parameters, and local/adaptive checks on generated
+outputs.
 """
 
 from __future__ import annotations
@@ -92,7 +95,7 @@ def _safe_float(value: Any) -> float:
         return 0.0
 
 
-def route_status_and_blocks(
+def structural_status_and_blocks(
     *,
     target_group: GroupRecord | None,
     family_rank: dict[str, Any],
@@ -134,11 +137,21 @@ def build_routes(
             top_limit=families_per_target,
         )
         for family_rank, family in enumerate(family_ranks, start=1):
-            ready, blocks = route_status_and_blocks(
+            structurally_eligible, blocks = structural_status_and_blocks(
                 target_group=group,
                 family_rank=family,
                 require_group_invariants=require_group_invariants,
             )
+            generation_blocks = list(blocks)
+            if structurally_eligible:
+                generation_blocks.extend(
+                    [
+                        "executable_generator_not_bound_to_target",
+                        "structure_preservation_not_verified",
+                        "target_parameters_not_instantiated",
+                        "adaptive_target_exclusion_not_run",
+                    ]
+                )
             target_score = _safe_float(target.get("target_score"))
             maximum_points = _safe_float(target.get("maximum_possible_points"))
             combined_score = target_score + 0.25 * _safe_float(family.get("routing_score")) + 250.0 * maximum_points
@@ -174,15 +187,26 @@ def build_routes(
                     "target_group_primitive": group.primitive if group else None,
                     "target_group_solvable": group.solvable if group else None,
                     "target_group_block_sizes": list(group.block_sizes) if group else [],
-                    "generation_ready": ready,
+                    "structurally_eligible": structurally_eligible,
+                    "route_stage": "structurally_eligible" if structurally_eligible else "blocked",
+                    "executable_generator_available": False,
+                    "executable_generation_ready": False,
+                    "generation_ready": False,
+                    "generation_ready_deprecated": True,
+                    "generation_ready_deprecation": (
+                        "Use structurally_eligible for invariant-based routing. "
+                        "generation_ready is reserved for executable target-bound "
+                        "generators that pass local/adaptive checks."
+                    ),
                     "blocking_reasons": blocks,
+                    "generation_ready_blocking_reasons": generation_blocks,
                     "live_submission_recommended_now": False,
                     "soundness": SOUNDNESS_NOTE,
                 }
             )
     routes.sort(
         key=lambda row: (
-            bool(row["generation_ready"]),
+            bool(row["structurally_eligible"]),
             _safe_float(row["combined_priority_score"]),
             -int(row["target_rank"]),
             -int(row["family_rank"]),
@@ -207,8 +231,10 @@ def summarize_routes(
     target_pairs = {str(row["pair_key"]) for row in routes}
     targets_with_group = {str(row["pair_key"]) for row in routes if row.get("target_group_record_available")}
     blocks = Counter(reason for row in routes for reason in row.get("blocking_reasons") or [])
+    generation_blocks = Counter(reason for row in routes for reason in row.get("generation_ready_blocking_reasons") or [])
     families = Counter(str(row["family"]) for row in routes)
-    ready_routes = [row for row in routes if row.get("generation_ready")]
+    structurally_eligible_routes = [row for row in routes if row.get("structurally_eligible")]
+    generation_ready_routes = [row for row in routes if row.get("executable_generation_ready")]
     return {
         "record_type": "igp24_construction_target_router",
         "schema_version": 1,
@@ -230,17 +256,31 @@ def summarize_routes(
         "route_count": len(routes),
         "target_group_record_hit_count": len(targets_with_group),
         "target_group_record_missing_count": len(target_pairs) - len(targets_with_group),
-        "generation_ready_route_count": len(ready_routes),
-        "generation_ready_target_count": len({str(row["pair_key"]) for row in ready_routes}),
+        "structurally_eligible_route_count": len(structurally_eligible_routes),
+        "structurally_eligible_target_count": len({str(row["pair_key"]) for row in structurally_eligible_routes}),
+        "generation_ready_route_count": len(generation_ready_routes),
+        "generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
+        "generation_ready_count_deprecated": True,
+        "executable_generation_ready_route_count": len(generation_ready_routes),
+        "executable_generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
         "blocking_reason_counts": dict(sorted(blocks.items())),
+        "generation_ready_blocking_reason_counts": dict(sorted(generation_blocks.items())),
         "family_route_counts": dict(sorted(families.items())),
+        "top_structurally_eligible_routes": [
+            {
+                "pair_key": row["pair_key"],
+                "family": row["family"],
+                "combined_priority_score": row["combined_priority_score"],
+            }
+            for row in structurally_eligible_routes[:10]
+        ],
         "top_generation_ready_routes": [
             {
                 "pair_key": row["pair_key"],
                 "family": row["family"],
                 "combined_priority_score": row["combined_priority_score"],
             }
-            for row in ready_routes[:10]
+            for row in generation_ready_routes[:10]
         ],
         "top_proxy_routes": [
             {
@@ -267,23 +307,26 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         f"- Target pairs: `{summary['target_pair_count']}`",
         f"- Routes: `{summary['route_count']}`",
         f"- Target group records found: `{summary['target_group_record_hit_count']}`",
+        f"- Structurally eligible routes: `{summary['structurally_eligible_route_count']}`",
         f"- Generation-ready routes: `{summary['generation_ready_route_count']}`",
         f"- Blocking reasons: `{summary['blocking_reason_counts']}`",
+        f"- Generation-ready blockers: `{summary['generation_ready_blocking_reason_counts']}`",
         f"- Soundness: `{summary['soundness']}`",
         f"- Safety: {summary['safety_note']}",
         "- Live submission recommended now: `False`",
         "",
         "## Top Routes",
         "",
-        "| rank | pair | family | combined score | ready | blocks | warnings |",
-        "| ---: | --- | --- | ---: | --- | --- | --- |",
+        "| rank | pair | family | combined score | structural | generation-ready | blocks | warnings |",
+        "| ---: | --- | --- | ---: | --- | --- | --- | --- |",
     ]
     for index, row in enumerate(routes[:25], start=1):
         blocks = ", ".join(row.get("blocking_reasons") or []) or "-"
         warnings = ", ".join(row.get("family_warnings") or []) or "-"
         lines.append(
             f"| {index} | `{row['pair_key']}` | `{row['family']}` | "
-            f"{row['combined_priority_score']} | `{row['generation_ready']}` | {blocks} | {warnings} |"
+            f"{row['combined_priority_score']} | `{row['structurally_eligible']}` | "
+            f"`{row['executable_generation_ready']}` | {blocks} | {warnings} |"
         )
     if summary["target_group_record_missing_count"]:
         lines.extend(
@@ -294,6 +337,10 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
                 "Routes blocked by `missing_group_invariants` are proxy routing rows only. They show which "
                 "construction families would be plausible by real-root count and history, but they are not "
                 "evidence that the family can hit the target 24T label.",
+                "",
+                "Routes marked `structurally_eligible` still require an executable target-bound generator, "
+                "structure-preservation checks, instantiated parameters, and adaptive Frobenius review before "
+                "they can become generation-ready.",
             ]
         )
     return "\n".join(lines).rstrip() + "\n"
@@ -355,6 +402,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"target_pair_count {summary['target_pair_count']}")
     print(f"route_count {summary['route_count']}")
+    print(f"structurally_eligible_route_count {summary['structurally_eligible_route_count']}")
     print(f"generation_ready_route_count {summary['generation_ready_route_count']}")
     print(f"blocking_reason_counts {json.dumps(summary['blocking_reason_counts'], sort_keys=True)}")
     return 0

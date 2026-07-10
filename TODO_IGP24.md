@@ -242,15 +242,15 @@ results change.
 - 2026-07-09 remediation Phase 5 routing checkpoint: added
   `scripts/igp24_construction_target_router.py`, which consumes the
   score-aware target plan and maps valuable target pairs to ranked
-  construction-family routes. The router is read-only and separates proxy
-  route metadata from generation-ready routes. By default, a route is not
-  generation-ready unless the target label has group invariants from a
-  group-cycle index; without that, it reports `missing_group_invariants`
-  instead of pretending real-root/family history is target-label evidence.
+  construction-family routes. The router is read-only and originally separated
+  proxy route metadata from an over-broad `generation_ready` flag; the
+  2026-07-09/10 structural-route remediation below supersedes that wording.
+  Without group invariants, it reports `missing_group_invariants` instead of
+  pretending real-root/family history is target-label evidence.
   Generated real artifacts under
   `data/igp24/remediation_20260709/construction_router_phase5/high_real_top25_no_group_index/`.
   Result: 25 top uncovered r24 target pairs, 125 target-family routes,
-  0 target group records found, 0 generation-ready routes, and 125/125 routes
+  0 target group records found, 0 executable generation-ready routes, and 125/125 routes
   blocked by `missing_group_invariants`. The top proxy routes are still
   `24T19906|r=24` and nearby r24 uncovered targets paired with
   `quartic_in_x6`/`gx2_degree12_lift`, but every top family carries
@@ -261,6 +261,28 @@ results change.
   Validation so far: py-compile passed for the router; focused construction
   router/registry tests passed (`8 passed`); real Phase 5 routing artifacts
   parse cleanly.
+- 2026-07-09/10 structural-route semantics checkpoint: stopped treating
+  invariant-compatible construction routes as generation-ready. The router now
+  emits `structurally_eligible`, `route_stage`, `executable_generator_available`,
+  `executable_generation_ready`, and `generation_ready_blocking_reasons`.
+  The legacy `generation_ready` field remains only as a deprecated always-false
+  alias. A route can now be structurally eligible when target group invariants
+  do not rule out the family, but it cannot become generation-ready until an
+  executable target-bound generator exists, structure preservation is
+  demonstrated, parameters are instantiated, and generated outputs pass local
+  plus adaptive Frobenius checks. Refreshed real artifacts:
+  `data/igp24/remediation_20260709/construction_router_phase5/structural_not_generation_ready_top25_20260709/`
+  and
+  `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/structural_not_generation_ready_20260709/`.
+  Result: 25 top uncovered r24 targets, 125 routes,
+  125 structurally eligible routes, 0 executable generation-ready routes,
+  `ready_for_structural_route_review=true`,
+  `ready_for_group_directed_generation=false`, and the remaining gate blocker
+  is `no_executable_generation_ready_routes`. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_target_router.py tests/test_igp24_group_index_readiness_gate.py tests/test_igp24_gap_group_index_workflow.py`
+  -> 9 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 375 passed. No generation or live SAIR submission was made.
 - 2026-07-09 remediation Phase 7 checkpoint: added
   `scripts/igp24_replay_benchmark.py`, a read-only chronological replay
   benchmark that joins historical selected packets with later SAIR
@@ -378,13 +400,14 @@ results change.
   under
   `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/no_local_index_top25/`.
   Result: top 25 uncovered r24 targets, 0/25 target labels covered by a local
-  index, 125 route rows, 0 generation-ready routes, and gate blockers:
+  index, 125 route rows, 0 executable generation-ready routes, and gate blockers:
   `missing_group_index`, `target_label_coverage_incomplete`,
-  `missing_historical_validation_input`, and `no_generation_ready_routes`.
+  `missing_historical_validation_input`, and `no_executable_generation_ready_routes`
+  under the corrected structural-route semantics.
   This confirms the next exact requirement before AXG-1.7 group-directed
   search can proceed: import real GAP rows for the target labels, supply
   historical validation rows, and rerun this gate to 100% containment with at
-  least one generation-ready route. Validation so far: py-compile passed for
+  at least one executable generation-ready route. Validation so far: py-compile passed for
   the gate; focused readiness/compatibility/router tests passed (`17 passed`);
   real readiness JSON/JSONL artifacts parse cleanly.
 - 2026-07-09 remediation Phase 3 historical-validation-input checkpoint:
@@ -401,7 +424,7 @@ results change.
   Result: 35 historical rows supplied, but historical containment still cannot
   run because no local GAP-backed group-cycle index exists; blockers are now
   `missing_group_index`, `target_label_coverage_incomplete`,
-  `historical_validation_not_run`, and `no_generation_ready_routes`, with all
+  `historical_validation_not_run`, and `no_executable_generation_ready_routes`, with all
   125 routes blocked by `missing_group_invariants`. This removes the
   `missing_historical_validation_input` blocker and sharpens the next exact
   requirement: import real GAP rows for the target labels, then rerun the gate
@@ -447,12 +470,16 @@ results change.
   Result: 3 GAP chunks ran, 27 exact GAP rows imported into SQLite, target
   coverage is 25/25, historical rows checked = 35, containment failures = 0,
   true-label containment = 1.0, median compatible-label count = 1, 97.14% of
-  historical rows narrowed below 5 labels, generation-ready routes = 125
-  across 25 targets, and readiness blockers = none. Live submission remains
-  `false`; this is a Phase 3/5 unblock, not verified score improvement. Next
-  move: use these generation-ready routes to produce group-compatible
-  candidate pools for the 25 uncovered r24 targets, then run packet optimizer
-  and replay gates before asking for any live submission approval. Validation:
+  historical rows narrowed below 5 labels. Under the later corrected
+  structural-route semantics, this means 125 structurally eligible routes
+  across 25 targets, 0 executable generation-ready routes, and readiness
+  blocker `no_executable_generation_ready_routes`; the older
+  "readiness blockers = none" wording is superseded. Live submission remains
+  `false`; this is a Phase 3/5 structural-review unblock, not verified score
+  improvement. Next move: attach a real structure-preserving executable
+  generator to one structurally eligible route, then run adaptive evidence,
+  packet optimizer, and replay gates before asking for any live submission
+  approval. Validation:
   py-compile passed; focused GAP workflow/compatibility/readiness/historical
   tests passed (`20 passed`); full test suite passed (`355 passed`).
 - 2026-07-09 remediation Phase 5/6 group-compatible candidate-pool checkpoint:

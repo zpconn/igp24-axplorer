@@ -5,7 +5,8 @@ This is a read-only gate. It does not build groups, generate candidates, call
 SAIR/Magma/PARI/GAP, or submit anything. It checks whether a local group-cycle
 index covers the target labels needed by the score-aware plan, whether
 historical true-label containment passes when rows are provided, and whether
-construction target routing is unblocked by group invariants.
+ construction target routing is unblocked by group invariants. Structural
+ eligibility is not treated as generation readiness.
 """
 
 from __future__ import annotations
@@ -125,7 +126,8 @@ def build_readiness(
         require_group_invariants=True,
     )
     route_blocks = Counter(reason for row in routes for reason in row.get("blocking_reasons") or [])
-    ready_routes = [row for row in routes if row.get("generation_ready")]
+    structurally_eligible_routes = [row for row in routes if row.get("structurally_eligible")]
+    generation_ready_routes = [row for row in routes if row.get("executable_generation_ready")]
 
     blocking_reasons: list[str] = []
     if not index_exists:
@@ -140,8 +142,8 @@ def build_readiness(
         blocking_reasons.append("historical_true_label_containment_failed")
     elif containment.get("true_label_containment") != 1.0:
         blocking_reasons.append("historical_true_label_containment_not_100pct")
-    if not ready_routes:
-        blocking_reasons.append("no_generation_ready_routes")
+    if not generation_ready_routes:
+        blocking_reasons.append("no_executable_generation_ready_routes")
 
     summary = {
         "schema_version": 1,
@@ -164,10 +166,23 @@ def build_readiness(
         "historical_row_count": len(historical_rows),
         "historical_containment": containment,
         "route_count": len(routes),
-        "generation_ready_route_count": len(ready_routes),
-        "generation_ready_target_count": len({str(row["pair_key"]) for row in ready_routes}),
+        "structurally_eligible_route_count": len(structurally_eligible_routes),
+        "structurally_eligible_target_count": len({str(row["pair_key"]) for row in structurally_eligible_routes}),
+        "generation_ready_route_count": len(generation_ready_routes),
+        "generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
+        "generation_ready_count_deprecated": True,
+        "executable_generation_ready_route_count": len(generation_ready_routes),
+        "executable_generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
         "route_blocking_reason_counts": dict(sorted(route_blocks.items())),
         "blocking_reasons": blocking_reasons,
+        "ready_for_structural_route_review": (
+            index_exists
+            and coverage["complete"]
+            and containment is not None
+            and int(containment.get("failure_count") or 0) == 0
+            and containment.get("true_label_containment") == 1.0
+            and bool(structurally_eligible_routes)
+        ),
         "ready_for_group_directed_generation": not blocking_reasons,
         "live_submission_recommended_now": False,
         "output_files": {
@@ -190,8 +205,10 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         f"- Target pairs: `{summary['target_pair_count']}`",
         f"- Covered target labels: `{summary['index_coverage']['covered_target_label_count']}` / `{summary['index_coverage']['target_label_count']}`",
         f"- Historical rows: `{summary['historical_row_count']}`",
+        f"- Structurally eligible routes: `{summary['structurally_eligible_route_count']}`",
         f"- Generation-ready routes: `{summary['generation_ready_route_count']}`",
         f"- Blocking reasons: `{summary['blocking_reasons']}`",
+        f"- Ready for structural route review: `{summary['ready_for_structural_route_review']}`",
         f"- Ready for group-directed generation: `{summary['ready_for_group_directed_generation']}`",
         "- Live submission recommended now: `False`",
         f"- Safety: {summary['safety_note']}",
@@ -223,15 +240,24 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         [
             "## Top Routes",
             "",
-            "| rank | pair | family | ready | blocks |",
-            "| ---: | --- | --- | --- | --- |",
+            "| rank | pair | family | structural | generation-ready | blocks |",
+            "| ---: | --- | --- | --- | --- | --- |",
         ]
     )
     for index, row in enumerate(routes[:25], start=1):
         blocks = ", ".join(row.get("blocking_reasons") or []) or "-"
         lines.append(
-            f"| {index} | `{row['pair_key']}` | `{row['family']}` | `{row['generation_ready']}` | {blocks} |"
+            f"| {index} | `{row['pair_key']}` | `{row['family']}` | "
+            f"`{row.get('structurally_eligible')}` | `{row.get('executable_generation_ready')}` | {blocks} |"
         )
+    lines.extend(
+        [
+            "",
+            "Structural eligibility only means a route is not ruled out by the current group invariants.",
+            "Generation readiness additionally requires an executable target-bound generator, structure-preservation checks, instantiated parameters, and adaptive Frobenius review on generated outputs.",
+            "",
+        ]
+    )
     return "\n".join(lines).rstrip() + "\n"
 
 
