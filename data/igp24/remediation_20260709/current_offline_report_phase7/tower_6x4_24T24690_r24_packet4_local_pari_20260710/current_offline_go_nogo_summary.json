@@ -1,0 +1,250 @@
+{
+  "adaptive_packet_status": {
+    "budget_summary": {
+      "10": {
+        "evaluated_rows": 16,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 16,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 68,
+        "rows_with_budget_reached": 16,
+        "valuable_target_survival_rows": 16
+      },
+      "20": {
+        "evaluated_rows": 16,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 16,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 42,
+        "rows_with_budget_reached": 16,
+        "valuable_target_survival_rows": 16
+      },
+      "40": {
+        "evaluated_rows": 16,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 16,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 33,
+        "rows_with_budget_reached": 16,
+        "valuable_target_survival_rows": 14
+      }
+    },
+    "evaluated_rows": 16,
+    "exact_label_missing_rows": 16,
+    "failed_rows": 0,
+    "final_valuable_target_survival_rows": 14,
+    "intended_target_row_count": 16,
+    "intended_target_survival_rows": 0,
+    "max_usable_primes": 40
+  },
+  "architecture_status": {
+    "baseline_leaderboard": {
+      "our_public_score": 0.000508,
+      "our_rank": 77,
+      "our_scoreable_pairs": 28,
+      "our_team_number": "IGP24-T00153",
+      "rank25_score_cutoff": 108.009839,
+      "rank25_scoreable_pairs": 5087,
+      "recorded_visible_points_from_user_snapshot": 0.0021,
+      "source": "GET /api/public/v1/competitions/igp24/leaderboard?limit=100 at baseline time",
+      "user_snapshot_visible_points_rows": 2
+    },
+    "chronological_replay_minimum_gate_passed": true,
+    "full_group_index_complete": true,
+    "historical_evaluated_rows": 233,
+    "historical_indexed_containment_failures": 0,
+    "historical_valuable_false_positive_rows_at_10_primes": 36,
+    "indexed_group_count": 25000,
+    "latest_gpu_probe_summary": {
+      "gpu_used": null,
+      "rejection_reasons": null,
+      "run_id": "20260710T081638Z",
+      "valid_records": null
+    }
+  },
+  "candidate_status": {
+    "novel_candidate_count_against_synced_submission_history": 4,
+    "novel_candidate_hashes_against_synced_submission_history": [
+      "9da7a6f4dac4a3f9aec5b7a8a5fd7439c2ea3508da77689cc16cab0c7de6ca0e",
+      "16a66dd8583f7f612e350a3c5f921a7d74317946c077f21f27e7858a677f3e98",
+      "093d4ca1da4c1f437c3313e3bf40eb0a5d0a1b0ed5805b3eca639ff6ed668220",
+      "b03eb2c2a86a9e2bef2de3683672347889e43bf31ee07cb8a8b45df74b8e05ce"
+    ],
+    "selected_hashes": [
+      "9da7a6f4dac4a3f9aec5b7a8a5fd7439c2ea3508da77689cc16cab0c7de6ca0e",
+      "16a66dd8583f7f612e350a3c5f921a7d74317946c077f21f27e7858a677f3e98",
+      "093d4ca1da4c1f437c3313e3bf40eb0a5d0a1b0ed5805b3eca639ff6ed668220",
+      "b03eb2c2a86a9e2bef2de3683672347889e43bf31ee07cb8a8b45df74b8e05ce"
+    ],
+    "selected_rows": [
+      {
+        "canonical_hash": "9da7a6f4dac4a3f9aec5b7a8a5fd7439c2ea3508da77689cc16cab0c7de6ca0e",
+        "computed_r": 24,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 13365495531490149029747688092026545642362720201473901836894208,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "sair_progress_state": "exact_pair_missing",
+        "sair_progress_team_count": null,
+        "sair_score_value_status": "no_score_value",
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "9da7a6f4dac4",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "16a66dd8583f7f612e350a3c5f921a7d74317946c077f21f27e7858a677f3e98",
+        "computed_r": 24,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 84776163224614780474559042345342862121335731256164360388608,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "sair_progress_state": "exact_pair_missing",
+        "sair_progress_team_count": null,
+        "sair_score_value_status": "no_score_value",
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "16a66dd8583f",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "093d4ca1da4c1f437c3313e3bf40eb0a5d0a1b0ed5805b3eca639ff6ed668220",
+        "computed_r": 24,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 24408050786200794374252897653120049130788211971745248182272,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "sair_progress_state": "exact_pair_missing",
+        "sair_progress_team_count": null,
+        "sair_score_value_status": "no_score_value",
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "093d4ca1da4c",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "b03eb2c2a86a9e2bef2de3683672347889e43bf31ee07cb8a8b45df74b8e05ce",
+        "computed_r": 24,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 631092708921170101130806403434330302280044898156544,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "sair_progress_state": "exact_pair_missing",
+        "sair_progress_team_count": null,
+        "sair_score_value_status": "no_score_value",
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "b03eb2c2a86a",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      }
+    ],
+    "selected_short_hashes": [
+      "9da7a6f4dac4",
+      "16a66dd8583f",
+      "093d4ca1da4c",
+      "b03eb2c2a86a"
+    ]
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_current_offline_report.py",
+    "--packet_summary_json",
+    "data/igp24/remediation_20260709/packet_optimizer_phase6/tower_6x4_24T24690_r24_40prime_reviewed_20260710/packet_optimizer_summary.json",
+    "--triage_summary_json",
+    "data/igp24/remediation_20260709/score_aware_triage_phase6/tower_6x4_24T24690_r24_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_summary.json",
+    "--triage_rows_jsonl",
+    "data/igp24/remediation_20260709/score_aware_triage_phase6/tower_6x4_24T24690_r24_packet4_local_pari_knownhash_checked_20260710/score_aware_triage.jsonl",
+    "--adaptive_summary_json",
+    "data/igp24/remediation_20260709/adaptive_frobenius_phase5/tower_6x4_24T24690_r24_16rows_40primes_20260710/adaptive_frobenius_benchmark_summary.json",
+    "--index_summary_json",
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "--historical_summary_json",
+    "data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "--baseline_summary_json",
+    "data/igp24/remediation_20260709/baseline_summary.json",
+    "--replay_summary_json",
+    "data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/replay_benchmark_summary.json",
+    "--gpu_summary_json",
+    "data/igp24/axg118_positive_seed_escape_20260710/r12_cuda_targetr_escape_feedback/gpu_sampler_probe_summary.json",
+    "--output_dir",
+    "data/igp24/remediation_20260709/current_offline_report_phase7/tower_6x4_24T24690_r24_packet4_local_pari_20260710"
+  ],
+  "created_at": "2026-07-10T08:53:55.030914+00:00",
+  "go_no_go": {
+    "blockers": [
+      "adaptive_rows_still_missing_exact_labels",
+      "exact_magma_labels_missing",
+      "explicit_user_live_submission_approval_missing",
+      "fresh_sair_sync_required_immediately_before_live_submission",
+      "intended_target_ruled_out_by_adaptive_evidence",
+      "score_aware_triage_has_no_submission_grade_rows"
+    ],
+    "live_submission_recommended_now": false,
+    "recommendation": "do_not_submit",
+    "warnings": [
+      "packet_uses_single_construction_family"
+    ]
+  },
+  "inputs": {
+    "adaptive_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/adaptive_frobenius_phase5/tower_6x4_24T24690_r24_16rows_40primes_20260710/adaptive_frobenius_benchmark_summary.json",
+    "baseline_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/baseline_summary.json",
+    "gpu_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg118_positive_seed_escape_20260710/r12_cuda_targetr_escape_feedback/gpu_sampler_probe_summary.json",
+    "historical_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "index_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "packet_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/packet_optimizer_phase6/tower_6x4_24T24690_r24_40prime_reviewed_20260710/packet_optimizer_summary.json",
+    "replay_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/replay_benchmark_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/tower_6x4_24T24690_r24_packet4_local_pari_knownhash_checked_20260710/score_aware_triage.jsonl",
+    "triage_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/tower_6x4_24T24690_r24_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_summary.json"
+  },
+  "output_files": {
+    "report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/tower_6x4_24T24690_r24_packet4_local_pari_20260710/current_offline_go_nogo_report.md",
+    "summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/tower_6x4_24T24690_r24_packet4_local_pari_20260710/current_offline_go_nogo_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/tower_6x4_24T24690_r24_packet4_local_pari_20260710/current_offline_go_nogo_triage_rows.jsonl"
+  },
+  "packet_status": {
+    "best_case_packet_points": 4.0,
+    "candidate_count": 16,
+    "construction_family_counts": {
+      "tower_6x4": 4
+    },
+    "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+    "expected_points_status": "unavailable_uncalibrated",
+    "possible_low_team_pair_count": 37,
+    "possible_uncovered_pair_count": 28,
+    "selected_rows": 4
+  },
+  "record_type": "igp24_current_offline_go_nogo_report",
+  "safety": {
+    "candidate_generation": false,
+    "gpu_training": false,
+    "local_file_only": true,
+    "magma_executed": false,
+    "network_calls": false,
+    "pari_executed": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "a0060d0545344c2d70e191014ef9216aa0d33d04",
+  "tool": "scripts/igp24_current_offline_report.py",
+  "verification_status": {
+    "exact_label_status_counts": {
+      "missing": 4
+    },
+    "exact_nfdisc_status_counts": {
+      "ok": 4
+    },
+    "exact_r_status_counts": {
+      "ok": 4
+    },
+    "known_submission_hash_rows": 0,
+    "pending_exact_label_rows": 4,
+    "reviewed_rows": 4,
+    "submission_grade_rows": 0,
+    "verified_exact_label_rows": 0
+  }
+}

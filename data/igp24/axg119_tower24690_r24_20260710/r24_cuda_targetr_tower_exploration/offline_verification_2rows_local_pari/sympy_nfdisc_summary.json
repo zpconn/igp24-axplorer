@@ -1,0 +1,48 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows",
+    "--output_dir",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari",
+    "--run_pari",
+    "--pari_executable",
+    "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--timeout_seconds",
+    "90"
+  ],
+  "created_at": "2026-07-10T08:59:37.128406+00:00",
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows",
+  "nfdisc_records": 1,
+  "output_files": {
+    "sympy_nfdisc_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/sympy_nfdisc_report.md",
+    "sympy_nfdisc_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/sympy_nfdisc_results.jsonl",
+    "sympy_nfdisc_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/sympy_nfdisc_summary.json"
+  },
+  "parsed_result_records": 2,
+  "record_type": "igp24_sympy_nfdisc_summary",
+  "records_loaded": 2,
+  "requested": true,
+  "safety": {
+    "exact_nfdisc_claims": true,
+    "local_file_only": true,
+    "network_calls": false,
+    "note": "SymPy nfdisc artifacts are explicit local fallback evidence; PARI/GP remains the official workflow when available.",
+    "official_pari_gp_workflow": false,
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "a0060d0545344c2d70e191014ef9216aa0d33d04",
+  "status_counts": {
+    "nfdisc_error": 1,
+    "nfdisc_ok": 1
+  },
+  "tool": "scripts/igp24_offline_verify.py"
+}

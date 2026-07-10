@@ -1,0 +1,47 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_verification_queue_1row",
+    "--output_dir",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari",
+    "--run_pari",
+    "--pari_executable",
+    "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--timeout_seconds",
+    "90"
+  ],
+  "created_at": "2026-07-10T09:02:57.894853+00:00",
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_verification_queue_1row",
+  "output_files": {
+    "sympy_signature_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/sympy_signature_report.md",
+    "sympy_signature_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/sympy_signature_results.jsonl",
+    "sympy_signature_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/sympy_signature_summary.json"
+  },
+  "parsed_result_records": 1,
+  "record_type": "igp24_sympy_signature_summary",
+  "records_loaded": 1,
+  "requested": true,
+  "safety": {
+    "exact_r_claims": true,
+    "local_file_only": true,
+    "magma_signature_workflow": false,
+    "network_calls": false,
+    "note": "SymPy signature artifacts are explicit local exact-r fallback evidence; Magma remains the preferred exact-label/signature workflow when available.",
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "signature_records": 1,
+  "source_commit": "a0060d0545344c2d70e191014ef9216aa0d33d04",
+  "status_counts": {
+    "signature_ok": 1
+  },
+  "tool": "scripts/igp24_offline_verify.py"
+}

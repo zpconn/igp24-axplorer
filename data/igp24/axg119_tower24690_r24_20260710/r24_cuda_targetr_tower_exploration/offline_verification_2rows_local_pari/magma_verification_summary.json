@@ -1,0 +1,213 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows",
+    "--output_dir",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari",
+    "--run_pari",
+    "--pari_executable",
+    "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--timeout_seconds",
+    "90"
+  ],
+  "created_at": "2026-07-10T08:59:37.130618+00:00",
+  "execution": {
+    "magma": {
+      "cache_entries": 0,
+      "cache_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_verification_cache.json",
+      "executed": false,
+      "max_records": null,
+      "requested": false,
+      "results": {
+        "dry_run": 2
+      },
+      "status": "dry_run"
+    },
+    "pari": {
+      "executed": true,
+      "raw_output_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/pari_raw_output.txt",
+      "requested": true,
+      "returncode": 0,
+      "status": "completed"
+    }
+  },
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows",
+  "magma_discovery": {
+    "available": false,
+    "candidates_checked": [
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/usr/local/bin/magma",
+        "query": "/usr/local/bin/magma",
+        "source": "search_pattern"
+      },
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/usr/bin/magma",
+        "query": "/usr/bin/magma",
+        "source": "search_pattern"
+      },
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/home/zpconn/bin/magma",
+        "query": "/home/zpconn/bin/magma",
+        "source": "search_pattern"
+      }
+    ],
+    "common_search_patterns": [
+      "/usr/local/bin/magma",
+      "/usr/bin/magma",
+      "/opt/magma*/magma",
+      "/opt/Magma*/magma",
+      "/usr/local/magma*/magma",
+      "/usr/local/Magma*/magma",
+      "/home/zpconn/magma*/magma",
+      "/home/zpconn/Magma*/magma",
+      "/home/zpconn/bin/magma"
+    ],
+    "executable": "magma",
+    "extra_search_patterns": [],
+    "path": null,
+    "selected_query": null,
+    "selected_source": null
+  },
+  "magma_rerun_guidance": {
+    "message": "MAGMA was not found on PATH or in the bounded common local search locations. Install MAGMA or pass --magma_executable /path/to/magma, then rerun the command below.",
+    "rerun_command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows",
+      "--output_dir",
+      "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari_run_magma",
+      "--run_pari",
+      "--pari_executable",
+      "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--timeout_seconds",
+      "90",
+      "--run_magma",
+      "--magma_executable",
+      "/path/to/magma"
+    ],
+    "rerun_command_text": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_offline_verify.py data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/packet_verification_queue_2rows --output_dir /home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari_run_magma --run_pari --pari_executable /tmp/igp24_pari_gp_local/root/usr/bin/gp --run_sympy_signature --run_sympy_nfdisc --online_magma_manual --timeout_seconds 90 --run_magma --magma_executable /path/to/magma",
+    "status": "unavailable"
+  },
+  "max_records": null,
+  "output_files": {
+    "magma_cache_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_verification_cache.json",
+    "magma_candidate_scripts_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_candidate_scripts",
+    "magma_raw_output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_raw_outputs",
+    "magma_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_verification_report.md",
+    "magma_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_verification_results.jsonl",
+    "magma_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/offline_verification_2rows_local_pari/magma_verification_summary.json"
+  },
+  "record_type": "igp24_offline_magma_verification_summary",
+  "records_loaded": 2,
+  "records_selected_for_magma": 2,
+  "safety": {
+    "auto_submission": false,
+    "exact_group_labels_parsed": false,
+    "magma_executed": false,
+    "magma_requested": false,
+    "network_calls": false,
+    "note": "Offline MAGMA verification is explicit, local-only, timeout-bound, and separate from GPU training/sampling and CPU proxy scoring.",
+    "offline_only": true,
+    "proxy_labels_preserved": true,
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "a0060d0545344c2d70e191014ef9216aa0d33d04",
+  "status_counts": {
+    "dry_run": 2
+  },
+  "timeout_seconds": 90,
+  "tool": "scripts/igp24_offline_verify.py",
+  "tool_availability": {
+    "magma": {
+      "available": false,
+      "discovery": {
+        "available": false,
+        "candidates_checked": [
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/usr/local/bin/magma",
+            "query": "/usr/local/bin/magma",
+            "source": "search_pattern"
+          },
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/usr/bin/magma",
+            "query": "/usr/bin/magma",
+            "source": "search_pattern"
+          },
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/home/zpconn/bin/magma",
+            "query": "/home/zpconn/bin/magma",
+            "source": "search_pattern"
+          }
+        ],
+        "common_search_patterns": [
+          "/usr/local/bin/magma",
+          "/usr/bin/magma",
+          "/opt/magma*/magma",
+          "/opt/Magma*/magma",
+          "/usr/local/magma*/magma",
+          "/usr/local/Magma*/magma",
+          "/home/zpconn/magma*/magma",
+          "/home/zpconn/Magma*/magma",
+          "/home/zpconn/bin/magma"
+        ],
+        "executable": "magma",
+        "extra_search_patterns": [],
+        "path": null,
+        "selected_query": null,
+        "selected_source": null
+      },
+      "executable": "magma",
+      "path": null
+    },
+    "pari": {
+      "available": true,
+      "executable": "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+      "path": "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+      "version_command": [
+        "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+        "-v"
+      ],
+      "version_output": [
+        "### Usage: /tmp/igp24_pari_gp_local/root/usr/bin/gp [options] [GP files]",
+        "Available options:",
+        "  [-f,--fast]\t\tFast start: do not read .gprc",
+        "  [-q,--quiet]\t\tQuiet mode: do not print banner and history numbers",
+        "  [-s stacksize]\tStart with the PARI stack of given size (in bytes)"
+      ],
+      "version_returncode": 0,
+      "version_status": "completed"
+    }
+  },
+  "verified_group_labels": [],
+  "verified_records": 0
+}

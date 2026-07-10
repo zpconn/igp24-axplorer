@@ -1,0 +1,52 @@
+# IGP24 Online MAGMA Manual Report
+
+Online MAGMA calculator artifacts are offline scripts plus saved-output parsers. The helper does not submit requests, batch online work, call SAIR, or run inside training, GPU sampling, or CPU proxy scoring.
+
+- Input: `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_verification_queue_1row`
+- Input kind: `review_batch`
+- Records selected: 1
+- Calculator URL: `https://magma.maths.usyd.edu.au/calc/`
+- Observed calculator version: `2.29-8`
+- Calculator caps: 60s, 50000 bytes
+- Status counts: `{}`
+- Already parsed exact labels: 0
+- Ready for manual copy/paste: 1
+- Local MAGMA status counts: `{"dry_run": 1}`
+- Diagnostic strategy counts: `{"model_sample_export": 1}`
+- Diagnostic flag counts: `{}`
+- Manual script chunking: `{"all_scripts_under_calculator_limit": true, "calculator_max_input_bytes": 50000, "max_script_bytes": 944, "mode": "one_candidate_per_script", "scripts_written": 1}`
+
+Manual flow:
+1. Open the calculator URL in a browser.
+2. Paste one generated script from the copy-paste scripts directory.
+3. Paste the returned output into the JSONL template's `pasted_output` field.
+4. Rerun this helper with `--online_magma_pasted_output` pointing at that JSONL.
+
+## Already Parsed Exact Labels
+
+| status | exact label | hash | degree | irreducible | runtime | version | group |
+| --- | --- | --- | ---: | --- | ---: | --- | --- |
+|  |  |  |  |  |  |  |  |
+
+## Ready For Manual Copy/Paste
+
+| queue | hash | non-generic | score | r | strategy | flags | script |
+| ---: | --- | ---: | ---: | ---: | --- | --- | --- |
+| 1 | `ee63944ba7bf` |  | 0.000000 | 24 | `` |  | `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/copy_paste_scripts/0001_ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825.m` |
+
+## Proxy-Only Queue Candidates
+
+| queue | hash | non-generic | score | r | height | flags | source ledger |
+| ---: | --- | ---: | ---: | ---: | ---: | --- | --- |
+| 1 | `ee63944ba7bf` |  | 0.000000 | 24 | 567244 |  | `` |
+
+## Local MAGMA Dry-Run Status
+
+- Local MAGMA executed: `False`
+- Local MAGMA status counts: `{"dry_run": 1}`
+
+Artifacts:
+- Copy/paste scripts: `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/copy_paste_scripts`
+- Pasted-output template: `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/online_magma_pasted_outputs_template.jsonl`
+- Parsed results JSONL: `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/online_magma_manual_results.jsonl`
+- Summary JSON: `/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/online_magma_manual/online_magma_manual_summary.json`

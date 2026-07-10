@@ -33,6 +33,102 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.19 / tower-r24 exploration checkpoint:
+  strengthened the previously exact-negative `quartic_in_x6` / `24T24134|r=8`
+  pool from 40 to 80 usable primes across all 16 rows at
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/quartic_x6_24T24134_r8_candidates_80primes_20260710/`.
+  The stronger pass evaluated 16/16 rows with 0 failures; all 16 still
+  retained `24T24134|r=8` and at least one valuable target, while median
+  indexed survivors narrowed from 87 at 40 primes to 64 at 80. This confirms
+  the compatibility signal was robust necessary-exclusion evidence, but it is
+  still superseded by exact Magma feedback from the selected packet: 4/4 exact
+  labels were false targets. Rerunning the optimizer with the route-outcome
+  ledger attached under
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_80prime_reviewed_route_outcome_blocked_20260710/`
+  selected 0 rows and rejected all 16 with
+  `construction_route_outcome_blocked`. The refreshed family calibration at
+  `data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_x6_80prime_exact_negative_20260710/`
+  keeps `quartic_in_x6` marked `block_repeat_exact_basin`.
+
+  Routed fresh current score-plan buckets with the exact-negative ledger
+  attached:
+  `uncovered_top30_with_route_outcomes_20260710`,
+  `api_scoreable_top25_with_route_outcomes_20260710`, and
+  `lightly_solved_top25_with_route_outcomes_20260710`. The best fresh
+  executable route was `24T24690|r=24` via `tower_6x4`/`composition_8x3`
+  among lightly solved signatures. Ran a bounded exact `tower_6x4` scout at
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24690_r24_tower_6x4_exact_20260710/`:
+  120 trials, 16 local-valid irreducible/squarefree r24 candidates, 1 known
+  submission rejection, 96 wrong-r, 6 reducible, and 1 nonsquarefree. The
+  intended `24T24690|r=24` target was ruled out for all 16 rows, but all 16
+  retained some non-target valuable compatibility at the shallow adaptive
+  screen. A 40-prime follow-up at
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/tower_6x4_24T24690_r24_16rows_40primes_20260710/`
+  evaluated 16/16 with 0 failures, 0/16 intended target survival, and 14/16
+  rows with valuable non-target survival. The materialized pool at
+  `data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24690_r24_40primes_20260710/`
+  yielded 14 packet-eligible review rows. Packet optimization selected 4 rows
+  under
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/tower_6x4_24T24690_r24_40prime_reviewed_20260710/`,
+  covering 28 possible uncovered and 37 possible low-team pairs by
+  compatibility, with best-case packet points 4.0 and expected points
+  `unavailable_uncalibrated`. Local PARI/SymPy verification at
+  `data/igp24/remediation_20260709/offline_verification_phase6/tower_6x4_24T24690_r24_packet4_local_pari_20260710/`
+  produced 4/4 exact r24 and 4/4 exact nfdisc; score-aware triage still found
+  0 submission-grade rows because exact Magma labels are missing. Consolidated
+  go/no-go:
+  `data/igp24/remediation_20260709/current_offline_report_phase7/tower_6x4_24T24690_r24_packet4_local_pari_20260710/`
+  -> `do_not_submit`, with blockers including missing exact labels, intended
+  target ruled out, no submission-grade rows, fresh sync required, and explicit
+  approval missing.
+
+  Rebuilt the active-learning dataset including the new 40-prime tower rows at
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_tower24690_r24.jsonl`.
+  This raised generator-eligible rows from 8 to 22: 8 `score_positive` rows
+  plus 14 low-weight `exact_local_exploration` r24 tower rows. Sampling mass is
+  now `score_positive=96.0` and `exact_local_exploration=14.0`. Trained a
+  refreshed advisory reward model at
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_tower24690_r24_20260710/`;
+  grouped split overlap remains `[]`, row count is 523, and advisory status
+  remains `advisory_insufficient_positive_data`.
+
+  Ran AXG-1.19 r24 CUDA on the refreshed corpus at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_tower_exploration/`.
+  The RTX 5090 was used (`max_gpu_utilization_percent=92`, avg 26.765,
+  runtime 35.285s), but the first export was polluted by local training-row
+  reproduction: 4 decoded rows, and the optimizer selected a row already in
+  the local tower scout (`16a66dd8583f`). Reran the same bounded AXG probe with
+  the active-learning dataset itself as the sample-export excluded-hash source
+  at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/`.
+  This also used CUDA (`max_gpu_utilization_percent=92`, avg 21.045, runtime
+  45.255s) and blocked canonical equivalents of both SAIR history and local
+  training/exploration rows. Fresh decoded yield dropped to 1 unique row
+  (`ee63944ba7bf`), proving the earlier apparent yield was mostly
+  memorization. The fresh row is local-valid r24, known-hash novel, 40-prime
+  adaptive reviewed, and packet-eligible by necessary compatibility: optimizer
+  artifact
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed/`
+  selected it with 25 possible uncovered and 33 possible low-team pairs,
+  best-case points 1.0, reward probability 0.938, collapse risk 0.062, and
+  expected points `unavailable_uncalibrated`. Local PARI/SymPy verification at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_local_pari/`
+  found exact r24 and exact nfdisc. Score-aware triage still has 0
+  submission-grade rows because exact Magma label is missing. Consolidated
+  report:
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row/`
+  -> `do_not_submit`, blockers: exact label missing, no submission-grade rows,
+  fresh sync required before any live packet, and explicit approval missing.
+
+  Main lessons: (1) 80-prime compatibility can remain robust while exact Magma
+  labels prove a route false, so route-outcome blockers must override
+  compatibility-only optimism; (2) the new tower r24 scout adds useful
+  low-weight exploration mass but does not hit its intended target; (3) AXG
+  must exclude the whole training/exploration hash set, not only SAIR
+  submissions, when measuring fresh generation; (4) after training-hash
+  exclusion AXG-1.19 produced one genuinely fresh r24 row with credible
+  compatibility evidence, but it is still review-only until exact labels are
+  obtained.
 - 2026-07-10 AXG-1.18 positive-seed escape checkpoint:
   added `scripts/igp24_positive_seed_escape.py` plus focused tests as a
   deterministic offline lane for the current AXG bottleneck: the generator has

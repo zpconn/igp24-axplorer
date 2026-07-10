@@ -1,0 +1,270 @@
+{
+  "candidate_source_count": 5,
+  "class_counts": {
+    "accepted_duplicate_collapsed_basin": 388,
+    "accepted_globally_covered_high_team_basin": 12,
+    "accepted_useful_score_positive": 8,
+    "exact_local_valid": 76,
+    "wrong_real_root_count": 39
+  },
+  "collapsed_labels": [
+    "24T23883",
+    "24T24651",
+    "24T24932",
+    "24T24970",
+    "24T24979",
+    "24T24984",
+    "24T25000"
+  ],
+  "created_at": "2026-07-10T08:54:31.856678+00:00",
+  "dataset_path": "/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_20260710_postremediation_tower24690_r24.jsonl",
+  "feedback_source_count": 24,
+  "generator_training": {
+    "eligible_role_counts": {
+      "exact_local_exploration": 14,
+      "score_positive": 8
+    },
+    "eligible_row_count": 22,
+    "physical_row_count": 523,
+    "policy": {
+      "accepted_duplicate": {
+        "eligible": false,
+        "role": "accepted_duplicate",
+        "weight": 0.0
+      },
+      "accepted_useful_unknown": {
+        "eligible": true,
+        "role": "accepted_useful_unknown",
+        "weight": 3.0
+      },
+      "construction_route_outcome_blocked": {
+        "eligible": false,
+        "role": "construction_route_outcome_blocked",
+        "weight": 0.0
+      },
+      "crowded_collapse": {
+        "eligible": false,
+        "role": "crowded_collapse",
+        "weight": 0.0
+      },
+      "exact_local_exploration": {
+        "eligible": true,
+        "role": "exact_local_exploration",
+        "weight": 1.0
+      },
+      "invalid": {
+        "eligible": false,
+        "role": "invalid",
+        "weight": 0.0
+      },
+      "known_submission_hash": {
+        "eligible": false,
+        "role": "known_submission_hash",
+        "weight": 0.0
+      },
+      "low_team_scoreable": {
+        "eligible": true,
+        "role": "low_team_scoreable",
+        "weight": 8.0
+      },
+      "no_valuable_target_survival": {
+        "eligible": false,
+        "role": "no_valuable_target_survival",
+        "weight": 0.0
+      },
+      "non_improving_exact_pair": {
+        "eligible": false,
+        "role": "non_improving_exact_pair",
+        "weight": 0.0
+      },
+      "packet_ineligible": {
+        "eligible": false,
+        "role": "packet_ineligible",
+        "weight": 0.0
+      },
+      "score_positive": {
+        "eligible": true,
+        "role": "score_positive",
+        "weight": 12.0
+      },
+      "wrong_r": {
+        "eligible": false,
+        "role": "wrong_r",
+        "weight": 0.0
+      }
+    },
+    "role_counts": {
+      "crowded_collapse": 384,
+      "exact_local_exploration": 14,
+      "no_valuable_target_survival": 74,
+      "non_improving_exact_pair": 4,
+      "score_positive": 8,
+      "wrong_r": 39
+    },
+    "sampling_mass_by_construction_family_top": [
+      [
+        "unknown",
+        72.0
+      ],
+      [
+        "tower_6x4",
+        14.0
+      ],
+      [
+        "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8",
+        12.0
+      ],
+      [
+        "single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2",
+        12.0
+      ]
+    ],
+    "sampling_mass_by_label_top": [
+      [
+        "24T22770",
+        48.0
+      ],
+      [
+        "24T9993",
+        48.0
+      ],
+      [
+        "unknown",
+        14.0
+      ]
+    ],
+    "sampling_mass_by_role": {
+      "exact_local_exploration": 14.0,
+      "score_positive": 96.0
+    }
+  },
+  "high_team_threshold": 20,
+  "label_counts_top": [
+    [
+      "24T25000",
+      225
+    ],
+    [
+      "unknown",
+      76
+    ],
+    [
+      "24T24979",
+      73
+    ],
+    [
+      "24T24932",
+      40
+    ],
+    [
+      "24T24984",
+      36
+    ],
+    [
+      "24T24651",
+      34
+    ],
+    [
+      "24T24970",
+      9
+    ],
+    [
+      "24T23883",
+      6
+    ],
+    [
+      "24T22770",
+      4
+    ],
+    [
+      "24T1310",
+      4
+    ],
+    [
+      "24T9993",
+      4
+    ],
+    [
+      "24T661",
+      2
+    ],
+    [
+      "24T657",
+      2
+    ],
+    [
+      "24T7635",
+      1
+    ],
+    [
+      "24T10010",
+      1
+    ],
+    [
+      "24T12493",
+      1
+    ],
+    [
+      "24T9962",
+      1
+    ],
+    [
+      "24T21844",
+      1
+    ],
+    [
+      "24T9683",
+      1
+    ],
+    [
+      "24T24759",
+      1
+    ]
+  ],
+  "pair_status_path": "data/igp24/pair_status_20260706.json",
+  "record_type": "igp24_axg_active_learning_dataset_summary",
+  "row_count": 523,
+  "safety": {
+    "api_key_recorded": false,
+    "auto_submits": false,
+    "calls_sair": false,
+    "uses_network": false
+  },
+  "sair_sync_dir": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z",
+  "schema_version": 1,
+  "score_aware_class_counts": {
+    "accepted_but_crowded_collapse": 400,
+    "pending_or_unknown": 76,
+    "score_positive": 8,
+    "wrong_r": 39
+  },
+  "score_aware_weight_by_class": {
+    "accepted_but_crowded_collapse": 2000.0,
+    "pending_or_unknown": 38.0,
+    "score_positive": 32.0,
+    "wrong_r": 58.5
+  },
+  "score_positive_pairs": [
+    "24T22770|r=12",
+    "24T9993|r=8"
+  ],
+  "source_commit": "a0060d0545344c2d70e191014ef9216aa0d33d04",
+  "source_role_counts": {
+    "accepted_feedback": 197,
+    "artifact_row": 4,
+    "candidate_queue": 88,
+    "sair_submission_row": 234
+  },
+  "summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/active_learning/axg_training_dataset_summary_20260710_postremediation_tower24690_r24.json",
+  "target_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "train_eval_split_counts": {
+    "eval": 139,
+    "train": 384
+  }
+}
