@@ -74,6 +74,7 @@ def _row(
     mod_sig=None,
     eligible=True,
     fatal=False,
+    usable_primes=10,
 ):
     return {
         "canonical_hash": f"{short}{'0' * (64 - len(short))}",
@@ -106,6 +107,7 @@ def _row(
             "indexed_target_labels_not_ruled_out": [f"24T{i}" for i in range(1, label_count + 1)],
             "soundness": "necessary_target_exclusion_only",
             "evidence_strength": "modular_cycle_target_exclusion",
+            "evidence": {"primes": list(range(101, 101 + int(usable_primes)))},
         },
         "exported_coefficients": _coefficients(len(short)),
     }
@@ -251,6 +253,22 @@ def test_candidate_with_many_uncovered_targets_has_one_point_best_case(tmp_path)
     assert candidate["estimated_expected_points"] is None
 
 
+def test_compatibility_candidate_with_tiny_frobenius_budget_is_not_packet_eligible(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    candidate = normalize_candidate(
+        _row("aaa", uncovered=["24T1|r=24"], label_count=1, usable_primes=5),
+        score_plan=score_plan,
+        require_eligible=True,
+    )
+
+    assert candidate["frobenius_usable_prime_count"] == 5
+    assert candidate["minimum_frobenius_primes_required"] == 10
+    assert candidate["sufficient_frobenius_evidence"] is False
+    assert candidate["adaptive_evidence_status"] == "insufficient_adaptive_frobenius_evidence"
+    assert "insufficient_adaptive_frobenius_evidence" in candidate["reject_reasons"]
+    assert candidate["eligible_for_optimization"] is False
+
+
 def test_packet_best_case_ceiling_no_greater_than_row_count(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     candidates = _normalized(
@@ -302,6 +320,8 @@ def test_exact_verified_pair_can_use_official_economics(tmp_path):
     assert candidate["expected_points_status"] == "available_exact_verified_pair"
     assert candidate["estimated_expected_points"] == 0.125
     assert candidate["best_case_points"] == 0.125
+    assert candidate["adaptive_evidence_status"] == "exact_verified_pair_no_adaptive_required"
+    assert "insufficient_adaptive_frobenius_evidence" not in candidate["reject_reasons"]
 
 
 def test_packet_optimizer_enforces_diversity_caps(tmp_path):

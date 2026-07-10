@@ -38,7 +38,7 @@ def _line(constant):
     return ",".join(str(value) for value in coeffs)
 
 
-def _selected_row(hash_value, *, rank=1, uncovered=None, low_team=None, crowded=None, label_count=3):
+def _selected_row(hash_value, *, rank=1, uncovered=None, low_team=None, crowded=None, label_count=3, usable_primes=10):
     return {
         "optimizer_rank": rank,
         "canonical_hash": hash_value,
@@ -53,6 +53,11 @@ def _selected_row(hash_value, *, rank=1, uncovered=None, low_team=None, crowded=
             "basin_fingerprint": f"basin:{rank}",
         },
         "compatible_label_count": label_count,
+        "frobenius_usable_prime_count": int(usable_primes),
+        "minimum_frobenius_primes_required": 10,
+        "adaptive_evidence_status": "sufficient_adaptive_frobenius_evidence"
+        if int(usable_primes) >= 10
+        else "insufficient_adaptive_frobenius_evidence",
         "possible_uncovered_pairs": uncovered or [],
         "possible_low_team_pairs": low_team or [],
         "possible_crowded_pairs": crowded or [],
@@ -208,6 +213,35 @@ def test_group_compatible_gate_blocks_stale_uncovered_pairs_when_progress_is_pro
     assert summary["progress_cross_check"]["current_uncovered_pair_count"] == 0
     assert summary["progress_cross_check"]["stale_uncovered_pairs"] == ["24T1|r=24"]
     assert "row_1_progress_current_valuable_pair" in summary["check_failures"]
+
+
+def test_group_compatible_gate_blocks_insufficient_adaptive_frobenius_evidence(tmp_path):
+    hash_value = "a" * 64
+    selected_jsonl = tmp_path / "selected.jsonl"
+    coefficients_txt = tmp_path / "coefficients.txt"
+    _write_jsonl(
+        selected_jsonl,
+        [_selected_row(hash_value, rank=1, uncovered=["24T1|r=24"], crowded=[], usable_primes=5)],
+    )
+    coefficients_txt.write_text(_line(2) + "\n", encoding="utf-8")
+
+    paths = build_gate(
+        selected_jsonl=selected_jsonl,
+        coefficients_txt=coefficients_txt,
+        output_dir=tmp_path / "gate",
+        source_commit="abc123",
+        scorer=_fake_scorer_by_constant({2: hash_value}),
+    )
+
+    summary = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+    row = json.loads(paths["rows_jsonl"].read_text(encoding="utf-8").splitlines()[0])
+
+    assert summary["local_gate_passed"] is False
+    assert summary["minimum_frobenius_primes_required"] == 10
+    assert summary["insufficient_adaptive_frobenius_row_count"] == 1
+    assert row["frobenius_usable_prime_count"] == 5
+    assert row["adaptive_evidence_status"] == "insufficient_adaptive_frobenius_evidence"
+    assert "row_1_sufficient_adaptive_frobenius_evidence" in summary["check_failures"]
 
 
 def test_group_compatible_gate_blocks_known_submission_hashes(tmp_path):

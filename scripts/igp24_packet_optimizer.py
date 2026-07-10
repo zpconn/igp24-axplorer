@@ -32,6 +32,7 @@ SELECTED_JSONL = "packet_optimizer_selected.jsonl"
 REJECTED_JSONL = "packet_optimizer_rejected.jsonl"
 COEFFICIENTS_TXT = "packet_optimizer_coefficients.txt"
 HASHES_TXT = "packet_optimizer_hashes.txt"
+DEFAULT_MINIMUM_FROBENIUS_PRIMES = 10
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -145,6 +146,70 @@ def group_compatibility(row: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
+def _int_or_none(value: Any) -> int | None:
+    try:
+        if value is not None and value != "":
+            return int(value)
+    except (TypeError, ValueError):
+        return None
+    return None
+
+
+def frobenius_evidence_budget(row: dict[str, Any], compat: dict[str, Any]) -> dict[str, Any]:
+    """Return the largest explicit usable-prime count attached to a row.
+
+    Compatibility over a partial index is only useful as target-exclusion
+    evidence when it is backed by enough Frobenius observations. Older rows
+    may store this evidence in several places, so this helper accepts the
+    current adaptive fields as well as legacy pattern lists.
+    """
+
+    candidate = candidate_payload(row)
+    sources: list[tuple[str, dict[str, Any]]] = []
+    for name, source in (("row", row), ("candidate", candidate), ("group_compatibility", compat)):
+        if isinstance(source, dict):
+            sources.append((name, source))
+    best_count = 0
+    best_source = "missing"
+    for source_name, source in sources:
+        for key in (
+            "frobenius_usable_prime_count",
+            "usable_prime_count",
+            "adaptive_usable_prime_count",
+            "prime_count",
+        ):
+            count = _int_or_none(source.get(key))
+            if count is not None and count > best_count:
+                best_count = count
+                best_source = f"{source_name}.{key}"
+        for key in ("adaptive_frobenius_evidence", "adaptive_frobenius", "frobenius_evidence"):
+            nested = source.get(key)
+            if not isinstance(nested, dict):
+                continue
+            count = _int_or_none(nested.get("usable_prime_count") or nested.get("frobenius_usable_prime_count"))
+            if count is None:
+                observations = nested.get("observations")
+                patterns = nested.get("mod_p_factorization_degree_patterns")
+                if isinstance(observations, list):
+                    count = len(observations)
+                elif isinstance(patterns, list):
+                    count = len(patterns)
+            if count is not None and count > best_count:
+                best_count = count
+                best_source = f"{source_name}.{key}"
+        evidence = source.get("evidence")
+        if isinstance(evidence, dict):
+            primes = evidence.get("primes")
+            if isinstance(primes, list) and len(primes) > best_count:
+                best_count = len(primes)
+                best_source = f"{source_name}.evidence.primes"
+        patterns = source.get("mod_p_factorization_degree_patterns")
+        if isinstance(patterns, list) and len(patterns) > best_count:
+            best_count = len(patterns)
+            best_source = f"{source_name}.mod_p_factorization_degree_patterns"
+    return {"usable_prime_count": best_count, "source": best_source}
+
+
 def exported_coefficients(row: dict[str, Any]) -> list[int] | None:
     candidate = candidate_payload(row)
     for source in (row, candidate):
@@ -206,6 +271,7 @@ def normalize_candidate(
     score_plan: dict[str, dict[str, Any]],
     require_eligible: bool,
     known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None = None,
+    minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, Any]:
     features = candidate_features(row)
     compat = group_compatibility(row)
@@ -230,6 +296,16 @@ def normalize_candidate(
     if exact_pair:
         fallback = "uncovered" if str(exact_pair) in score_plan and score_plan[str(exact_pair)].get("progress_state") == "remaining" else "exact_pair"
         add_pairs(pair_values, [exact_pair], score_plan=score_plan, fallback_kind=fallback)
+    frobenius_budget = frobenius_evidence_budget(row, compat)
+    usable_prime_count = int(frobenius_budget["usable_prime_count"])
+    minimum_frobenius_primes = int(minimum_frobenius_primes)
+    sufficient_frobenius_evidence = bool(exact_pair_verified or usable_prime_count >= minimum_frobenius_primes)
+    if exact_pair_verified:
+        adaptive_evidence_status = "exact_verified_pair_no_adaptive_required"
+    elif sufficient_frobenius_evidence:
+        adaptive_evidence_status = "sufficient_adaptive_frobenius_evidence"
+    else:
+        adaptive_evidence_status = "insufficient_adaptive_frobenius_evidence"
 
     indexed_survivor_count = int(
         compat.get("indexed_target_survivor_count")
@@ -260,6 +336,8 @@ def normalize_candidate(
         reject_reasons.append("fatal_risk_reasons")
     if not pair_values:
         reject_reasons.append("missing_pair_or_compatibility_evidence")
+    if pair_values and not sufficient_frobenius_evidence:
+        reject_reasons.append("insufficient_adaptive_frobenius_evidence")
     if crowded_only:
         reject_reasons.append("crowded_only")
     known_matches = known_submission_matches(canonical_hash, known_submission_hashes)
@@ -292,6 +370,11 @@ def normalize_candidate(
             if compat.get("status") == "insufficient_cycle_evidence"
             else compat.get("evidence_strength") or "unknown"
         ),
+        "frobenius_usable_prime_count": usable_prime_count,
+        "frobenius_evidence_source": frobenius_budget["source"],
+        "minimum_frobenius_primes_required": minimum_frobenius_primes,
+        "sufficient_frobenius_evidence": sufficient_frobenius_evidence,
+        "adaptive_evidence_status": adaptive_evidence_status,
         "compatible_label_count": indexed_survivor_count,
         "compatible_label_count_deprecated": True,
         "compatibility_ambiguity_factor": None,
@@ -408,6 +491,7 @@ def summarize(
     rejected: list[dict[str, Any]],
     caps: dict[str, int],
     output_files: dict[str, str],
+    minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, Any]:
     covered_uncovered = sorted({pair for row in selected for pair in row["possible_uncovered_pairs"]})
     covered_low = sorted({pair for row in selected for pair in row["possible_low_team_pairs"]})
@@ -438,6 +522,7 @@ def summarize(
             "candidate_paths": [str(path) for path in candidate_paths],
             "candidate_count": len(candidates),
             "caps": caps,
+            "minimum_frobenius_primes": int(minimum_frobenius_primes),
         },
         "candidate_count": len(candidates),
         "eligible_candidate_count": sum(1 for row in candidates if row["eligible_for_optimization"]),
@@ -450,6 +535,9 @@ def summarize(
         ),
         "pair_evidence_missing_candidates": sum(
             1 for row in candidates if "missing_pair_or_compatibility_evidence" in row.get("reject_reasons", [])
+        ),
+        "insufficient_adaptive_frobenius_candidates": sum(
+            1 for row in candidates if "insufficient_adaptive_frobenius_evidence" in row.get("reject_reasons", [])
         ),
         "selected_possible_uncovered_pair_count": len(covered_uncovered),
         "selected_possible_low_team_pair_count": len(covered_low),
@@ -492,6 +580,9 @@ def summarize(
                 "valuable_targets_not_ruled_out": row.get("valuable_targets_not_ruled_out", [])[:10],
                 "indexed_target_survivor_count": row.get("indexed_target_survivor_count"),
                 "compatible_label_count": row["compatible_label_count"],
+                "frobenius_usable_prime_count": row.get("frobenius_usable_prime_count"),
+                "minimum_frobenius_primes_required": row.get("minimum_frobenius_primes_required"),
+                "adaptive_evidence_status": row.get("adaptive_evidence_status"),
                 "features": row["features"],
             }
             for row in selected
@@ -516,6 +607,7 @@ def report_markdown(summary: dict[str, Any]) -> str:
         f"- Crowded-only rejected: {summary['crowded_only_candidates_rejected']}",
         f"- Known submitted hashes rejected: {summary.get('known_submission_hash_candidates_rejected', 0)}",
         f"- Missing pair evidence: {summary['pair_evidence_missing_candidates']}",
+        f"- Insufficient adaptive Frobenius evidence: {summary.get('insufficient_adaptive_frobenius_candidates', 0)}",
         f"- Best-case packet points: {summary['best_case_packet_points']}",
         f"- Expected points status: `{summary['expected_points_status']}`",
         f"- Expected points basis: {summary['expected_points_basis']}",
@@ -597,6 +689,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--per_mod_signature_cap", type=int, default=4)
     parser.add_argument("--per_compatible_cluster_cap", type=int, default=8)
     parser.add_argument("--per_r_cap", type=int, default=40)
+    parser.add_argument("--minimum_frobenius_primes", type=int, default=DEFAULT_MINIMUM_FROBENIUS_PRIMES)
     return parser
 
 
@@ -613,6 +706,7 @@ def main(argv: list[str] | None = None) -> int:
             score_plan=score_plan,
             require_eligible=not args.allow_ineligible,
             known_submission_hashes=known_submission_hashes,
+            minimum_frobenius_primes=int(args.minimum_frobenius_primes),
         )
         for row in rows
     ]
@@ -641,6 +735,7 @@ def main(argv: list[str] | None = None) -> int:
         rejected=rejected,
         caps=caps,
         output_files=placeholder_outputs,
+        minimum_frobenius_primes=int(args.minimum_frobenius_primes),
     )
     paths = write_outputs(args.output_dir, selected=selected, rejected=rejected, summary=summary)
     print(f"candidate_count\t{summary['candidate_count']}")

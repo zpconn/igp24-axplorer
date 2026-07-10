@@ -38,6 +38,7 @@ REPORT_MD = "group_compatible_submission_gate_report.md"
 ROWS_JSONL = "group_compatible_submission_gate_rows.jsonl"
 COEFFICIENTS_TXT = "group_compatible_submission_gate_coefficients.txt"
 SAIR_DRY_RUN_JSON = "group_compatible_submission_gate_sair_local_dry_run.json"
+DEFAULT_MINIMUM_FROBENIUS_PRIMES = 10
 
 Scorer = Callable[..., tuple[float, Any]]
 
@@ -251,6 +252,67 @@ def _pattern_records(patterns: Any) -> list[dict[str, Any]]:
     return records
 
 
+def _int_or_none(value: Any) -> int | None:
+    try:
+        if value is not None and value != "":
+            return int(value)
+    except (TypeError, ValueError):
+        return None
+    return None
+
+
+def _exact_pair_verified(row: dict[str, Any]) -> bool:
+    return bool(
+        row.get("exact_label_verified")
+        or row.get("verified_label")
+        or row.get("expected_points_status") == "available_exact_verified_pair"
+        or row.get("expected_points_status") == "available_exact_verified_pairs"
+    )
+
+
+def row_frobenius_usable_prime_count(row: dict[str, Any], local: dict[str, Any]) -> dict[str, Any]:
+    best_count = 0
+    best_source = "missing"
+    sources: list[tuple[str, dict[str, Any]]] = [("row", row), ("local_validation", local)]
+    for source_name, source in sources:
+        for key in (
+            "frobenius_usable_prime_count",
+            "usable_prime_count",
+            "adaptive_usable_prime_count",
+            "prime_count",
+        ):
+            count = _int_or_none(source.get(key))
+            if count is not None and count > best_count:
+                best_count = count
+                best_source = f"{source_name}.{key}"
+        for key in ("adaptive_frobenius_evidence", "adaptive_frobenius", "frobenius_evidence"):
+            nested = source.get(key)
+            if not isinstance(nested, dict):
+                continue
+            count = _int_or_none(nested.get("usable_prime_count") or nested.get("frobenius_usable_prime_count"))
+            if count is None:
+                observations = nested.get("observations")
+                patterns = nested.get("mod_p_factorization_degree_patterns")
+                if isinstance(observations, list):
+                    count = len(observations)
+                elif isinstance(patterns, list):
+                    count = len(patterns)
+            if count is not None and count > best_count:
+                best_count = count
+                best_source = f"{source_name}.{key}"
+        evidence = source.get("evidence")
+        if isinstance(evidence, dict) and isinstance(evidence.get("primes"), list):
+            count = len(evidence["primes"])
+            if count > best_count:
+                best_count = count
+                best_source = f"{source_name}.evidence.primes"
+        patterns = source.get("mod_p_factorization_degree_patterns")
+        if isinstance(patterns, list) and len(patterns) > best_count:
+            best_count = len(patterns)
+            best_source = f"{source_name}.mod_p_factorization_degree_patterns"
+    return {"usable_prime_count": best_count, "source": best_source}
+
+
 def _default_scorer(
     coefficients24: Sequence[int],
     *,
@@ -317,6 +379,7 @@ def row_checks(
     local: dict[str, Any],
     progress: dict[str, Any] | None = None,
     submission_hash: dict[str, Any] | None = None,
+    minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, bool]:
     possible_uncovered = list(row.get("possible_uncovered_pairs") or [])
     possible_low_team = list(row.get("possible_low_team_pairs") or [])
@@ -334,6 +397,8 @@ def row_checks(
         and row.get("evidence_strength") != "insufficient_modular_cycle_evidence",
         "has_valuable_compatible_pair": bool(possible_uncovered or possible_low_team),
         "not_crowded_only": not bool(possible_crowded and not possible_uncovered and not possible_low_team),
+        "sufficient_adaptive_frobenius_evidence": _exact_pair_verified(row)
+        or row_frobenius_usable_prime_count(row, local)["usable_prime_count"] >= int(minimum_frobenius_primes),
     }
     if progress is not None:
         checks["progress_current_valuable_pair"] = int(progress.get("current_valuable_pair_count") or 0) > 0
@@ -355,6 +420,7 @@ def build_gate(
     coeff_bound: int = 10**18,
     prime_limit: int = 11,
     exact_score_timeout: float = 10.0,
+    minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
     sair_sync_summary_json: Path | None = None,
     sair_label_progress_jsonl: Path | None = None,
     sair_submission_rows_jsonl: Path | None = None,
@@ -398,7 +464,8 @@ def build_gate(
         )
         progress = progress_cross_check(row, progress_index)
         submission_hash = submission_hash_cross_check(row, submission_hash_index)
-        checks = row_checks(row, local, progress, submission_hash)
+        frobenius_budget = row_frobenius_usable_prime_count(row, local)
+        checks = row_checks(row, local, progress, submission_hash, minimum_frobenius_primes=minimum_frobenius_primes)
         rank = int(row.get("optimizer_rank") or index)
         row_blocker_values = row_blockers(rank, checks)
         blockers.extend(row_blocker_values)
@@ -422,6 +489,21 @@ def build_gate(
                 "compatible_label_count": row.get("compatible_label_count"),
                 "compatible_label_count_deprecated": row.get("compatible_label_count_deprecated"),
                 "evidence_strength": row.get("evidence_strength"),
+                "frobenius_usable_prime_count": frobenius_budget["usable_prime_count"],
+                "frobenius_evidence_source": frobenius_budget["source"],
+                "minimum_frobenius_primes_required": int(minimum_frobenius_primes),
+                "adaptive_evidence_status": (
+                    row.get("adaptive_evidence_status")
+                    or (
+                        "exact_verified_pair_no_adaptive_required"
+                        if _exact_pair_verified(row)
+                        else (
+                            "sufficient_adaptive_frobenius_evidence"
+                            if int(frobenius_budget["usable_prime_count"]) >= int(minimum_frobenius_primes)
+                            else "insufficient_adaptive_frobenius_evidence"
+                        )
+                    )
+                ),
                 "valuable_targets_not_ruled_out": list(row.get("valuable_targets_not_ruled_out") or []),
                 "possible_uncovered_pairs": list(row.get("possible_uncovered_pairs") or []),
                 "possible_low_team_pairs": list(row.get("possible_low_team_pairs") or []),
@@ -538,6 +620,7 @@ def build_gate(
             "coeff_bound": coeff_bound,
             "prime_limit": prime_limit,
             "exact_score_timeout": exact_score_timeout,
+            "minimum_frobenius_primes": int(minimum_frobenius_primes),
         },
         "selected_rows": len(gate_rows),
         "selected_hashes": [row["canonical_hash"] for row in gate_rows],
@@ -570,6 +653,13 @@ def build_gate(
         },
         "indexed_target_survivor_count_distribution": dict(
             Counter(str(row.get("indexed_target_survivor_count")) for row in gate_rows)
+        ),
+        "frobenius_usable_prime_count_distribution": dict(
+            Counter(str(row.get("frobenius_usable_prime_count")) for row in gate_rows)
+        ),
+        "minimum_frobenius_primes_required": int(minimum_frobenius_primes),
+        "insufficient_adaptive_frobenius_row_count": sum(
+            1 for row in gate_rows if not row.get("checks", {}).get("sufficient_adaptive_frobenius_evidence")
         ),
         "compatible_label_count_distribution": dict(
             Counter(str(row.get("compatible_label_count")) for row in gate_rows)
@@ -661,13 +751,15 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
         f"- Stale possible-uncovered pairs: `{summary.get('progress_cross_check', {}).get('stale_uncovered_pair_count')}`",
         f"- Known submitted hashes: `{summary.get('submission_hash_cross_check', {}).get('known_submission_hash_count')}`",
         f"- Known submitted pairs: `{summary.get('submission_hash_cross_check', {}).get('known_submission_pairs')}`",
+        f"- Minimum Frobenius primes required: `{summary.get('minimum_frobenius_primes_required')}`",
+        f"- Insufficient adaptive Frobenius rows: `{summary.get('insufficient_adaptive_frobenius_row_count')}`",
         f"- Body bytes: `{summary.get('local_sair_dry_run', {}).get('body_bytes')}`",
         f"- Coefficient SHA256: `{sha256_text(coefficient_lines)}`",
         "",
         "## Selected Rows",
         "",
-        "| rank | hash | r | compatible labels | current uncovered | known pair | local status |",
-        "| ---: | --- | ---: | ---: | ---: | --- | --- |",
+        "| rank | hash | r | compatible labels | Frobenius primes | current uncovered | known pair | local status |",
+        "| ---: | --- | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         local = row.get("local_validation", {})
@@ -681,6 +773,7 @@ def report_markdown(summary: dict[str, Any], rows: list[dict[str, Any]], coeffic
                     f"`{row.get('short_hash')}`",
                     str(local.get("real_root_count")),
                     str(row.get("compatible_label_count")),
+                    str(row.get("frobenius_usable_prime_count")),
                     str(len(progress.get("current_uncovered_pairs") or [])),
                     ", ".join(f"`{pair}`" for pair in submission_hash.get("known_pairs") or []) or "-",
                     str(row.get("review_status")),
@@ -724,6 +817,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--coeff_bound", type=int, default=10**18)
     parser.add_argument("--prime_limit", type=int, default=11)
     parser.add_argument("--exact_score_timeout", type=float, default=10.0)
+    parser.add_argument("--minimum_frobenius_primes", type=int, default=DEFAULT_MINIMUM_FROBENIUS_PRIMES)
     parser.add_argument("--sair_sync_summary_json", type=Path)
     parser.add_argument("--sair_label_progress_jsonl", type=Path)
     parser.add_argument("--sair_submission_rows_jsonl", type=Path)
@@ -748,6 +842,7 @@ def main(argv: list[str] | None = None) -> int:
             coeff_bound=int(args.coeff_bound),
             prime_limit=int(args.prime_limit),
             exact_score_timeout=float(args.exact_score_timeout),
+            minimum_frobenius_primes=int(args.minimum_frobenius_primes),
             sair_sync_summary_json=args.sair_sync_summary_json.resolve() if args.sair_sync_summary_json else None,
             sair_label_progress_jsonl=args.sair_label_progress_jsonl.resolve() if args.sair_label_progress_jsonl else None,
             sair_submission_rows_jsonl=args.sair_submission_rows_jsonl.resolve() if args.sair_submission_rows_jsonl else None,

@@ -140,6 +140,25 @@ results change.
   field-discriminant filtering is used where SAIR provides it, and no exact
   label verification or live-submission recommendation follows from this
   result.
+- 2026-07-09/10 adaptive-evidence gate integration checkpoint: moved the
+  10-usable-prime adaptive Frobenius requirement into packet selection and the
+  local group-compatible submission gate. `scripts/igp24_packet_optimizer.py`
+  now extracts explicit usable-prime counts from adaptive evidence, legacy
+  modular pattern lists, or compatibility evidence, records
+  `frobenius_usable_prime_count`, `minimum_frobenius_primes_required`,
+  `sufficient_frobenius_evidence`, and `adaptive_evidence_status`, and rejects
+  compatibility-only rows with
+  `insufficient_adaptive_frobenius_evidence`. Exact verified pairs remain
+  allowed to use exact official score economics without this compatibility
+  evidence. `scripts/igp24_group_compatible_submission_gate.py` now repeats the
+  same minimum-prime check as defense in depth and reports Frobenius-prime
+  counts in JSON and Markdown artifacts. Added regression coverage for
+  optimizer rejection, gate rejection, exact-pair exemption, and replay fixture
+  behavior. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_packet_optimizer.py tests/test_igp24_group_compatible_submission_gate.py tests/test_igp24_replay_benchmark.py`
+  -> 18 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 375 passed. No candidate generation or live SAIR submission was made.
 - 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
   read-only SAIR API sync after the group-compatible packet gate, with
   `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:

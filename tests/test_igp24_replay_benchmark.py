@@ -81,6 +81,7 @@ def _selected_with_uncovered_pair(hash_value):
         "compatible_low_team_pairs": [],
         "compatible_crowded_pairs": [],
         "crowded_only": False,
+        "evidence": {"primes": list(range(101, 111))},
     }
     return row
 
