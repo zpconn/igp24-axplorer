@@ -4,6 +4,7 @@ from scripts.igp24_score_aware_triage import (
     build_summary,
     build_triage_rows,
     load_baseline_pairs,
+    load_known_submission_rows,
     load_pair_status,
     load_sair_label_feedback,
     write_outputs,
@@ -183,6 +184,52 @@ def test_user_reported_sair_feedback_supplies_exact_label(tmp_path):
     assert rows[0]["submission_grade_candidate"] is False
 
 
+def test_known_submission_hash_blocks_submission_grade_and_records_metadata(tmp_path):
+    known_path = tmp_path / "sair_submission_rows.jsonl"
+    candidate_hash = "known_hash"
+    known_path.write_text(
+        json.dumps(
+            {
+                "canonical_hash": candidate_hash,
+                "submission_id": "sub_known",
+                "status": "accepted",
+                "label": "24T123",
+                "r": 4,
+                "pair_key": "24T123|r=4",
+                "scoreable": True,
+                "scoring_status": "scoreable",
+                "disc_source": "exact_nfdisc",
+                "field_disc_abs": "12345",
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    known_submissions, inputs = load_known_submission_rows([known_path])
+
+    rows = build_triage_rows(
+        [_queue_row(candidate_hash)],
+        evidence=_evidence_for(candidate_hash, label="24T123", nfdisc=99),
+        baseline_pairs={},
+        pair_status={},
+        known_submissions=known_submissions,
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert inputs[0]["canonical_hashes_indexed"] == 1
+    assert rows[0]["known_submission_hash_match"] is True
+    assert rows[0]["known_submission_id"] == "sub_known"
+    assert rows[0]["known_submission_label"] == "24T123"
+    assert rows[0]["known_submission_pair_key"] == "24T123|r=4"
+    assert rows[0]["known_submission_scoreable"] is True
+    assert rows[0]["known_submission_disc_source"] == "exact_nfdisc"
+    assert rows[0]["known_submission_field_disc_abs"] == 12345
+    assert rows[0]["score_aware_classification"] == "known_submission_hash"
+    assert rows[0]["submission_grade_candidate"] is False
+
+
 def test_loaders_and_write_outputs(tmp_path):
     baseline_path = tmp_path / "baseline.csv"
     baseline_path.write_text("label,r,poly_disc_abs,nfdisc_abs,scoring_disc,coeffs\n24T1,4,9,8,nfdisc,\"1,1\"\n", encoding="utf-8")
@@ -206,6 +253,7 @@ def test_loaders_and_write_outputs(tmp_path):
         queue_path=tmp_path / "queue.jsonl",
         offline_dir=tmp_path / "offline",
         sair_label_feedback_inputs=[],
+        known_submission_inputs=[],
         baseline_info=baseline_info,
         pair_status_info=pair_info,
         triage_rows=rows,

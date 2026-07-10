@@ -299,6 +299,36 @@ results change.
   -> 21 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 400 passed. No live SAIR submission was made.
+- 2026-07-10 packet score-aware triage checkpoint: strengthened
+  `scripts/igp24_score_aware_triage.py` with the same synced SAIR
+  submission-history canonical-hash blocker used by the optimizer/gate. The
+  triage now accepts `--known_submission_rows_jsonl`, indexes prior
+  submissions by canonical hash, records submission id/status/label/pair/
+  scoreability/discriminant metadata, and classifies any match as
+  `known_submission_hash` before exact-label evidence can make it
+  submission-grade. Added regression coverage showing that a row with otherwise
+  good exact evidence is still non-submission-grade when its canonical hash is
+  already in SAIR history. Ran score-aware triage on the four-row
+  `24T24134|r=8` packet using the queue artifact, offline-verification
+  artifact, frozen baseline, local pair-status ledger, and the latest synced
+  `sair_submission_rows.jsonl`:
+  `data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_knownhash_checked_20260710/`.
+  Result: 4 reviewed rows, 0 verified exact labels, 4 pending exact labels,
+  0 known-submission hash matches, 0 failed rows, 0 submission-grade rows,
+  exact-r status `{"ok": 4}`, exact-nfdisc status `{"ok": 3, "missing": 1}`,
+  and classification `{"exact_result_missing": 4}`. This proves the current
+  x6 packet is novel relative to the synced 234-row SAIR submission-history
+  hash set, but still blocked from live submission because exact Magma labels
+  are missing and one nfdisc fallback row is incomplete. The generated
+  `submission_grade_rows.jsonl` and `submission_grade_coefficients.txt` are
+  intentionally empty. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_score_aware_triage.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_score_aware_triage.py tests/test_igp24_packet_verification_queue.py tests/test_igp24_offline_verify.py`
+  -> 28 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 401 passed; SAIR key-shaped secret scan found no matches. No live SAIR
+  submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

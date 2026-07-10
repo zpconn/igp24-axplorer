@@ -241,6 +241,51 @@ def load_pair_status(path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, A
     }
 
 
+def load_known_submission_rows(paths: Iterable[Path]) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    """Load synced SAIR submission-history rows as canonical-hash blockers."""
+
+    indexed: dict[str, dict[str, Any]] = {}
+    inputs: list[dict[str, Any]] = []
+    for path in paths:
+        resolved = path.resolve()
+        rows = _read_jsonl_if_exists(resolved)
+        loaded = 0
+        indexed_count = 0
+        duplicate_count = 0
+        for row in rows:
+            loaded += 1
+            key = _hash_key(row)
+            if not key:
+                continue
+            label = normalize_label(row.get("label") or row.get("verified_group_label"))
+            r_value = _coerce_int(row.get("r") or row.get("signature_r") or row.get("computed_r"))
+            item = dict(row)
+            item["canonical_hash"] = key
+            item["known_submission_label"] = label
+            item["known_submission_r"] = r_value
+            item["known_submission_pair_key"] = str(row.get("pair_key") or pair_key(label, r_value) or "")
+            item["known_submission_id"] = row.get("submission_id") or row.get("submissionId")
+            item["known_submission_status"] = row.get("status")
+            item["known_submission_scoreable"] = _coerce_bool(row.get("scoreable"))
+            item["known_submission_scoring_status"] = row.get("scoring_status") or row.get("scoringStatus")
+            item["known_submission_no_score_reason"] = row.get("no_score_reason") or row.get("noScoreReason")
+            item["known_submission_disc_source"] = row.get("disc_source") or row.get("discSource")
+            item["known_submission_field_disc_abs"] = _coerce_int(row.get("field_disc_abs") or row.get("fieldDiscAbs"))
+            if key in indexed:
+                duplicate_count += 1
+            indexed[key] = item
+            indexed_count += 1
+        inputs.append(
+            {
+                "path": str(resolved),
+                "rows_loaded": loaded,
+                "canonical_hashes_indexed": indexed_count,
+                "duplicate_hash_rows": duplicate_count,
+            }
+        )
+    return indexed, inputs
+
+
 def load_evidence(
     offline_dir: Path,
     sair_label_feedback_jsons: Iterable[Path] = (),
@@ -394,7 +439,10 @@ def classify_row(
     exact_label_status = "ok" if exact_label else "missing"
     exact_r_status = "ok" if exact_r is not None else "missing"
     exact_nfdisc_status = "ok" if exact_nfdisc is not None else "missing"
-    if exact_label is None:
+    if row.get("known_submission_hash_match"):
+        classification = "known_submission_hash"
+        note = "Canonical hash already appears in synced SAIR submission history; never resubmit the same field row."
+    elif exact_label is None:
         classification = "exact_result_missing"
         note = "Exact Magma label is missing; exact r/nfdisc fallback evidence alone is not submission-grade."
     elif degree not in (None, 24) or irreducible is False:
@@ -453,15 +501,33 @@ def build_triage_rows(
     evidence: dict[str, dict[str, dict[str, Any]]],
     baseline_pairs: dict[str, dict[str, Any]],
     pair_status: dict[str, dict[str, Any]],
+    known_submissions: dict[str, dict[str, Any]] | None = None,
     material_ratio: float,
     allow_generic_submission: bool,
 ) -> list[dict[str, Any]]:
     triaged: list[dict[str, Any]] = []
+    known_submissions = known_submissions or {}
     for index, queue_row in enumerate(queue_rows, start=1):
         canonical_hash = str(queue_row.get("canonical_hash") or queue_row.get("candidate_hash") or "")
         if not canonical_hash:
             raise ScoreAwareTriageError(f"queue row {index}: missing canonical_hash")
         label_row = _label_evidence(canonical_hash, evidence)
+        known_submission_row = known_submissions.get(canonical_hash)
+        if label_row is None and known_submission_row:
+            known_label = normalize_label(known_submission_row.get("known_submission_label") or known_submission_row.get("label"))
+            known_r = _coerce_int(known_submission_row.get("known_submission_r") or known_submission_row.get("r"))
+            if known_label and known_r is not None:
+                label_row = {
+                    "candidate_hash": canonical_hash,
+                    "verified_group_label": known_label,
+                    "computed_r": known_r,
+                    "signature_r": known_r,
+                    "degree": 24,
+                    "is_irreducible": True,
+                    "exact_label_source": "known_sair_submission_history",
+                    "exact_r_source": "known_sair_submission_history",
+                    "raw_output_source_path": known_submission_row.get("source_path"),
+                }
         nfdisc_row = _nfdisc_evidence(canonical_hash, evidence)
         signature_row = _signature_evidence(canonical_hash, label_row, evidence)
         merged = {
@@ -484,6 +550,25 @@ def build_triage_rows(
             "pari_degree": nfdisc_row.get("pari_degree") if nfdisc_row else None,
             "pari_is_irreducible": nfdisc_row.get("pari_is_irreducible") if nfdisc_row else None,
             "pari_real_root_count": nfdisc_row.get("pari_real_root_count") if nfdisc_row else None,
+            "known_submission_hash_match": bool(known_submission_row),
+            "known_submission_id": known_submission_row.get("known_submission_id") if known_submission_row else None,
+            "known_submission_status": known_submission_row.get("known_submission_status") if known_submission_row else None,
+            "known_submission_label": known_submission_row.get("known_submission_label") if known_submission_row else None,
+            "known_submission_r": known_submission_row.get("known_submission_r") if known_submission_row else None,
+            "known_submission_pair_key": known_submission_row.get("known_submission_pair_key") if known_submission_row else None,
+            "known_submission_scoreable": known_submission_row.get("known_submission_scoreable") if known_submission_row else None,
+            "known_submission_scoring_status": known_submission_row.get("known_submission_scoring_status")
+            if known_submission_row
+            else None,
+            "known_submission_no_score_reason": known_submission_row.get("known_submission_no_score_reason")
+            if known_submission_row
+            else None,
+            "known_submission_disc_source": known_submission_row.get("known_submission_disc_source")
+            if known_submission_row
+            else None,
+            "known_submission_field_disc_abs": known_submission_row.get("known_submission_field_disc_abs")
+            if known_submission_row
+            else None,
         }
         triaged.append(
             classify_row(
@@ -506,6 +591,7 @@ def build_summary(
     queue_path: Path,
     offline_dir: Path,
     sair_label_feedback_inputs: list[dict[str, Any]],
+    known_submission_inputs: list[dict[str, Any]],
     baseline_info: dict[str, Any],
     pair_status_info: dict[str, Any],
     triage_rows: list[dict[str, Any]],
@@ -527,6 +613,7 @@ def build_summary(
         "queue_jsonl": str(queue_path),
         "offline_verification_dir": str(offline_dir),
         "sair_label_feedback_inputs": sair_label_feedback_inputs,
+        "known_submission_inputs": known_submission_inputs,
         "baseline": baseline_info,
         "pair_status": pair_status_info,
         "options": {
@@ -537,11 +624,13 @@ def build_summary(
         "verified_rows": len(verified),
         "failed_rows": len(failed),
         "pending_exact_label_rows": len(missing),
+        "known_submission_hash_rows": sum(1 for row in triage_rows if row.get("known_submission_hash_match")),
         "submission_grade_rows": len(submission_rows),
         "labels_found_counts": _counts(verified, "verified_group_label"),
         "exact_label_source_counts": _counts(verified, "exact_label_source"),
         "classification_counts": _counts(triage_rows, "score_aware_classification"),
         "accepted_pair_status_counts": _counts(triage_rows, "accepted_pair_status"),
+        "known_submission_status_counts": _counts(triage_rows, "known_submission_status"),
         "exact_label_status_counts": _counts(triage_rows, "exact_label_status"),
         "exact_r_status_counts": _counts(triage_rows, "exact_r_status"),
         "exact_nfdisc_status_counts": _counts(triage_rows, "exact_nfdisc_status"),
@@ -572,6 +661,7 @@ def build_summary(
             "gpu_training": False,
             "cpu_search_loop": False,
             "local_search_executed": False,
+            "known_submission_hashes_blocked": True,
             "note": SAFETY_NOTE,
         },
     }
@@ -590,19 +680,21 @@ def build_report(summary: dict[str, Any], triage_rows: list[dict[str, Any]]) -> 
         f"- Reviewed rows: {summary.get('reviewed_rows')}",
         f"- Verified labels: {summary.get('verified_rows')}",
         f"- Pending exact labels: {summary.get('pending_exact_label_rows')}",
+        f"- Known submission hash rows: {summary.get('known_submission_hash_rows')}",
         f"- Failed rows: {summary.get('failed_rows')}",
         f"- Submission-grade rows: {summary.get('submission_grade_rows')}",
         f"- Classification counts: `{json.dumps(summary.get('classification_counts'), sort_keys=True)}`",
         f"- Labels found: `{json.dumps(summary.get('labels_found_counts'), sort_keys=True)}`",
         f"- Label sources: `{json.dumps(summary.get('exact_label_source_counts'), sort_keys=True)}`",
         f"- Accepted-pair status counts: `{json.dumps(summary.get('accepted_pair_status_counts'), sort_keys=True)}`",
+        f"- Known-submission status counts: `{json.dumps(summary.get('known_submission_status_counts'), sort_keys=True)}`",
         f"- Exact r status counts: `{json.dumps(summary.get('exact_r_status_counts'), sort_keys=True)}`",
         f"- Exact nfdisc status counts: `{json.dumps(summary.get('exact_nfdisc_status_counts'), sort_keys=True)}`",
         "",
         "## Row Triage",
         "",
-        "| rank | hash | label | r | nfdisc | class | submit | note |",
-        "| ---: | --- | --- | ---: | ---: | --- | --- | --- |",
+        "| rank | hash | label | r | nfdisc | known submission | class | submit | note |",
+        "| ---: | --- | --- | ---: | ---: | --- | --- | --- | --- |",
     ]
     for row in triage_rows:
         lines.append(
@@ -614,6 +706,7 @@ def build_report(summary: dict[str, Any], triage_rows: list[dict[str, Any]]) -> 
                     str(row.get("verified_group_label") or ""),
                     str(row.get("computed_r") or ""),
                     str(row.get("exact_nfdisc_abs") or ""),
+                    str(row.get("known_submission_id") or ""),
                     str(row.get("score_aware_classification")),
                     "yes" if row.get("submission_grade_candidate") else "no",
                     str(row.get("score_aware_note")),
@@ -756,6 +849,13 @@ def get_parser() -> argparse.ArgumentParser:
         default=[],
         help="User-reported SAIR verifier acceptance feedback JSON; may be repeated.",
     )
+    parser.add_argument(
+        "--known_submission_rows_jsonl",
+        type=Path,
+        action="append",
+        default=[],
+        help="Synced SAIR submission rows JSONL used to hard-block known canonical hashes; may be repeated.",
+    )
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--accepted_material_improvement_ratio", type=float, default=0.5)
     parser.add_argument("--allow_generic_submission", action="store_true")
@@ -774,11 +874,13 @@ def main(argv: list[str] | None = None) -> int:
         baseline_pairs, baseline_info = load_baseline_pairs(args.baseline_csv.resolve())
         pair_status, pair_status_info = load_pair_status(args.pair_status_json.resolve())
         evidence, sair_label_feedback_inputs = load_evidence(offline_dir, args.sair_label_feedback_json)
+        known_submissions, known_submission_inputs = load_known_submission_rows(args.known_submission_rows_jsonl)
         triage_rows = build_triage_rows(
             queue_rows,
             evidence=evidence,
             baseline_pairs=baseline_pairs,
             pair_status=pair_status,
+            known_submissions=known_submissions,
             material_ratio=float(args.accepted_material_improvement_ratio),
             allow_generic_submission=bool(args.allow_generic_submission),
         )
@@ -791,6 +893,7 @@ def main(argv: list[str] | None = None) -> int:
         queue_path=queue_path,
         offline_dir=offline_dir,
         sair_label_feedback_inputs=sair_label_feedback_inputs,
+        known_submission_inputs=known_submission_inputs,
         baseline_info=baseline_info,
         pair_status_info=pair_status_info,
         triage_rows=triage_rows,
@@ -810,6 +913,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"reviewed_rows\t{summary['reviewed_rows']}")
     print(f"verified_rows\t{summary['verified_rows']}")
     print(f"pending_exact_label_rows\t{summary['pending_exact_label_rows']}")
+    print(f"known_submission_hash_rows\t{summary['known_submission_hash_rows']}")
     print(f"failed_rows\t{summary['failed_rows']}")
     print(f"submission_grade_rows\t{summary['submission_grade_rows']}")
     print(f"classification_counts\t{json.dumps(summary['classification_counts'], sort_keys=True)}")
