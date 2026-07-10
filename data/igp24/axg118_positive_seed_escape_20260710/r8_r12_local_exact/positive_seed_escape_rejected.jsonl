@@ -1,0 +1,7 @@
+{"canonical_hash":"9ab9284566b989741c77ca0a58fcdef9b122929a04c7f7e000bf792a9ada8ee8","mutation_plan":[[1,-5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"6bee23ae88569921c210d3f1a889d4adbdca152001c6170493c5611dfc2c9558","mutation_plan":[[1,5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"56038776aa86e3b8eac519c7f3e14d39de59cbad53ba2e3d1ceeaf4243288a1c","mutation_plan":[[3,-5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"e250b9f461ed4f182cd887c77afc9faf0db718b6628b14eb637841fa1c18d52f","mutation_plan":[[3,5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"be4c596f1b5c582818fb72764e29b715e818af20acc1d2ff344dbe7df8d37ce5","mutation_plan":[[5,-5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"23fa90a36f8ac17193b8ef350751715e1046ca70c1bc87688a30bf32d56000e0","mutation_plan":[[5,5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}
+{"canonical_hash":"31cd4d84f687b52581ee37617d331746377f2db3ca28d6ab84d775f6cc04e691","mutation_plan":[[7,-5]],"reason":"reducible_over_q","source_seed_hash":"23ab54762bd568a9d9bbbe98b406b128a5fe938221698874b499efb7eaf4325e"}

@@ -33,6 +33,70 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.18 positive-seed escape checkpoint:
+  added `scripts/igp24_positive_seed_escape.py` plus focused tests as a
+  deterministic offline lane for the current AXG bottleneck: the generator has
+  only 8 eligible score-positive rows, representing just four unique hashes,
+  and all of those positives are even-support/support-gcd composed basins. The
+  new lane selects generator-positive seeds, applies bounded odd-support
+  mutations, rejects known hashes, requires nonzero constant/support-gcd-one,
+  and keeps only exact-local, exact-target-r rows for adaptive review. Safety:
+  no SAIR calls, no network, no exact label verification, no submission.
+  Implementation commit: `fdc012e`; focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_positive_seed_escape.py`
+  -> 3 passed.
+
+  Ran the escape lane at
+  `data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/`.
+  It selected 4 unique score-positive seeds (`24T22770|r=12` and
+  `24T9993|r=8`), attempted 47 odd-support mutations, produced 40 local
+  exact r12 candidates from the `24T22770|r=12` family, and rejected 7
+  reducible rows. All 40 candidates were non-even/support-gcd-one and known
+  hash excluded. Full 25,000-group adaptive review through 20 usable primes at
+  `data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_frobenius_40rows_20primes/`
+  evaluated 40/40 rows with 0 failures but found 0 valuable-target survivors.
+  Materialization at
+  `data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_reviewed_candidates_20primes/`
+  therefore produced 40 reviewed rows, 0 packet-eligible rows, and live
+  submission `false`.
+
+  Rebuilt the active-learning dataset with those reviewed escape rows at
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_axg118_escape.jsonl`.
+  Row count increased from 467 to 507; the 40 new escape rows are all
+  `no_valuable_target_survival`, and 0 are generator-eligible. Generator
+  imitation mass remains the 8 true `score_positive` rows only. Trained a
+  refreshed advisory reward model at
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_axg118_escape_20260710/`
+  with grouped split overlap `[]`, advisory status
+  `advisory_insufficient_positive_data`, and outcome counts including
+  72 `no_valuable_target_survival` rows. Scoring the refreshed dataset at
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_axg118_escape_scored_training_20260710/`
+  shows the new `positive_seed_escape_odd_support_mutation` rows as
+  `advisory_conflicted_sparse_positive` with collapse risk `0.671` and reward
+  probability `0.329`; scoring the raw reviewed escape rows with the refreshed
+  model marks 40/40 as `avoid_high_collapse_risk`.
+
+  Ran a bounded AXG-1.18 r12 CUDA probe on the refreshed dataset at
+  `data/igp24/axg118_positive_seed_escape_20260710/r12_cuda_targetr_escape_feedback/`.
+  It used the RTX 5090 (`max_gpu_utilization_percent=90`, avg `28.688`,
+  runtime `32.583s`), 700 train steps, 1024 sample attempts,
+  `temperature=1.1`, open top-k, known-hash exclusion, nonzero-constant,
+  support-gcd-one, avoid-even-support, and exact-target-r export gates.
+  Export telemetry still shows basin memorization: 962 known/excluded hashes,
+  973 even-support rows, 973 support-gcd-not-one rows, and 8 wrong-r rows.
+  Only one decoded row survived all gates. CPU exact scoring found it locally
+  valid, irreducible, squarefree, and r12 (`581c10d5e536`), but 40-prime
+  adaptive review found 0 valuable-target survivors at every budget. Offline
+  report:
+  `data/igp24/axg118_positive_seed_escape_20260710/offline_report.md`.
+  Live submission remains `false`.
+
+  Main lesson: simple odd-support escapes from the scarce score-positive
+  family are a confirmed no-value basin, not a source of new generator
+  positives. Do not widen this lane without a material structural change. The
+  next useful work is to find a different construction family that produces
+  exact-local rows with adaptive valuable-target survival, then use those rows
+  as new positive generator mass.
 - 2026-07-10 AXG-1.17 exact target-r export-filter checkpoint:
   after the AXG-1.16-style run proved that nonzero/sparse/gcd-one export
   hygiene could improve local validity while still letting wrong-r rows through,

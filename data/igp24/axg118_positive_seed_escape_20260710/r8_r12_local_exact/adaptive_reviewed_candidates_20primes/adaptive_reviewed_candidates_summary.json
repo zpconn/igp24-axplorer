@@ -1,0 +1,37 @@
+{
+  "any_valuable_target_count": 0,
+  "created_at": "2026-07-10T08:13:45.434260+00:00",
+  "eligible_for_packet_count": 0,
+  "input_candidate_count": 40,
+  "inputs": {
+    "adaptive_rows_jsonl": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_frobenius_40rows_20primes/adaptive_frobenius_benchmark_rows.jsonl",
+    "candidate_jsonl": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/positive_seed_escape_candidates.jsonl",
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+    "minimum_usable_primes": 20,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl"
+  },
+  "live_submission_recommended_now": false,
+  "median_indexed_target_survivor_count": 1,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_reviewed_candidates_20primes/adaptive_reviewed_candidates.jsonl",
+    "rejected_jsonl": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_reviewed_candidates_20primes/adaptive_reviewed_candidates_rejected.jsonl",
+    "report_md": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_reviewed_candidates_20primes/adaptive_reviewed_candidates_report.md",
+    "summary_json": "data/igp24/axg118_positive_seed_escape_20260710/r8_r12_local_exact/adaptive_reviewed_candidates_20primes/adaptive_reviewed_candidates_summary.json"
+  },
+  "record_type": "igp24_adaptive_reviewed_candidates",
+  "rejected_candidate_count": 0,
+  "rejection_reason_counts": {},
+  "reviewed_candidate_count": 40,
+  "safety": {
+    "calls_sair": false,
+    "exact_label_verification": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "fdc012ed2fbd6923d71cda3c33f555676e9d4eed",
+  "submission_recommendation": "false_offline_compatibility_only",
+  "target_compatible_count": 0,
+  "tool": "scripts/igp24_materialize_adaptive_reviewed_candidates.py",
+  "valuable_target_frequency_top20": []
+}
