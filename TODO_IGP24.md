@@ -264,6 +264,41 @@ results change.
   -> 41 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 397 passed. No live SAIR submission was made.
+- 2026-07-10 packet exact-verification queue checkpoint: added
+  `scripts/igp24_packet_verification_queue.py` to join packet-optimizer
+  selections back to full candidate JSONL rows carrying validated
+  `exported_coefficients`. This fixes the packaging gap where
+  `packet_optimizer_selected.jsonl` is intentionally lightweight and cannot be
+  passed directly to `scripts/igp24_offline_verify.py`. The helper writes the
+  review-batch format, coefficient lines, manifest, and report without network
+  access, SAIR calls, or exact-label claims. Regression coverage in
+  `tests/test_igp24_packet_verification_queue.py` checks selected-order
+  preservation, coefficient carry-through, missing-source rejection, and CLI
+  output compatibility with the offline verifier.
+  Materialized the four selected `24T24134|r=8` x6 packet rows into:
+  `data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/`.
+  Selected hashes:
+  `4b6fc17867226448a51aced431465fb37f29400ca35f3234aff13ab0ea4c6bb7`,
+  `d4aed028ad972072f94586e017a8349bd142ea10f30e5e2062db78406c35b4fd`,
+  `caa861f3b409b480c883e1d4bb6ef797eca09f5d68dbff0472d86a7624071971`,
+  and `5f06b5464de967f57a92a0085561a48741483fb8c03c053965be0c497e7cecaf`.
+  Ran the offline verifier from that queue:
+  `data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_from_queue_20260710/`.
+  Result: 4/4 exact SymPy signatures are degree 24 with exact real-root count
+  r=8; SymPy nfdisc completed for 3/4 rows and errored for 1/4; PARI/GP and
+  Magma were not available locally, so neither exact PARI nfdisc nor exact
+  Magma group labels were produced. The verifier wrote four local Magma scripts
+  plus four manual online-Magma copy/paste scripts, but those are manual review
+  aids only and no automated online calculator or SAIR request was made.
+  This advances the packet toward exact review, but live submission remains
+  recommended `false` until exact local/official verification and fresh
+  progress/submission checks clear the remaining gate. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_packet_verification_queue.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_packet_verification_queue.py tests/test_igp24_offline_verify.py`
+  -> 21 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 400 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

@@ -1,0 +1,62 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_packet_verification_queue.py",
+    "--selected_jsonl",
+    "data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_20260710/packet_optimizer_selected.jsonl",
+    "--source_candidate_jsonl",
+    "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates.jsonl",
+    "--output_dir",
+    "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710"
+  ],
+  "created_at": "2026-07-10T04:11:58.591279+00:00",
+  "optimizer_ranks": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "output_dir": "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710",
+  "output_files": {
+    "manifest_json": "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/manifest.json",
+    "report_md": "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/verification_queue_report.md",
+    "verification_batch_jsonl": "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/verification_batch.jsonl",
+    "verification_coefficients_txt": "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/verification_coefficients.txt"
+  },
+  "record_type": "igp24_packet_verification_queue",
+  "safety": {
+    "auto_submission": false,
+    "exact_group_claims": false,
+    "exact_nfdisc_claims": false,
+    "network_calls": false,
+    "review_queue_only": true,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "selected_hashes": [
+    "4b6fc17867226448a51aced431465fb37f29400ca35f3234aff13ab0ea4c6bb7",
+    "d4aed028ad972072f94586e017a8349bd142ea10f30e5e2062db78406c35b4fd",
+    "caa861f3b409b480c883e1d4bb6ef797eca09f5d68dbff0472d86a7624071971",
+    "5f06b5464de967f57a92a0085561a48741483fb8c03c053965be0c497e7cecaf"
+  ],
+  "selected_jsonl": "data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_20260710/packet_optimizer_selected.jsonl",
+  "selected_records": 4,
+  "selected_short_hashes": [
+    "4b6fc1786722",
+    "d4aed028ad97",
+    "caa861f3b409",
+    "5f06b5464de9"
+  ],
+  "source_candidate_jsonls": [
+    "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates.jsonl"
+  ],
+  "source_commit": "aad35f92f002cf9ed596e9179cdd134ec998f534",
+  "source_summaries": [
+    {
+      "coefficient_rows_indexed": 16,
+      "path": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates.jsonl",
+      "rows": 16
+    }
+  ],
+  "tool": "scripts/igp24_packet_verification_queue.py"
+}
