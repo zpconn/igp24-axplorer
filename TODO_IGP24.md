@@ -600,6 +600,36 @@ results change.
   positive supervision is too sparse to promote AXG-1.14; next work should
   build broader exact-positive/negative calibration or a more structured
   construction lane before another submission-grade packet is plausible.
+- 2026-07-10 expanded chronological-replay checkpoint: strengthened
+  `scripts/igp24_replay_benchmark.py` so Phase 7 replay now reports more of
+  the metrics requested by the remediation plan: duplicate pair rate,
+  source-candidate unique-hash/unique-decode rate, known validity,
+  irreducible/squarefree counts, target-r match rate, construction-family and
+  perturbation-mode outcomes, compatibility-evidence rate, valuable-survival
+  rate, indexed-survivor summaries, and true-label containment only where a
+  historical accepted row can be joined by canonical hash to local
+  compatibility evidence. Missing compatibility evidence is now counted as
+  `true_label_containment_missing_evidence_count`, not as success. Added
+  regression tests for duplicate-pair accounting, containment success, and
+  missing-evidence handling. New replay artifact:
+  `data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_20260710/`.
+  Result over seven historical accepted-feedback packets: 41 old accepted
+  rows, old crowded-collapse rate 1.000, seven distinct but crowded verified
+  pairs, estimated old points per 100 submitted rows `3.79846e-07`, seven
+  major collapse cases, and all seven are stopped/downranked by the current
+  optimizer (`optimizer_selected_rows=0` overall). The source selected rows
+  had unique-decode rate 1.000 and target-r match rate 0.885714, but
+  compatibility-evidence rate 0.000, valuable-survival rate 0.000, true-label
+  containment evaluated rows 0, and missing-evidence rows 41. Interpretation:
+  the remediated packet gate would no longer approve those old collapse
+  packets, but the historical replay still cannot claim containment
+  calibration for them because those old selected queues predate local
+  compatibility evidence. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_replay_benchmark.py`
+  -> 6 passed. No live SAIR submission was made. Next Phase 7 improvement
+  should replay later/full-index candidate pools that do carry adaptive
+  compatibility evidence, so containment and false-positive rates can be
+  measured rather than missing.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
