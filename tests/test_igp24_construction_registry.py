@@ -1,6 +1,11 @@
 import json
 
 from scripts.igp24_construction_registry_report import main as registry_report_main
+from src.igp24.constructions.generators import (
+    coefficients_from_gx2_trial,
+    generation_status_for_route,
+    iter_gx2_trials,
+)
 from src.igp24.constructions.registry import (
     SOUNDNESS_NOTE,
     default_registry,
@@ -105,6 +110,38 @@ def test_family_ranking_prefers_matching_block_family_for_imprimitive_target():
     assert gx2["supports_target_r"] is True
     assert "imprimitive_target_matches_family" in gx2["reasons"]
     assert "matching_block_sizes=2,12" in gx2["reasons"]
+
+
+def test_gx2_executable_generator_instantiates_target_r_and_preserves_even_support():
+    imprimitive = GroupRecord(
+        label="24T101",
+        t=101,
+        primitive=False,
+        solvable=True,
+        block_sizes=(2, 12),
+        cycle_types=("1.23",),
+    )
+    status = generation_status_for_route(
+        family_name="gx2_degree12_lift",
+        r_value=16,
+        group_record=imprimitive,
+        structurally_eligible=True,
+    )
+
+    assert status["executable_generator_available"] is True
+    assert status["target_generator_parameters"]["positive_y_root_count"] == 8
+    assert status["target_generator_parameters"]["negative_y_root_count"] == 4
+    assert status["executable_generation_ready"] is False
+    assert "generated_outputs_not_validated" in status["generation_ready_blocking_reasons"]
+
+    trial = next(iter_gx2_trials(target_r=16, seed=7, max_trials=1))
+    coefficients, metadata = coefficients_from_gx2_trial(trial)
+
+    assert len(coefficients) == 24
+    assert metadata["positive_y_root_count"] == 8
+    assert metadata["negative_y_root_count"] == 4
+    assert metadata["odd_x_power_terms_present"] is False
+    assert all(index % 2 == 0 for index in metadata["support_after_lift"])
 
 
 def test_construction_registry_report_cli_writes_artifacts(tmp_path):

@@ -28,6 +28,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
+from src.igp24.constructions.generators import generation_status_for_route  # noqa: E402
 from src.igp24.constructions.registry import SOUNDNESS_NOTE, default_registry  # noqa: E402
 from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord  # noqa: E402
 
@@ -142,15 +143,21 @@ def build_routes(
                 family_rank=family,
                 require_group_invariants=require_group_invariants,
             )
+            generator_status = generation_status_for_route(
+                family_name=str(family["family"]),
+                r_value=r_value,
+                group_record=group,
+                structurally_eligible=structurally_eligible,
+            )
             generation_blocks = list(blocks)
             if structurally_eligible:
-                generation_blocks.extend(
-                    [
-                        "executable_generator_not_bound_to_target",
-                        "structure_preservation_not_verified",
-                        "target_parameters_not_instantiated",
-                        "adaptive_target_exclusion_not_run",
-                    ]
+                generation_blocks.extend(generator_status["generation_ready_blocking_reasons"])
+            route_stage = "blocked"
+            if structurally_eligible:
+                route_stage = (
+                    "executable_generator_available"
+                    if generator_status["executable_generator_available"]
+                    else "structurally_eligible"
                 )
             target_score = _safe_float(target.get("target_score"))
             maximum_points = _safe_float(target.get("maximum_possible_points"))
@@ -188,10 +195,17 @@ def build_routes(
                     "target_group_solvable": group.solvable if group else None,
                     "target_group_block_sizes": list(group.block_sizes) if group else [],
                     "structurally_eligible": structurally_eligible,
-                    "route_stage": "structurally_eligible" if structurally_eligible else "blocked",
-                    "executable_generator_available": False,
-                    "executable_generation_ready": False,
-                    "generation_ready": False,
+                    "route_stage": route_stage,
+                    "executable_generator_available": generator_status["executable_generator_available"],
+                    "executable_generator_name": generator_status["executable_generator_name"],
+                    "executable_generator_soundness": generator_status["executable_generator_soundness"],
+                    "target_parameters_instantiated": generator_status["target_parameters_instantiated"],
+                    "target_generator_parameters": generator_status["target_generator_parameters"],
+                    "structure_preservation_declared": generator_status["structure_preservation_declared"],
+                    "structure_preservation": generator_status["structure_preservation"],
+                    "intended_group_constraint": generator_status.get("intended_group_constraint"),
+                    "executable_generation_ready": generator_status["executable_generation_ready"],
+                    "generation_ready": generator_status["executable_generation_ready"],
                     "generation_ready_deprecated": True,
                     "generation_ready_deprecation": (
                         "Use structurally_eligible for invariant-based routing. "
@@ -234,6 +248,7 @@ def summarize_routes(
     generation_blocks = Counter(reason for row in routes for reason in row.get("generation_ready_blocking_reasons") or [])
     families = Counter(str(row["family"]) for row in routes)
     structurally_eligible_routes = [row for row in routes if row.get("structurally_eligible")]
+    executable_generator_routes = [row for row in routes if row.get("executable_generator_available")]
     generation_ready_routes = [row for row in routes if row.get("executable_generation_ready")]
     return {
         "record_type": "igp24_construction_target_router",
@@ -258,6 +273,10 @@ def summarize_routes(
         "target_group_record_missing_count": len(target_pairs) - len(targets_with_group),
         "structurally_eligible_route_count": len(structurally_eligible_routes),
         "structurally_eligible_target_count": len({str(row["pair_key"]) for row in structurally_eligible_routes}),
+        "executable_generator_available_route_count": len(executable_generator_routes),
+        "executable_generator_available_target_count": len(
+            {str(row["pair_key"]) for row in executable_generator_routes}
+        ),
         "generation_ready_route_count": len(generation_ready_routes),
         "generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
         "generation_ready_count_deprecated": True,
@@ -281,6 +300,15 @@ def summarize_routes(
                 "combined_priority_score": row["combined_priority_score"],
             }
             for row in generation_ready_routes[:10]
+        ],
+        "top_executable_generator_routes": [
+            {
+                "pair_key": row["pair_key"],
+                "family": row["family"],
+                "generator": row.get("executable_generator_name"),
+                "combined_priority_score": row["combined_priority_score"],
+            }
+            for row in executable_generator_routes[:10]
         ],
         "top_proxy_routes": [
             {
@@ -308,6 +336,7 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         f"- Routes: `{summary['route_count']}`",
         f"- Target group records found: `{summary['target_group_record_hit_count']}`",
         f"- Structurally eligible routes: `{summary['structurally_eligible_route_count']}`",
+        f"- Executable-generator routes: `{summary['executable_generator_available_route_count']}`",
         f"- Generation-ready routes: `{summary['generation_ready_route_count']}`",
         f"- Blocking reasons: `{summary['blocking_reason_counts']}`",
         f"- Generation-ready blockers: `{summary['generation_ready_blocking_reason_counts']}`",

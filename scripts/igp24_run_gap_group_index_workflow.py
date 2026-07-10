@@ -381,6 +381,9 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
         "readiness_output_dir": str(args.readiness_output_dir or (output_dir / "readiness")) if not args.skip_readiness else None,
         "readiness_blocking_reasons": blocking_reasons if not args.skip_readiness else None,
         "structurally_eligible_route_count": (readiness_summary or {}).get("structurally_eligible_route_count"),
+        "executable_generator_available_route_count": (readiness_summary or {}).get(
+            "executable_generator_available_route_count"
+        ),
         "generation_ready_route_count": (readiness_summary or {}).get("generation_ready_route_count"),
         "ready_for_structural_route_review": bool(readiness_summary and readiness_summary.get("ready_for_structural_route_review")),
         "ready_for_group_directed_generation": bool(readiness_summary and readiness_summary.get("ready_for_group_directed_generation")),

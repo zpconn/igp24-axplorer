@@ -127,6 +127,7 @@ def build_readiness(
     )
     route_blocks = Counter(reason for row in routes for reason in row.get("blocking_reasons") or [])
     structurally_eligible_routes = [row for row in routes if row.get("structurally_eligible")]
+    executable_generator_routes = [row for row in routes if row.get("executable_generator_available")]
     generation_ready_routes = [row for row in routes if row.get("executable_generation_ready")]
 
     blocking_reasons: list[str] = []
@@ -142,8 +143,10 @@ def build_readiness(
         blocking_reasons.append("historical_true_label_containment_failed")
     elif containment.get("true_label_containment") != 1.0:
         blocking_reasons.append("historical_true_label_containment_not_100pct")
-    if not generation_ready_routes:
-        blocking_reasons.append("no_executable_generation_ready_routes")
+    if not executable_generator_routes:
+        blocking_reasons.append("no_executable_target_bound_generators")
+    elif not generation_ready_routes:
+        blocking_reasons.append("generated_candidate_adaptive_evidence_missing")
 
     summary = {
         "schema_version": 1,
@@ -168,6 +171,10 @@ def build_readiness(
         "route_count": len(routes),
         "structurally_eligible_route_count": len(structurally_eligible_routes),
         "structurally_eligible_target_count": len({str(row["pair_key"]) for row in structurally_eligible_routes}),
+        "executable_generator_available_route_count": len(executable_generator_routes),
+        "executable_generator_available_target_count": len(
+            {str(row["pair_key"]) for row in executable_generator_routes}
+        ),
         "generation_ready_route_count": len(generation_ready_routes),
         "generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
         "generation_ready_count_deprecated": True,
@@ -206,6 +213,7 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         f"- Covered target labels: `{summary['index_coverage']['covered_target_label_count']}` / `{summary['index_coverage']['target_label_count']}`",
         f"- Historical rows: `{summary['historical_row_count']}`",
         f"- Structurally eligible routes: `{summary['structurally_eligible_route_count']}`",
+        f"- Executable-generator routes: `{summary['executable_generator_available_route_count']}`",
         f"- Generation-ready routes: `{summary['generation_ready_route_count']}`",
         f"- Blocking reasons: `{summary['blocking_reasons']}`",
         f"- Ready for structural route review: `{summary['ready_for_structural_route_review']}`",

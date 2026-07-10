@@ -148,8 +148,9 @@ def test_readiness_gate_reports_structural_routes_but_blocks_executable_generati
     assert summary["index_coverage"]["complete"] is True
     assert summary["historical_containment"]["failure_count"] == 0
     assert summary["structurally_eligible_route_count"] > 0
+    assert summary["executable_generator_available_route_count"] > 0
     assert summary["generation_ready_route_count"] == 0
-    assert "no_executable_generation_ready_routes" in summary["blocking_reasons"]
+    assert "generated_candidate_adaptive_evidence_missing" in summary["blocking_reasons"]
     assert summary["ready_for_structural_route_review"] is True
     assert summary["ready_for_group_directed_generation"] is False
     routes = [
@@ -158,6 +159,7 @@ def test_readiness_gate_reports_structural_routes_but_blocks_executable_generati
         if line.strip()
     ]
     assert any(row["structurally_eligible"] for row in routes)
+    assert any(row["executable_generator_available"] for row in routes)
     assert all(row["generation_ready"] is False for row in routes)
     assert all(row["executable_generation_ready"] is False for row in routes)
 

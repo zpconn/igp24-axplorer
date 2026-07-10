@@ -188,12 +188,14 @@ def test_gap_workflow_imports_captured_outputs_and_runs_readiness(tmp_path, monk
     assert summary["rows_imported"] == 2
     assert summary["group_count"] == 2
     assert summary["structurally_eligible_route_count"] > 0
+    assert summary["executable_generator_available_route_count"] > 0
     assert summary["generation_ready_route_count"] == 0
     assert summary["ready_for_structural_route_review"] is True
     assert summary["ready_for_group_directed_generation"] is False
-    assert summary["readiness_blocking_reasons"] == ["no_executable_generation_ready_routes"]
+    assert summary["readiness_blocking_reasons"] == ["generated_candidate_adaptive_evidence_missing"]
     readiness = json.loads((output_dir / "readiness/group_index_readiness_summary.json").read_text(encoding="utf-8"))
     assert readiness["historical_containment"]["failure_count"] == 0
+    assert readiness["executable_generator_available_route_count"] > 0
     assert readiness["ready_for_structural_route_review"] is True
     assert readiness["ready_for_group_directed_generation"] is False
 

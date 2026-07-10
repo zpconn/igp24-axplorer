@@ -144,8 +144,14 @@ def test_router_uses_group_invariants_to_rank_imprimitive_and_primitive_targets(
     assert not any(row["executable_generation_ready"] for row in routes)
     gx2 = next(row for row in imprimitive_routes if row["family"] == "gx2_degree12_lift")
     assert gx2["structurally_eligible"] is True
+    assert gx2["executable_generator_available"] is True
+    assert gx2["executable_generator_name"] == "gx2_exact_composed_lift_v1"
+    assert gx2["target_parameters_instantiated"] is True
+    assert gx2["target_generator_parameters"]["positive_y_root_count"] == 8
     assert gx2["generation_ready"] is False
-    assert "executable_generator_not_bound_to_target" in gx2["generation_ready_blocking_reasons"]
+    assert "generated_outputs_not_validated" in gx2["generation_ready_blocking_reasons"]
+    assert "adaptive_target_exclusion_not_run" in gx2["generation_ready_blocking_reasons"]
+    assert "executable_generator_not_bound_to_target" not in gx2["generation_ready_blocking_reasons"]
     assert "matching_block_sizes=2,12" in gx2["family_reasons"]
 
     primitive_generic = next(row for row in primitive_routes if row["family"] == "generic_sparse_random")
@@ -186,6 +192,7 @@ def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):
     assert summary["target_pair_count"] == 2
     assert summary["target_group_record_hit_count"] == 2
     assert summary["structurally_eligible_route_count"] >= 1
+    assert summary["executable_generator_available_route_count"] >= 1
     assert summary["generation_ready_route_count"] == 0
     rows = [
         json.loads(line)
@@ -194,6 +201,7 @@ def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):
     ]
     assert len(rows) == 8
     assert any(row["structurally_eligible"] for row in rows)
+    assert any(row["executable_generator_available"] for row in rows)
     assert all(row["generation_ready"] is False for row in rows)
     assert all(row["live_submission_recommended_now"] is False for row in rows)
     report = (output_dir / "construction_target_router_report.md").read_text(encoding="utf-8")

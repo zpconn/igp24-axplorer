@@ -53,6 +53,34 @@ results change.
   but still blocks group-directed generation with
   `no_executable_generation_ready_routes`; live submission remains
   recommended `false`.
+- 2026-07-10 executable-route remediation checkpoint: added a conservative
+  target-bound `g(x^2)` construction generator in
+  `src/igp24/constructions/generators.py`, then wired construction routing
+  and readiness summaries to distinguish `structurally_eligible`,
+  `executable_generator_available`, and genuinely `generation_ready`. The
+  full-index router artifact
+  `data/igp24/remediation_20260709/construction_router_phase5/full_index_executable_gx2_20260710/`
+  reports 125 structurally eligible routes and 25 executable
+  `gx2_exact_composed_lift_v1` routes across 25 targets; generation-ready
+  remains 0 because generated outputs still must pass local and adaptive
+  evidence. Refreshed readiness artifact
+  `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/full_degree24_universe_executable_gx2_20260710/`
+  reports `ready_for_structural_route_review=true`,
+  `executable_generator_available_route_count=25`, and blocker
+  `generated_candidate_adaptive_evidence_missing`. Added the offline-only
+  route experiment script `scripts/igp24_gx2_route_experiment.py` and ran it
+  against `24T22631|r=24` with the full 25,000-group index, fresh synced
+  progress, known-submission hashes, exact local validation, and 10 usable
+  adaptive primes. Artifact:
+  `data/igp24/remediation_20260709/gx2_route_experiment_phase5/24T22631_r24_gx2_exact_composed_20260710/`.
+  Result: 6 trials attempted, 3 local-valid irreducible/squarefree r24 rows,
+  0 known-submission rejections, 3 wrong-r rejections, 0 target-compatible
+  rows, and 0 any-valuable-survivor rows after 10 primes. Final survivors
+  collapsed to crowded/high labels (`24T24979`, `24T25000`, and once
+  `24T24969`), so live submission remains recommended `false`. This removes
+  the previous "no executable generator exists" blocker for one real
+  construction family while showing that this r24 seed basin is not useful for
+  the selected target under the current adaptive evidence.
 - 2026-07-09/10 corrected adaptive-Frobenius calibration checkpoint:
   fixed two discriminant-safety bugs before trusting full-index evidence.
   First, parity filtering now requires an explicit polynomial discriminant;
@@ -90,6 +118,13 @@ results change.
   necessary-exclusion semantics, but 10-prime compatibility still leaves many
   valuable false positives and is not exact label verification or a submission
   recommendation.
+- 2026-07-10 executable-route validation commands:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_registry.py tests/test_igp24_construction_target_router.py tests/test_igp24_gap_group_index_workflow.py`
+  -> 13 passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_group_index_readiness_gate.py`
+  -> 3 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 383 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
