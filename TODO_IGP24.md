@@ -44,6 +44,52 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.23 million-example training and relevance verdict:
+  AXG-1.23 is the first numbered iteration to clear the corrected corpus gate.
+  It trained a 25.37M-parameter, 8-layer/8-head/512-embedding model for exactly
+  31,250 batch-32 optimizer steps on the RTX 5090, traversing all 1,000,000
+  unique canonical training rows once without replacement. The independent
+  holdout contains 100,000 family/split-group-disjoint rows. Unique traversal
+  telemetry reached exactly 1,000,000/1,000,000; max GPU utilization was 97%,
+  average wrapper-run utilization 82.733%, max VRAM 11,463 MiB, and average
+  power 495.85 W. Final checkpoint train/eval loss was 1.3000/1.9092. Eval
+  loss remained roughly flat as train loss fell, so this does not demonstrate
+  held-out family generalization.
+
+  Direct conditioned `R24,M2` inference was not useful: 4,059/4,096 attempts
+  decoded and all but one respected M2 support, but exact real-root counts were
+  `r0=484`, `r4=2695`, `r8=840`, `r12=40`, and `r24=0`. No fresh exact-local-
+  valid row was exported. An uncapped inference-only pass then collected 512
+  unique raw M2 decodes in 517 attempts. Added
+  `src/igp24/model_projection.py` and
+  `scripts/igp24_project_model_structural_candidates.py` to treat those rows
+  only as parameter proposals and rebuild exact Eisenstein `h(x^2)`
+  constructions. After loading and excluding all 1,100,000 corpus hashes plus
+  the complete known submission set, this produced 1,569 fresh unique exact-
+  r24 model projections and 2,048 matched random controls; 479 model proposals
+  collapsed to duplicate projected center sets.
+
+  Added an exact modular-squarefreeness ramification check and
+  `scripts/igp24_compare_projected_frobenius.py`. The decisive complete-index
+  comparison paired 800 model projections with 800 controls from the same raw
+  source/family/variant slots. Up to 40 usable primes were checked against all
+  25,000 indexed groups. Model/control rows retaining at least one current
+  valuable r24 target were 70/800 versus 75/800 (8.75% versus 9.375%); the
+  absolute difference was -0.625 percentage points with approximate 95%
+  interval [-3.44, +2.19]. Both lanes reached only `24T24969|r=24` and
+  `24T24971|r=24`. This is necessary exclusion evidence only and supplies no
+  calibrated expected score.
+
+  Decision: **AXG-1.23 is not promoted**. It learned syntax and power support,
+  but not the exact r24 semantic condition and not a parameter distribution
+  better than a paired random baseline. Distilled report:
+  `data/igp24/axg123_structural_million_20260710/axg123_distilled_report.{json,md}`;
+  projection summary:
+  `r24_m2_structural_projection_v1/projection_summary.json`; paired comparison:
+  `r24_m2_projection_frobenius_paired800/comparison_summary.json`. No live
+  SAIR submission was made. Next AXG work must retain the >=1M unique-example
+  rule while moving the model to construction-parameter tokens or a genuinely
+  constrained decoder, and must beat a paired baseline before promotion.
 - 2026-07-10 AXG-1.22 corpus-size audit and hard training gate: the apparent
   AXG-1.22 run was an end-to-end plumbing smoke test, not a meaningful model
   iteration. Its real post-loader corpus had only 16 unique training rows and
@@ -121,13 +167,10 @@ results change.
   to preserve the requested inner power. Added epoch-shuffle sampling and
   unique-coverage telemetry. A named run must now schedule at least one full
   without-replacement traversal of the million-row train corpus; merely
-  drawing a million replacement samples cannot pass. No new numbered AXG
-  model has been trained yet. The next named configuration is an 8-layer,
-  8-head, 512-embedding model with max token payload 320, batch 32, and 31,250
-  epoch-shuffled steps, which schedules exactly one complete unique-corpus
-  traversal before inference. Primary promotion lane: `r=24,M2`; the corpus
-  has 200,000 exact train rows in that target stratum, about 893,000 total M2
-  train rows, and 80,000 disjoint M2 evaluation rows.
+  drawing a million replacement samples cannot pass. That configuration was
+  subsequently executed as AXG-1.23; its non-promotion result is recorded
+  above. The corpus has 200,000 exact train rows in the `r=24` stratum, about
+  893,000 total M2 train rows, and 80,000 disjoint M2 evaluation rows.
 - 2026-07-10 AXG-1.21 cross-r escape / exact r8 feedback checkpoint:
   extended `scripts/igp24_positive_seed_escape.py` with opt-in
   `--accepted_output_rs` support so exact positive seeds can provide bounded

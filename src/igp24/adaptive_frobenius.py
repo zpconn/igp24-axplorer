@@ -84,6 +84,30 @@ def factorization_degrees_mod_prime(coefficients: Sequence[int], prime: int) -> 
     return tuple(sorted(degrees))
 
 
+def unramified_factorization_degrees_mod_prime(
+    coefficients: Sequence[int],
+    prime: int,
+) -> tuple[int, ...] | None:
+    """Return factor degrees exactly when ``prime`` is unramified.
+
+    For a monic integral polynomial, reduction modulo ``p`` is squarefree if
+    and only if ``p`` does not divide the polynomial discriminant.  Checking
+    factor multiplicities therefore verifies unramifiedness without first
+    constructing the often enormous integer discriminant.
+    """
+
+    poly = construct_polynomial(coefficients)
+    x = poly.gens[0]
+    mod_poly = poly.__class__(poly.as_expr(), x, modulus=int(prime))
+    _unit, factors = mod_poly.factor_list()
+    if any(int(exponent) != 1 for _factor, exponent in factors):
+        return None
+    degrees = tuple(sorted(int(factor.degree()) for factor, _exponent in factors))
+    if sum(degrees) != DEGREE:
+        raise ValueError(f"bad_modular_degree_sum:{prime}:{degrees}")
+    return degrees
+
+
 @dataclass(frozen=True)
 class FrobeniusObservation:
     prime: int

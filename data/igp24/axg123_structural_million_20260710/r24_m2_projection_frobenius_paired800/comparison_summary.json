@@ -1,0 +1,169 @@
+{
+  "comparison": {
+    "model_promotion_recommendation": false,
+    "numeric_expected_points_available": false,
+    "reason": "projection comparison measures parameter proposals; direct AXG decoding still yielded zero exact-r24 valid rows",
+    "target_coverage_is_not_additive_score": true,
+    "valuable_target_survival": {
+      "absolute_rate_difference": -0.0062500000000000056,
+      "approximate_95_percent_ci": [
+        -0.034381692259354044,
+        0.021881692259354033
+      ],
+      "baseline_hits": 75,
+      "interpretation": "descriptive matched comparison; target survival is not official score probability",
+      "model_hits": 70,
+      "statistically_clear_positive_difference": false
+    }
+  },
+  "created_at_utc": "2026-07-10T13:07:44.202839+00:00",
+  "cycle_type_cache_size": 322,
+  "evidence_budget": {
+    "max_usable_primes": 40,
+    "min_usable_primes": 5,
+    "ramification_check": "exact squarefree reduction modulo each sampled prime",
+    "stable_after": 10
+  },
+  "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "index_scope": {
+    "expected_global_group_count": 25000,
+    "global_index_complete": true,
+    "index_scope": "complete_degree24_universe",
+    "indexed_group_count": 25000,
+    "soundness": "necessary_target_exclusion_only",
+    "unindexed_label_mass_unknown": false
+  },
+  "matched_random_baseline": {
+    "best_case_packet_points": 75,
+    "best_case_packet_points_note": "logical ceiling only; not an expectation and not evidence that mutually redundant rows all score",
+    "distinct_valuable_targets_in_untruncated_outputs": 2,
+    "expected_points_status": "unavailable_uncalibrated",
+    "indexed_survivor_count": {
+      "maximum": 4.0,
+      "median": 1.0,
+      "p90": 2.0
+    },
+    "row_count": 800,
+    "rows_with_valuable_target": 75,
+    "rows_with_valuable_target_by_family": {
+      "train_d12_x2_p2_low": {
+        "row_count": 200,
+        "rows_with_valuable_target": 12,
+        "valuable_target_survival_rate": 0.06
+      },
+      "train_d12_x2_p3_low": {
+        "row_count": 200,
+        "rows_with_valuable_target": 23,
+        "valuable_target_survival_rate": 0.115
+      },
+      "train_d12_x2_p5_mid": {
+        "row_count": 200,
+        "rows_with_valuable_target": 18,
+        "valuable_target_survival_rate": 0.09
+      },
+      "train_d12_x2_p7_mid": {
+        "row_count": 200,
+        "rows_with_valuable_target": 22,
+        "valuable_target_survival_rate": 0.11
+      }
+    },
+    "runtime_seconds_total": 20.44766838796204,
+    "stop_reason_counts": {
+      "survivor_set_stable": 75,
+      "valuable_targets_ruled_out": 725
+    },
+    "sum_of_per_row_best_case_point_ceilings": 75,
+    "usable_primes_median": 6.0,
+    "valuable_target_count": {
+      "maximum": 2.0,
+      "median": 0.0,
+      "p90": 0.0
+    },
+    "valuable_target_row_counts": {
+      "24T24969|r=24": 39,
+      "24T24971|r=24": 42
+    },
+    "valuable_target_survival_rate": 0.09375
+  },
+  "model_projected": {
+    "best_case_packet_points": 70,
+    "best_case_packet_points_note": "logical ceiling only; not an expectation and not evidence that mutually redundant rows all score",
+    "distinct_valuable_targets_in_untruncated_outputs": 2,
+    "expected_points_status": "unavailable_uncalibrated",
+    "indexed_survivor_count": {
+      "maximum": 3.0,
+      "median": 1.0,
+      "p90": 2.0
+    },
+    "row_count": 800,
+    "rows_with_valuable_target": 70,
+    "rows_with_valuable_target_by_family": {
+      "train_d12_x2_p2_low": {
+        "row_count": 200,
+        "rows_with_valuable_target": 14,
+        "valuable_target_survival_rate": 0.07
+      },
+      "train_d12_x2_p3_low": {
+        "row_count": 200,
+        "rows_with_valuable_target": 17,
+        "valuable_target_survival_rate": 0.085
+      },
+      "train_d12_x2_p5_mid": {
+        "row_count": 200,
+        "rows_with_valuable_target": 14,
+        "valuable_target_survival_rate": 0.07
+      },
+      "train_d12_x2_p7_mid": {
+        "row_count": 200,
+        "rows_with_valuable_target": 25,
+        "valuable_target_survival_rate": 0.125
+      }
+    },
+    "runtime_seconds_total": 20.54782433298533,
+    "stop_reason_counts": {
+      "survivor_set_stable": 70,
+      "valuable_targets_ruled_out": 730
+    },
+    "sum_of_per_row_best_case_point_ceilings": 70,
+    "usable_primes_median": 6.0,
+    "valuable_target_count": {
+      "maximum": 2.0,
+      "median": 0.0,
+      "p90": 0.0
+    },
+    "valuable_target_row_counts": {
+      "24T24969|r=24": 35,
+      "24T24971|r=24": 40
+    },
+    "valuable_target_survival_rate": 0.0875
+  },
+  "progress_jsonl": "data/igp24/axg122_quartic9993_descent_20260710/sair_sync_initial/sair_label_progress.jsonl",
+  "runtime_seconds": 41.579283688013675,
+  "safety": {
+    "live_submission": false,
+    "network_posts": false,
+    "network_reads": false,
+    "sair_calls": false
+  },
+  "schema_version": "igp24_axg_projection_frobenius_comparison_v1",
+  "selection": {
+    "actual_baseline_rows": 800,
+    "actual_model_rows": 800,
+    "baseline_selection": "same source-model hash, family, and variant as each selected model projection",
+    "family_quotas": {
+      "train_d12_x2_p2_low": 200,
+      "train_d12_x2_p3_low": 200,
+      "train_d12_x2_p5_mid": 200,
+      "train_d12_x2_p7_mid": 200
+    },
+    "model_selection": "lowest normalized projection error within each family",
+    "requested_rows_per_lane": 800
+  },
+  "source_commit": "6ba012d669b1148adff5bce0979da7aaad948ea6",
+  "universe": {
+    "all_indexed_labels": 25000,
+    "block_size_2_structure_compatible_labels": 20733,
+    "current_valuable_r24_structure_compatible_labels": 20435,
+    "structure_filter_soundness": "h(x^2) preserves the Galois-invariant root pairs {alpha,-alpha}"
+  }
+}

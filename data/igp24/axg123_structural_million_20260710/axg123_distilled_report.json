@@ -1,0 +1,115 @@
+{
+  "schema_version": "igp24_axg_iteration_report_v1",
+  "model_iteration": "AXG-1.23",
+  "status": "not_promoted",
+  "source_commit_at_training": "6ba012d669b1148adff5bce0979da7aaad948ea6",
+  "training": {
+    "run_kind": "named_iteration",
+    "train_unique_canonical_examples": 1000000,
+    "eval_unique_canonical_examples": 100000,
+    "train_effective_sample_size": 1000000,
+    "requested_real_root_counts": [8, 12, 16, 20, 24],
+    "train_examples_per_requested_r": 200000,
+    "eval_examples_per_requested_r": 20000,
+    "construction_family_count": 8,
+    "train_eval_hash_overlap": 0,
+    "train_eval_split_group_overlap": 0,
+    "train_eval_construction_family_overlap": 0,
+    "sampling_mode": "epoch_shuffle_without_replacement",
+    "optimizer_steps": 31250,
+    "batch_size": 32,
+    "samples_traversed": 1000000,
+    "unique_samples_traversed": 1000000,
+    "unique_coverage_fraction": 1.0,
+    "training_elapsed_seconds_through_final_checkpoint": 1163,
+    "loss_checkpoints": [
+      {"step": 3906, "train": 1.5620888578726948, "eval": 1.8849986791610718},
+      {"step": 7812, "train": 1.441822483670205, "eval": 1.8958220481872559},
+      {"step": 11718, "train": 1.3984154857431872, "eval": 1.889140248298645},
+      {"step": 15624, "train": 1.3684299387690109, "eval": 1.9168148040771484},
+      {"step": 19530, "train": 1.344974308671917, "eval": 1.9255965948104858},
+      {"step": 23436, "train": 1.3244784682210873, "eval": 1.9127181768417358},
+      {"step": 27342, "train": 1.3088376640785186, "eval": 1.9337990283966064},
+      {"step": 31248, "train": 1.299974125101819, "eval": 1.9092124700546265}
+    ],
+    "heldout_generalization_interpretation": "eval loss remained flat while train loss improved; no evidence of family-disjoint generalization"
+  },
+  "model": {
+    "parameter_count": 25370000,
+    "layers": 8,
+    "attention_heads": 8,
+    "embedding_dimension": 512,
+    "maximum_token_payload": 320,
+    "maximum_observed_sequence_length": 299,
+    "conditioning": ["R<r>", "M2", "M4", "M6"],
+    "checkpoint_size_bytes": 104843291,
+    "checkpoint_sha256": "6dd4f1de39533326a811490a7d9ed4c3d2d0a0d20d44bfd34c81d170122df115"
+  },
+  "gpu": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "maximum_utilization_percent": 97.0,
+    "average_utilization_percent_over_wrapper_run": 82.73293768545994,
+    "maximum_memory_used_mib": 11463.0,
+    "average_power_draw_watts": 495.8543768545999
+  },
+  "direct_r24_m2_inference": {
+    "temperature": 0.75,
+    "top_k": 12,
+    "attempts": 4096,
+    "decoded_attempts": 4059,
+    "invalid_decodes": 37,
+    "required_inner_power_support_mismatches": 1,
+    "exact_r24_rows": 0,
+    "observed_real_root_counts": {"0": 484, "4": 2695, "8": 840, "12": 40},
+    "fresh_exact_local_valid_exports": 0
+  },
+  "uncapped_raw_inference": {
+    "attempts": 517,
+    "unique_decoded_m2_rows": 512,
+    "invalid_decodes": 5,
+    "known_submission_hash_matches": 0
+  },
+  "exact_structural_projection": {
+    "role": "model_parameter_proposal_only",
+    "excluded_train_eval_and_submission_hashes_loaded": 1100233,
+    "fresh_unique_model_projected_r24_rows": 1569,
+    "model_projection_duplicate_rows": 479,
+    "fresh_matched_random_baseline_r24_rows": 2048,
+    "exact_local_contract": "Eisenstein irreducible, squarefree in characteristic zero, exact r=24, preserved h(x^2) block structure",
+    "exact_group_labels_known": false
+  },
+  "paired_complete_index_comparison": {
+    "rows_per_lane": 800,
+    "usable_prime_budget": 40,
+    "stable_after": 10,
+    "group_index_complete": true,
+    "indexed_group_count": 25000,
+    "ramification_check": "exact squarefree reduction modulo each sampled prime",
+    "model_rows_retaining_current_valuable_target": 70,
+    "baseline_rows_retaining_current_valuable_target": 75,
+    "model_survival_rate": 0.0875,
+    "baseline_survival_rate": 0.09375,
+    "absolute_rate_difference": -0.00625,
+    "approximate_95_percent_difference_interval": [-0.034381692259354044, 0.021881692259354033],
+    "statistically_clear_positive_difference": false,
+    "distinct_valuable_targets_in_each_lane": 2,
+    "valuable_targets": ["24T24969|r=24", "24T24971|r=24"],
+    "expected_points_status": "unavailable_uncalibrated",
+    "soundness": "necessary_target_exclusion_only_not_exact_label"
+  },
+  "decision": {
+    "promote_model": false,
+    "submission_recommendation": false,
+    "reason": "AXG-1.23 learned syntax and M2 support but did not learn exact r24 semantics and did not outperform its paired random structural baseline",
+    "next_iteration_requirement": "retain the >=1M unique-example rule, but train AXG-1.24 in construction-parameter space or with a constrained decoder and prove improvement against a paired baseline before promotion"
+  },
+  "artifact_notes": {
+    "checkpoint_epoch_counter": "later inference-only harness runs advanced epoch.txt but performed zero optimizer steps; checkpoint identity is the SHA-256 above",
+    "large_raw_corpus_and_checkpoint_committed": false,
+    "distilled_reports_committed": true
+  },
+  "safety": {
+    "network_posts": false,
+    "live_sair_submission": false
+  }
+}

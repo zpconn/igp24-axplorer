@@ -1,0 +1,50 @@
+{
+  "counters": {
+    "model_duplicate_hash": 479,
+    "raw_missing_coefficients": 5
+  },
+  "created_at_utc": "2026-07-10T13:01:58.920414+00:00",
+  "cross_lane_hash_overlap_count": 0,
+  "excluded_canonical_hash_count": 1100233,
+  "exclusion_source_row_counts": {
+    "known:sair_submission_rows.jsonl": 234,
+    "training_or_eval_corpus": 1100000
+  },
+  "interpretation": {
+    "exact_local_validity": true,
+    "exact_real_root_count": 24,
+    "group_label_verified": false,
+    "model_role": "parameter_proposal_only",
+    "next_gate": "matched adaptive Frobenius target-exclusion comparison",
+    "packet_eligible": false
+  },
+  "known_hashes_jsonl": [
+    "data/igp24/axg122_quartic9993_descent_20260710/sair_sync_initial/sair_submission_rows.jsonl"
+  ],
+  "matched_baseline_candidate_count": 2048,
+  "model_projected_candidate_count": 1569,
+  "outputs": {
+    "matched_baseline_candidates": "data/igp24/axg123_structural_million_20260710/r24_m2_structural_projection_v1/matched_baseline_candidates.jsonl",
+    "model_projected_candidates": "data/igp24/axg123_structural_million_20260710/r24_m2_structural_projection_v1/model_projected_candidates.jsonl"
+  },
+  "projection_error": {
+    "maximum": 5.417818462854926,
+    "median": 0.5177041996263176,
+    "minimum": 0.08027919315892326,
+    "p90": 2.5725163487363325
+  },
+  "projection_family_count": 4,
+  "raw_rows_used": 512,
+  "raw_samples_jsonl": "data/igp24/axg123_structural_million_20260710/r24_m2_raw_inference_t075_k12_uncapped/gpu_model_sample_export_m2_raw.jsonl",
+  "runtime_seconds": 8.453159516997403,
+  "safety": {
+    "live_submission": false,
+    "network_posts": false,
+    "network_reads": false,
+    "sair_calls": false
+  },
+  "schema_version": "igp24_axg_structural_projection_v1",
+  "source_commit": "6ba012d669b1148adff5bce0979da7aaad948ea6",
+  "training_manifest": "data/igp24/structural_pretraining_20260710_million_v1/corpus_manifest.json",
+  "variants_per_family": 1
+}
