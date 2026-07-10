@@ -485,6 +485,25 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 413 passed; SAIR key-shaped secret scan found no matches. No live SAIR
   submission was made.
+- 2026-07-10 corrected 4x6 alternate-composition re-audit checkpoint:
+  reprocessed the older 24-row `alt_composition_4x6_probe_20260707` queue
+  through the corrected complete 25,000-group adaptive Frobenius stack instead
+  of relying on the original local/proxy-only readiness. Artifact:
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/alt_composition_4x6_r12_24rows_40primes_20260710/`.
+  Result: 24/24 rows evaluated, 0 failures, all 24 exact labels still missing,
+  median indexed survivor count 2, and valuable-target survival dropped from
+  1 row at 10 usable primes to 0 rows at both 20 and 40 usable primes. Then
+  materialized the 40-prime evidence into packet-ready candidate rows under
+  `data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/alt_composition_4x6_r12_24rows_40primes_20260710/`:
+  24 reviewed, 0 packet-eligible, 0 target-compatible, and 0 rows with any
+  valuable target not ruled out. Packet optimizer artifact:
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/alt_composition_4x6_r12_24rows_40prime_reviewed_20260710/`.
+  Result: 24 candidates considered, 0 eligible, 0 selected,
+  `reject_reason_counts={"not_eligible_for_packet": 24, "crowded_only": 24, "known_submission_hash": 12}`,
+  and `best_case_packet_points=0`. Lesson: the old 4x6 r12 queue is not a
+  fresh route to submit or widen as-is; it is now negative calibration for
+  the construction planner. SAIR key-shaped secret scan found no matches. No
+  live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
