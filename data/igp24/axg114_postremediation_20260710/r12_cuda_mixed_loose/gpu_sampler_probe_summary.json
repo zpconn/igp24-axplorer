@@ -1,0 +1,489 @@
+{
+  "baseline": null,
+  "created_at_utc": "2026-07-10T05:43:21.631886+00:00",
+  "dedup_max_attempts": null,
+  "dedup_progress_interval": null,
+  "dedup_unique_target": null,
+  "diversity_seed": null,
+  "diversity_variant": null,
+  "output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose",
+  "probe_mode": "sample_export_target_r_conditioned",
+  "probes": {
+    "nvidia_smi": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,driver_version",
+        "--format=csv,noheader"
+      ],
+      "command_text": "nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader",
+      "gpus": [
+        {
+          "driver_version": "596.49",
+          "memory_total_mib": 32607,
+          "name": "NVIDIA GeForce RTX 5090"
+        }
+      ],
+      "returncode": 0,
+      "runtime_seconds": 0.027094225006294437,
+      "stderr": "",
+      "stderr_tail": [],
+      "stdout": "NVIDIA GeForce RTX 5090, 32607 MiB, 596.49\n",
+      "stdout_tail": [
+        "NVIDIA GeForce RTX 5090, 32607 MiB, 596.49"
+      ],
+      "timed_out": false
+    },
+    "torch_cuda": {
+      "command": [
+        "/home/zpconn/code/axplorer/.venv/bin/python",
+        "-c",
+        "\nimport json\n\nout = {\n    \"torch_imported\": False,\n    \"torch_version\": None,\n    \"cuda_available\": False,\n    \"cuda_device_count\": 0,\n    \"cuda_device_name\": None,\n    \"cuda_total_memory_bytes\": None,\n    \"cuda_capability\": None,\n    \"cuda_tensor_ok\": False,\n    \"error\": None,\n}\n\ntry:\n    import torch\n\n    out[\"torch_imported\"] = True\n    out[\"torch_version\"] = torch.__version__\n    out[\"cuda_available\"] = bool(torch.cuda.is_available())\n    out[\"cuda_device_count\"] = int(torch.cuda.device_count())\n    if out[\"cuda_available\"]:\n        props = torch.cuda.get_device_properties(0)\n        out[\"cuda_device_name\"] = torch.cuda.get_device_name(0)\n        out[\"cuda_total_memory_bytes\"] = int(props.total_memory)\n        out[\"cuda_capability\"] = list(torch.cuda.get_device_capability(0))\n        tensor = torch.ones((1,), device=\"cuda\")\n        out[\"cuda_tensor_ok\"] = bool(tensor.item() == 1.0)\n        torch.cuda.synchronize()\nexcept Exception as exc:\n    out[\"error\"] = repr(exc)\n\nprint(json.dumps(out, sort_keys=True))\n"
+      ],
+      "command_text": "/home/zpconn/code/axplorer/.venv/bin/python -c '\nimport json\n\nout = {\n    \"torch_imported\": False,\n    \"torch_version\": None,\n    \"cuda_available\": False,\n    \"cuda_device_count\": 0,\n    \"cuda_device_name\": None,\n    \"cuda_total_memory_bytes\": None,\n    \"cuda_capability\": None,\n    \"cuda_tensor_ok\": False,\n    \"error\": None,\n}\n\ntry:\n    import torch\n\n    out[\"torch_imported\"] = True\n    out[\"torch_version\"] = torch.__version__\n    out[\"cuda_available\"] = bool(torch.cuda.is_available())\n    out[\"cuda_device_count\"] = int(torch.cuda.device_count())\n    if out[\"cuda_available\"]:\n        props = torch.cuda.get_device_properties(0)\n        out[\"cuda_device_name\"] = torch.cuda.get_device_name(0)\n        out[\"cuda_total_memory_bytes\"] = int(props.total_memory)\n        out[\"cuda_capability\"] = list(torch.cuda.get_device_capability(0))\n        tensor = torch.ones((1,), device=\"cuda\")\n        out[\"cuda_tensor_ok\"] = bool(tensor.item() == 1.0)\n        torch.cuda.synchronize()\nexcept Exception as exc:\n    out[\"error\"] = repr(exc)\n\nprint(json.dumps(out, sort_keys=True))\n'",
+      "parsed": {
+        "cuda_available": true,
+        "cuda_capability": [
+          12,
+          0
+        ],
+        "cuda_device_count": 1,
+        "cuda_device_name": "NVIDIA GeForce RTX 5090",
+        "cuda_tensor_ok": true,
+        "cuda_total_memory_bytes": 34190458880,
+        "error": null,
+        "torch_imported": true,
+        "torch_version": "2.12.0+cu130"
+      },
+      "returncode": 0,
+      "runtime_seconds": 1.014463882005657,
+      "stderr": "",
+      "stderr_tail": [],
+      "stdout": "{\"cuda_available\": true, \"cuda_capability\": [12, 0], \"cuda_device_count\": 1, \"cuda_device_name\": \"NVIDIA GeForce RTX 5090\", \"cuda_tensor_ok\": true, \"cuda_total_memory_bytes\": 34190458880, \"error\": null, \"torch_imported\": true, \"torch_version\": \"2.12.0+cu130\"}\n",
+      "stdout_tail": [
+        "{\"cuda_available\": true, \"cuda_capability\": [12, 0], \"cuda_device_count\": 1, \"cuda_device_name\": \"NVIDIA GeForce RTX 5090\", \"cuda_tensor_ok\": true, \"cuda_total_memory_bytes\": 34190458880, \"error\": null, \"torch_imported\": true, \"torch_version\": \"2.12.0+cu130\"}"
+      ],
+      "timed_out": false
+    }
+  },
+  "recommendation": {
+    "action": "run_another_short_gpu_probe_with_adjusted_settings",
+    "reason": "The GPU sampler probe did not exit cleanly."
+  },
+  "repo_root": "/home/zpconn/code/igp24-axplorer",
+  "run_id": "axg114_r12_postremediation_mixed_loose_20260710_gpu",
+  "runs": {
+    "gpu_sampler_probe": {
+      "best_generation_strategy": null,
+      "best_hash": null,
+      "best_matching_score": null,
+      "best_score": null,
+      "command": [
+        "/home/zpconn/code/axplorer/.venv/bin/python",
+        "train.py",
+        "--env_name",
+        "igp24",
+        "--exp_name",
+        "igp24_gpu_sample_export_target_r12_conditioned",
+        "--dump_path",
+        "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_dump",
+        "--exp_id",
+        "axg114_r12_postremediation_mixed_loose_20260710_gpu",
+        "--seed",
+        "33012",
+        "--encoding_tokens",
+        "decimal_coefficients",
+        "--igp24_target_r_conditioning_mode",
+        "control_token",
+        "--igp24_training_jsonl",
+        "data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl",
+        "--igp24_training_jsonl_target_rs",
+        "8,12,16,20,24",
+        "--coeff_bound",
+        "1000000000000000",
+        "--target_r",
+        "12",
+        "--gensize",
+        "0",
+        "--pop_size",
+        "512",
+        "--ntest",
+        "64",
+        "--gen_batch_size",
+        "64",
+        "--max_epochs",
+        "1",
+        "--max_steps",
+        "1200",
+        "--num_eval_steps",
+        "300",
+        "--num_samples_from_model",
+        "8192",
+        "--batch_size",
+        "128",
+        "--n_layer",
+        "4",
+        "--n_head",
+        "4",
+        "--n_embd",
+        "256",
+        "--max_len",
+        "640",
+        "--temperature",
+        "1.1",
+        "--top_k",
+        "30",
+        "--always_search",
+        "false",
+        "--max_local_search_steps",
+        "0",
+        "--prime_limit",
+        "7",
+        "--exact_score_timeout",
+        "0",
+        "--process_pool",
+        "false",
+        "--num_workers",
+        "1",
+        "--cpu",
+        "false",
+        "--sample_export_only",
+        "true",
+        "--sample_export_path",
+        "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_model_sample_export_target_r12_conditioned.jsonl",
+        "--sample_export_dedup",
+        "true",
+        "--sample_export_unique_target",
+        "64",
+        "--sample_export_max_attempts",
+        "8192",
+        "--sample_export_progress_interval",
+        "128",
+        "--sample_export_target_r_conditioning_mode",
+        "control_token",
+        "--sample_export_avoid_even_support_like",
+        "false",
+        "--sample_export_require_support_gcd_one",
+        "false",
+        "--sample_export_required_support_patterns",
+        "",
+        "--sample_export_excluded_support_patterns",
+        "",
+        "--sample_export_excluded_hashes_jsonl",
+        "data/igp24/active_learning/axg114_hash_exclusions_20260710.jsonl",
+        "--sample_export_family_cap",
+        "8",
+        "--sample_export_basin_fingerprint_cap",
+        "2",
+        "--igp24_generation_strategy",
+        "mixed",
+        "--igp24_ledger_path",
+        "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl"
+      ],
+      "command_text": "/home/zpconn/code/axplorer/.venv/bin/python train.py --env_name igp24 --exp_name igp24_gpu_sample_export_target_r12_conditioned --dump_path /home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_dump --exp_id axg114_r12_postremediation_mixed_loose_20260710_gpu --seed 33012 --encoding_tokens decimal_coefficients --igp24_target_r_conditioning_mode control_token --igp24_training_jsonl data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl --igp24_training_jsonl_target_rs 8,12,16,20,24 --coeff_bound 1000000000000000 --target_r 12 --gensize 0 --pop_size 512 --ntest 64 --gen_batch_size 64 --max_epochs 1 --max_steps 1200 --num_eval_steps 300 --num_samples_from_model 8192 --batch_size 128 --n_layer 4 --n_head 4 --n_embd 256 --max_len 640 --temperature 1.1 --top_k 30 --always_search false --max_local_search_steps 0 --prime_limit 7 --exact_score_timeout 0 --process_pool false --num_workers 1 --cpu false --sample_export_only true --sample_export_path /home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_model_sample_export_target_r12_conditioned.jsonl --sample_export_dedup true --sample_export_unique_target 64 --sample_export_max_attempts 8192 --sample_export_progress_interval 128 --sample_export_target_r_conditioning_mode control_token --sample_export_avoid_even_support_like false --sample_export_require_support_gcd_one false --sample_export_required_support_patterns '' --sample_export_excluded_support_patterns '' --sample_export_excluded_hashes_jsonl data/igp24/active_learning/axg114_hash_exclusions_20260710.jsonl --sample_export_family_cap 8 --sample_export_basin_fingerprint_cap 2 --igp24_generation_strategy mixed --igp24_ledger_path /home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl",
+      "diversity_seed": null,
+      "diversity_variant": null,
+      "gpu_monitor": {
+        "avg_gpu_utilization_percent": 72.66666666666667,
+        "avg_power_draw_watts": 439.6866666666667,
+        "max_gpu_utilization_percent": 90.0,
+        "max_memory_used_mib": 3718.0,
+        "parsed_sample_count": 6,
+        "sample_count": 6,
+        "samples": [
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.0352434880041983,
+            "sample": {
+              "gpu_utilization_percent": 75.0,
+              "memory_used_mib": 3716.0,
+              "power_draw_watts": 177.7
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034911545997601934,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 3716.0,
+              "power_draw_watts": 519.27
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03524983100942336,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 3716.0,
+              "power_draw_watts": 522.07
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03550885200093035,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 3716.0,
+              "power_draw_watts": 523.07
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.03341106200241484,
+            "sample": {
+              "gpu_utilization_percent": 90.0,
+              "memory_used_mib": 3716.0,
+              "power_draw_watts": 522.07
+            },
+            "stderr_tail": []
+          },
+          {
+            "returncode": 0,
+            "runtime_seconds": 0.034289109011297114,
+            "sample": {
+              "gpu_utilization_percent": 1.0,
+              "memory_used_mib": 3718.0,
+              "power_draw_watts": 373.94
+            },
+            "stderr_tail": []
+          }
+        ]
+      },
+      "gpu_used": false,
+      "interrupted": false,
+      "ledger_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_initial_candidates.jsonl",
+      "ledger_records": 0,
+      "local_search_accepted": 0,
+      "local_search_attempted": 0,
+      "local_search_records": 0,
+      "mean_score": null,
+      "median_score": null,
+      "metadata_complete": false,
+      "model_sample_best_score": null,
+      "model_sample_hashes": [],
+      "model_sample_ledger_records": 0,
+      "model_sample_mean_score": null,
+      "post_train_cpu_sampling_scoring_avoided": false,
+      "probe_mode": "sample_export_target_r_conditioned",
+      "returncode": 1,
+      "runtime_seconds": 12.537428500989336,
+      "sample_export_attempt_budget": null,
+      "sample_export_attempted_samples": 0,
+      "sample_export_avoid_even_support_like": false,
+      "sample_export_basin_fingerprint_cap": null,
+      "sample_export_basin_fingerprint_counts": {},
+      "sample_export_decoded_records": 0,
+      "sample_export_dedup_enabled": false,
+      "sample_export_duplicate_decoded_records_skipped": 0,
+      "sample_export_exact_verifiers_avoided": false,
+      "sample_export_excluded_hash_records_skipped": 0,
+      "sample_export_excluded_hashes_loaded": 0,
+      "sample_export_excluded_hashes_path": null,
+      "sample_export_excluded_support_patterns": [],
+      "sample_export_exists": true,
+      "sample_export_family_cap": null,
+      "sample_export_first_indices": [],
+      "sample_export_invalid_decode_records": 0,
+      "sample_export_local_search_avoided": false,
+      "sample_export_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_model_sample_export_target_r12_conditioned.jsonl",
+      "sample_export_provenance_controls_enabled": false,
+      "sample_export_provenance_skip_counts": {},
+      "sample_export_records": 0,
+      "sample_export_require_support_gcd_one": false,
+      "sample_export_required_support_patterns": [],
+      "sample_export_scoring_avoided": false,
+      "sample_export_seed_bank_duplicate_skipped": 0,
+      "sample_export_seed_bank_enabled": false,
+      "sample_export_seed_bank_excluded_hash_skipped": 0,
+      "sample_export_seed_bank_invalid_rows_skipped": 0,
+      "sample_export_seed_bank_limit": null,
+      "sample_export_seed_bank_matching_rows": 0,
+      "sample_export_seed_bank_max_coefficient_height": null,
+      "sample_export_seed_bank_path": null,
+      "sample_export_seed_bank_records": 0,
+      "sample_export_seed_bank_target_r": null,
+      "sample_export_source_counts": {},
+      "sample_export_stop_reason": null,
+      "sample_export_summary_path": null,
+      "sample_export_target_r_intent_counts": {},
+      "sample_export_template_family_counts": {},
+      "sample_export_unique_decoded_coefficients": null,
+      "sample_export_unique_target": null,
+      "status": "completed",
+      "stderr_tail": [
+        "INFO - 07/10/26 00:43:27 - 0:00:04 - step 400 | loss 0.0141 | steps time 837.11ms",
+        "INFO - 07/10/26 00:43:28 - 0:00:05 - step 500 | loss 0.0131 | steps time 837.50ms",
+        "INFO - 07/10/26 00:43:29 - 0:00:06 - step 600 | loss 0.0129 | steps time 837.63ms",
+        "INFO - 07/10/26 00:43:29 - 0:00:06 - step 600 train loss: 0.013439457857360443 test loss: 0.28147420287132263",
+        "INFO - 07/10/26 00:43:29 - 0:00:06 - generator sampled counts through step 600: {'role': {'score_positive': 76800}, 'label': {'24T9993': 25387, '24T22770': 51413}, 'construction_family': {'unknown': 25387, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8': 25646, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2': 25767}}",
+        "INFO - 07/10/26 00:43:30 - 0:00:07 - step 700 | loss 0.0134 | steps time 836.04ms",
+        "INFO - 07/10/26 00:43:31 - 0:00:08 - step 800 | loss 0.0135 | steps time 837.69ms",
+        "INFO - 07/10/26 00:43:31 - 0:00:08 - step 900 | loss 0.0127 | steps time 838.40ms",
+        "INFO - 07/10/26 00:43:31 - 0:00:08 - step 900 train loss: 0.025722331072514256 test loss: 0.24321576952934265",
+        "INFO - 07/10/26 00:43:31 - 0:00:08 - generator sampled counts through step 900: {'role': {'score_positive': 115200}, 'label': {'24T9993': 38229, '24T22770': 76971}, 'construction_family': {'unknown': 38229, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8': 38413, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2': 38558}}",
+        "INFO - 07/10/26 00:43:32 - 0:00:09 - step 1000 | loss 0.0127 | steps time 838.63ms",
+        "INFO - 07/10/26 00:43:33 - 0:00:10 - step 1100 | loss 0.0125 | steps time 840.64ms",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - step 1200 | loss 0.0128 | steps time 837.96ms",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - step 1200 train loss: 0.01278542784973979 test loss: 0.2720707952976227",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - generator sampled counts through step 1200: {'role': {'score_positive': 153600}, 'label': {'24T9993': 51127, '24T22770': 102473}, 'construction_family': {'unknown': 51127, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8': 51127, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2': 51346}}",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - Generator sampled counts: {'role': {'score_positive': 153600}, 'label': {'24T9993': 51127, '24T22770': 102473}, 'construction_family': {'unknown': 51127, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=8': 51127, 'single_base_coefficient_perturbation|pos=1,2,3,4,5,6|neg=1,2,3,4,5,6|y=2': 51346}}",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - [Epoch 0 AFTER_TRAIN] CPU: 0.0% | RAM: 1120.2MB",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - Export-only model sampling to /home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_model_sample_export_target_r12_conditioned.jsonl",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - Export-only controls: dedup_enabled=True unique_target=64 attempt_budget=8192 progress_interval=128 seed_bank_requested=False provenance_controls=True",
+        "INFO - 07/10/26 00:43:34 - 0:00:11 - 0 / 8192 samples attempted for export",
+        "Traceback (most recent call last):",
+        "  File \"/home/zpconn/code/igp24-axplorer/train.py\", line 361, in <module>",
+        "    export_summary = sample_and_export(model, args, stoi, itos, env, temperature, args.temp_span, export_path=export_path)",
+        "  File \"/home/zpconn/code/igp24-axplorer/src/evaluator.py\", line 818, in sample_and_export",
+        "    batch_numpy = model.generate(",
+        "  File \"/home/zpconn/code/axplorer/.venv/lib/python3.10/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context",
+        "    return func(*args, **kwargs)",
+        "  File \"/home/zpconn/code/igp24-axplorer/src/models/model.py\", line 160, in generate",
+        "    v, _ = torch.topk(logits, top_k)",
+        "RuntimeError: selected index k out of range"
+      ],
+      "stdout_tail": [],
+      "strategy_mix": {},
+      "target_r": 12,
+      "target_r_conditioning_mode": "control_token",
+      "target_r_match_count": null,
+      "target_r_match_rate": null,
+      "target_r_seed": "33012",
+      "target_r_seed_bank_jsonl": null,
+      "target_r_seed_bank_limit": null,
+      "target_r_training_jsonl": "data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl",
+      "target_r_training_target_rs": "8,12,16,20,24",
+      "timed_out": false,
+      "train_log": {
+        "cuda_memory": [
+          {
+            "allocated_mb": 18.98,
+            "reserved_mb": 34.0
+          }
+        ],
+        "cuda_memory_logged": true,
+        "epoch_count": 1,
+        "eval_losses": [
+          {
+            "step": 300,
+            "test_loss": 0.24304050207138062,
+            "train_loss": 0.1139553140134861
+          },
+          {
+            "step": 600,
+            "test_loss": 0.28147420287132263,
+            "train_loss": 0.013439457857360443
+          },
+          {
+            "step": 900,
+            "test_loss": 0.24321576952934265,
+            "train_loss": 0.025722331072514256
+          },
+          {
+            "step": 1200,
+            "test_loss": 0.2720707952976227,
+            "train_loss": 0.01278542784973979
+          }
+        ],
+        "exists": true,
+        "line_count": 132,
+        "logged_device": "cuda",
+        "max_cuda_allocated_mb": 18.98,
+        "max_cuda_reserved_mb": 34.0,
+        "sample_export_dedup_progress_logged": false,
+        "sample_export_only_logged": true,
+        "sample_invalid_before_local_search_total": 0,
+        "sample_requested_total": 0,
+        "sample_sections": [],
+        "sample_valid_total": 0,
+        "step_losses": [
+          {
+            "loss": 0.0245,
+            "step": 100,
+            "step_time_ms": 1094.99
+          },
+          {
+            "loss": 0.0165,
+            "step": 200,
+            "step_time_ms": 838.76
+          },
+          {
+            "loss": 0.0142,
+            "step": 300,
+            "step_time_ms": 838.72
+          },
+          {
+            "loss": 0.0141,
+            "step": 400,
+            "step_time_ms": 837.11
+          },
+          {
+            "loss": 0.0131,
+            "step": 500,
+            "step_time_ms": 837.5
+          },
+          {
+            "loss": 0.0129,
+            "step": 600,
+            "step_time_ms": 837.63
+          },
+          {
+            "loss": 0.0134,
+            "step": 700,
+            "step_time_ms": 836.04
+          },
+          {
+            "loss": 0.0135,
+            "step": 800,
+            "step_time_ms": 837.69
+          },
+          {
+            "loss": 0.0127,
+            "step": 900,
+            "step_time_ms": 838.4
+          },
+          {
+            "loss": 0.0127,
+            "step": 1000,
+            "step_time_ms": 838.63
+          },
+          {
+            "loss": 0.0125,
+            "step": 1100,
+            "step_time_ms": 840.64
+          },
+          {
+            "loss": 0.0128,
+            "step": 1200,
+            "step_time_ms": 837.96
+          }
+        ],
+        "train_only_skip_logged": false
+      },
+      "train_log_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose/gpu_sample_export_target_r12_conditioned_dump/igp24_gpu_sample_export_target_r12_conditioned/axg114_r12_postremediation_mixed_loose_20260710_gpu/train.log"
+    }
+  },
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "target_r": 12,
+  "target_r_conditioned_avoid_even_support_like": false,
+  "target_r_conditioned_basin_fingerprint_cap": 2,
+  "target_r_conditioned_excluded_hashes_jsonl": "data/igp24/active_learning/axg114_hash_exclusions_20260710.jsonl",
+  "target_r_conditioned_excluded_support_patterns": "",
+  "target_r_conditioned_family_cap": 8,
+  "target_r_conditioned_require_support_gcd_one": false,
+  "target_r_conditioned_required_support_patterns": "",
+  "target_r_model_sample_attempts": 8192,
+  "target_r_seed_bank_jsonl": null,
+  "target_r_seed_bank_limit": null,
+  "target_r_training_jsonl": "data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl",
+  "target_r_training_target_rs": "8,12,16,20,24"
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-10T05:48:06.776395+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "7f14ff62d2eb52f004506945227a67aac5d5dd03",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/adaptive_reviewed_candidates_40primes/adaptive_reviewed_candidates.jsonl"
+    ],
+    "candidate_count": 3,
+    "route_outcome_paths": [],
+    "route_outcome_count": 0,
+    "caps": {
+      "construction_family": 4,
+      "template_family_id": 2,
+      "perturbation_mode": 2,
+      "basin_fingerprint": 1,
+      "mod_p_pattern_signature": 1,
+      "compatible_label_cluster": 1,
+      "r": 4
+    },
+    "minimum_frobenius_primes": 40
+  },
+  "candidate_count": 3,
+  "eligible_candidate_count": 2,
+  "selected_rows": 1,
+  "rejected_rows": 2,
+  "reject_reason_counts": {
+    "not_eligible_for_packet": 1,
+    "crowded_only": 1
+  },
+  "crowded_only_candidates_rejected": 1,
+  "known_submission_hash_candidates_rejected": 0,
+  "construction_route_outcome_candidates_rejected": 0,
+  "pair_evidence_missing_candidates": 0,
+  "insufficient_adaptive_frobenius_candidates": 0,
+  "selected_possible_uncovered_pair_count": 0,
+  "selected_possible_low_team_pair_count": 1,
+  "selected_possible_uncovered_pairs": [],
+  "selected_possible_low_team_pairs": [
+    "24T24999|r=12"
+  ],
+  "distinct_compatible_label_clusters": 1,
+  "selected_compatible_label_clusters": [
+    "24T24413|r=12|24T24558|r=12|24T24970|r=12|24T24999|r=12"
+  ],
+  "best_case_packet_points": 0.015625,
+  "expected_score_ceiling": 0.015625,
+  "expected_score_ceiling_deprecated": true,
+  "expected_score_estimate": null,
+  "expected_points_status": "unavailable_uncalibrated",
+  "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+  "selected_diversity": {
+    "construction_family": {
+      "model_sample_export": 1
+    },
+    "template_family_id": {
+      "model:mixed:r12:even_support_like": 1
+    },
+    "perturbation_mode": {
+      "even_support_g_x2_like": 1
+    },
+    "basin_fingerprint": {
+      "f72dd60091e6003c43527d51": 1
+    },
+    "mod_p_pattern_signature": {
+      "": 1
+    },
+    "r": {
+      "12": 1
+    }
+  },
+  "local_packet_ready_for_review": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [
+    {
+      "rank": 1,
+      "short_hash": "4b4d9399b761",
+      "marginal_best_case_points": 0.015625,
+      "marginal_estimated_points": null,
+      "best_case_points": 0.015625,
+      "maximum_possible_points": 0.015625,
+      "expected_points_status": "unavailable_uncalibrated",
+      "possible_uncovered_pairs": [],
+      "possible_uncovered_pair_count": 0,
+      "possible_low_team_pairs": [
+        "24T24999|r=12"
+      ],
+      "possible_low_team_pair_count": 1,
+      "valuable_targets_not_ruled_out": [
+        "24T24999|r=12"
+      ],
+      "valuable_targets_not_ruled_out_count": 1,
+      "indexed_target_survivor_count": 7,
+      "compatible_label_count": 7,
+      "frobenius_usable_prime_count": 40,
+      "minimum_frobenius_primes_required": 40,
+      "adaptive_evidence_status": "sufficient_adaptive_frobenius_evidence",
+      "features": {
+        "canonical_hash": "4b4d9399b7618ba169368189f873c3c883247666bc112abcd27ddcccee9d88f5",
+        "short_hash": "4b4d9399b761",
+        "label": null,
+        "pair_key": null,
+        "r": 12,
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:mixed:r12:even_support_like",
+        "perturbation_mode": "even_support_g_x2_like",
+        "basin_fingerprint": "f72dd60091e6003c43527d51",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:mixed:r12:even_support_like:f72dd60091e6003c43527d51"
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_summary.json",
+    "report_md": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed/packet_optimizer_hashes.txt"
+  }
+}

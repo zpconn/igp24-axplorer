@@ -1,0 +1,56 @@
+{
+  "created_at_utc": "2026-07-10T05:45:18.701055+00:00",
+  "decoded_input_records": 9,
+  "gpu_probe_summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples",
+  "real_root_counts": {
+    "12": 3,
+    "4": 5
+  },
+  "records_read": 162,
+  "records_selected": 162,
+  "rejected_records": 1,
+  "report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples/score_report.md",
+  "runtime_seconds": 0.3715375649917405,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 9
+  },
+  "sample_export_source_target_r_survivors": {
+    "model_generate": 3
+  },
+  "score_all": true,
+  "score_command": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_score_sample_export.py data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_model_sample_export_target_r12_conditioned.jsonl --output_dir data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples --gpu_probe_summary data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_sampler_probe_summary.json --score_all true --coeff_bound 1000000000000000 --target_r 12 --prime_limit 11 --exact_score_timeout 0 --local_search false --max_local_search_steps 0 --exp_name axg114_r12_postremediation_score_export",
+  "scored_jsonl_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 0.0,
+    "canonical_hash_records": 9,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": -0.1111111111111111,
+    "proxy_scored_records": 8,
+    "rejected_records": 1,
+    "scored_records": 9,
+    "unique_canonical_hashes": 9
+  },
+  "scored_records": 9,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 153,
+  "source_commit": "7f14ff62d2eb52f004506945227a67aac5d5dd03",
+  "source_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_model_sample_export_target_r12_conditioned.jsonl",
+  "split_manifest_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples/split_workflow_manifest.json",
+  "split_report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples/split_workflow_report.md",
+  "summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/cpu_scored_samples/score_summary.json",
+  "target_r_survivor_count": 3,
+  "valid_records": 8
+}

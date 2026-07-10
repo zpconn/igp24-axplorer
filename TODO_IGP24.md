@@ -530,6 +530,36 @@ results change.
   from this corrected dataset, but any promoted model must beat the measured
   pre-remediation outcomes on known-hash reproduction, target-r yield, and
   adaptive valuable-target survival.
+- 2026-07-10 AXG-1.14 post-remediation GPU/offline-stack checkpoint:
+  registered `AXG-1.14` as a child of `AXG-1.13`, built
+  `data/igp24/active_learning/axg114_hash_exclusions_20260710.jsonl`
+  from prior exclusions, the fresh SAIR submission rows, and the corrected
+  post-remediation active-learning dataset, then ran two offline CUDA
+  export/scoring passes. The strict r8 run under
+  `data/igp24/axg114_postremediation_20260710/r8_cuda_mixed/` used CUDA on
+  the RTX 5090, reached max observed GPU utilization 90%, final train/test
+  loss 0.017/0.300, skipped 4,037 excluded-hash decodes, exported 45 records,
+  decoded 1 row, and scored 0 valid rows. The r12 loose top-k-20 run under
+  `data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/`
+  used CUDA, reached max observed GPU utilization 90%, final train/test loss
+  0.013/0.286, skipped 8,002 excluded-hash decodes, exported 162 records,
+  decoded 9 unique rows, scored 8 locally valid rows, and produced 3 exact
+  `r=12` survivors. Corrected 40-prime complete-index adaptive review of
+  those 3 survivors evaluated 3/3 with 0 failures, all exact labels missing,
+  2 rows retaining at least one valuable target after 40 usable primes, and
+  median indexed survivor count 2. The packet optimizer selected one
+  offline-review row (`4b4d9399b761`) with possible low-team target
+  `24T24999|r=12`, `best_case_packet_points=0.015625`, and
+  `expected_points_status=unavailable_uncalibrated`; live submission remains
+  recommended `false` because this is compatibility-only evidence, not exact
+  label verification. Registry validation after recording the run passed with
+  15 models, 24 runs, and 0 issues. Offline report:
+  `data/igp24/axg114_postremediation_20260710/OFFLINE_REPORT.md`. No live
+  SAIR submission was made. Lesson: the corrected generator-training contract
+  works and the full stack runs on GPU, but the tiny positive corpus is still
+  memorization-prone; the next AXG iteration needs more exact positive
+  diversity or a better non-memorizing construction-conditioned objective
+  before another submission attempt.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

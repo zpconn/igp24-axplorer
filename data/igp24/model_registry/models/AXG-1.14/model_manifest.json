@@ -1,0 +1,133 @@
+{
+  "architecture_config": {
+    "base_entrypoint": "train.py",
+    "status": "baseline_transformer_config_pending_full_training"
+  },
+  "checkpoint_paths": [
+    "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_sample_export_target_r12_conditioned_dump/igp24_gpu_sample_export_target_r12_conditioned/axg114_r12_postremediation_mixed_loose_top20_20260710_gpu/model.pt"
+  ],
+  "conditioning_fields": [
+    "target_r",
+    "construction_family",
+    "support_pattern_class",
+    "height_bucket",
+    "known_basin_avoidance_flag"
+  ],
+  "created_at": "2026-07-10T05:40:07.689723+00:00",
+  "description": "Post-remediation generator-training contract iteration from 20260710 dataset",
+  "device_gpu_info": {
+    "avg_gpu_utilization_percent_observed_r12": 31.413793103448278,
+    "device": "NVIDIA GeForce RTX 5090",
+    "logged_train_device": "cuda",
+    "max_cuda_reserved_mb": 34.0,
+    "max_gpu_utilization_percent_observed": 90.0,
+    "status": "observed_bounded_offline_runs"
+  },
+  "excluded_leakage_prevention_inputs": [
+    "SAIR API keys",
+    "unreleased future verifier outputs",
+    "raw live submission responses not represented as training labels"
+  ],
+  "git_commit": "7f14ff62d2eb52f004506945227a67aac5d5dd03",
+  "known_limitations": [
+    "AXG-1.14 overfits heavily to the tiny corrected score-positive corpus: r12 export skipped 8002 known/excluded hashes and produced only 9 unique decoded rows from 8192 attempts.",
+    "The only optimized survivor has compatibility-only evidence for 24T24999|r=12 and lacks exact Galois-label verification.",
+    "Live submission remains false until exact label/progress checks support a genuinely score-improving row."
+  ],
+  "model_version": "AXG-1.14",
+  "objective_loss_configuration": {
+    "loss": "not_configured_yet",
+    "primary": "proposal generation for valid degree-24 integer polynomials",
+    "secondary": "conditioned active-learning labels for exact-r yield and basin avoidance"
+  },
+  "parent_version": "AXG-1.13",
+  "purpose": "Baseline GPU proposal generator for IGP24 active learning.",
+  "random_seed": null,
+  "record_type": "igp24_axg_model_manifest",
+  "runs": [
+    {
+      "recorded_at": "2026-07-10T05:49:29.734666+00:00",
+      "run_id": "axg114_postremediation_offline_research_20260710",
+      "run_manifest": "data/igp24/model_registry/runs/AXG-1.14/axg114_postremediation_offline_research_20260710/run_manifest.json"
+    }
+  ],
+  "sair_submission": {
+    "automatic_live_submission": false,
+    "notes": "No AXG-1.14 rows submitted. One row survived offline compatibility review only; exact label remains unknown.",
+    "raw_gpu_samples_submitted": false,
+    "score_improved": false,
+    "submitted_to_sair": false
+  },
+  "sample_export_paths": [
+    "data/igp24/axg114_postremediation_20260710/r8_cuda_mixed/gpu_model_sample_export_target_r8_conditioned.jsonl",
+    "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/gpu_model_sample_export_target_r12_conditioned.jsonl"
+  ],
+  "schema_version": 1,
+  "training_command": {
+    "commands": [
+      "scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r 8 ...",
+      "scripts/igp24_gpu_sampler_probe.py --probe_mode sample_export_target_r_conditioned --target_r 12 ..."
+    ],
+    "status": "bounded_offline_runs_completed",
+    "summary": "data/igp24/axg114_postremediation_20260710/axg114_postremediation_offline_research_run_manifest.json"
+  },
+  "training_data_inputs": [
+    "data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl",
+    "data/igp24/active_learning/axg114_hash_exclusions_20260710.jsonl"
+  ],
+  "training_duration": {
+    "seconds": 87.358,
+    "status": "bounded_offline_runs_completed"
+  },
+  "validation_metrics": {
+    "adaptive_review": {
+      "evaluated_rows": 3,
+      "exact_label_missing_row_count": 3,
+      "failed_rows": 0,
+      "final_valuable_target_survival_rows": 2,
+      "index_metadata": {
+        "expected_global_group_count": 25000,
+        "global_index_complete": true,
+        "index_scope": "complete_degree24_universe",
+        "indexed_group_count": 25000,
+        "soundness": "necessary_target_exclusion_only",
+        "unindexed_label_mass_unknown": false
+      },
+      "input_rows": 3,
+      "max_usable_primes": 40
+    },
+    "packet_optimizer": {
+      "best_case_packet_points": 0.015625,
+      "candidate_count": 3,
+      "eligible_candidate_count": 2,
+      "expected_points_status": "unavailable_uncalibrated",
+      "live_submission_recommended_now": false,
+      "possible_low_team_pairs": [
+        "24T24999|r=12"
+      ],
+      "possible_uncovered_pairs": [],
+      "selected_hashes": [
+        "4b4d9399b761"
+      ],
+      "selected_rows": 1
+    },
+    "r12": {
+      "decoded_input_records": 9,
+      "excluded_hash_records_skipped": 8002,
+      "target_r_survivor_count": 3,
+      "valid_records": 8
+    },
+    "r8": {
+      "decoded_input_records": 1,
+      "excluded_hash_records_skipped": 4037,
+      "target_r_survivor_count": 0,
+      "valid_records": 0
+    },
+    "recommendation": {
+      "reason": "One compatibility-only low-team survivor exists, but exact label is missing and no live submission is authorized or recommended.",
+      "submit_now": false
+    },
+    "score_improved": false,
+    "status": "completed_no_score_improvement_yet"
+  }
+}
