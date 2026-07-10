@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-10T06:00:54.268725+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "8115d8196c5f496371441c02e05a456734a6d5c1",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/adaptive_reviewed_candidates_40primes/adaptive_reviewed_candidates.jsonl"
+    ],
+    "candidate_count": 3,
+    "route_outcome_paths": [],
+    "route_outcome_count": 0,
+    "reward_model_json": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_20260710/reward_model.json",
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    },
+    "minimum_frobenius_primes": 40
+  },
+  "candidate_count": 3,
+  "eligible_candidate_count": 2,
+  "selected_rows": 1,
+  "rejected_rows": 2,
+  "reject_reason_counts": {
+    "not_eligible_for_packet": 1,
+    "crowded_only": 1
+  },
+  "crowded_only_candidates_rejected": 1,
+  "known_submission_hash_candidates_rejected": 0,
+  "construction_route_outcome_candidates_rejected": 0,
+  "reward_model": {
+    "status": "scored_advisory_only",
+    "source_path": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_20260710/reward_model.json",
+    "scored_candidate_count": 3,
+    "selected_scored_candidate_count": 1,
+    "decision_counts": {
+      "advisory_sparse_positive_candidate": 3
+    },
+    "selected_decision_counts": {
+      "advisory_sparse_positive_candidate": 1
+    },
+    "mean_reward_probability": 0.99999962801,
+    "mean_collapse_risk_probability": 3.7199e-07,
+    "selected_mean_reward_probability": 0.999999628208,
+    "selected_mean_collapse_risk_probability": 3.71792e-07,
+    "max_selected_collapse_risk_probability": 3.71792e-07,
+    "selection_effect": "nonfatal_tiebreaker_not_score_expectation"
+  },
+  "pair_evidence_missing_candidates": 0,
+  "insufficient_adaptive_frobenius_candidates": 0,
+  "selected_possible_uncovered_pair_count": 0,
+  "selected_possible_low_team_pair_count": 1,
+  "selected_possible_uncovered_pairs": [],
+  "selected_possible_low_team_pairs": [
+    "24T24999|r=12"
+  ],
+  "distinct_compatible_label_clusters": 1,
+  "selected_compatible_label_clusters": [
+    "24T24413|r=12|24T24558|r=12|24T24970|r=12|24T24999|r=12"
+  ],
+  "best_case_packet_points": 0.015625,
+  "expected_score_ceiling": 0.015625,
+  "expected_score_ceiling_deprecated": true,
+  "expected_score_estimate": null,
+  "expected_points_status": "unavailable_uncalibrated",
+  "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+  "selected_diversity": {
+    "construction_family": {
+      "model_sample_export": 1
+    },
+    "template_family_id": {
+      "model:mixed:r12:even_support_like": 1
+    },
+    "perturbation_mode": {
+      "even_support_g_x2_like": 1
+    },
+    "basin_fingerprint": {
+      "f72dd60091e6003c43527d51": 1
+    },
+    "mod_p_pattern_signature": {
+      "": 1
+    },
+    "r": {
+      "12": 1
+    }
+  },
+  "local_packet_ready_for_review": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [
+    {
+      "rank": 1,
+      "short_hash": "4b4d9399b761",
+      "marginal_best_case_points": 0.015625,
+      "marginal_estimated_points": null,
+      "best_case_points": 0.015625,
+      "maximum_possible_points": 0.015625,
+      "expected_points_status": "unavailable_uncalibrated",
+      "possible_uncovered_pairs": [],
+      "possible_uncovered_pair_count": 0,
+      "possible_low_team_pairs": [
+        "24T24999|r=12"
+      ],
+      "possible_low_team_pair_count": 1,
+      "valuable_targets_not_ruled_out": [
+        "24T24999|r=12"
+      ],
+      "valuable_targets_not_ruled_out_count": 1,
+      "indexed_target_survivor_count": 7,
+      "compatible_label_count": 7,
+      "frobenius_usable_prime_count": 40,
+      "minimum_frobenius_primes_required": 40,
+      "adaptive_evidence_status": "sufficient_adaptive_frobenius_evidence",
+      "reward_model_status": "scored_advisory_only",
+      "reward_model_decision": "advisory_sparse_positive_candidate",
+      "reward_model_top_outcome": "score_positive",
+      "reward_probability": 0.999999628208,
+      "collapse_risk_probability": 3.71792e-07,
+      "reward_uncertainty_entropy": 5.349347e-06,
+      "features": {
+        "canonical_hash": "4b4d9399b7618ba169368189f873c3c883247666bc112abcd27ddcccee9d88f5",
+        "short_hash": "4b4d9399b761",
+        "label": null,
+        "pair_key": null,
+        "r": 12,
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:mixed:r12:even_support_like",
+        "perturbation_mode": "even_support_g_x2_like",
+        "basin_fingerprint": "f72dd60091e6003c43527d51",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:mixed:r12:even_support_like:f72dd60091e6003c43527d51"
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_summary.json",
+    "report_md": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_hashes.txt"
+  }
+}

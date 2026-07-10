@@ -560,6 +560,46 @@ results change.
   memorization-prone; the next AXG iteration needs more exact positive
   diversity or a better non-memorizing construction-conditioned objective
   before another submission attempt.
+- 2026-07-10 reward-advisory packet-planner checkpoint: connected the Phase 2
+  advisory reward/collapse-risk model to `scripts/igp24_packet_optimizer.py`
+  without turning it into a verifier or probability model. The optimizer now
+  accepts `--reward_model_json`, records per-row reward probability,
+  collapse-risk probability, decision, entropy, and top outcome, and uses
+  `reward_probability - collapse_risk_probability` only as a nonfatal
+  tie-breaker after score-ceiling and target-coverage terms. High collapse
+  risk alone never creates a packet rejection reason, and no numeric expected
+  official score is inferred from reward-model output. Added regression tests
+  proving advisory tie-break behavior and nonfatal high-risk handling. Also
+  fixed `scripts/igp24_score_reward_model.py` so standalone reward scoring
+  normalizes nested candidate/generation metadata the same way the packet
+  optimizer does; AXG reviewed rows no longer silently fall back to
+  canonical-hash-only families in diagnostics. Refreshed the Phase 2 model
+  from the corrected post-remediation dataset under
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_20260710/`.
+  Training summary: 459 rows, outcome counts
+  `{"crowded_accepted_collapse": 400, "score_positive": 8, "unknown": 12, "wrong_r": 39}`,
+  train/eval group overlap `[]`, eval supervised rows 89, advisory status
+  `advisory_insufficient_positive_data`. Standalone scoring for the three
+  AXG-1.14 r12 reviewed rows is under
+  `data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/reward_model_scored_reviewed_candidates_20260710/`;
+  all three remain observed-unknown `model_sample_export` rows with
+  `advisory_sparse_positive_candidate` decisions and very low learned
+  collapse-risk probabilities, which is useful telemetry but not evidence of
+  exact label value. Re-ran the AXG-1.14 40-prime reviewed pool through the
+  advisory-aware optimizer under
+  `data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/`.
+  Result: 3 candidates considered, 2 eligible, 1 selected
+  (`4b4d9399b761`), 0 known-submission rejections, 1 crowded-only rejection,
+  possible low-team target `24T24999|r=12`,
+  `best_case_packet_points=0.015625`,
+  `expected_points_status=unavailable_uncalibrated`, and live submission
+  recommended `false`. Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_reward_model.py tests/test_igp24_packet_optimizer.py`
+  -> 18 passed. No live SAIR submission was made. Lesson: the reward layer is
+  now integrated into packet planning and diagnostics, but the current
+  positive supervision is too sparse to promote AXG-1.14; next work should
+  build broader exact-positive/negative calibration or a more structured
+  construction lane before another submission-grade packet is plausible.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
