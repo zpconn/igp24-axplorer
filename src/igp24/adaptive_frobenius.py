@@ -60,11 +60,9 @@ def discriminant_from_record(record: dict[str, Any], coefficients: Sequence[int]
     for key in (
         "polynomial_discriminant_abs",
         "polynomial_disc_abs",
+        "polynomial_discriminant",
         "discriminant_abs",
         "discriminant",
-        "field_disc_abs",
-        "fieldDiscAbs",
-        "scoring_discriminant_abs",
     ):
         value = record.get(key)
         if value not in (None, ""):

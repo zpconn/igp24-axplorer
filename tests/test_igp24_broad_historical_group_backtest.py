@@ -36,11 +36,33 @@ def test_broad_historical_backtest_joins_scoreable_rows_to_local_evidence(tmp_pa
         [
             {
                 "canonical_hash": "known-a",
+                "record_type": "igp24_adaptive_frobenius_benchmark_row",
                 "features": {"construction_family": "fam", "perturbation_mode": "mode"},
                 "mod_p_factorization_degree_patterns": [
                     {"prime": 5, "degrees": [1, 23]},
                     {"prime": 7, "degrees": [3, 21]},
                 ],
+                "final_indexed_target_survivor_count": 1,
+                "final_valuable_targets_not_ruled_out": ["24T1|r=24"],
+                "true_label_survived": True,
+                "budget_results": {
+                    "1": {
+                        "status": "ok",
+                        "indexed_target_survivor_count": 2,
+                        "valuable_target_count": 1,
+                        "valuable_targets_not_ruled_out": ["24T1|r=24"],
+                        "true_label_indexed": True,
+                        "true_label_survived": True,
+                    },
+                    "2": {
+                        "status": "ok",
+                        "indexed_target_survivor_count": 1,
+                        "valuable_target_count": 1,
+                        "valuable_targets_not_ruled_out": ["24T1|r=24"],
+                        "true_label_indexed": True,
+                        "true_label_survived": True,
+                    },
+                },
             },
             {
                 "canonical_hash": "known-b",
@@ -99,6 +121,10 @@ def test_broad_historical_backtest_joins_scoreable_rows_to_local_evidence(tmp_pa
         if line.strip()
     ]
     outside = [row for row in rows if row["label"] == "24T24932"][0]
+    precomputed = [row for row in rows if row["canonical_hash"] == "known-a"][0]
+    recomputed = [row for row in rows if row["canonical_hash"] == "known-b"][0]
+    assert precomputed["compatibility_source"] == "precomputed_adaptive_evidence"
+    assert recomputed["compatibility_source"] == "recomputed_from_patterns"
     assert outside["true_label_indexed"] is False
     assert outside["unindexed_label_mass_unknown"] is True
     assert outside["valuable_target_count"] == 1

@@ -116,6 +116,7 @@ class GroupCycleIndex:
         provenance: dict[str, Any] | None = None,
         index_scope: str = "target_subset",
         expected_global_group_count: int = EXPECTED_GLOBAL_GROUP_COUNT,
+        global_index_complete: bool = False,
     ) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as conn:
@@ -153,7 +154,7 @@ class GroupCycleIndex:
                 "created_at": utc_now(),
                 "index_scope": index_scope,
                 "expected_global_group_count": int(expected_global_group_count),
-                "global_index_complete": False,
+                "global_index_complete": bool(global_index_complete),
                 "provenance": provenance or {},
             }
             for key, value in metadata.items():
@@ -185,34 +186,50 @@ class GroupCycleIndex:
         }
 
     def upsert_group(self, record: GroupRecord) -> None:
-        if record.degree != DEGREE:
-            raise ValueError(f"expected degree {DEGREE}, got {record.degree}")
-        cycle_types = sorted({cycle_type_key(parse_cycle_type_key(value)) for value in record.cycle_types})
+        self.upsert_groups([record])
+
+    def upsert_groups(self, records: Iterable[GroupRecord]) -> None:
+        prepared: list[tuple[GroupRecord, list[str]]] = []
+        for record in records:
+            if record.degree != DEGREE:
+                raise ValueError(f"expected degree {DEGREE}, got {record.degree}")
+            cycle_types = sorted({cycle_type_key(parse_cycle_type_key(value)) for value in record.cycle_types})
+            prepared.append((record, cycle_types))
+        if not prepared:
+            return
+        labels = [record.label for record, _cycle_types in prepared]
         with self.connect() as conn:
-            conn.execute(
+            conn.executemany("DELETE FROM group_cycle_types WHERE label = ?", [(label,) for label in labels])
+            conn.executemany(
                 """
                 INSERT OR REPLACE INTO groups(
                     label, t, degree, group_order, primitive, solvable, parity,
                     block_sizes_json, status, provenance_json
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
-                    record.label,
-                    int(record.t),
-                    int(record.degree),
-                    str(record.order) if record.order is not None else None,
-                    None if record.primitive is None else int(bool(record.primitive)),
-                    None if record.solvable is None else int(bool(record.solvable)),
-                    record.parity,
-                    json.dumps(list(record.block_sizes), sort_keys=True),
-                    record.status,
-                    json.dumps(record.provenance or {}, sort_keys=True),
-                ),
+                [
+                    (
+                        record.label,
+                        int(record.t),
+                        int(record.degree),
+                        str(record.order) if record.order is not None else None,
+                        None if record.primitive is None else int(bool(record.primitive)),
+                        None if record.solvable is None else int(bool(record.solvable)),
+                        record.parity,
+                        json.dumps(list(record.block_sizes), sort_keys=True),
+                        record.status,
+                        json.dumps(record.provenance or {}, sort_keys=True),
+                    )
+                    for record, _cycle_types in prepared
+                ],
             )
-            conn.execute("DELETE FROM group_cycle_types WHERE label = ?", (record.label,))
             conn.executemany(
                 "INSERT OR IGNORE INTO group_cycle_types(label, cycle_type) VALUES (?, ?)",
-                [(record.label, value) for value in cycle_types],
+                [
+                    (record.label, cycle_type)
+                    for record, cycle_types in prepared
+                    for cycle_type in cycle_types
+                ],
             )
 
     def group_count(self) -> int:
@@ -325,6 +342,17 @@ def _row_discriminant(row: dict[str, Any]) -> int | None:
         except (TypeError, ValueError):
             continue
     return None
+
+
+def _row_polynomial_discriminant(row: dict[str, Any]) -> tuple[int | None, str | None]:
+    for key in ("polynomial_discriminant_abs", "polynomial_disc_abs", "polynomial_discriminant", "discriminant"):
+        value = row.get(key)
+        try:
+            if value is not None and value != "":
+                return int(value), key
+        except (TypeError, ValueError):
+            continue
+    return None, None
 
 
 def _progress_by_pair(progress_rows: Iterable[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -532,14 +560,19 @@ def candidate_compatibility(
             missing_cycle_types.append(str(item["cycle_type"]))
         compatible &= labels
 
-    discriminant_square = is_square_integer(_row_discriminant(row))
+    polynomial_discriminant, polynomial_discriminant_source = _row_polynomial_discriminant(row)
+    discriminant_square = is_square_integer(polynomial_discriminant)
     parity_filter_applied = False
+    parity_filter_status = "polynomial_discriminant_missing"
     if discriminant_square is True and compatible:
         records = index.records_for_labels(compatible)
         even_labels = {label for label, record in records.items() if record.parity in {None, "even"}}
         if even_labels != compatible:
             compatible = even_labels
             parity_filter_applied = True
+        parity_filter_status = "applied_polynomial_discriminant_square"
+    elif discriminant_square is False:
+        parity_filter_status = "not_square_polynomial_discriminant"
 
     r_value = _row_r_value(row)
     progress = _progress_by_pair(progress_rows or [])
@@ -592,7 +625,9 @@ def candidate_compatibility(
             "cycle_types": [item["cycle_type"] for item in evidence],
             "missing_cycle_types": missing_cycle_types,
             "discriminant_square": discriminant_square,
+            "polynomial_discriminant_source": polynomial_discriminant_source,
             "parity_filter_applied": parity_filter_applied,
+            "parity_filter_status": parity_filter_status,
         },
         "evidence_strength": "modular_cycle_target_exclusion",
         "warning": "indexed survivors are necessary target-exclusion evidence only; unindexed labels remain possible unless the index is complete",

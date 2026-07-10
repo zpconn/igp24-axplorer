@@ -14,3 +14,5 @@ checkpoint/
 data/igp24/r24_tower_odd_escape_probe_20260707/r24_tower_odd_escape_rejected_trials.jsonl
 data/igp24/**/gpu_model_sample_export_*.jsonl
 data/igp24/**/gpu_sample_export_*_dump/
+data/igp24/**/degree24_group_cycle_index.sqlite
+data/igp24/**/*.sqlite-journal

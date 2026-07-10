@@ -5,6 +5,7 @@ from src.igp24.adaptive_frobenius import (
     adaptive_frobenius_evidence,
     collect_frobenius_observations,
     coefficients_from_record,
+    discriminant_from_record,
     factorization_degrees_mod_prime,
 )
 from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord, cycle_type_key
@@ -73,6 +74,15 @@ def test_collect_frobenius_observations_skips_ramified_primes_and_tracks_survivo
     assert result["final_compatibility"]["indexed_target_labels_not_ruled_out"] == ["24T1"]
 
 
+def test_field_discriminant_is_not_used_for_polynomial_factorization_safety():
+    record = {**_record(), "field_disc_abs": "1"}
+
+    discriminant, source = discriminant_from_record(record, coefficients_from_record(record))
+
+    assert source == "computed_sympy_polynomial_discriminant"
+    assert discriminant != 1
+
+
 def test_adaptive_frobenius_stops_when_survivor_set_stabilizes(tmp_path):
     index = _index_for_valid(tmp_path / "groups.sqlite")
 
@@ -125,8 +135,15 @@ def test_adaptive_frobenius_benchmark_cli_outputs_budget_summary(tmp_path):
     )
 
     summary = json.loads((output / "adaptive_frobenius_benchmark_summary.json").read_text(encoding="utf-8"))
+    rows = [
+        json.loads(line)
+        for line in (output / "adaptive_frobenius_benchmark_rows.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     assert summary["input_row_count"] == 1
     assert summary["evaluated_row_count"] == 1
     assert summary["failed_row_count"] == 0
     assert summary["budget_summary"]["1"]["median_indexed_target_survivor_count"] == 2
     assert summary["budget_summary"]["2"]["median_indexed_target_survivor_count"] == 1
+    assert len(rows[0]["mod_p_factorization_degree_patterns"]) == 2
+    assert len(rows[0]["observations"]) == 2

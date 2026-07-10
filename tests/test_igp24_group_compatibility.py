@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+import scripts.igp24_build_group_cycle_index as build_group_cycle_index
 from scripts.igp24_build_group_cycle_index import (
     gap_program,
     import_rows_into_index,
@@ -147,6 +148,20 @@ def test_discriminant_square_applies_sound_even_group_filter(tmp_path):
 
     assert result["compatible_labels"] == ["24T3"]
     assert result["evidence"]["parity_filter_applied"] is True
+
+
+def test_square_field_discriminant_does_not_apply_parity_filter(tmp_path):
+    index = _build_fixture_index(tmp_path / "groups.sqlite")
+    row = _candidate_row()
+    row.pop("discriminant", None)
+    row["field_disc_abs"] = 49
+
+    result = candidate_compatibility(row, index)
+
+    assert result["compatible_labels"] == ["24T2", "24T3"]
+    assert result["evidence"]["parity_filter_applied"] is False
+    assert result["evidence"]["parity_filter_status"] == "polynomial_discriminant_missing"
+    assert result["evidence"]["polynomial_discriminant_source"] is None
 
 
 def test_historical_containment_reports_failures(tmp_path):
@@ -389,6 +404,39 @@ def test_group_cycle_index_import_rejects_missing_expected_labels(tmp_path):
             import_source=None,
             expected_labels=["24T1", "24T2"],
         )
+
+
+def test_group_cycle_index_import_marks_complete_universe_when_expected_labels_match(tmp_path, monkeypatch):
+    monkeypatch.setattr(build_group_cycle_index, "EXPECTED_GLOBAL_GROUP_COUNT", 3)
+    rows = [
+        {
+            "label": f"24T{number}",
+            "t": number,
+            "group_order": "24",
+            "primitive": False,
+            "solvable": True,
+            "parity": "mixed",
+            "block_sizes": [2, 12],
+            "cycle_types": ["1.23"],
+        }
+        for number in range(1, 4)
+    ]
+    index = GroupCycleIndex(tmp_path / "degree24.sqlite")
+
+    summary = build_group_cycle_index.import_rows_into_index(
+        rows,
+        index,
+        import_source=None,
+        expected_labels=["24T1", "24T2", "24T3"],
+    )
+
+    metadata = index.metadata()
+    assert summary["index_scope"] == "complete_degree24_universe"
+    assert summary["global_index_complete"] is True
+    assert metadata["index_scope"] == "complete_degree24_universe"
+    assert metadata["global_index_complete"] is True
+    assert metadata["expected_global_group_count"] == 3
+    assert index.scope_metadata()["unindexed_label_mass_unknown"] is False
 
 
 def test_group_cycle_index_builder_strict_import_rejects_missing_labels(tmp_path):

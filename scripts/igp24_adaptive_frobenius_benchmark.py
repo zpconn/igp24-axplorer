@@ -136,6 +136,8 @@ def run_rows(
                 "usable_prime_count": collected.get("usable_prime_count"),
                 "primes_examined": collected.get("primes_examined"),
                 "skipped_ramified_primes": collected.get("skipped_ramified_primes"),
+                "mod_p_factorization_degree_patterns": collected.get("mod_p_factorization_degree_patterns") or [],
+                "observations": collected.get("observations") or [],
                 "final_indexed_target_survivor_count": final.get("indexed_target_survivor_count"),
                 "final_valuable_target_count": len(final.get("valuable_targets_not_ruled_out") or []),
                 "final_valuable_targets_not_ruled_out": final.get("valuable_targets_not_ruled_out") or [],

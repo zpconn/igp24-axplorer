@@ -365,25 +365,34 @@ def import_rows_into_index(
     integrity = import_integrity(rows, expected_labels=expected_labels)
     if not integrity["integrity_ok"]:
         raise ValueError(f"group row integrity check failed: {integrity}")
+    expected = normalized_labels(expected_labels)
+    complete_degree24_universe = expected == [
+        f"24T{number}" for number in range(1, EXPECTED_GLOBAL_GROUP_COUNT + 1)
+    ]
+    index_scope = "complete_degree24_universe" if complete_degree24_universe else "target_subset"
     index.initialize(
         provenance={
             "builder": "scripts/igp24_build_group_cycle_index.py",
             "mode": "import_rows",
             "import_source": str(import_source) if import_source else None,
             **(extra_provenance or {}),
-        }
+        },
+        index_scope=index_scope,
+        expected_global_group_count=EXPECTED_GLOBAL_GROUP_COUNT,
+        global_index_complete=complete_degree24_universe,
     )
-    imported: list[str] = []
+    records: list[GroupRecord] = []
     errors: list[dict[str, Any]] = []
     for row_number, row in enumerate(rows, start=1):
         try:
             record = record_from_gap(row)
-            index.upsert_group(record)
-            imported.append(record.label)
+            records.append(record)
         except Exception as exc:  # noqa: BLE001 - preserve bad-row context in summary.
             errors.append({"row_number": row_number, "error": str(exc), "row": row})
     if errors:
         raise ValueError(f"failed to import {len(errors)} group rows: {errors[:3]}")
+    index.upsert_groups(records)
+    imported = [record.label for record in records]
     return {
         "schema_version": 1,
         "record_type": "igp24_group_cycle_index_import_summary",
@@ -395,6 +404,9 @@ def import_rows_into_index(
         "labels_imported": sorted(imported, key=lambda label: parse_label(label)[1]),
         "integrity": integrity,
         "group_count": index.group_count(),
+        "index_scope": index_scope,
+        "expected_global_group_count": EXPECTED_GLOBAL_GROUP_COUNT,
+        "global_index_complete": complete_degree24_universe,
         "source": "gap_json_rows",
         "no_approximation_written": False,
     }

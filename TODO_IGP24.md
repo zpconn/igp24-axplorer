@@ -33,6 +33,63 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-09/10 full-index and discriminant-safety remediation checkpoint:
+  recovered the local GAP environment by downloading/extracting `gap-smallgrp`
+  into `/tmp/igp24_gap_local` and verified `smallgrp` + `transgrp` locally.
+  Resumed the exact GAP workflow without restarting completed chunks and
+  completed the full degree-24 transitive-group cycle index:
+  `data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/`.
+  Final import integrity is clean: 100/100 chunks, 25,000 rows imported,
+  labels `24T1` through `24T25000` present, 942,607 group-cycle-type rows,
+  `index_scope=complete_degree24_universe`, `global_index_complete=true`,
+  and `unindexed_label_mass_unknown=false`. Added explicit complete-universe
+  metadata support and batched SQLite group import so reuse-only imports now
+  finish in seconds instead of slow one-row writes. The generated SQLite index
+  is intentionally local-only because it is over GitHub's normal file-size
+  limit; rebuild it from the committed combined JSONL/chunk outputs with the
+  reuse/import workflow when needed. Readiness against the full index under
+  `data/igp24/remediation_20260709/group_index_readiness_gate_phase3/full_degree24_universe_20260709/`
+  covers all 25 top target labels, finds 125 structurally eligible routes,
+  but still blocks group-directed generation with
+  `no_executable_generation_ready_routes`; live submission remains
+  recommended `false`.
+- 2026-07-09/10 corrected adaptive-Frobenius calibration checkpoint:
+  fixed two discriminant-safety bugs before trusting full-index evidence.
+  First, parity filtering now requires an explicit polynomial discriminant;
+  square `field_disc_abs`/`nfdisc` no longer forces an even-group filter.
+  Second, adaptive modular factorization now skips primes dividing the
+  polynomial discriminant, not merely primes dividing `field_disc_abs`; the
+  latter can miss index-dividing primes where the defining polynomial's
+  mod-`p` factorization is not safe Frobenius evidence. The previous full-index
+  adaptive artifacts
+  `scoreable_rows_234x10primes_full_index_20260709/`,
+  `scoreable_rows_234x10primes_full_index_poly_disc_20260709/`, and
+  `scoreable_rows_25x20primes_full_index_20260709/` should be treated as
+  superseded calibration attempts. Corrected artifacts are
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_poly_disc_patterns_20260709/`
+  and
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_25x20primes_full_index_poly_disc_20260709/`.
+  The all-scoreable 10-prime run evaluated 233/234 rows, skipped one timeout
+  row (`86f62f433b3f`, `24T657|r=8`), used computed polynomial
+  discriminants for every evaluated row, had 0 true-label containment
+  failures, median survivor count 2 at 5 primes and 1 at 10 primes, and
+  reduced valuable-target survival from 73 rows at 5 primes to 36 rows at
+  10 primes. The 25-row 20-prime slice had 25/25 evaluated, 0 failures,
+  0 containment failures, and 0 valuable-target survival by 10 and 20 primes.
+  Adaptive benchmark rows now persist `mod_p_factorization_degree_patterns`
+  and observations so they can be reused as local evidence.
+- 2026-07-09/10 full-index broad historical backtest checkpoint: reran the
+  broad historical backtest using the corrected adaptive evidence rows instead
+  of rescanning missing evidence roots. Artifact:
+  `data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/`.
+  It covers 234 scoreable rows across 16 labels and 28 pairs, evaluates
+  233 rows across 15 labels and 27 pairs, skips only the timeout row lacking
+  persisted local evidence, has 0 true-label outside-index rows and 0 indexed
+  containment failures, and reports 36 valuable-target false-positive rows at
+  10 primes. This confirms the full index is now usable for global
+  necessary-exclusion semantics, but 10-prime compatibility still leaves many
+  valuable false positives and is not exact label verification or a submission
+  recommendation.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

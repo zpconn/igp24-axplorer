@@ -227,6 +227,27 @@ def compatibility_at_budgets(
     return out
 
 
+def precomputed_adaptive_budget_results(row: dict[str, Any], budgets: list[int]) -> dict[str, Any] | None:
+    budget_results = row.get("budget_results")
+    if not isinstance(budget_results, dict):
+        return None
+    out: dict[str, Any] = {}
+    for budget in budgets:
+        key = str(budget)
+        value = budget_results.get(key)
+        if not isinstance(value, dict):
+            return None
+        out[key] = {
+            "status": value.get("status"),
+            "indexed_target_survivor_count": value.get("indexed_target_survivor_count"),
+            "valuable_target_count": value.get("valuable_target_count"),
+            "valuable_targets_not_ruled_out": value.get("valuable_targets_not_ruled_out") or [],
+            "true_label_indexed": value.get("true_label_indexed"),
+            "true_label_survived": value.get("true_label_survived"),
+        }
+    return out
+
+
 def run_backtest(
     *,
     scoreable_rows: list[dict[str, Any]],
@@ -252,8 +273,23 @@ def run_backtest(
             )
             continue
         row = scoreable_to_backtest_row(scoreable, evidence)
-        compat = candidate_compatibility(row, group_index, progress_rows=progress_rows)
         true_label = str(row.get("label") or "")
+        evidence_row = evidence["row"]
+        precomputed_budgets = precomputed_adaptive_budget_results(evidence_row, budgets)
+        if precomputed_budgets is not None and evidence_row.get("final_indexed_target_survivor_count") is not None:
+            compat = {
+                "status": "ok" if int(evidence_row.get("final_indexed_target_survivor_count") or 0) > 0 else "empty_compatible_set",
+                "indexed_target_survivor_count": evidence_row.get("final_indexed_target_survivor_count"),
+                "valuable_targets_not_ruled_out": evidence_row.get("final_valuable_targets_not_ruled_out") or [],
+                "crowded_only": None,
+                **group_index.scope_metadata(),
+            }
+            budget_results = precomputed_budgets
+            true_label_survived = bool(evidence_row.get("true_label_survived"))
+        else:
+            compat = candidate_compatibility(row, group_index, progress_rows=progress_rows)
+            budget_results = compatibility_at_budgets(row, group_index, progress_rows, budgets)
+            true_label_survived = true_label in set(compat.get("indexed_target_labels_not_ruled_out") or [])
         row_result = {
             "schema_version": 1,
             "record_type": "igp24_broad_historical_group_backtest_row",
@@ -263,7 +299,7 @@ def run_backtest(
             "r": row.get("r"),
             "pair_key": row.get("pair_key"),
             "true_label_indexed": true_label in all_indexed_labels,
-            "true_label_survived": true_label in set(compat.get("indexed_target_labels_not_ruled_out") or []),
+            "true_label_survived": true_label_survived,
             "indexed_target_survivor_count": compat.get("indexed_target_survivor_count"),
             "valuable_targets_not_ruled_out": compat.get("valuable_targets_not_ruled_out") or [],
             "valuable_target_count": len(compat.get("valuable_targets_not_ruled_out") or []),
@@ -273,10 +309,11 @@ def run_backtest(
             "global_index_complete": compat.get("global_index_complete"),
             "unindexed_label_mass_unknown": compat.get("unindexed_label_mass_unknown"),
             "evidence_pattern_count": len(row.get("mod_p_factorization_degree_patterns") or []),
+            "compatibility_source": "precomputed_adaptive_evidence" if precomputed_budgets is not None else "recomputed_from_patterns",
             "construction_family": row.get("construction_family"),
             "template_family_id": row.get("template_family_id"),
             "perturbation_mode": row.get("perturbation_mode"),
-            "budget_results": compatibility_at_budgets(row, group_index, progress_rows, budgets),
+            "budget_results": budget_results,
             "source": row.get("source"),
         }
         rows.append(row_result)

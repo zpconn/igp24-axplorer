@@ -1,0 +1,178 @@
+{
+  "budget_summary": {
+    "10": {
+      "evaluated_rows": 233,
+      "indexed_containment_failures": 1,
+      "median_indexed_target_survivor_count": 1,
+      "rows_with_budget_reached": 233,
+      "valuable_target_survival_rows": 35
+    },
+    "5": {
+      "evaluated_rows": 233,
+      "indexed_containment_failures": 1,
+      "median_indexed_target_survivor_count": 2,
+      "rows_with_budget_reached": 233,
+      "valuable_target_survival_rows": 71
+    }
+  },
+  "budgets": [
+    5,
+    10
+  ],
+  "by_actual_label": {
+    "24T1310": {
+      "final_valuable_target_survival_rows": 2,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 3807,
+      "row_count": 2,
+      "true_label_indexed_rows": 2
+    },
+    "24T21844": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 35,
+      "row_count": 1,
+      "true_label_indexed_rows": 1
+    },
+    "24T22770": {
+      "final_valuable_target_survival_rows": 2,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 20,
+      "row_count": 2,
+      "true_label_indexed_rows": 2
+    },
+    "24T23883": {
+      "final_valuable_target_survival_rows": 3,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 310,
+      "row_count": 3,
+      "true_label_indexed_rows": 3
+    },
+    "24T24648": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 5,
+      "row_count": 1,
+      "true_label_indexed_rows": 1
+    },
+    "24T24651": {
+      "final_valuable_target_survival_rows": 10,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 10,
+      "row_count": 17,
+      "true_label_indexed_rows": 17
+    },
+    "24T24759": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 5,
+      "row_count": 1,
+      "true_label_indexed_rows": 1
+    },
+    "24T24932": {
+      "final_valuable_target_survival_rows": 0,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 2,
+      "row_count": 20,
+      "true_label_indexed_rows": 20
+    },
+    "24T24970": {
+      "final_valuable_target_survival_rows": 5,
+      "indexed_containment_failures": 1,
+      "median_final_indexed_target_survivor_count": 2,
+      "row_count": 6,
+      "true_label_indexed_rows": 6
+    },
+    "24T24979": {
+      "final_valuable_target_survival_rows": 5,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 2,
+      "row_count": 38,
+      "true_label_indexed_rows": 38
+    },
+    "24T24984": {
+      "final_valuable_target_survival_rows": 0,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 2,
+      "row_count": 12,
+      "true_label_indexed_rows": 12
+    },
+    "24T25000": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 1,
+      "row_count": 126,
+      "true_label_indexed_rows": 126
+    },
+    "24T661": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 2991,
+      "row_count": 1,
+      "true_label_indexed_rows": 1
+    },
+    "24T9683": {
+      "final_valuable_target_survival_rows": 1,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 1558,
+      "row_count": 1,
+      "true_label_indexed_rows": 1
+    },
+    "24T9993": {
+      "final_valuable_target_survival_rows": 2,
+      "indexed_containment_failures": 0,
+      "median_final_indexed_target_survivor_count": 65,
+      "row_count": 2,
+      "true_label_indexed_rows": 2
+    }
+  },
+  "created_at": "2026-07-10T01:55:03.411965+00:00",
+  "discriminant_source_counts": {
+    "computed_sympy_polynomial_discriminant": 53,
+    "field_disc_abs": 180
+  },
+  "evaluated_label_count": 15,
+  "evaluated_row_count": 233,
+  "failed_row_count": 1,
+  "final_valuable_target_survival_rows": 35,
+  "index_metadata": {
+    "expected_global_group_count": 25000,
+    "global_index_complete": true,
+    "index_scope": "complete_degree24_universe",
+    "indexed_group_count": 25000,
+    "soundness": "necessary_target_exclusion_only",
+    "unindexed_label_mass_unknown": false
+  },
+  "indexed_true_label_containment_failures": 1,
+  "input_row_count": 234,
+  "inputs": {
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+    "max_rows": null,
+    "progress_interval": 25,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+    "row_timeout_seconds": 20.0,
+    "scoreable_rows_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_scoreable_rows.jsonl"
+  },
+  "max_usable_primes": 10,
+  "observed_label_count": 16,
+  "observed_pair_count": 28,
+  "output_files": {
+    "failed_jsonl": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_20260709/adaptive_frobenius_benchmark_failed.jsonl",
+    "report_md": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_20260709/adaptive_frobenius_benchmark_report.md",
+    "rows_jsonl": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_20260709/adaptive_frobenius_benchmark_rows.jsonl",
+    "summary_json": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_20260709/adaptive_frobenius_benchmark_summary.json"
+  },
+  "record_type": "igp24_adaptive_frobenius_benchmark",
+  "safety": {
+    "calls_sair": false,
+    "generates_candidates": false,
+    "runs_gap_magma_pari": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "713f314523419e242ed7ca47a6caec1da963dd60",
+  "tool": "scripts/igp24_adaptive_frobenius_benchmark.py",
+  "true_label_indexed_row_count": 233,
+  "true_label_outside_index_row_count": 0
+}
