@@ -1,448 +1,298 @@
 # IGP24 Axplorer
 
-[Axplorer](https://github.com/AxiomMath/axplorer)-based research code for generating and triaging monic degree-24
-integer polynomials for the
-[SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview). The underlying algorithm alternates between local search (Python) and transformer-based global pattern learning (custom-trained neural net).
+IGP24 Axplorer is a research toolkit for finding monic degree-24 integer
+polynomials that may improve signatures in the
+[SAIR IGP24 inverse Galois competition](https://competition.sair.foundation/competitions/igp24/overview).
+It extends [Axplorer](https://github.com/AxiomMath/axplorer) with structured
+algebraic generators, a feedback-conditioned transformer, exact local checks,
+adaptive Frobenius evidence, historical backtesting, and score-aware candidate
+review.
 
-This repository is a candidate generator, proxy scorer, and verification
-handoff toolkit. It is not an automatic submission system.
+This repository is not an exact Galois-group oracle or an unattended
+submission bot. Generated polynomials are proposals. Exact verification and
+live submission remain explicit, separately gated steps.
 
-## What This Searches
+## The Search Problem
 
-IGP24 candidates are monic degree-24 polynomials:
+Candidates have the form
 
 ```text
 f(x) = x^24 + a23*x^23 + ... + a1*x + a0
 ```
 
-Internally, candidates are represented by the 24 free coefficients:
+The code represents a candidate internally by its 24 free coefficients:
 
 ```text
 [a0, a1, ..., a23]
 ```
 
-Exported candidates append the fixed leading coefficient:
+Competition exports append the fixed leading coefficient:
 
 ```text
 [a0, a1, ..., a23, 1]
 ```
 
-## Current State
+An IGP24 signature is a pair `(24Tt, r)`, where `24Tt` is the transitive
+Galois-group label and `r` is the exact number of real roots. Producing a valid
+polynomial is only the first hurdle. Useful candidates must reach an uncovered
+or low-team signature, avoid known submissions, and have competitive exact
+number-field discriminants.
 
-The project has moved from pure proxy search into feedback-guided generation:
-submitted batches have produced accepted `(24Tt, r)` pairs across `r=4`,
-`r=8`, `r=12`, `r=16`, `r=20`, and `r=24`.
+One polynomial has exactly one true Galois label. Sets of labels that survive
+local compatibility tests are therefore exploration targets, not additive
+score and not a probability distribution.
 
-The strongest recent signal is structure preservation, with an important
-caveat: accepted high-real-root rows can still land in globally covered label
-basins. Low-odd perturbations often collapse to generic `24T25000`, while
-exact composed families such as `g(x^2)` and `h(x^4-s*x^2)` steer into
-non-generic but still common labels like `24T23883` and `24T24651`. The current
-planning loop uses live SAIR progress, local label-basin analysis, and
-score-aware target planning before spending more submissions. Recent
-alternate-composition probes show the same pattern: plain `8x3` rows collapse
-to `24T24932`, while the first `4x6` lane collapsed to `24T24984`.
+## Research Loop
 
-The bundled official baseline CSV (`data/igp24/lmfdb_baseline.csv`) lets
-planning helpers compare verified `(24Tt, r)` pairs against the frozen LMFDB
-baseline. Detailed benchmark tables, exact-label feedback, accepted-batch
-notes, and artifact paths live in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
-and [TODO_IGP24.md](TODO_IGP24.md).
+```text
+fresh SAIR state + exact historical outcomes
+                    |
+          score-aware target planning
+                    |
+        +-----------+-----------+
+        |                       |
+ structured generators     AXG transformer
+        |                       |
+        +-----------+-----------+
+                    |
+       canonical deduplication and
+          exact local validation
+                    |
+       adaptive Frobenius exclusion
+                    |
+       exact label and nfdisc checks
+                    |
+       offline score and safety gate
+                    |
+          explicit live submission
+                    |
+          feedback into both lanes
+```
 
-Recent AXG work adds GPU sample-export probes plus target-r control-token
-training over decimal coefficient streams. These model samples are still
-proposal candidates only: CPU filters, basin-risk gates, and explicit review
-remain required before any submission. AXG-1.4 adds provenance-aware export
-metadata and stricter diversity gates for support shape, template family,
-perturbation mode, and basin fingerprint. Its first bounded run produced one
-locally clean r20 packet, but no live submission was made from incomplete SAIR
-sync state.
+The current strategy has six parts:
 
-## Capabilities
+1. **Target value, not volume.** Fresh SAIR progress and submission history
+   identify uncovered signatures, low-team pairs, discriminant-improvement
+   opportunities, and already exhausted basins.
+2. **Use two complementary proposal lanes.** Executable construction families
+   preserve intended composition or block structure; AXG trains and samples on
+   the GPU from target-`r` and exact-feedback data. Generic local search remains
+   a comparison baseline.
+3. **Reject cheap failures early.** Known canonical hashes, duplicate or
+   translation-equivalent rows, wrong real-root counts, reducible polynomials,
+   repeated roots, and invalid coefficient vectors are removed before expensive
+   group work.
+4. **Escalate evidence adaptively.** Factorization patterns are collected only
+   at unramified primes. Additional primes are sampled while they continue to
+   eliminate valuable target groups.
+5. **Require exact evidence for score claims.** Compatibility can rule groups
+   out, but only exact label and discriminant evidence can make a candidate
+   submission-grade or support official score economics.
+6. **Learn from negative results.** Crowded labels, duplicates, wrong-`r` rows,
+   invalid samples, and construction-family collapses remain explicit negative
+   feedback. They are not silently turned into positive generator examples.
 
-- Configurable coefficient generation strategies.
-- Exact SymPy prefilters for basic polynomial validity.
-- Proxy scoring with component metadata.
-- Bounded deterministic local search with telemetry.
-- JSONL ledgers with canonical-hash deduplication.
-- CPU benchmark helpers for generation strategy comparisons.
-- GPU training/sample-export probes with CPU scoring handoff.
-- Target-r control-token training for GPU proposal generation.
-- Source/provenance-aware anti-basin packet gates for model-generated
-  candidates.
-- Shortlist, review, and offline verification handoff tools.
-- PARI, Magma, SymPy exact-r/nfdisc fallback, official-baseline, and
-  credential-safe SAIR API helpers that are explicit and opt-in.
-- Full SAIR API state sync for competition schema, participation state, label
-  progress, submission status, downloaded coefficient rows, and local hash
-  joins.
-- Live-progress-aware anti-basin planning from saved candidate queues and
-  accepted-label feedback.
-- Score-aware target planning that joins SAIR progress, local pair status,
-  accepted-label basins, synced SAIR submission state, and manually recorded
-  score snapshots.
-- Manual submission-review packaging with coefficient-only export, copied
-  provenance, structured manifest, and checklist.
+## Evidence Contract
 
-## Safety Boundaries
+| Layer | What it establishes | What it does not establish |
+| --- | --- | --- |
+| Local exact checks | Degree, coefficient validity, exact `r`, irreducibility, squarefreeness, and polynomial discriminant | Exact Galois label or official score |
+| Canonical history gate | Matches against known submissions under the configured canonicalization rules | Mathematical equivalence under every possible transformation |
+| Adaptive Frobenius filter | Necessary cycle-type compatibility from unramified primes | Exact label, posterior probability, or expected points |
+| GAP group-cycle index | Cycle types and structural metadata for indexed transitive groups | Proof that a surviving group is the true group |
+| Magma / PARI / exact fallbacks | Exact-label and field-discriminant evidence when the selected backend succeeds | Fresh competition coverage or team counts |
+| SAIR sync | Current label progress, our submission history, and scoring state | Independent local verification of a candidate |
 
-The search pipeline keeps proxy evidence separate from exact labels.
+The repository can consume both partial and complete group indexes. Partial
+indexes explicitly retain unknown unindexed label mass. A complete index spans
+all 25,000 degree-24 transitive groups, but survival in that index is still only
+necessary evidence. Numeric expected score is withheld unless an exact verified
+pair supports official score economics.
 
-- `train.py`, GPU sampling, CPU proxy scoring, local search, and shortlist
-  helpers do not call Magma, PARI, SAIR, or online services.
-- Local Magma execution requires explicit `--run_magma`.
-- Online Magma calculator outputs in this repo are saved provenance from
-  one-candidate verification requests, not an automated submission path.
-- SAIR API credentials are read only from `SAIR_API_KEY` or another explicit
-  environment variable. Do not commit keys.
-- The SAIR API helper validates submissions in dry-run mode by default; live
-  submission requires `--execute`.
-- The full SAIR sync helper is read-only. Live network access requires
-  `--fetch_live`; replaying a saved sync uses `--offline_sync_dir`.
+## Current Research Direction
+
+The pipeline has produced SAIR-accepted polynomials at several real-root
+counts, but acceptance is not the main bottleneck. Structured families can
+collapse into familiar transitive-group basins, while learned generators can
+memorize training rows, reproduce narrow support patterns, or emit reducible
+polynomials. The project therefore measures novelty, local validity, target
+survival, nuisance-group survival, and known-hash reproduction instead of
+promoting a model on training loss alone.
+
+The default research cycle exercises the complete stack: refresh state, rebuild
+the feedback corpus, train a bounded new AXG iteration, sample on the GPU,
+compare against a structured construction lane, run exact local and adaptive
+filters, and update the experiment ledger. A candidate advances only when the
+measured evidence improves.
+
+Fast-changing results and current candidate decisions intentionally live
+outside this README. See [Experiment Notes](docs/EXPERIMENTS.md) and the
+[live project log](TODO_IGP24.md).
 
 ## Setup
 
-Create the environment:
+The base environment uses Python 3.12, PyTorch, SymPy, NumPy, Numba, and
+pytest:
 
 ```bash
 micromamba env create -f environment.yml
 micromamba activate env_axplorer
+python -m pytest -q
 ```
 
-If your machine needs a custom PyTorch or CUDA build, install that separately
-for your hardware.
-
-For local commands in this repo, use the repository root as the working
-directory. Some historical runs used an extra local dependency path:
+Run commands from the repository root. Install a CUDA-enabled PyTorch build
+appropriate for your system if you want to train or sample AXG on a GPU.
 
 ```bash
-export PYTHONPATH=/tmp/igp24_pydeps
+python -c "import torch; print(torch.cuda.is_available())"
 ```
 
-## Quick Smoke
+Optional external systems unlock additional workflows:
 
-Run a small CPU-only generation smoke:
+- GAP with the transitive-groups library rebuilds the group-cycle index.
+- PARI/GP supplies exact number-field discriminant checks.
+- Magma supplies exact transitive-group verification.
+
+The local generation and test paths do not require those optional systems.
+
+## Quick Start
+
+Run a small CPU-only candidate-generation smoke:
 
 ```bash
-python3 train.py \
+python train.py \
   --env_name igp24 \
-  --exp_name igp24_smoke \
-  --dump_path /tmp/igp24_smoke \
+  --exp_name igp24_cpu_smoke \
+  --dump_path /tmp/igp24_cpu_smoke \
   --seed 123 \
-  --coeff_bound 4 \
+  --cpu true \
+  --data_generation_only true \
+  --process_pool false \
+  --num_workers 1 \
   --gensize 12 \
   --pop_size 6 \
   --ntest 2 \
   --gen_batch_size 2 \
-  --data_generation_only true \
-  --always_search true \
-  --max_local_search_steps 3 \
+  --always_search false \
+  --coeff_bound 4 \
   --prime_limit 11 \
   --exact_score_timeout 3 \
-  --process_pool false \
-  --num_workers 1 \
-  --cpu true \
   --igp24_generation_strategy mixed \
-  --igp24_ledger_path /tmp/igp24_smoke_candidates.jsonl
+  --igp24_ledger_path /tmp/igp24_cpu_smoke/candidates.jsonl
 ```
 
-Candidate records are written as JSONL. Each record includes exported
-coefficients, polynomial metadata, score components, generation metadata,
-local-search metadata, and verification status.
+Candidate ledgers are JSONL. Records include coefficients, canonical hashes,
+exact and proxy metadata, generation provenance, and rejection or verification
+state.
+
+Check GPU readiness with the real training path:
+
+```bash
+python scripts/igp24_gpu_smoke.py \
+  --output_dir /tmp/igp24_gpu_smoke
+```
 
 ## Common Workflows
 
-Run tests:
+### Refresh SAIR State
 
-```bash
-python3 -m pytest -q
-```
-
-Compare generation strategies:
-
-```bash
-python3 scripts/igp24_benchmark.py \
-  --strategies sparse,structured,mixed \
-  --seeds 301,302 \
-  --target_rs none,4 \
-  --coeff_bound 4 \
-  --gensize 18 \
-  --pop_size 8 \
-  --ntest 2 \
-  --gen_batch_size 2 \
-  --max_local_search_steps 4 \
-  --prime_limit 11 \
-  --exact_score_timeout 3 \
-  --output_dir /tmp/igp24_benchmark
-```
-
-Export a proxy shortlist:
-
-```bash
-python3 scripts/igp24_shortlist.py \
-  /tmp/igp24_benchmark \
-  --target_r 4 \
-  --limit 25 \
-  --output_dir /tmp/igp24_shortlist
-```
-
-Build a review batch:
-
-```bash
-python3 scripts/igp24_review_shortlist.py \
-  /tmp/igp24_shortlist \
-  --batch_size 8 \
-  --min_strategies 2 \
-  --per_strategy_cap 6 \
-  --output_dir /tmp/igp24_review_batch
-```
-
-Prepare offline verification artifacts:
-
-```bash
-python3 scripts/igp24_offline_verify.py \
-  /tmp/igp24_review_batch \
-  --output_dir /tmp/igp24_offline_verify \
-  --max_records 3 \
-  --timeout_seconds 5
-```
-
-The offline verifier helper is dry-run by default. It writes PARI/GP and Magma
-input files, copied verification batches, reports, and result templates. It
-does not execute Magma unless `--run_magma` is supplied. Local SymPy
-real-root-count and number-field-discriminant fallback evidence is also
-explicit and requires `--run_sympy_signature` and `--run_sympy_nfdisc`.
-
-Summarize verified exact-label feedback:
-
-```bash
-python3 scripts/igp24_verified_label_feedback.py \
-  --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl \
-  --magma_results_jsonl /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual/online_magma_manual_results.jsonl \
-  --diagnostic_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
-  --output_dir /tmp/igp24_verified_label_feedback_20260705
-```
-
-This helper is local/file-only: it reads saved artifacts and does not call
-Magma, PARI, SAIR, training, GPU sampling, CPU search loops, or network APIs.
-
-Build an exact-label-aware shortlist plan:
-
-```bash
-python3 scripts/igp24_exact_label_shortlist.py \
-  --structure_audit_jsonl /tmp/igp24_non_generic_structure_audit_20260705/structure_audit.jsonl \
-  --verified_label_feedback_jsonl /tmp/igp24_verified_label_feedback_20260705/verified_label_feedback.jsonl \
-  --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
-  --output_dir /tmp/igp24_exact_label_shortlist_20260705 \
-  --limit 12 \
-  --min_per_label 0 \
-  --label_quotas 24T24970:8,24T24979:2,24T24759:1
-```
-
-This uses saved feedback as family-planning evidence; it does not claim fresh
-exact labels.
-For fresh diversity queues, add `--include_unmatched`,
-`--exclude_verified_hashes`, `--max_per_family_label`, and
-`--prefer_unmatched` to avoid filling the queue with many variants from one
-known feedback family.
-
-Build a manual submission plan from saved verified rows:
-
-```bash
-python3 scripts/igp24_submission_plan.py \
-  --verified_results /tmp/igp24_non_generic_manual_queue_verified_20260705/online_magma_manual \
-  --candidate_jsonl /tmp/igp24_non_generic_diagnostic_20260705/non_generic_shortlist.jsonl \
-  --candidate_jsonl /tmp/igp24_exact_label_shortlist_20260705 \
-  --baseline_csv data/igp24/lmfdb_baseline.csv \
-  --output_dir /tmp/igp24_submission_plan_20260705
-```
-
-This helper is local/file-only. It selects one representative per expected
-`(24Tt, r)` pair and writes manual review artifacts; it does not submit to
-SAIR or claim scoreability without exact `r` and discriminant evidence.
-
-Build a manual submission-review package from a verified plan:
-
-```bash
-python3 scripts/igp24_submission_package.py \
-  --plan_dir /tmp/igp24_submission_grade_five_plan_with_sympy_exact_20260706 \
-  --evidence_dir /tmp/igp24_submission_grade_five_20260706_sympy_exact \
-  --baseline_csv data/igp24/lmfdb_baseline.csv \
-  --output_dir /tmp/igp24_final_submission_package_20260706 \
-  --candidate_hash <canonical-hash> \
-  --candidate_hash <canonical-hash>
-```
-
-Repeat `--candidate_hash` once for each selected row. The package helper is
-local/file-only: it copies saved evidence, writes coefficient exports, and
-does not call SAIR, Magma, PARI, online calculators, training, or search loops.
-
-Query SAIR label progress or validate an API submission:
-
-```bash
-python3 scripts/igp24_sair_api.py progress \
-  --labels 24T23883,24T24651 \
-  --no-include_empty \
-  --output_json /tmp/igp24_sair_progress.json
-
-python3 scripts/igp24_sair_api.py submit \
-  --coefficients_txt data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt \
-  --description "dry-run validation for r12 tower batch" \
-  --output_json /tmp/igp24_sair_submit_dry_run.json
-```
-
-Live SAIR API calls require:
+Credentials are read from the environment and are never written to artifacts:
 
 ```bash
 export SAIR_API_KEY=...
-python3 scripts/igp24_sair_api.py submit \
-  --coefficients_txt data/igp24/r12_tower_probe_20260706/r12_tower_candidate_coefficients.txt \
-  --description "r12 tower batch" \
-  --execute
-```
-
-Synchronize the full read-only SAIR planning state:
-
-```bash
-python3 scripts/igp24_sair_healthcheck.py \
-  --output_dir data/igp24/sair_health_YYYYMMDD
-
-python3 scripts/igp24_sair_sync.py \
-  --fetch_live \
-  --output_dir data/igp24/sair_sync_YYYYMMDD \
-  --progress_limit 5000 \
-  --submission_limit 100
-```
-
-The health check probes only lightweight GET endpoints and writes a compact
-status artifact. The full sync fetches the competition schema, `/me`, full
-paginated label progress, all of our submissions, each submission detail, and
-each submission download. It writes compact artifacts such as
-`sair_sync_summary.json`,
-`sair_submission_rows.jsonl`, `sair_scoreable_rows.jsonl`, and
-`sair_pending_rows.jsonl`, but never writes the API key.
-
-If submission endpoints are temporarily unavailable, use explicit partial mode
-to preserve fresh global progress while marking submission/scoring state as
-incomplete:
-
-```bash
-python3 scripts/igp24_sair_sync.py \
+python scripts/igp24_sair_sync.py \
   --fetch_live \
   --allow_partial \
-  --output_dir data/igp24/sair_sync_partial_YYYYMMDD \
-  --progress_limit 5000 \
-  --submission_limit 100
+  --output_dir /tmp/igp24_sair_sync
 ```
 
-Use a completed sync as the preferred score-aware planning input:
+The sync is read-only. It retrieves competition metadata, participation state,
+label progress, submission status, and downloadable rows. Partial mode retains
+fresh progress if a submission endpoint is unavailable while marking submission
+history incomplete.
+
+### Compare CPU Generators
 
 ```bash
-python3 scripts/igp24_score_aware_target_planner.py \
-  --sair_sync_dir data/igp24/sair_sync_YYYYMMDD \
-  --output_dir /tmp/igp24_score_aware_target_plan
+python scripts/igp24_benchmark.py \
+  --strategies sparse,structured,mixed \
+  --seeds 301 \
+  --target_rs none,4 \
+  --gensize 12 \
+  --pop_size 6 \
+  --ntest 2 \
+  --gen_batch_size 2 \
+  --max_local_search_steps 2 \
+  --output_dir /tmp/igp24_benchmark
 ```
 
-Submission remains a separate manual decision. Do not spend a new submission
-packet from a partial sync alone; require a full sync or a deliberate manual
-override plus the usual planner/anti-basin/dry-run gates.
-
-Score a candidate queue against known label basins before submission:
+### Prepare Exact Verification
 
 ```bash
-python3 scripts/igp24_anti_basin_planner.py \
-  --candidate_jsonl data/igp24/alt_composition_antibasin_probe_20260707/alt_composition_candidate_queue.jsonl \
-  --output_dir /tmp/igp24_anti_basin_plan \
-  --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json
+python scripts/igp24_offline_verify.py \
+  path/to/candidates.jsonl \
+  --output_dir /tmp/igp24_verification \
+  --max_records 4
 ```
 
-Use `--fetch_live_progress` instead of `--progress_snapshot_json` only when
-`SAIR_API_KEY` is set and a fresh API read is intended.
+This command is a dry run by default. It validates the input and prepares
+PARI/GP and Magma artifacts without executing either system. Exact backends and
+SymPy fallback calculations require their corresponding explicit flags.
 
-Build a score-aware target plan:
+Every research script provides `--help`. The most useful orchestration entry
+points are:
 
-```bash
-python3 scripts/igp24_score_aware_target_planner.py \
-  --progress_snapshot_json /tmp/igp24_sair_label_progress_full_20260707.json \
-  --output_dir /tmp/igp24_score_aware_target_plan
-```
+| Purpose | Entry point |
+| --- | --- |
+| Core Axplorer generation and training | `train.py` |
+| Feedback-aware AXG dataset | `scripts/igp24_active_learning_dataset.py` |
+| Bounded GPU train/sample probes | `scripts/igp24_gpu_sampler_probe.py` |
+| Structured construction registry and routing | `scripts/igp24_construction_target_router.py` |
+| Candidate compatibility | `scripts/igp24_candidate_group_compatibility.py` |
+| Adaptive prime benchmark | `scripts/igp24_adaptive_frobenius_benchmark.py` |
+| Exact-verification handoff | `scripts/igp24_offline_verify.py` |
+| Packet selection | `scripts/igp24_packet_optimizer.py` |
+| Conservative final gate | `scripts/igp24_group_compatible_submission_gate.py` |
+| Consolidated offline go/no-go report | `scripts/igp24_current_offline_report.py` |
 
-Use `--fetch_live_progress` when a fresh SAIR API read is intended. This helper
-does not generate candidates or submit anything; it ranks target pockets and
-recommends the next bounded search lane.
+## Repository Map
 
-## IGP24 Generation Strategies
+- `src/envs/igp24.py`: IGP24 environment, generation strategies, tokenizer,
+  and local-search integration.
+- `src/igp24/polynomial.py`: exact polynomial checks, canonicalization, and
+  proxy metadata.
+- `src/igp24/constructions/`: construction-family registry and executable
+  structure-preserving generators.
+- `src/igp24/group_compatibility.py`: partial/full index semantics and
+  cycle-type compatibility.
+- `src/igp24/adaptive_frobenius.py`: adaptive unramified-prime evidence.
+- `src/igp24/verifiers/`: PARI, Magma, and SAIR interfaces.
+- `scripts/`: reproducible planning, generation, training, backtest,
+  verification, and packaging workflows.
+- `data/igp24/lmfdb_baseline.csv`: bundled frozen baseline data.
+- `data/igp24/model_registry/`: immutable AXG model and run manifests.
+- `docs/EXPERIMENTS.md`: benchmark and verification summaries.
+- `NOTES_IGP24.md`: design rationale and mathematical notes.
+- `TODO_IGP24.md`: live status, command log, future stages, and next tasks.
 
-`--igp24_generation_strategy` can be:
+## Safety and Reproducibility
 
-- `uniform`
-- `low_height`
-- `sparse`
-- `lower_degree`
-- `structured`
-- `four_real_seed`
-- `quartic_lift`
-- `fixed_sparse_template`
-- `mixed`
+- Never commit `SAIR_API_KEY` or pass it as a command-line value.
+- SAIR submission validation is dry-run by default; a live POST requires an
+  explicit execution flag and a separate human decision.
+- GPU samples, proxy scores, and group compatibility are never presented as
+  exact labels.
+- Known submission hashes carry zero generator-training weight, can be blocked
+  during model export, and are rejected again by packet optimization and the
+  final gate.
+- Random seeds, model manifests, source hashes, command metadata, and JSON/JSONL
+  artifacts are retained so experiments can be replayed.
+- Large checkpoint binaries are referenced by manifests rather than committed
+  to the repository.
 
-Target-specific presets are opt-in through `--igp24_generation_preset`:
-
-- `none`
-- `r0`
-- `r2`
-- `r4`
-
-The experimental composed-support families, especially `quartic_lift`, are the
-current focus because exact Magma verification confirmed non-generic labels in
-that branch.
-
-## Important Files
-
-- `train.py`: Axplorer training/generation entry point.
-- `src/envs/igp24.py`: IGP24 environment and coefficient tokenizer.
-- `src/igp24/polynomial.py`: exact polynomial utilities and proxy scoring.
-- `src/igp24/ledger.py`: JSONL candidate ledger helpers.
-- `src/igp24/verifiers/`: PARI, Magma, and SAIR verifier interfaces.
-- `scripts/igp24_benchmark.py`: short CPU benchmark runner.
-- `scripts/igp24_non_generic_diagnostic.py`: proxy non-generic shortlist tool.
-- `scripts/igp24_queue_structure_audit.py`: local exact-algebra structure audit.
-- `scripts/igp24_offline_verify.py`: offline/local/manual verification handoff.
-- `scripts/igp24_verified_label_feedback.py`: exact-label feedback summaries.
-- `scripts/igp24_exact_label_shortlist.py`: feedback-family shortlist planner.
-- `scripts/igp24_submission_plan.py`: one-per-pair manual submission planner.
-- `scripts/igp24_submission_package.py`: local/manual submission-review
-  package builder.
-- `scripts/igp24_sair_api.py`: explicit SAIR progress/submission API helper.
-- `scripts/igp24_sair_healthcheck.py`: lightweight read-only SAIR availability
-  probe.
-- `scripts/igp24_sair_sync.py`: read-only full SAIR state synchronizer for
-  authoritative planning artifacts.
-- `scripts/igp24_sair_progress_targets.py`: compact live progress target
-  planner.
-- `scripts/igp24_label_basin_analysis.py`: accepted-label basin analyzer for
-  feedback-guided anti-basin constraints.
-- `scripts/igp24_score_aware_target_planner.py`: joins SAIR progress, local
-  pair status, score snapshots, and basin constraints to rank next target
-  lanes.
-- `scripts/igp24_r24_tower_probe.py`: target-plan-aligned high-real-root
-  tower probe.
-- `scripts/igp24_r24_tower_odd_escape_probe.py`: r24 tower-derived
-  anti-basin probe that breaks exact even support with odd perturbations.
-- `scripts/igp24_r24_odd_escape_feedback.py`: joins verified SAIR feedback for
-  the odd-escape probe back to local queue metadata.
-- `scripts/igp24_alt_composition_probe.py`: CPU-only `8x3`/`3x8`
-  alternate-composition diagnostic queue generator.
-- `scripts/igp24_alt_composition_4x6_probe.py`: CPU-only `4x6`
-  alternate-composition diagnostic queue generator.
-- `scripts/igp24_alt_8x3_sair_probe.py`: reviewed 8-row `8x3` SAIR packet
-  builder and feedback-ingest helper.
-- `scripts/igp24_anti_basin_planner.py`: live-progress-aware anti-basin
-  candidate scorer and packet planner.
-- `scripts/igp24_anti_basin_feedback.py`: joins SAIR feedback for anti-basin
-  planner packets back to local metadata and pair status.
-- `docs/EXPERIMENTS.md`: benchmark and verification result summary.
-- `NOTES_IGP24.md`: design notes and research rationale.
-- `TODO_IGP24.md`: live project log and task status.
+For disposable experiments, prefer an output directory under `/tmp`. Commit
+only distilled reports, durable datasets, and provenance needed to reproduce a
+result.
 
 ## License
 
