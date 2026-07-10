@@ -412,6 +412,95 @@ def test_sample_and_export_can_require_nonzero_constant(tmp_path):
     assert records[0]["decoded_coefficients"][0] == 5
 
 
+def test_sample_and_export_can_require_exact_target_r(tmp_path):
+    def multiply(lhs, rhs):
+        out = [0] * (len(lhs) + len(rhs) - 1)
+        for i, left in enumerate(lhs):
+            for j, right in enumerate(rhs):
+                out[i + j] += int(left) * int(right)
+        return out
+
+    def quadratic_product_coefficients(roots):
+        coeffs = [1]
+        for root in roots:
+            coeffs = multiply(coeffs, [-int(root), 0, 1])
+        assert len(coeffs) == 25
+        return coeffs[:-1]
+
+    wrong_r = [1] + [0] * 23
+    target_r = quadratic_product_coefficients(range(1, 13))
+
+    class DummyDecoded:
+        def __init__(self, coeffs):
+            self.coefficients = coeffs
+
+    class DummyTokenizer:
+        def decode(self, row):
+            return DummyDecoded(target_r if int(row[0]) else wrong_r)
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            return torch.tensor([[0] + [0] * (length - 1), [1] + [0] * (length - 1)], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="target_r_export_test",
+        exp_id="run",
+        seed=47,
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=2,
+        num_samples_from_model=2,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=2,
+        sample_export_progress_interval=1,
+        sample_export_avoid_even_support_like=False,
+        sample_export_require_support_gcd_one=False,
+        sample_export_require_nonzero_constant=False,
+        sample_export_require_target_r=True,
+        sample_export_required_support_patterns="",
+        sample_export_excluded_support_patterns="",
+        sample_export_family_cap=0,
+        sample_export_basin_fingerprint_cap=0,
+        top_k=-1,
+        igp24_generation_strategy="mixed",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=24,
+        sample_export_target_r_conditioning_mode="control_token",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "target_r_filtered_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.15,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["records_written"] == 1
+    assert summary["require_target_r"] is True
+    assert summary["exact_target_r_filter_target"] == 24
+    assert summary["exact_target_r_filter_counts"] == {"observed_r:0": 1, "observed_r:24": 1}
+    assert summary["provenance_skip_counts"] == {"target_r_mismatch": 1}
+    assert records[0]["decoded_coefficients"] == target_r
+    assert records[0]["sample_provenance"]["exact_real_root_count"] == 24
+    assert records[0]["safety"]["runs_exact_local_filters"] is True
+    assert records[0]["safety"]["runs_exact_verifiers"] is False
+
+
 def test_sample_and_export_can_require_sparse_support_pattern(tmp_path):
     class DummyDecoded:
         def __init__(self, coeffs):

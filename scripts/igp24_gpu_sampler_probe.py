@@ -1191,6 +1191,7 @@ def build_sample_export_target_r_conditioned_command(
     avoid_even_support_like: bool = False,
     require_support_gcd_one: bool = False,
     require_nonzero_constant: bool = False,
+    require_target_r: bool = False,
     required_support_patterns: str = "",
     excluded_support_patterns: str = "",
     excluded_hashes_jsonl: str = "",
@@ -1292,6 +1293,8 @@ def build_sample_export_target_r_conditioned_command(
         "true" if require_support_gcd_one else "false",
         "--sample_export_require_nonzero_constant",
         "true" if require_nonzero_constant else "false",
+        "--sample_export_require_target_r",
+        "true" if require_target_r else "false",
         "--sample_export_required_support_patterns",
         str(required_support_patterns),
         "--sample_export_excluded_support_patterns",
@@ -1345,6 +1348,7 @@ def build_sample_export_target_r_conditioned_command(
                 avoid_even_support_like
                 or require_support_gcd_one
                 or require_nonzero_constant
+                or require_target_r
                 or bool(str(required_support_patterns))
                 or bool(str(excluded_support_patterns))
                 or bool(str(excluded_hashes_jsonl))
@@ -1354,6 +1358,7 @@ def build_sample_export_target_r_conditioned_command(
             "sample_export_avoid_even_support_like": bool(avoid_even_support_like),
             "sample_export_require_support_gcd_one": bool(require_support_gcd_one),
             "sample_export_require_nonzero_constant": bool(require_nonzero_constant),
+            "sample_export_require_target_r": bool(require_target_r),
             "sample_export_required_support_patterns": str(required_support_patterns),
             "sample_export_excluded_support_patterns": str(excluded_support_patterns),
             "sample_export_excluded_hashes_jsonl": str(excluded_hashes_jsonl),
@@ -1839,6 +1844,12 @@ def get_parser() -> argparse.ArgumentParser:
         help="skip model-export rows with zero constant coefficient",
     )
     parser.add_argument(
+        "--target_r_conditioned_require_target_r",
+        action="store_true",
+        default=False,
+        help="exact-filter model-export rows to the requested target real-root count",
+    )
+    parser.add_argument(
         "--target_r_conditioned_required_support_patterns",
         default="",
         help="comma-separated support_pattern allow-list for sample_export_target_r_conditioned",
@@ -1908,6 +1919,9 @@ def main() -> int:
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_require_nonzero_constant": bool(args.target_r_conditioned_require_nonzero_constant)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_require_target_r": bool(args.target_r_conditioned_require_target_r)
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_required_support_patterns": args.target_r_conditioned_required_support_patterns
@@ -2017,6 +2031,7 @@ def main() -> int:
                 avoid_even_support_like=bool(args.target_r_conditioned_avoid_even_support_like),
                 require_support_gcd_one=bool(args.target_r_conditioned_require_support_gcd_one),
                 require_nonzero_constant=bool(args.target_r_conditioned_require_nonzero_constant),
+                require_target_r=bool(args.target_r_conditioned_require_target_r),
                 required_support_patterns=str(args.target_r_conditioned_required_support_patterns),
                 excluded_support_patterns=str(args.target_r_conditioned_excluded_support_patterns),
                 excluded_hashes_jsonl=str(args.target_r_conditioned_excluded_hashes_jsonl),

@@ -15,6 +15,7 @@ import torch
 
 from src.datasets import detokenize
 from src.envs.environment import do_score, do_stats
+from src.igp24.polynomial import IGP24Error, real_root_count
 from src.utils import MAX_WORKERS
 
 logger = getLogger()
@@ -707,6 +708,7 @@ def build_sample_export_record(
             "proxy_only": True,
             "scored": False,
             "local_search_run": False,
+            "runs_exact_local_filters": bool(provenance.get("exact_target_r_filter_enabled")),
             "runs_exact_verifiers": False,
             "calls_sair": False,
             "uses_network": False,
@@ -738,6 +740,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     avoid_even_support_like = bool(getattr(args, "sample_export_avoid_even_support_like", False))
     require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
     require_nonzero_constant = bool(getattr(args, "sample_export_require_nonzero_constant", False))
+    require_target_r = bool(getattr(args, "sample_export_require_target_r", False))
+    target_r_value = _int_or_none(getattr(args, "target_r", None))
     required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
     excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
     excluded_hashes, excluded_hash_stats = _load_excluded_hashes(getattr(args, "sample_export_excluded_hashes_jsonl", ""))
@@ -747,6 +751,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         avoid_even_support_like
         or require_support_gcd_one
         or require_nonzero_constant
+        or require_target_r
         or bool(required_support_patterns)
         or bool(excluded_support_patterns)
         or bool(excluded_hashes)
@@ -774,6 +779,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     exported_family_counts: Counter[str] = Counter()
     exported_basin_fingerprint_counts: Counter[str] = Counter()
     provenance_skip_counts: Counter[str] = Counter()
+    exact_target_r_filter_counts: Counter[str] = Counter()
     stop_reason = "no_attempts_requested" if attempt_budget <= 0 else None
     seed_bank_stats: dict[str, Any] = {}
 
@@ -873,6 +879,22 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                         skip_reasons.append("support_gcd_not_one")
                     if require_nonzero_constant and int(decoded_coefficients[0]) == 0:
                         skip_reasons.append("zero_constant_term")
+                    if require_target_r:
+                        if target_r_value is None:
+                            skip_reasons.append("target_r_missing")
+                            exact_target_r_filter_counts["missing_target_r"] += 1
+                        else:
+                            try:
+                                observed_r = real_root_count(decoded_coefficients)
+                            except (IGP24Error, ValueError, TypeError, RuntimeError) as exc:
+                                skip_reasons.append("target_r_unavailable")
+                                exact_target_r_filter_counts[f"unavailable:{type(exc).__name__}"] += 1
+                            else:
+                                sample_provenance["exact_real_root_count"] = int(observed_r)
+                                sample_provenance["exact_target_r_filter_enabled"] = True
+                                exact_target_r_filter_counts[f"observed_r:{int(observed_r)}"] += 1
+                                if int(observed_r) != int(target_r_value):
+                                    skip_reasons.append("target_r_mismatch")
                     support_pattern = str(sample_provenance.get("support_pattern") or "unknown")
                     if required_support_patterns and support_pattern not in required_support_patterns:
                         skip_reasons.append("required_support_pattern_mismatch")
@@ -978,6 +1000,9 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "avoid_even_support_like": avoid_even_support_like,
         "require_support_gcd_one": require_support_gcd_one,
         "require_nonzero_constant": require_nonzero_constant,
+        "require_target_r": require_target_r,
+        "exact_target_r_filter_target": target_r_value,
+        "exact_target_r_filter_counts": dict(exact_target_r_filter_counts),
         "required_support_patterns": sorted(required_support_patterns),
         "excluded_support_patterns": sorted(excluded_support_patterns),
         "excluded_hashes_path": excluded_hash_stats.get("excluded_hashes_path"),

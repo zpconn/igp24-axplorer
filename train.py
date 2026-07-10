@@ -167,6 +167,12 @@ def get_parser():
         help="opt-in: skip decoded export rows with zero constant coefficient",
     )
     parser.add_argument(
+        "--sample_export_require_target_r",
+        type=bool_flag,
+        default="false",
+        help="opt-in: exact-filter decoded export rows to --target_r by real-root count",
+    )
+    parser.add_argument(
         "--sample_export_required_support_patterns",
         type=str,
         default="",
