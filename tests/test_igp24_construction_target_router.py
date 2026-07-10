@@ -348,6 +348,76 @@ def test_router_routes_explicit_low_team_x6_pair_from_progress(tmp_path):
     assert quartic["executable_generator_name"] == "quartic_x6_exact_lift_v1"
 
 
+def test_router_downranks_exact_false_target_route_outcome(tmp_path):
+    plan = {"record_type": "igp24_score_aware_target_plan", "ranked_targets": []}
+    progress = [
+        {
+            "label": "24T103",
+            "t": 103,
+            "allowedR": [8],
+            "remainingSignatures": [],
+            "discoveredSignatures": [8],
+            "signatures": [{"r": 8, "discovered": True, "teamCount": 1, "minimumDiscAbs": "123"}],
+        }
+    ]
+    route_outcomes = [
+        {
+            "intended_pair_key": "24T103|r=8",
+            "family": "quartic_in_x6",
+            "block_repeat_exact_basin": True,
+            "blocking_reason": "exact_route_false_target_outcome",
+            "recommended_route_action": "block_repeat_exact_basin",
+            "route_outcome": "all_false_target_discovered_not_improved",
+        }
+    ]
+    index = GroupCycleIndex(tmp_path / "groups.sqlite")
+    index.initialize(provenance={"test": True})
+    index.upsert_group(
+        GroupRecord(
+            label="24T103",
+            t=103,
+            primitive=False,
+            solvable=True,
+            block_sizes=(3, 6),
+            cycle_types=("1.23",),
+        )
+    )
+
+    routes = build_routes(
+        score_plan=plan,
+        group_index=index,
+        avoid_labels=[],
+        top_targets=25,
+        families_per_target=8,
+        target_pairs=["24T103|r=8"],
+        progress_rows=progress,
+        route_outcomes=route_outcomes,
+        require_group_invariants=True,
+    )
+
+    quartic = next(row for row in routes if row["family"] == "quartic_in_x6")
+    assert quartic["structurally_eligible"] is True
+    assert quartic["executable_generator_available"] is True
+    assert quartic["route_stage"] == "outcome_blocked"
+    assert quartic["construction_outcome_blocking_reasons"] == ["exact_route_false_target_outcome"]
+    assert "exact_route_false_target_outcome" in quartic["generation_ready_blocking_reasons"]
+    summary = summarize_routes(
+        score_plan_path=tmp_path / "score_plan.json",
+        group_index_path=tmp_path / "groups.sqlite",
+        score_plan=plan,
+        routes=routes,
+        avoid_labels=[],
+        top_targets=25,
+        families_per_target=8,
+        category=None,
+        target_pairs_requested=["24T103|r=8"],
+        route_outcome_count=len(route_outcomes),
+        require_group_invariants=True,
+    )
+    assert summary["construction_outcome_blocked_route_count"] == 1
+    assert summary["construction_outcome_blocking_reason_counts"] == {"exact_route_false_target_outcome": 1}
+
+
 def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):
     score_plan_path = _score_plan(tmp_path)
     _index(tmp_path / "groups.sqlite")

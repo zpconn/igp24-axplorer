@@ -431,6 +431,32 @@ results change.
   through `24T24134` was a necessary-exclusion signal, not exact targeting;
   this exact `h(x^6)` basin must be retargeted/rethought before more
   submission packets are selected from it. No live SAIR submission was made.
+- 2026-07-10 construction-outcome feedback checkpoint: added
+  `scripts/igp24_construction_outcome_ledger.py`, a local/file-only ledger
+  that distills exact-label score-aware triage rows into route-level outcomes.
+  The ledger makes the x6 packet failure reusable by recording that the
+  exact `24T24134|r=8` + `quartic_in_x6` basin produced 4 exact false targets
+  (`24T7635|r=8`, `24T10010|r=8`, `24T12493|r=8`, `24T9962|r=8`), 0 target
+  hits, 0 submission-grade rows, and route action
+  `block_repeat_exact_basin`. Artifact:
+  `data/igp24/remediation_20260709/construction_outcome_ledger_phase7/quartic_x6_24T24134_exact_negative_20260710/`.
+  Wired `scripts/igp24_construction_target_router.py` to consume optional
+  route-outcome JSONL, add `construction_outcome_blocking_reasons`, mark the
+  failed basin as `route_stage=outcome_blocked`, and downrank it without
+  claiming that the target itself is impossible. Real router artifact:
+  `data/igp24/remediation_20260709/construction_router_phase5/explicit_quartic_x6_24T24134_with_exact_negative_outcome_20260710/`.
+  Result: 1 target, 8 routes, 6 structurally eligible routes, 1 executable
+  generator route, 0 generation-ready routes, and exactly one
+  construction-outcome blocker `exact_route_false_target_outcome`; the blocked
+  x6 route remains structurally/executably documented but should not be
+  repeated without a material structural change. Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_construction_outcome_ledger.py scripts/igp24_construction_target_router.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_outcome_ledger.py tests/test_igp24_construction_target_router.py`
+  -> 10 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 412 passed; SAIR key-shaped secret scan found no matches. No live SAIR
+  submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

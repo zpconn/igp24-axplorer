@@ -27,7 +27,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.igp24_shortlist import get_source_commit  # noqa: E402
+from scripts.igp24_shortlist import get_source_commit, read_jsonl  # noqa: E402
 from src.igp24.constructions.generators import generation_status_for_route  # noqa: E402
 from src.igp24.constructions.registry import SOUNDNESS_NOTE, default_registry  # noqa: E402
 from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord, progress_states_for_pairs  # noqa: E402
@@ -95,6 +95,27 @@ def load_progress_jsonl(path: Path | None) -> list[dict[str, Any]]:
                 raise ValueError(f"unexpected non-object progress row in {path}:{line_number}")
             rows.append(row)
     return rows
+
+
+def load_route_outcomes_jsonl(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return []
+    rows = read_jsonl(path)
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            raise ValueError(f"unexpected non-object route outcome in {path}:{index}")
+    return rows
+
+
+def route_outcome_by_target_family(route_outcomes: Iterable[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    indexed: dict[str, dict[str, Any]] = {}
+    for row in route_outcomes:
+        pair = row.get("intended_pair_key")
+        family = row.get("family")
+        if not pair or not family:
+            continue
+        indexed[f"{pair}::{family}"] = dict(row)
+    return indexed
 
 
 def open_group_index(path: Path | None) -> GroupCycleIndex | None:
@@ -311,9 +332,11 @@ def build_routes(
     category: str | None = "uncovered_signature",
     target_pairs: list[str] | None = None,
     progress_rows: list[dict[str, Any]] | None = None,
+    route_outcomes: list[dict[str, Any]] | None = None,
     require_group_invariants: bool = True,
 ) -> list[dict[str, Any]]:
     registry = default_registry()
+    route_outcomes_by_key = route_outcome_by_target_family(route_outcomes or [])
     explicit_pairs = [str(pair) for pair in target_pairs or []]
     targets = (
         explicit_targets_from_pairs(
@@ -347,9 +370,14 @@ def build_routes(
                 group_record=group,
                 structurally_eligible=structurally_eligible,
             )
+            route_outcome = route_outcomes_by_key.get(f"{target['pair_key']}::{family['family']}")
+            outcome_blockers: list[str] = []
+            if route_outcome and route_outcome.get("block_repeat_exact_basin"):
+                outcome_blockers.append(str(route_outcome.get("blocking_reason") or "exact_route_false_target_outcome"))
             generation_blocks = list(blocks)
             if structurally_eligible:
                 generation_blocks.extend(generator_status["generation_ready_blocking_reasons"])
+            generation_blocks.extend(outcome_blockers)
             route_stage = "blocked"
             if structurally_eligible:
                 route_stage = (
@@ -357,9 +385,13 @@ def build_routes(
                     if generator_status["executable_generator_available"]
                     else "structurally_eligible"
                 )
+            if outcome_blockers:
+                route_stage = "outcome_blocked"
             target_score = _safe_float(target.get("target_score"))
             maximum_points = _safe_float(target.get("maximum_possible_points"))
             combined_score = target_score + 0.25 * _safe_float(family.get("routing_score")) + 250.0 * maximum_points
+            if outcome_blockers:
+                combined_score -= 500.0
             routes.append(
                 {
                     "target_rank": target_rank,
@@ -415,6 +447,8 @@ def build_routes(
                     ),
                     "blocking_reasons": blocks,
                     "generation_ready_blocking_reasons": generation_blocks,
+                    "construction_route_outcome": route_outcome,
+                    "construction_outcome_blocking_reasons": outcome_blockers,
                     "live_submission_recommended_now": False,
                     "soundness": SOUNDNESS_NOTE,
                 }
@@ -444,6 +478,8 @@ def summarize_routes(
     target_pairs_requested: list[str] | None = None,
     progress_jsonl_path: Path | None = None,
     progress_row_count: int = 0,
+    route_outcomes_jsonl_path: Path | None = None,
+    route_outcome_count: int = 0,
     require_group_invariants: bool = True,
 ) -> dict[str, Any]:
     target_pairs = {str(row["pair_key"]) for row in routes}
@@ -454,6 +490,7 @@ def summarize_routes(
     structurally_eligible_routes = [row for row in routes if row.get("structurally_eligible")]
     executable_generator_routes = [row for row in routes if row.get("executable_generator_available")]
     generation_ready_routes = [row for row in routes if row.get("executable_generation_ready")]
+    outcome_blocks = Counter(reason for row in routes for reason in row.get("construction_outcome_blocking_reasons") or [])
     return {
         "record_type": "igp24_construction_target_router",
         "schema_version": 1,
@@ -472,6 +509,8 @@ def summarize_routes(
         "explicit_target_pair_count": len(target_pairs_requested or []),
         "input_progress_jsonl": str(progress_jsonl_path) if progress_jsonl_path else None,
         "progress_jsonl_row_count": int(progress_row_count),
+        "input_route_outcomes_jsonl": str(route_outcomes_jsonl_path) if route_outcomes_jsonl_path else None,
+        "route_outcome_row_count": int(route_outcome_count),
         "top_targets_requested": int(top_targets),
         "families_per_target": int(families_per_target),
         "avoid_labels": list(avoid_labels),
@@ -492,6 +531,10 @@ def summarize_routes(
         "executable_generation_ready_target_count": len({str(row["pair_key"]) for row in generation_ready_routes}),
         "blocking_reason_counts": dict(sorted(blocks.items())),
         "generation_ready_blocking_reason_counts": dict(sorted(generation_blocks.items())),
+        "construction_outcome_blocking_reason_counts": dict(sorted(outcome_blocks.items())),
+        "construction_outcome_blocked_route_count": sum(
+            1 for row in routes if row.get("construction_outcome_blocking_reasons")
+        ),
         "family_route_counts": dict(sorted(families.items())),
         "top_structurally_eligible_routes": [
             {
@@ -548,24 +591,27 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         f"- Generation-ready routes: `{summary['generation_ready_route_count']}`",
         f"- Blocking reasons: `{summary['blocking_reason_counts']}`",
         f"- Generation-ready blockers: `{summary['generation_ready_blocking_reason_counts']}`",
+        f"- Construction outcome blockers: `{summary.get('construction_outcome_blocking_reason_counts', {})}`",
         f"- Soundness: `{summary['soundness']}`",
         f"- Safety: {summary['safety_note']}",
         "- Live submission recommended now: `False`",
         "",
         "## Top Routes",
         "",
-        "| rank | pair | family | combined score | structural | executable | generation-ready | blocks | gen blockers | warnings |",
-        "| ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- |",
+        "| rank | pair | family | combined score | structural | executable | stage | generation-ready | blocks | gen blockers | outcome blockers | warnings |",
+        "| ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for index, row in enumerate(routes[:25], start=1):
         blocks = ", ".join(row.get("blocking_reasons") or []) or "-"
         generation_blocks = ", ".join(row.get("generation_ready_blocking_reasons") or []) or "-"
+        outcome_blocks = ", ".join(row.get("construction_outcome_blocking_reasons") or []) or "-"
         warnings = ", ".join(row.get("family_warnings") or []) or "-"
         lines.append(
             f"| {index} | `{row['pair_key']}` | `{row['family']}` | "
             f"{row['combined_priority_score']} | `{row['structurally_eligible']}` | "
-            f"`{row['executable_generator_available']}` | `{row['executable_generation_ready']}` | "
-            f"{blocks} | {generation_blocks} | {warnings} |"
+            f"`{row['executable_generator_available']}` | `{row['route_stage']}` | "
+            f"`{row['executable_generation_ready']}` | {blocks} | {generation_blocks} | "
+            f"{outcome_blocks} | {warnings} |"
         )
     if summary["target_group_record_missing_count"]:
         lines.extend(
@@ -614,6 +660,10 @@ def main(argv: list[str] | None = None) -> int:
         "--progress_jsonl",
         help="Optional SAIR label-progress JSONL used to score explicit target pairs safely.",
     )
+    parser.add_argument(
+        "--route_outcomes_jsonl",
+        help="Optional construction route outcome JSONL used to downrank/block exact false-target basins.",
+    )
     parser.add_argument("--avoid_label", action="append", default=[])
     parser.add_argument(
         "--allow_proxy_without_group_index",
@@ -625,9 +675,11 @@ def main(argv: list[str] | None = None) -> int:
     score_plan_path = Path(args.score_plan)
     group_index_path = Path(args.group_index) if args.group_index else None
     progress_jsonl_path = Path(args.progress_jsonl) if args.progress_jsonl else None
+    route_outcomes_jsonl_path = Path(args.route_outcomes_jsonl) if args.route_outcomes_jsonl else None
     score_plan = load_score_plan(score_plan_path)
     group_index = open_group_index(group_index_path)
     progress_rows = load_progress_jsonl(progress_jsonl_path)
+    route_outcomes = load_route_outcomes_jsonl(route_outcomes_jsonl_path)
     require_group_invariants = not bool(args.allow_proxy_without_group_index)
     routes = build_routes(
         score_plan=score_plan,
@@ -638,6 +690,7 @@ def main(argv: list[str] | None = None) -> int:
         category=args.target_category or None,
         target_pairs=list(args.target_pair or []),
         progress_rows=progress_rows,
+        route_outcomes=route_outcomes,
         require_group_invariants=require_group_invariants,
     )
     summary = summarize_routes(
@@ -652,6 +705,8 @@ def main(argv: list[str] | None = None) -> int:
         target_pairs_requested=list(args.target_pair or []),
         progress_jsonl_path=progress_jsonl_path,
         progress_row_count=len(progress_rows),
+        route_outcomes_jsonl_path=route_outcomes_jsonl_path,
+        route_outcome_count=len(route_outcomes),
         require_group_invariants=require_group_invariants,
     )
     write_outputs(Path(args.output_dir), summary=summary, routes=routes)
@@ -661,6 +716,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"structurally_eligible_route_count {summary['structurally_eligible_route_count']}")
     print(f"generation_ready_route_count {summary['generation_ready_route_count']}")
     print(f"blocking_reason_counts {json.dumps(summary['blocking_reason_counts'], sort_keys=True)}")
+    print(
+        "construction_outcome_blocking_reason_counts "
+        f"{json.dumps(summary['construction_outcome_blocking_reason_counts'], sort_keys=True)}"
+    )
     return 0
 
 
