@@ -289,7 +289,9 @@ def render_report(summary: dict[str, Any], candidates: list[dict[str, Any]]) -> 
         f"- Safety: {SAFETY_NOTE}",
         f"- Target route: `{summary['target_pair']}` via `{summary['construction_family']}`",
         f"- Trials attempted: `{summary['trials_attempted']}`",
-        f"- Local-valid candidates: `{summary['local_valid_candidate_count']}`",
+        f"- Local-valid candidates stored: `{summary['local_valid_candidate_count']}`",
+        f"- Local-valid candidates evaluated: `{summary['local_valid_evaluated_count']}`",
+        f"- Local-valid overflow not stored: `{summary['local_valid_overflow_count']}`",
         f"- Adaptive target-compatible candidates: `{summary['adaptive_target_compatible_count']}`",
         f"- Any valuable-target survivor candidates: `{summary['adaptive_any_valuable_survivor_count']}`",
         f"- Known-submission rejections: `{summary['rejected_counts'].get('known_submission_canonical_hash', 0)}`",
@@ -353,6 +355,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=20260710)
     parser.add_argument("--max_trials", type=int, default=80)
     parser.add_argument("--limit", type=int, default=12)
+    parser.add_argument(
+        "--continue_after_candidate_limit",
+        action="store_true",
+        help=(
+            "Continue evaluating trials after --limit local-valid rows have been stored. "
+            "Any later target-compatible or valuable-survivor row is still retained."
+        ),
+    )
+    parser.add_argument(
+        "--target_compatible_limit",
+        type=int,
+        default=1,
+        help="Stop early after this many target-compatible rows are found; use 0 to disable.",
+    )
     parser.add_argument("--coeff_bound", type=int, default=1_000_000_000)
     parser.add_argument("--prime_limit", type=int, default=7)
     parser.add_argument("--exact_score_timeout", type=float, default=5.0)
@@ -372,6 +388,10 @@ def main(argv: list[str] | None = None) -> int:
     rejected: list[dict[str, Any]] = []
     seen_hashes: set[str] = set()
     trials_attempted = 0
+    local_valid_evaluated_count = 0
+    local_valid_overflow_count = 0
+    target_compatible_seen_count = 0
+    any_valuable_seen_count = 0
     for trial in iter_gx2_trials(target_r=int(route["r"]), seed=int(args.seed), max_trials=int(args.max_trials)):
         trials_attempted += 1
         record, rejection = evaluate_trial(
@@ -393,9 +413,34 @@ def main(argv: list[str] | None = None) -> int:
             continue
         if record is None:
             continue
-        candidates.append(record)
+        local_valid_evaluated_count += 1
         seen_hashes.add(str(record["canonical_hash"]))
-        if len(candidates) >= int(args.limit):
+        target_compatible = (
+            record.get("target_label_not_ruled_out") is True
+            and record.get("target_pair_valuable_not_ruled_out") is True
+            and record.get("sufficient_adaptive_frobenius_evidence") is True
+        )
+        any_valuable = (
+            record.get("sufficient_adaptive_frobenius_evidence") is True
+            and bool((record.get("group_compatibility") or {}).get("valuable_targets_not_ruled_out"))
+        )
+        target_compatible_seen_count += int(target_compatible)
+        any_valuable_seen_count += int(any_valuable)
+        retain_record = len(candidates) < int(args.limit) or target_compatible or any_valuable
+        if retain_record:
+            record["retention_reason"] = (
+                "within_candidate_limit"
+                if len(candidates) < int(args.limit)
+                else "target_compatible_after_candidate_limit"
+                if target_compatible
+                else "valuable_survivor_after_candidate_limit"
+            )
+            candidates.append(record)
+        else:
+            local_valid_overflow_count += 1
+        if int(args.target_compatible_limit) > 0 and target_compatible_seen_count >= int(args.target_compatible_limit):
+            break
+        if not bool(args.continue_after_candidate_limit) and len(candidates) >= int(args.limit):
             break
 
     rejected_counts = Counter(str(row.get("rejection_reason") or "unknown") for row in rejected)
@@ -433,9 +478,17 @@ def main(argv: list[str] | None = None) -> int:
         "executable_generator_name": GX2_GENERATOR_NAME,
         "structure_preservation": "exact g(x^2) support; no odd x-power perturbations",
         "trials_attempted": trials_attempted,
+        "max_trials": int(args.max_trials),
+        "candidate_output_limit": int(args.limit),
+        "continue_after_candidate_limit": bool(args.continue_after_candidate_limit),
+        "target_compatible_limit": int(args.target_compatible_limit),
         "local_valid_candidate_count": len(candidates),
+        "local_valid_evaluated_count": local_valid_evaluated_count,
+        "local_valid_overflow_count": local_valid_overflow_count,
         "adaptive_target_compatible_count": len(adaptive_target_compatible),
+        "adaptive_target_compatible_seen_count": target_compatible_seen_count,
         "adaptive_any_valuable_survivor_count": len(adaptive_any_valuable),
+        "adaptive_any_valuable_survivor_seen_count": any_valuable_seen_count,
         "candidate_recommendation_counts": dict(sorted(recommendation_counts.items())),
         "rejected_counts": dict(sorted(rejected_counts.items())),
         "selected_hashes": [row.get("canonical_hash") for row in candidates],

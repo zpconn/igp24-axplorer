@@ -125,6 +125,34 @@ results change.
   -> 3 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 383 passed. No live SAIR submission was made.
+- 2026-07-10 deeper executable-route experiment checkpoint: fixed
+  `scripts/igp24_gx2_route_experiment.py` so `--limit` no longer has to stop
+  a search after the first local-valid rows. New
+  `--continue_after_candidate_limit` mode continues through the trial budget,
+  while still retaining any later target-compatible or valuable-survivor row.
+  Added regression tests in `tests/test_igp24_gx2_route_experiment.py`.
+  Reran `24T22631|r=24` with `max_trials=80`, `limit=6`,
+  `continue_after_candidate_limit=true`, and 10 usable adaptive primes:
+  artifact
+  `data/igp24/remediation_20260709/gx2_route_experiment_phase5/24T22631_r24_gx2_exact_composed_deep_20260710/`.
+  Result: 80 trials attempted, 48 local-valid rows evaluated, 17 retained,
+  31 non-valuable overflow rows not stored, 27 wrong-r rejections,
+  5 reducible rejections, 0 known-submission rejections, 0 intended-target
+  compatible rows. At 10 primes, 11 retained rows still had at least one
+  non-target valuable survivor, but a follow-up 40-prime benchmark on the
+  17 retained rows under
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/gx2_route_24T22631_r24_deep_candidates_40primes_20260710/`
+  evaluated 17/17 with 0 failures and reduced valuable-survival rows from
+  11 at 10 primes to 4 at 20 primes and 0 at 40 primes. Conclusion: this
+  exact-composed r24 `g(x^2)` basin produces many locally valid all-real rows,
+  but its apparent 10-prime low-team value is not robust. Do not submit or
+  widen this parameterization without a material structural change; use
+  40-prime review for any future high-real `g(x^2)` survivors before treating
+  them as planner-grade. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_gx2_route_experiment.py`
+  -> 2 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 385 passed.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
