@@ -2,6 +2,7 @@ import json
 
 from scripts.igp24_construction_target_router import (
     build_routes,
+    explicit_targets_from_pairs,
     load_score_plan,
     main as router_main,
     select_targets,
@@ -258,6 +259,93 @@ def test_select_targets_uses_explicit_score_plan_category_buckets():
     targets = select_targets(plan, top_targets=5, category="api_scoreable_pair_followup")
 
     assert [row["pair_key"] for row in targets] == ["24T9993|r=8"]
+
+
+def test_explicit_targets_use_progress_without_treating_missing_as_uncovered():
+    plan = {"record_type": "igp24_score_aware_target_plan", "ranked_targets": []}
+    progress = [
+        {
+            "label": "24T103",
+            "t": 103,
+            "allowedR": [8],
+            "remainingSignatures": [],
+            "discoveredSignatures": [8],
+            "signatures": [
+                {
+                    "r": 8,
+                    "discovered": True,
+                    "teamCount": 2,
+                    "minimumDiscAbs": "123456789",
+                }
+            ],
+        }
+    ]
+
+    targets = explicit_targets_from_pairs(
+        plan,
+        target_pairs=["24T103|r=8", "24T103|r=24", "24T104|r=8"],
+        progress_rows=progress,
+    )
+    by_pair = {row["pair_key"]: row for row in targets}
+
+    assert by_pair["24T103|r=8"]["progress_state"] == "allowed_discovered"
+    assert by_pair["24T103|r=8"]["category"] == "explicit_low_team_signature"
+    assert by_pair["24T103|r=8"]["signature_team_count"] == 2
+    assert by_pair["24T103|r=8"]["maximum_possible_points"] == 0.5
+    assert by_pair["24T103|r=24"]["progress_state"] == "signature_not_allowed"
+    assert by_pair["24T103|r=24"]["maximum_possible_points"] == 0.0
+    assert by_pair["24T104|r=8"]["progress_state"] == "progress_data_missing_unknown"
+    assert by_pair["24T104|r=8"]["category"] == "explicit_progress_unknown"
+    assert by_pair["24T104|r=8"]["maximum_possible_points"] == 0.0
+    assert by_pair["24T104|r=8"]["estimated_expected_points"] is None
+
+
+def test_router_routes_explicit_low_team_x6_pair_from_progress(tmp_path):
+    plan = {"record_type": "igp24_score_aware_target_plan", "ranked_targets": []}
+    progress = [
+        {
+            "label": "24T103",
+            "t": 103,
+            "allowedR": [8],
+            "remainingSignatures": [],
+            "discoveredSignatures": [8],
+            "signatures": [{"r": 8, "discovered": True, "teamCount": 1, "minimumDiscAbs": "123"}],
+        }
+    ]
+    index = GroupCycleIndex(tmp_path / "groups.sqlite")
+    index.initialize(provenance={"test": True})
+    index.upsert_group(
+        GroupRecord(
+            label="24T103",
+            t=103,
+            primitive=False,
+            solvable=True,
+            block_sizes=(3, 6),
+            cycle_types=("1.23",),
+        )
+    )
+
+    routes = build_routes(
+        score_plan=plan,
+        group_index=index,
+        avoid_labels=[],
+        top_targets=25,
+        families_per_target=8,
+        target_pairs=["24T103|r=8"],
+        progress_rows=progress,
+        require_group_invariants=True,
+    )
+
+    quartic = next(row for row in routes if row["family"] == "quartic_in_x6")
+    assert quartic["explicit_target_requested"] is True
+    assert quartic["explicit_target_source"] == "progress_jsonl"
+    assert quartic["progress_state"] == "allowed_discovered"
+    assert quartic["signature_team_count"] == 1
+    assert quartic["maximum_possible_points"] == 1.0
+    assert quartic["target_group_block_sizes"] == [3, 6]
+    assert quartic["structurally_eligible"] is True
+    assert quartic["executable_generator_available"] is True
+    assert quartic["executable_generator_name"] == "quartic_x6_exact_lift_v1"
 
 
 def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):

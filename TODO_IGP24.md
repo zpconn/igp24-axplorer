@@ -222,6 +222,48 @@ results change.
   -> 10 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 394 passed. No live SAIR submission was made.
+- 2026-07-10 corrected explicit-target r8 `h(x^6)` checkpoint: fixed
+  `scripts/igp24_construction_target_router.py` so Phase 5 can route explicit
+  requested `(24Tt,r)` pairs from fresh SAIR progress JSONL without requiring
+  them to appear in the score-plan top buckets. The new path preserves the
+  "missing progress is unknown/no-score, not uncovered" invariant and records
+  `explicit_target_source`, `score_value_status`, and safe official ceiling
+  fields. Added public progress-state reuse in
+  `src/igp24/group_compatibility.py` and regression tests covering
+  `allowed_discovered`, `signature_not_allowed`, and
+  `progress_data_missing_unknown`. Routed the four persistent 40-prime x6 r8
+  survivor labels under
+  `data/igp24/remediation_20260709/construction_router_phase5/explicit_quartic_x6_r8_survivor_targets_20260710/`.
+  Result: all four are discovered low-team targets and have executable exact
+  `h(x^6)` routes: `24T24134|r=8` with team count 1 and ceiling 1.0,
+  `24T24135|r=8` with team count 2 and ceiling 0.5, `24T24908|r=8` with
+  team count 2 and ceiling 0.5, and `24T24529|r=8` with team count 3 and
+  ceiling 0.25. Retargeted the exact-composed experiment to
+  `24T24134|r=8`:
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_quartic_x6_exact_20260710/`.
+  Result: 160 trials, 16 local-valid irreducible/squarefree r8 rows,
+  0 known-submission rejections, 113 wrong-r, 29 reducible, and
+  2 nonsquarefree rejections. Unlike the earlier `24T9993` run, all 16 rows
+  retained the intended `24T24134|r=8` target through 20 usable primes.
+  The hash set is identical to the prior x6 pool, so the previous 40-prime
+  modular evidence was safely rematerialized against the corrected target:
+  `data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T24134_r8_40primes_20260710/`.
+  Result: 16/16 reviewed, 16/16 packet-eligible, 16/16 target-compatible,
+  median indexed survivor count 87, and top valuable frequencies include
+  `24T24134|r=8`, `24T24135|r=8`, `24T24529|r=8`, and `24T24908|r=8` in all
+  16 rows. Packet optimizer artifact:
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_20260710/`.
+  It selected 4 rows, rejected 0 known hashes, covered 27 possible uncovered
+  r8 pairs and 250 possible low-team r8 pairs, and reported
+  `best_case_packet_points=4.0` with
+  `expected_points_status=unavailable_uncalibrated`. This is a materially
+  better offline target-aligned x6 packet than the `24T9993` artifact, but it
+  is still necessary-exclusion evidence only, not exact label verification;
+  live submission remains recommended `false`. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_target_router.py tests/test_igp24_group_compatibility.py tests/test_igp24_exact_composed_route_experiment.py tests/test_igp24_materialize_adaptive_reviewed_candidates.py tests/test_igp24_packet_optimizer.py`
+  -> 41 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 397 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

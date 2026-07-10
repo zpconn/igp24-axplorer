@@ -30,10 +30,23 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
 from src.igp24.constructions.generators import generation_status_for_route  # noqa: E402
 from src.igp24.constructions.registry import SOUNDNESS_NOTE, default_registry  # noqa: E402
-from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord  # noqa: E402
+from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord, progress_states_for_pairs  # noqa: E402
+from src.igp24.scoring import official_score_economics  # noqa: E402
 
 
 DEFAULT_SCORE_PLAN = REPO_ROOT / "data/igp24/remediation_20260709/score_economics_phase4/score_aware_target_plan.json"
+
+ROOT_BUCKET_WEIGHTS = {
+    24: 72.0,
+    20: 62.0,
+    16: 68.0,
+    12: 70.0,
+    8: 76.0,
+    6: 24.0,
+    4: 22.0,
+    2: 18.0,
+    0: 28.0,
+}
 
 SUMMARY_JSON = "construction_target_router_summary.json"
 ROUTES_JSONL = "construction_target_routes.jsonl"
@@ -66,6 +79,22 @@ def load_score_plan(path: Path) -> dict[str, Any]:
     if payload.get("record_type") != "igp24_score_aware_target_plan":
         raise ValueError(f"unexpected score-plan record_type in {path}")
     return payload
+
+
+def load_progress_jsonl(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            text = line.strip()
+            if not text:
+                continue
+            row = json.loads(text)
+            if not isinstance(row, dict):
+                raise ValueError(f"unexpected non-object progress row in {path}:{line_number}")
+            rows.append(row)
+    return rows
 
 
 def open_group_index(path: Path | None) -> GroupCycleIndex | None:
@@ -108,11 +137,143 @@ def _target_rows_for_category(score_plan: dict[str, Any], category: str | None) 
     return rows
 
 
+def _all_target_rows(score_plan: dict[str, Any]) -> list[dict[str, Any]]:
+    source_keys = [
+        "ranked_targets",
+        "top_uncovered_targets",
+        "top_score_followup_targets",
+        "top_api_scoreable_targets",
+        "top_api_pending_targets",
+        "top_lightly_solved_targets",
+    ]
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for source_key in source_keys:
+        for row in score_plan.get(source_key) or []:
+            if not isinstance(row, dict) or not row.get("pair_key"):
+                continue
+            pair = str(row["pair_key"])
+            if pair in seen:
+                continue
+            seen.add(pair)
+            rows.append(row)
+    return rows
+
+
 def select_targets(score_plan: dict[str, Any], *, top_targets: int, category: str | None) -> list[dict[str, Any]]:
     rows = _target_rows_for_category(score_plan, category)
     if category:
         rows = [row for row in rows if row.get("category") == category]
     return rows[: int(top_targets)]
+
+
+def parse_pair_key(pair_key: str) -> tuple[str, int]:
+    if "|r=" not in pair_key:
+        raise ValueError(f"invalid pair key {pair_key!r}; expected 24Tt|r=n")
+    label, r_text = pair_key.split("|r=", 1)
+    if not label.startswith("24T") or not label.removeprefix("24T").isdigit():
+        raise ValueError(f"invalid degree-24 label in pair key {pair_key!r}")
+    try:
+        r_value = int(r_text)
+    except ValueError as exc:
+        raise ValueError(f"invalid real-root count in pair key {pair_key!r}") from exc
+    return label, r_value
+
+
+def _explicit_row_from_progress(pair_key: str, progress_state: dict[str, Any]) -> dict[str, Any]:
+    label, r_value = parse_pair_key(pair_key)
+    state = str(progress_state.get("progress_state") or "progress_data_missing_unknown")
+    score_value_status = str(progress_state.get("score_value_status") or "unknown_no_score_value")
+    team_count = int(progress_state.get("team_count") or 0)
+    uncovered = state == "allowed_remaining"
+    baseline_pair = bool(progress_state.get("in_baseline", False))
+    if state in {"allowed_remaining", "allowed_discovered"}:
+        official = official_score_economics(
+            current_team_count=team_count,
+            uncovered=uncovered,
+            baseline_pair=baseline_pair,
+            current_best_disc_abs=progress_state.get("minimum_disc_abs"),
+        )
+        maximum_points = official["maximum_possible_points"]
+        estimated_points = official["estimated_expected_points"]
+        ceiling_class = official["score_ceiling_class"]
+    else:
+        official = {
+            "official_current_team_count": team_count,
+            "official_prospective_team_count": None,
+            "score_multiplier": None,
+            "maximum_possible_points": 0.0,
+            "estimated_expected_points": None,
+            "estimated_points_basis": "no_score_value",
+            "score_ceiling_class": score_value_status,
+        }
+        maximum_points = 0.0
+        estimated_points = None
+        ceiling_class = score_value_status
+
+    if state == "allowed_remaining":
+        category = "explicit_uncovered_signature"
+    elif state == "allowed_discovered":
+        category = "explicit_low_team_signature" if team_count <= 20 else "explicit_discovered_signature"
+    elif state == "signature_not_allowed":
+        category = "explicit_signature_not_allowed"
+    else:
+        category = "explicit_progress_unknown"
+
+    target_score = ROOT_BUCKET_WEIGHTS.get(r_value, 10.0)
+    target_score += min(float(maximum_points or 0.0) * 260.0, 320.0)
+    if state == "allowed_remaining":
+        target_score += 520.0
+    elif state == "allowed_discovered" and team_count <= 5:
+        target_score += 160.0
+    elif state == "allowed_discovered" and team_count <= 12:
+        target_score += 105.0
+    elif state == "allowed_discovered" and team_count <= 20:
+        target_score += 45.0
+    elif state not in {"allowed_remaining", "allowed_discovered"}:
+        target_score -= 200.0
+
+    return {
+        "pair_key": pair_key,
+        "label": label,
+        "t": int(label.removeprefix("24T")),
+        "r": r_value,
+        "category": category,
+        "progress_state": state,
+        "score_value_status": score_value_status,
+        "target_score": round(target_score, 3),
+        "maximum_possible_points": maximum_points,
+        "estimated_expected_points": estimated_points,
+        "estimated_points_basis": official.get("estimated_points_basis"),
+        "score_ceiling_class": ceiling_class,
+        "signature_team_count": team_count,
+        "minimum_disc_abs": progress_state.get("minimum_disc_abs"),
+        "baseline_pair": baseline_pair,
+        "explicit_target_requested": True,
+        "explicit_target_source": "progress_jsonl",
+    }
+
+
+def explicit_targets_from_pairs(
+    score_plan: dict[str, Any],
+    *,
+    target_pairs: list[str],
+    progress_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    plan_by_pair = {str(row["pair_key"]): row for row in _all_target_rows(score_plan)}
+    progress_by_pair = progress_states_for_pairs(target_pairs, progress_rows)
+    targets: list[dict[str, Any]] = []
+    for pair_key in target_pairs:
+        pair = str(pair_key)
+        parse_pair_key(pair)
+        if pair in plan_by_pair:
+            row = dict(plan_by_pair[pair])
+            row["explicit_target_requested"] = True
+            row["explicit_target_source"] = "score_plan"
+            targets.append(row)
+            continue
+        targets.append(_explicit_row_from_progress(pair, progress_by_pair[pair]))
+    return targets
 
 
 def _safe_float(value: Any) -> float:
@@ -148,10 +309,21 @@ def build_routes(
     top_targets: int,
     families_per_target: int,
     category: str | None = "uncovered_signature",
+    target_pairs: list[str] | None = None,
+    progress_rows: list[dict[str, Any]] | None = None,
     require_group_invariants: bool = True,
 ) -> list[dict[str, Any]]:
     registry = default_registry()
-    targets = select_targets(score_plan, top_targets=top_targets, category=category)
+    explicit_pairs = [str(pair) for pair in target_pairs or []]
+    targets = (
+        explicit_targets_from_pairs(
+            score_plan,
+            target_pairs=explicit_pairs,
+            progress_rows=list(progress_rows or []),
+        )
+        if explicit_pairs
+        else select_targets(score_plan, top_targets=top_targets, category=category)
+    )
     routes: list[dict[str, Any]] = []
     for target_rank, target in enumerate(targets, start=1):
         label = str(target["label"])
@@ -203,6 +375,9 @@ def build_routes(
                     "estimated_expected_points": target.get("estimated_expected_points"),
                     "score_ceiling_class": target.get("score_ceiling_class"),
                     "signature_team_count": target.get("signature_team_count"),
+                    "score_value_status": target.get("score_value_status"),
+                    "explicit_target_requested": bool(target.get("explicit_target_requested")),
+                    "explicit_target_source": target.get("explicit_target_source"),
                     "family": family["family"],
                     "family_display_name": family["display_name"],
                     "family_routing_score": family["routing_score"],
@@ -266,7 +441,10 @@ def summarize_routes(
     top_targets: int,
     families_per_target: int,
     category: str | None,
-    require_group_invariants: bool,
+    target_pairs_requested: list[str] | None = None,
+    progress_jsonl_path: Path | None = None,
+    progress_row_count: int = 0,
+    require_group_invariants: bool = True,
 ) -> dict[str, Any]:
     target_pairs = {str(row["pair_key"]) for row in routes}
     targets_with_group = {str(row["pair_key"]) for row in routes if row.get("target_group_record_available")}
@@ -290,6 +468,10 @@ def summarize_routes(
         "group_index_provided": group_index_path is not None,
         "require_group_invariants": require_group_invariants,
         "target_category_filter": category,
+        "explicit_target_pairs_requested": list(target_pairs_requested or []),
+        "explicit_target_pair_count": len(target_pairs_requested or []),
+        "input_progress_jsonl": str(progress_jsonl_path) if progress_jsonl_path else None,
+        "progress_jsonl_row_count": int(progress_row_count),
         "top_targets_requested": int(top_targets),
         "families_per_target": int(families_per_target),
         "avoid_labels": list(avoid_labels),
@@ -422,6 +604,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--top_targets", type=int, default=25)
     parser.add_argument("--families_per_target", type=int, default=5)
     parser.add_argument("--target_category", default="uncovered_signature")
+    parser.add_argument(
+        "--target_pair",
+        action="append",
+        default=[],
+        help="Explicit 24Tt|r=n pair to route. May be passed multiple times; bypasses top-target selection.",
+    )
+    parser.add_argument(
+        "--progress_jsonl",
+        help="Optional SAIR label-progress JSONL used to score explicit target pairs safely.",
+    )
     parser.add_argument("--avoid_label", action="append", default=[])
     parser.add_argument(
         "--allow_proxy_without_group_index",
@@ -432,8 +624,10 @@ def main(argv: list[str] | None = None) -> int:
 
     score_plan_path = Path(args.score_plan)
     group_index_path = Path(args.group_index) if args.group_index else None
+    progress_jsonl_path = Path(args.progress_jsonl) if args.progress_jsonl else None
     score_plan = load_score_plan(score_plan_path)
     group_index = open_group_index(group_index_path)
+    progress_rows = load_progress_jsonl(progress_jsonl_path)
     require_group_invariants = not bool(args.allow_proxy_without_group_index)
     routes = build_routes(
         score_plan=score_plan,
@@ -442,6 +636,8 @@ def main(argv: list[str] | None = None) -> int:
         top_targets=int(args.top_targets),
         families_per_target=int(args.families_per_target),
         category=args.target_category or None,
+        target_pairs=list(args.target_pair or []),
+        progress_rows=progress_rows,
         require_group_invariants=require_group_invariants,
     )
     summary = summarize_routes(
@@ -453,6 +649,9 @@ def main(argv: list[str] | None = None) -> int:
         top_targets=int(args.top_targets),
         families_per_target=int(args.families_per_target),
         category=args.target_category or None,
+        target_pairs_requested=list(args.target_pair or []),
+        progress_jsonl_path=progress_jsonl_path,
+        progress_row_count=len(progress_rows),
         require_group_invariants=require_group_invariants,
     )
     write_outputs(Path(args.output_dir), summary=summary, routes=routes)

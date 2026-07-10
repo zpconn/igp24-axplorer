@@ -500,6 +500,25 @@ def _pair_progress_state(
     }
 
 
+def progress_states_for_pairs(
+    pair_keys: Iterable[str],
+    progress_rows: Iterable[dict[str, Any]] | None,
+) -> dict[str, dict[str, Any]]:
+    """Return score-value progress state for explicit `(24Tt,r)` pairs.
+
+    Missing progress is intentionally classified as unknown, not uncovered.
+    This public wrapper lets routing/planning code reuse the same semantics as
+    group compatibility without depending on the private progress indexes.
+    """
+    rows = list(progress_rows or [])
+    progress = _progress_by_pair(rows)
+    progress_labels = _labels_with_progress(rows)
+    return {
+        str(pair): _pair_progress_state(str(pair), progress=progress, progress_labels=progress_labels)
+        for pair in pair_keys
+    }
+
+
 def candidate_compatibility(
     row: dict[str, Any],
     index: GroupCycleIndex,

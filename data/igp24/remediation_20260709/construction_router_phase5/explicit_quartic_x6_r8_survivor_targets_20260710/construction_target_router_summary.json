@@ -1,0 +1,204 @@
+{
+  "avoid_labels": [],
+  "blocking_reason_counts": {
+    "unsupported_target_r": 8
+  },
+  "created_at": "2026-07-10T03:58:48.562515+00:00",
+  "executable_generation_ready_route_count": 0,
+  "executable_generation_ready_target_count": 0,
+  "executable_generator_available_route_count": 4,
+  "executable_generator_available_target_count": 4,
+  "explicit_target_pair_count": 4,
+  "explicit_target_pairs_requested": [
+    "24T24134|r=8",
+    "24T24135|r=8",
+    "24T24529|r=8",
+    "24T24908|r=8"
+  ],
+  "families_per_target": 8,
+  "family_route_counts": {
+    "composition_4x6": 4,
+    "composition_8x3": 4,
+    "generic_sparse_random": 4,
+    "gx2_degree12_lift": 4,
+    "linear_real_product": 4,
+    "positive_quadratic_product": 4,
+    "quartic_in_x6": 4,
+    "tower_6x4": 4
+  },
+  "generation_ready_blocking_reason_counts": {
+    "adaptive_target_exclusion_not_run": 20,
+    "executable_generator_not_bound_to_target": 16,
+    "generated_outputs_not_validated": 20,
+    "generator_block_structure_not_matched_to_target": 4,
+    "structure_preservation_not_verified": 16,
+    "target_parameters_not_instantiated": 16,
+    "unsupported_target_r": 8
+  },
+  "generation_ready_count_deprecated": true,
+  "generation_ready_route_count": 0,
+  "generation_ready_target_count": 0,
+  "group_index_provided": true,
+  "input_group_index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "input_progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+  "input_score_plan": "data/igp24/remediation_20260709/score_economics_phase4/score_aware_target_plan.json",
+  "input_score_plan_created_at": "2026-07-09T21:43:28.841522+00:00",
+  "live_submission_recommended_now": false,
+  "progress_jsonl_row_count": 25000,
+  "record_type": "igp24_construction_target_router",
+  "require_group_invariants": true,
+  "route_count": 32,
+  "safety_note": "Read-only target-to-construction router. It does not generate candidates, call external algebra systems or SAIR, or recommend live submission.",
+  "schema_version": 1,
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+  "source_commit": "75d34b753fb22df8f2e9dcebaa8c492c672f25a2",
+  "structurally_eligible_route_count": 24,
+  "structurally_eligible_target_count": 4,
+  "target_category_filter": "uncovered_signature",
+  "target_group_record_hit_count": 4,
+  "target_group_record_missing_count": 0,
+  "target_pair_count": 4,
+  "tool": "scripts/igp24_construction_target_router.py",
+  "top_executable_generator_routes": [
+    {
+      "combined_priority_score": 789.5,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 534.5,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "combined_priority_score": 530.0,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T24908|r=8"
+    },
+    {
+      "combined_priority_score": 407.0,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T24529|r=8"
+    }
+  ],
+  "top_generation_ready_routes": [],
+  "top_proxy_routes": [
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 789.5,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 788.0,
+      "family": "tower_6x4",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 788.0,
+      "family": "composition_8x3",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 787.0,
+      "family": "composition_4x6",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 781.5,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 766.0,
+      "family": "generic_sparse_random",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 534.5,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 533.0,
+      "family": "tower_6x4",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 533.0,
+      "family": "composition_8x3",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 532.0,
+      "family": "composition_4x6",
+      "pair_key": "24T24135|r=8"
+    }
+  ],
+  "top_structurally_eligible_routes": [
+    {
+      "combined_priority_score": 789.5,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 788.0,
+      "family": "tower_6x4",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 788.0,
+      "family": "composition_8x3",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 787.0,
+      "family": "composition_4x6",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 781.5,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 766.0,
+      "family": "generic_sparse_random",
+      "pair_key": "24T24134|r=8"
+    },
+    {
+      "combined_priority_score": 534.5,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "combined_priority_score": 533.0,
+      "family": "tower_6x4",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "combined_priority_score": 533.0,
+      "family": "composition_8x3",
+      "pair_key": "24T24135|r=8"
+    },
+    {
+      "combined_priority_score": 532.0,
+      "family": "composition_4x6",
+      "pair_key": "24T24135|r=8"
+    }
+  ],
+  "top_targets_requested": 25
+}

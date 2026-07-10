@@ -18,6 +18,7 @@ from src.igp24.group_compatibility import (
     GroupRecord,
     candidate_compatibility,
     cycle_type_key,
+    progress_states_for_pairs,
     validate_historical_containment,
 )
 from src.igp24.polynomial import score_candidate
@@ -137,6 +138,17 @@ def test_candidate_compatibility_signature_not_allowed_has_no_score_value(tmp_pa
     assert "24T2|r=8" in result["compatible_unknown_or_no_score_pairs"]
     assert result["progress_states"]["24T2|r=8"]["progress_state"] == "signature_not_allowed"
     assert "24T2|r=8" not in result["compatible_uncovered_pairs"]
+
+
+def test_progress_states_for_pairs_public_helper_keeps_unknown_and_not_allowed_distinct():
+    progress = [{"label": "24T2", "allowedR": [4], "signatures": [{"r": 4, "discovered": False, "teamCount": 0}]}]
+
+    states = progress_states_for_pairs(["24T2|r=8", "24T999|r=8"], progress)
+
+    assert states["24T2|r=8"]["progress_state"] == "signature_not_allowed"
+    assert states["24T2|r=8"]["score_value_status"] == "no_score_value"
+    assert states["24T999|r=8"]["progress_state"] == "progress_data_missing_unknown"
+    assert states["24T999|r=8"]["score_value_status"] == "unknown_no_score_value"
 
 
 def test_discriminant_square_applies_sound_even_group_filter(tmp_path):
