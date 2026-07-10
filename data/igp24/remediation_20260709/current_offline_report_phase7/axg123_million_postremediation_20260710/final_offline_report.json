@@ -1,0 +1,128 @@
+{
+  "schema_version": "igp24_final_offline_remediation_report_v1",
+  "report_status": "complete_offline_no_go",
+  "source_commit": "c35ae218ba9502f215d7fb3dc161f4d223b914e7",
+  "branch": "igp24-dev",
+  "index_status": {
+    "index_scope": "complete_degree24_universe",
+    "indexed_group_count": 25000,
+    "expected_global_group_count": 25000,
+    "global_index_complete": true,
+    "unindexed_label_mass_unknown": false,
+    "group_cycle_type_row_count": 942607,
+    "integrity": "100/100 chunks complete; no missing or duplicate labels"
+  },
+  "historical_calibration": {
+    "scoreable_rows": 234,
+    "rows_with_corrected_local_evidence": 233,
+    "observed_pairs": 28,
+    "observed_labels": 16,
+    "indexed_true_label_containment_failures": 0,
+    "median_survivors_at_5_primes": 2,
+    "median_survivors_at_10_primes": 1,
+    "valuable_false_positive_rows_at_5_primes": 73,
+    "valuable_false_positive_rows_at_10_primes": 36,
+    "interpretation": "necessary exclusion is sound on evaluated history, but containment alone is not exact discrimination"
+  },
+  "adaptive_prime_results": {
+    "ramification_semantics": "each sampled prime is verified unramified by exact squarefree reduction modulo p",
+    "default_model_projection_budget": 40,
+    "stable_after_additional_unchanged_primes": 10,
+    "model_projection_rows_screened": 800,
+    "paired_baseline_rows_screened": 800,
+    "model_rows_retaining_a_current_valuable_target": 70,
+    "baseline_rows_retaining_a_current_valuable_target": 75,
+    "model_rate": 0.0875,
+    "baseline_rate": 0.09375,
+    "absolute_rate_difference": -0.00625,
+    "approximate_95_percent_difference_interval": [-0.034381692259354044, 0.021881692259354033],
+    "model_advantage_established": false
+  },
+  "routed_construction_results": {
+    "gx2_r24": "locally productive, but the 17-row deep pool retained zero valuable targets at 40 usable primes",
+    "quartic_x6_r8": "four 80-prime target-compatible rows resolved exactly to four wrong discovered labels and the route is outcome-blocked",
+    "tower_6x4": "real executable structure-preserving route retained as the best construction family for further redesign, without an exact target claim",
+    "generic_sparse_model_lane": "comparison baseline only; not the primary group-targeting mechanism"
+  },
+  "fresh_model": {
+    "iteration": "AXG-1.23",
+    "train_unique_canonical_examples": 1000000,
+    "eval_unique_canonical_examples": 100000,
+    "optimizer_steps": 31250,
+    "full_unique_corpus_traversals": 1,
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "maximum_gpu_utilization_percent": 97.0,
+    "final_train_loss": 1.299974125101819,
+    "final_eval_loss": 1.9092124700546265,
+    "direct_r24_m2_decodes": 4059,
+    "direct_exact_r24_rows": 0,
+    "promotion": false,
+    "promotion_reason": "no direct exact-r24 yield and no improvement over paired structural controls"
+  },
+  "fresh_cross_check": {
+    "created_at_utc": "2026-07-10T13:15:37.006850+00:00",
+    "label_count": 25000,
+    "remaining_signature_count": 46499,
+    "submission_count": 29,
+    "submission_rows": 234,
+    "unique_canonical_submission_hashes": 233,
+    "pending_rows": 0,
+    "scoreable_rows": 234,
+    "unmatched_rows": 0,
+    "partial_sync": false,
+    "full_submission_state_complete": true,
+    "prior_to_fresh_unique_hash_additions": 0,
+    "prior_to_fresh_unique_hash_removals": 0,
+    "valuable_pair_states_unchanged": {
+      "24T24969|r=24": {"state": "allowed_discovered", "team_count": 13},
+      "24T24971|r=24": {"state": "allowed_discovered", "team_count": 1}
+    }
+  },
+  "candidate_inventory": {
+    "fresh_exact_local_model_projections": 1569,
+    "model_projection_duplicates": 479,
+    "model_rows_with_sufficient_adaptive_valuable_survival": 70,
+    "fresh_submission_hash_intersections": 0,
+    "unique_surviving_model_hashes": 70,
+    "exact_verified_group_labels": 0,
+    "submission_grade_rows": 0,
+    "survivor_count_distribution": {"2": 65, "3": 5},
+    "indexed_label_frequency": {"24T24969": 35, "24T24971": 40, "24T24979": 70},
+    "valuable_target_row_frequency": {"24T24969|r=24": 35, "24T24971|r=24": 40},
+    "warning": "every surviving model row also retains crowded 24T24979; compatibility is necessary rather than an exact label",
+    "candidate_rows_artifact": "data/igp24/axg123_structural_million_20260710/r24_m2_projection_frobenius_paired800/valuable_survivors.jsonl",
+    "candidate_rows_filter": "source_lane == model_projected"
+  },
+  "score_semantics": {
+    "numeric_expected_points": null,
+    "expected_points_status": "unavailable_uncalibrated",
+    "per_candidate_best_case_points": 1,
+    "distinct_valuable_pair_best_case_ceiling": 2,
+    "target_coverage_diversity_is_additive_score": false
+  },
+  "verification": {
+    "full_test_suite": "480 passed in 10.23s",
+    "git_diff_check": "passed before the final report update",
+    "large_corpus_committed": false,
+    "large_checkpoint_committed": false,
+    "distilled_provenance_committed": true
+  },
+  "recommendation": {
+    "submit": false,
+    "decision": "do_not_submit",
+    "blockers": [
+      "AXG-1.23 did not outperform its paired random structural baseline",
+      "direct conditioned inference produced zero exact-r24 rows",
+      "all adaptive survivors retain the known crowded 24T24979 basin",
+      "exact degree-24 group labels are missing for every survivor",
+      "numeric expected score is unavailable and uncalibrated"
+    ],
+    "next_model_action": "redesign AXG-1.24 around construction-parameter tokens or a constrained decoder, retain the >=1M unique-example rule, and require a statistically clear paired-baseline improvement before promotion"
+  },
+  "safety": {
+    "live_sair_submission": false,
+    "network_posts": false,
+    "network_reads": ["final read-only SAIR sync"],
+    "api_key_recorded": false
+  }
+}

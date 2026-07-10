@@ -188,8 +188,14 @@ def screen_candidate(
     return {
         "schema_version": SCHEMA_VERSION,
         "canonical_hash": row.get("canonical_hash"),
+        "coefficients": row.get("coefficients"),
         "source_lane": row.get("source_lane"),
+        "source_model_hash": row.get("source_model_hash"),
+        "source_model_index": row.get("source_model_index"),
+        "projection_variant": row.get("projection_variant"),
         "construction_family": (row.get("features") or {}).get("construction_family"),
+        "integer_centers": (row.get("features") or {}).get("integer_centers"),
+        "normalized_projection_error": (row.get("features") or {}).get("normalized_projection_error"),
         "r": 24,
         "usable_prime_count": len(observations),
         "primes_examined": primes_examined,
@@ -265,8 +271,8 @@ def lane_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "usable_primes_median": statistics.median(usable_primes) if usable_primes else None,
         "runtime_seconds_total": sum(runtimes),
         "sum_of_per_row_best_case_point_ceilings": sum(int(row["best_case_points"]) for row in rows),
-        "best_case_packet_points": sum(int(row["best_case_points"]) for row in rows),
-        "best_case_packet_points_note": "logical ceiling only; not an expectation and not evidence that mutually redundant rows all score",
+        "distinct_valuable_pair_best_case_ceiling": len(valuable_union),
+        "best_case_ceiling_note": "pair-diversity ceiling only; not an expectation or exact-label claim",
         "expected_points_status": "unavailable_uncalibrated",
     }
 
@@ -413,6 +419,13 @@ def main() -> int:
     }
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl(args.output_dir / "screened_candidates.jsonl", screened)
+    valuable_survivors = [row for row in screened if int(row.get("valuable_target_count") or 0) > 0]
+    write_jsonl(args.output_dir / "valuable_survivors.jsonl", valuable_survivors)
+    summary["outputs"] = {
+        "screened_candidates": str(args.output_dir / "screened_candidates.jsonl"),
+        "valuable_survivors": str(args.output_dir / "valuable_survivors.jsonl"),
+        "valuable_survivor_row_count": len(valuable_survivors),
+    }
     write_json(args.output_dir / "comparison_summary.json", summary)
     report = "\n".join(
         [

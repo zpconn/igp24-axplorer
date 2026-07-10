@@ -90,6 +90,26 @@ results change.
   SAIR submission was made. Next AXG work must retain the >=1M unique-example
   rule while moving the model to construction-parameter tokens or a genuinely
   constrained decoder, and must beat a paired baseline before promotion.
+
+  Final read-only SAIR cross-check completed at
+  `data/igp24/axg123_structural_million_20260710/sair_sync_final_readonly/`:
+  25,000 labels, 46,499 remaining signatures, 29/29 submission details and
+  downloads recovered, 234 scoreable rows, 0 pending, 0 unmatched, and full
+  submission state complete. The 233 unique submitted canonical hashes are
+  unchanged from the pre-run sync; none intersects the 70 model-side adaptive
+  survivors. Fresh progress leaves `24T24969|r=24` at 13 teams and
+  `24T24971|r=24` at 1 team. Every one of the 70 rows also retains crowded
+  `24T24979`, so there are 0 exact-label and 0 submission-grade rows. The
+  distinct valuable-pair best-case ceiling is 2, not 70, and expected points
+  remain unavailable. Curated evidence rows are in
+  `r24_m2_projection_frobenius_paired800/valuable_survivors.jsonl`; filter on
+  `source_lane=model_projected` for the 70 model rows.
+
+  Full validation after the new projection/adaptive code:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/pytest -q` -> 480 passed
+  in 10.23s. Consolidated final report:
+  `data/igp24/remediation_20260709/current_offline_report_phase7/axg123_million_postremediation_20260710/`.
+  Recommendation remains `do_not_submit`; no live SAIR submission was made.
 - 2026-07-10 AXG-1.22 corpus-size audit and hard training gate: the apparent
   AXG-1.22 run was an end-to-end plumbing smoke test, not a meaningful model
   iteration. Its real post-loader corpus had only 16 unique training rows and
