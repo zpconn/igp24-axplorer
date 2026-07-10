@@ -1,0 +1,248 @@
+{
+  "adaptive_packet_status": {
+    "budget_summary": {
+      "20": {
+        "evaluated_rows": 4,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 4,
+        "median_indexed_target_survivor_count": 311,
+        "rows_with_budget_reached": 4,
+        "valuable_target_survival_rows": 4
+      },
+      "40": {
+        "evaluated_rows": 4,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 4,
+        "median_indexed_target_survivor_count": 266,
+        "rows_with_budget_reached": 4,
+        "valuable_target_survival_rows": 4
+      },
+      "60": {
+        "evaluated_rows": 4,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 4,
+        "median_indexed_target_survivor_count": 225,
+        "rows_with_budget_reached": 4,
+        "valuable_target_survival_rows": 4
+      },
+      "80": {
+        "evaluated_rows": 4,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 4,
+        "median_indexed_target_survivor_count": 189,
+        "rows_with_budget_reached": 4,
+        "valuable_target_survival_rows": 4
+      }
+    },
+    "evaluated_rows": 4,
+    "exact_label_missing_rows": 4,
+    "failed_rows": 0,
+    "final_valuable_target_survival_rows": 4,
+    "intended_target_row_count": 4,
+    "intended_target_survival_rows": 4,
+    "max_usable_primes": 80
+  },
+  "architecture_status": {
+    "baseline_leaderboard": {
+      "our_public_score": 0.000508,
+      "our_rank": 77,
+      "our_scoreable_pairs": 28,
+      "our_team_number": "IGP24-T00153",
+      "rank25_score_cutoff": 108.009839,
+      "rank25_scoreable_pairs": 5087,
+      "recorded_visible_points_from_user_snapshot": 0.0021,
+      "source": "GET /api/public/v1/competitions/igp24/leaderboard?limit=100 at baseline time",
+      "user_snapshot_visible_points_rows": 2
+    },
+    "chronological_replay_minimum_gate_passed": true,
+    "full_group_index_complete": true,
+    "historical_evaluated_rows": 233,
+    "historical_indexed_containment_failures": 0,
+    "historical_valuable_false_positive_rows_at_10_primes": 36,
+    "indexed_group_count": 25000,
+    "latest_gpu_probe_summary": {
+      "gpu_used": true,
+      "rejection_reasons": {
+        "coefficient_height_exceeds_bound": 35
+      },
+      "run_id": "axg114_r24_knownhash_20260709T2323Z",
+      "valid_records": 0
+    }
+  },
+  "candidate_status": {
+    "novel_candidate_count_against_synced_submission_history": 4,
+    "novel_candidate_hashes_against_synced_submission_history": [
+      "4b6fc17867226448a51aced431465fb37f29400ca35f3234aff13ab0ea4c6bb7",
+      "d4aed028ad972072f94586e017a8349bd142ea10f30e5e2062db78406c35b4fd",
+      "caa861f3b409b480c883e1d4bb6ef797eca09f5d68dbff0472d86a7624071971",
+      "5f06b5464de967f57a92a0085561a48741483fb8c03c053965be0c497e7cecaf"
+    ],
+    "selected_hashes": [
+      "4b6fc17867226448a51aced431465fb37f29400ca35f3234aff13ab0ea4c6bb7",
+      "d4aed028ad972072f94586e017a8349bd142ea10f30e5e2062db78406c35b4fd",
+      "caa861f3b409b480c883e1d4bb6ef797eca09f5d68dbff0472d86a7624071971",
+      "5f06b5464de967f57a92a0085561a48741483fb8c03c053965be0c497e7cecaf"
+    ],
+    "selected_rows": [
+      {
+        "canonical_hash": "4b6fc17867226448a51aced431465fb37f29400ca35f3234aff13ab0ea4c6bb7",
+        "computed_r": 8,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 2589457471663020290830410681073952737028210688,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "4b6fc1786722",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "d4aed028ad972072f94586e017a8349bd142ea10f30e5e2062db78406c35b4fd",
+        "computed_r": 8,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 121820589364734876729591821613082841879342204583936,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "d4aed028ad97",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "caa861f3b409b480c883e1d4bb6ef797eca09f5d68dbff0472d86a7624071971",
+        "computed_r": 8,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 234873986312310215862112540341409720823302210977792,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "caa861f3b409",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      },
+      {
+        "canonical_hash": "5f06b5464de967f57a92a0085561a48741483fb8c03c053965be0c497e7cecaf",
+        "computed_r": 8,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 40549925653208015572705075309591021536773230559232,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "5f06b5464de9",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      }
+    ],
+    "selected_short_hashes": [
+      "4b6fc1786722",
+      "d4aed028ad97",
+      "caa861f3b409",
+      "5f06b5464de9"
+    ]
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_current_offline_report.py",
+    "--packet_summary_json",
+    "data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_20260710/packet_optimizer_summary.json",
+    "--triage_summary_json",
+    "data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_summary.json",
+    "--triage_rows_jsonl",
+    "data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage.jsonl",
+    "--adaptive_summary_json",
+    "data/igp24/remediation_20260709/adaptive_frobenius_phase5/quartic_x6_24T24134_r8_packet4_80primes_20260710/adaptive_frobenius_benchmark_summary.json",
+    "--index_summary_json",
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "--historical_summary_json",
+    "data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "--baseline_summary_json",
+    "data/igp24/remediation_20260709/baseline_summary.json",
+    "--replay_summary_json",
+    "data/igp24/remediation_20260709/replay_benchmark_phase7/replay_benchmark_summary.json",
+    "--gpu_summary_json",
+    "data/igp24/remediation_20260709/axg_negative_gpu_evidence_phase1/axg114_knownhash_r24_summary.json",
+    "--output_dir",
+    "data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_local_pari_20260710"
+  ],
+  "created_at": "2026-07-10T04:49:21.712655+00:00",
+  "go_no_go": {
+    "blockers": [
+      "adaptive_rows_still_missing_exact_labels",
+      "exact_magma_labels_missing",
+      "explicit_user_live_submission_approval_missing",
+      "fresh_sair_sync_required_immediately_before_live_submission",
+      "score_aware_triage_has_no_submission_grade_rows"
+    ],
+    "live_submission_recommended_now": false,
+    "recommendation": "do_not_submit",
+    "warnings": [
+      "packet_uses_single_construction_family"
+    ]
+  },
+  "inputs": {
+    "adaptive_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/adaptive_frobenius_phase5/quartic_x6_24T24134_r8_packet4_80primes_20260710/adaptive_frobenius_benchmark_summary.json",
+    "baseline_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/baseline_summary.json",
+    "gpu_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/axg_negative_gpu_evidence_phase1/axg114_knownhash_r24_summary.json",
+    "historical_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "index_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "packet_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_20260710/packet_optimizer_summary.json",
+    "replay_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/replay_benchmark_phase7/replay_benchmark_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage.jsonl",
+    "triage_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_summary.json"
+  },
+  "output_files": {
+    "report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_local_pari_20260710/current_offline_go_nogo_report.md",
+    "summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_local_pari_20260710/current_offline_go_nogo_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_local_pari_20260710/current_offline_go_nogo_triage_rows.jsonl"
+  },
+  "packet_status": {
+    "best_case_packet_points": 4.0,
+    "candidate_count": 16,
+    "construction_family_counts": {
+      "quartic_in_x6": 4
+    },
+    "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+    "expected_points_status": "unavailable_uncalibrated",
+    "possible_low_team_pair_count": 250,
+    "possible_uncovered_pair_count": 27,
+    "selected_rows": 4
+  },
+  "record_type": "igp24_current_offline_go_nogo_report",
+  "safety": {
+    "candidate_generation": false,
+    "gpu_training": false,
+    "local_file_only": true,
+    "magma_executed": false,
+    "network_calls": false,
+    "pari_executed": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "2156588f4821f5b5544fc0ba45c8f16f6cec571e",
+  "tool": "scripts/igp24_current_offline_report.py",
+  "verification_status": {
+    "exact_label_status_counts": {
+      "missing": 4
+    },
+    "exact_nfdisc_status_counts": {
+      "ok": 4
+    },
+    "exact_r_status_counts": {
+      "ok": 4
+    },
+    "known_submission_hash_rows": 0,
+    "pending_exact_label_rows": 4,
+    "reviewed_rows": 4,
+    "submission_grade_rows": 0,
+    "verified_exact_label_rows": 0
+  }
+}

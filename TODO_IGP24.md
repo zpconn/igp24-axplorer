@@ -380,6 +380,28 @@ results change.
   nfdisc are resolved. Focused validation:
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_current_offline_report.py`
   -> 2 passed. No live SAIR submission was made.
+- 2026-07-10 local PARI/GP nfdisc rescue checkpoint: system `sudo apt-get`
+  installation is blocked by passworded sudo, but a non-root `apt-get download
+  pari-gp` into `/tmp/igp24_pari_gp_local` succeeded after network escalation,
+  and the extracted `/tmp/igp24_pari_gp_local/root/usr/bin/gp` binary runs
+  against existing system libraries. Reran the four-row x6 r8 packet verifier
+  with `--run_pari`, `--run_sympy_signature`, `--run_sympy_nfdisc`, and
+  `--online_magma_manual` into
+  `data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_from_queue_local_pari_20260710/`.
+  Result: PARI/GP executed locally, 4/4 `nfdisc_ok`, 4/4 irreducible degree-24
+  rows with PARI real-root count r=8; the previously missing
+  `4b6fc1786722` row has exact PARI nfdisc
+  `2589457471663020290830410681073952737028210688`. Refreshed score-aware
+  triage under
+  `data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/`:
+  4 reviewed, 0 verified labels, 4 pending exact labels, 0 known-submission
+  hash rows, exact-r status `{"ok": 4}`, exact-nfdisc status `{"ok": 4}`,
+  and 0 submission-grade rows. Refreshed consolidated go/no-go under
+  `data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_local_pari_20260710/`.
+  The `exact_nfdisc_not_complete` blocker is now gone; remaining blockers are
+  exact Magma labels missing, no submission-grade rows, fresh sync required
+  immediately before any live packet, and explicit user approval missing.
+  No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

@@ -1,0 +1,106 @@
+{
+  "accepted_pair_status_counts": {
+    "not_previously_accepted": 4
+  },
+  "baseline": {
+    "pairs": 622,
+    "path": "/home/zpconn/code/igp24-axplorer/data/igp24/lmfdb_baseline.csv",
+    "rows_loaded": 1480
+  },
+  "classification_counts": {
+    "exact_result_missing": 4
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_score_aware_triage.py",
+    "--queue_jsonl",
+    "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/verification_batch.jsonl",
+    "--offline_dir",
+    "data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_from_queue_local_pari_20260710",
+    "--baseline_csv",
+    "data/igp24/lmfdb_baseline.csv",
+    "--pair_status_json",
+    "data/igp24/pair_status_20260706.json",
+    "--known_submission_rows_jsonl",
+    "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl",
+    "--output_dir",
+    "data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710"
+  ],
+  "created_at": "2026-07-10T04:49:07.047604+00:00",
+  "exact_label_source_counts": {},
+  "exact_label_status_counts": {
+    "missing": 4
+  },
+  "exact_nfdisc_status_counts": {
+    "ok": 4
+  },
+  "exact_r_status_counts": {
+    "ok": 4
+  },
+  "failed_rows": 0,
+  "known_submission_hash_rows": 0,
+  "known_submission_inputs": [
+    {
+      "canonical_hashes_indexed": 234,
+      "duplicate_hash_rows": 1,
+      "path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl",
+      "rows_loaded": 234
+    }
+  ],
+  "known_submission_status_counts": {
+    "None": 4
+  },
+  "labels_found_counts": {},
+  "offline_verification_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_from_queue_local_pari_20260710",
+  "options": {
+    "accepted_material_improvement_ratio": 0.5,
+    "allow_generic_submission": false
+  },
+  "output_files": {
+    "manual_checklist_md": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/manual_magma_checklist.md",
+    "report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_report.md",
+    "submission_candidates_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/submission_grade_rows.jsonl",
+    "submission_coefficients_txt": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/submission_grade_coefficients.txt",
+    "summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage_summary.json",
+    "triage_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_local_pari_knownhash_checked_20260710/score_aware_triage.jsonl"
+  },
+  "pair_status": {
+    "path": "/home/zpconn/code/igp24-axplorer/data/igp24/pair_status_20260706.json",
+    "records": 28,
+    "status_counts": {
+      "accepted": 28
+    }
+  },
+  "pending_exact_label_rows": 4,
+  "queue_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710/verification_batch.jsonl",
+  "reviewed_rows": 4,
+  "safety": {
+    "cpu_search_loop": false,
+    "gpu_training": false,
+    "known_submission_hashes_blocked": true,
+    "local_file_only": true,
+    "local_search_executed": false,
+    "magma_executed": false,
+    "network_calls": false,
+    "note": "Score-aware triage is local/file-only. It does not submit to SAIR, call SAIR APIs, call Magma/PARI, use online calculators, train models, sample on GPU, run CPU search loops, or run local search.",
+    "online_calculator_called": false,
+    "pari_executed_by_triage": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "sair_label_feedback_inputs": [],
+  "score_lesson": {
+    "acceptance_alone_is_not_enough": true,
+    "note": "Most accepted rows have scored <0.0001 so far, while the visible positive outliers are low-team pairs such as 24T9993|r=8 and 24T22770|r=12. Acceptance alone is not enough. Prioritize genuinely new non-baseline non-generic pairs, low-team scored pockets, or accepted-pair duplicates only when the exact discriminant improvement is material.",
+    "prior_accepted_pair_score_text": "mostly <0.0001; visible outliers include 24T9993|r=8 at 0.0019 and 24T22770|r=12 at 0.0002"
+  },
+  "source_commit": "2156588f4821f5b5544fc0ba45c8f16f6cec571e",
+  "strategy_counts": {
+    "None": 4
+  },
+  "submission_grade_hashes": [],
+  "submission_grade_pairs": [],
+  "submission_grade_rows": 0,
+  "tool": "scripts/igp24_score_aware_triage.py",
+  "verified_rows": 0
+}
