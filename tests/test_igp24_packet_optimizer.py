@@ -129,6 +129,18 @@ def _normalized_with_known(rows, score_plan, known_hashes):
     ]
 
 
+def _caps():
+    return {
+        "construction_family": 10,
+        "template_family_id": 10,
+        "perturbation_mode": 10,
+        "basin_fingerprint": 10,
+        "mod_p_pattern_signature": 10,
+        "compatible_label_cluster": 10,
+        "r": 10,
+    }
+
+
 def test_packet_optimizer_selects_union_of_valuable_pairs_and_rejects_crowded_only(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     candidates = _normalized(
@@ -145,15 +157,7 @@ def test_packet_optimizer_selects_union_of_valuable_pairs_and_rejects_crowded_on
     selected, rejected = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 10,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps=_caps(),
     )
 
     selected_pairs = {pair for row in selected for pair in row["pair_values"]}
@@ -179,15 +183,7 @@ def test_packet_optimizer_rejects_known_submission_hashes_before_selection(tmp_p
     selected, rejected = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 10,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps=_caps(),
     )
 
     assert [row["short_hash"] for row in selected] == ["bbb"]
@@ -219,15 +215,7 @@ def test_packet_optimizer_records_known_submission_metadata_for_proven_hashes(tm
     selected, rejected = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 10,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps=_caps(),
     )
 
     assert [row["short_hash"] for row in selected] == ["freshhash001"]
@@ -281,15 +269,7 @@ def test_packet_best_case_ceiling_no_greater_than_row_count(tmp_path):
     selected, rejected = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 10,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps=_caps(),
     )
     summary = summarize(
         candidate_paths=[tmp_path / "candidates.jsonl"],
@@ -324,6 +304,50 @@ def test_exact_verified_pair_can_use_official_economics(tmp_path):
     assert "insufficient_adaptive_frobenius_evidence" not in candidate["reject_reasons"]
 
 
+def test_packet_optimizer_rejects_blocked_construction_route_outcomes(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    route_outcomes = {
+        "24T1|r=24::quartic_in_x6": {
+            "intended_pair_key": "24T1|r=24",
+            "family": "quartic_in_x6",
+            "block_repeat_exact_basin": True,
+            "blocking_reason": "exact_route_false_target_outcome",
+            "observed_pair_counts": {"24T25000|r=24": 3},
+        }
+    }
+    blocked = _row("aaa", uncovered=["24T1|r=24"], family="quartic_in_x6")
+    blocked["route"] = {"pair_key": "24T1|r=24", "family": "quartic_in_x6", "label": "24T1", "r": 24}
+    fresh = _row("bbb", uncovered=["24T1|r=24"], family="composition_4x6")
+    fresh["route"] = {"pair_key": "24T1|r=24", "family": "composition_4x6", "label": "24T1", "r": 24}
+    candidates = [
+        normalize_candidate(
+            blocked,
+            score_plan=score_plan,
+            require_eligible=True,
+            route_outcomes=route_outcomes,
+        ),
+        normalize_candidate(
+            fresh,
+            score_plan=score_plan,
+            require_eligible=True,
+            route_outcomes=route_outcomes,
+        ),
+    ]
+
+    selected, rejected = greedy_select(candidates, packet_limit=10, caps=_caps())
+
+    assert [row["short_hash"] for row in selected] == ["bbb"]
+    rejected_by_hash = {row["short_hash"]: row for row in rejected}
+    assert rejected_by_hash["aaa"]["construction_route_outcome_blocked"] is True
+    assert rejected_by_hash["aaa"]["construction_route_outcome_blocking_reasons"] == [
+        "exact_route_false_target_outcome"
+    ]
+    assert "construction_route_outcome_blocked" in rejected_by_hash["aaa"]["reject_reasons"]
+    assert rejected_by_hash["aaa"]["construction_route_outcome_matches"][0]["observed_pair_counts"] == {
+        "24T25000|r=24": 3
+    }
+
+
 def test_route_target_label_does_not_count_as_exact_verification(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     row = _row("aaa", uncovered=["24T1|r=24"], label_count=2)
@@ -352,15 +376,7 @@ def test_packet_optimizer_enforces_diversity_caps(tmp_path):
     selected, _ = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 1,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps={**_caps(), "construction_family": 1},
     )
 
     assert len(selected) == 1
@@ -379,15 +395,7 @@ def test_packet_optimizer_writes_report_and_sair_ready_coefficients(tmp_path):
     selected, rejected = greedy_select(
         candidates,
         packet_limit=10,
-        caps={
-            "construction_family": 10,
-            "template_family_id": 10,
-            "perturbation_mode": 10,
-            "basin_fingerprint": 10,
-            "mod_p_pattern_signature": 10,
-            "compatible_label_cluster": 10,
-            "r": 10,
-        },
+        caps=_caps(),
     )
     summary = summarize(
         candidate_paths=[tmp_path / "candidates.jsonl"],

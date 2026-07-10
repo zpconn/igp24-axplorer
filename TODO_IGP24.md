@@ -457,6 +457,34 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 412 passed; SAIR key-shaped secret scan found no matches. No live SAIR
   submission was made.
+- 2026-07-10 packet optimizer construction-outcome gate checkpoint: extended
+  `scripts/igp24_packet_optimizer.py` with optional
+  `--route_outcomes_jsonl` support so exact false-target construction basins
+  are blocked before greedy packet selection, not only in the router. The
+  normalized candidate now records `construction_route_metadata`,
+  `construction_route_outcome_matches`, and
+  `construction_route_outcome_blocking_reasons`; rows matching a
+  `block_repeat_exact_basin` route outcome are rejected with
+  `construction_route_outcome_blocked`. Regression coverage proves that an
+  otherwise valuable candidate from a blocked route is not selected and that
+  the exact route-outcome metadata is preserved in the rejection artifact.
+  Reran the old 16-row `quartic_x6` 40-prime reviewed pool with the exact
+  negative route ledger attached:
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_route_outcome_blocked_20260710/`.
+  Result: 16 candidates considered, 0 eligible, 0 selected,
+  `reject_reason_counts={"construction_route_outcome_blocked": 16}`,
+  `best_case_packet_points=0`, and no coefficient rows emitted. This
+  supersedes the earlier 4-row x6 optimizer packet for future planning: the
+  exact basin remains historical evidence, but it is no longer packet-eligible
+  unless a materially different construction route is produced. Focused
+  validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_packet_optimizer.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_packet_optimizer.py`
+  -> 11 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 413 passed; SAIR key-shaped secret scan found no matches. No live SAIR
+  submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

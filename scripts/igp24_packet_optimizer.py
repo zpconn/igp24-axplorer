@@ -94,6 +94,22 @@ def load_known_submission_hashes(paths: Iterable[Path] | None) -> dict[str, list
     return hashes
 
 
+def load_route_outcomes(paths: Iterable[Path] | None) -> dict[str, dict[str, Any]]:
+    outcomes: dict[str, dict[str, Any]] = {}
+    for path in paths or []:
+        if not path.exists():
+            continue
+        for row in read_jsonl(path):
+            if not isinstance(row, dict):
+                continue
+            pair = row.get("intended_pair_key")
+            family = row.get("family")
+            if not pair or not family:
+                continue
+            outcomes[f"{pair}::{family}"] = dict(row)
+    return outcomes
+
+
 def known_submission_matches(
     canonical_hash: str,
     known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None,
@@ -134,6 +150,50 @@ def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
         "mod_p_pattern_signature": candidate.get("mod_p_pattern_signature"),
         "family_key": metadata.get("family_key") or candidate.get("family_key"),
     }
+
+
+def route_metadata(row: dict[str, Any]) -> dict[str, Any]:
+    candidate = candidate_payload(row)
+    route = nested_dict(row, "route") or nested_dict(candidate, "route")
+    target_metadata = nested_dict(row, "target_metadata") or nested_dict(candidate, "target_metadata")
+    features = candidate_features(row)
+    family = (
+        route.get("family")
+        or features.get("construction_family")
+        or target_metadata.get("construction_family")
+        or row.get("construction_family")
+    )
+    pair_key = route.get("pair_key")
+    label = route.get("label") or target_metadata.get("target_t")
+    r_value = route.get("r") or target_metadata.get("target_r") or features.get("r")
+    if not pair_key and label and r_value is not None:
+        try:
+            pair_key = f"{label}|r={int(r_value)}"
+        except (TypeError, ValueError):
+            pair_key = None
+    return {
+        "family": str(family) if family else None,
+        "intended_pair_key": str(pair_key) if pair_key else None,
+        "label": str(label) if label else None,
+        "r": int(r_value) if r_value is not None and str(r_value).lstrip("-").isdigit() else None,
+    }
+
+
+def route_outcome_matches(
+    row: dict[str, Any],
+    route_outcomes: dict[str, dict[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    if not route_outcomes:
+        return []
+    metadata = route_metadata(row)
+    pair = metadata.get("intended_pair_key")
+    family = metadata.get("family")
+    if not pair or not family:
+        return []
+    outcome = route_outcomes.get(f"{pair}::{family}")
+    if not outcome or not outcome.get("block_repeat_exact_basin"):
+        return []
+    return [outcome]
 
 
 def group_compatibility(row: dict[str, Any]) -> dict[str, Any]:
@@ -271,6 +331,7 @@ def normalize_candidate(
     score_plan: dict[str, dict[str, Any]],
     require_eligible: bool,
     known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None = None,
+    route_outcomes: dict[str, dict[str, Any]] | None = None,
     minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, Any]:
     candidate = candidate_payload(row)
@@ -348,6 +409,14 @@ def normalize_candidate(
     known_submission_hash = bool(known_matches)
     if known_submission_hash:
         reject_reasons.append("known_submission_hash")
+    construction_route_matches = route_outcome_matches(row, route_outcomes)
+    construction_route_outcome_blocked = bool(construction_route_matches)
+    construction_route_blocking_reasons = [
+        str(match.get("blocking_reason") or "exact_route_false_target_outcome")
+        for match in construction_route_matches
+    ]
+    if construction_route_outcome_blocked:
+        reject_reasons.append("construction_route_outcome_blocked")
 
     cluster_parts = sorted(pair_values)[:24]
     cluster = "|".join(cluster_parts) if cluster_parts else f"unknown_r{features.get('r')}"
@@ -393,6 +462,10 @@ def normalize_candidate(
         "reject_reasons": reject_reasons,
         "known_submission_hash": known_submission_hash,
         "known_submission_matches": known_matches,
+        "construction_route_metadata": route_metadata(row),
+        "construction_route_outcome_blocked": construction_route_outcome_blocked,
+        "construction_route_outcome_matches": construction_route_matches,
+        "construction_route_outcome_blocking_reasons": construction_route_blocking_reasons,
         "has_coefficients": coeffs is not None,
         "exported_coefficients": coeffs,
         "source_row": row,
@@ -495,6 +568,8 @@ def summarize(
     rejected: list[dict[str, Any]],
     caps: dict[str, int],
     output_files: dict[str, str],
+    route_outcome_paths: list[Path] | None = None,
+    route_outcome_count: int = 0,
     minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, Any]:
     covered_uncovered = sorted({pair for row in selected for pair in row["possible_uncovered_pairs"]})
@@ -525,6 +600,8 @@ def summarize(
         "inputs": {
             "candidate_paths": [str(path) for path in candidate_paths],
             "candidate_count": len(candidates),
+            "route_outcome_paths": [str(path) for path in route_outcome_paths or []],
+            "route_outcome_count": int(route_outcome_count),
             "caps": caps,
             "minimum_frobenius_primes": int(minimum_frobenius_primes),
         },
@@ -536,6 +613,9 @@ def summarize(
         "crowded_only_candidates_rejected": sum(1 for row in rejected if "crowded_only" in row.get("reject_reasons", [])),
         "known_submission_hash_candidates_rejected": sum(
             1 for row in rejected if "known_submission_hash" in row.get("reject_reasons", [])
+        ),
+        "construction_route_outcome_candidates_rejected": sum(
+            1 for row in rejected if "construction_route_outcome_blocked" in row.get("reject_reasons", [])
         ),
         "pair_evidence_missing_candidates": sum(
             1 for row in candidates if "missing_pair_or_compatibility_evidence" in row.get("reject_reasons", [])
@@ -613,6 +693,7 @@ def report_markdown(summary: dict[str, Any]) -> str:
         f"- Possible low-team pairs covered: {summary['selected_possible_low_team_pair_count']}",
         f"- Crowded-only rejected: {summary['crowded_only_candidates_rejected']}",
         f"- Known submitted hashes rejected: {summary.get('known_submission_hash_candidates_rejected', 0)}",
+        f"- Construction-route outcome blocked: {summary.get('construction_route_outcome_candidates_rejected', 0)}",
         f"- Missing pair evidence: {summary['pair_evidence_missing_candidates']}",
         f"- Insufficient adaptive Frobenius evidence: {summary.get('insufficient_adaptive_frobenius_candidates', 0)}",
         f"- Best-case packet points: {summary['best_case_packet_points']}",
@@ -686,6 +767,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate_jsonl", type=Path, action="append", required=True)
     parser.add_argument("--score_plan_json", type=Path, default=DEFAULT_SCORE_PLAN)
     parser.add_argument("--known_submission_rows_jsonl", type=Path, action="append", default=[])
+    parser.add_argument("--route_outcomes_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--packet_limit", type=int, default=100)
     parser.add_argument("--allow_ineligible", action="store_true")
@@ -707,12 +789,14 @@ def main(argv: list[str] | None = None) -> int:
         rows.extend(read_jsonl(path))
     score_plan = load_score_plan(args.score_plan_json)
     known_submission_hashes = load_known_submission_hashes(args.known_submission_rows_jsonl)
+    route_outcomes = load_route_outcomes(args.route_outcomes_jsonl)
     candidates = [
         normalize_candidate(
             row,
             score_plan=score_plan,
             require_eligible=not args.allow_ineligible,
             known_submission_hashes=known_submission_hashes,
+            route_outcomes=route_outcomes,
             minimum_frobenius_primes=int(args.minimum_frobenius_primes),
         )
         for row in rows
@@ -742,6 +826,8 @@ def main(argv: list[str] | None = None) -> int:
         rejected=rejected,
         caps=caps,
         output_files=placeholder_outputs,
+        route_outcome_paths=list(args.route_outcomes_jsonl),
+        route_outcome_count=len(route_outcomes),
         minimum_frobenius_primes=int(args.minimum_frobenius_primes),
     )
     paths = write_outputs(args.output_dir, selected=selected, rejected=rejected, summary=summary)
