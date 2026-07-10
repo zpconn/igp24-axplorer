@@ -357,6 +357,29 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 403 passed; SAIR key-shaped secret scan found no matches. No live SAIR
   submission was made.
+- 2026-07-10 consolidated offline go/no-go checkpoint: added
+  `scripts/igp24_current_offline_report.py`, a local/file-only rollup that
+  joins the current packet optimizer, score-aware triage, 80-prime adaptive
+  evidence, full-index status, broad historical calibration, replay summary,
+  baseline snapshot, and latest GPU probe into one conservative offline
+  submission recommendation. It makes no SAIR calls, runs no exact verifiers,
+  trains no model, generates no candidates, and cannot submit. Artifact:
+  `data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_20260710/`.
+  Result: full group index complete, historical containment failures 0,
+  replay minimum gate passed, 4 selected hashes novel against the synced
+  234-row submission-history hash set, 4/4 exact r=8, 4/4 intended
+  `24T24134|r=8` target survival through 80 usable primes, and 4/4 valuable
+  target survival. The recommendation is still `do_not_submit` with blockers
+  `adaptive_rows_still_missing_exact_labels`, `exact_magma_labels_missing`,
+  `exact_nfdisc_not_complete`, `score_aware_triage_has_no_submission_grade_rows`,
+  `fresh_sair_sync_required_immediately_before_live_submission`, and
+  `explicit_user_live_submission_approval_missing`; warning:
+  `packet_uses_single_construction_family`. This makes the present state
+  explicit: the packet is novel and target-aligned by necessary-exclusion
+  evidence, but has 0 submission-grade rows until exact labels and the missing
+  nfdisc are resolved. Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_current_offline_report.py`
+  -> 2 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
