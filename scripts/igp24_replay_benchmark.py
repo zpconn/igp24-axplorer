@@ -24,7 +24,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.igp24_packet_optimizer import (  # noqa: E402
+    candidate_features,
+    candidate_payload,
+    frobenius_evidence_budget,
     greedy_select,
+    group_compatibility,
     load_score_plan,
     normalize_candidate,
     read_jsonl,
@@ -149,6 +153,11 @@ def feedback_metrics(
         "pair_counts": dict(pair_counts),
         "distinct_verified_pair_count": len(unique_pairs),
         "distinct_verified_pairs": unique_pairs,
+        "duplicated_pair_row_count": sum(max(0, count - 1) for count in pair_counts.values()),
+        "duplicated_pair_rate": round(
+            sum(max(0, count - 1) for count in pair_counts.values()) / submitted,
+            6,
+        ),
         "crowded_collapse_rows": len(crowded_rows),
         "crowded_collapse_rate": round(len(crowded_rows) / submitted, 6),
         "all_rows_hit_crowded_labels": bool(rows) and len(crowded_rows) == len(rows),
@@ -160,9 +169,199 @@ def feedback_metrics(
     }
 
 
+def _bool_field(row: dict[str, Any], key: str) -> bool | None:
+    value = row.get(key)
+    if value is None:
+        value = candidate_payload(row).get(key)
+    if value is None:
+        return None
+    return bool(value)
+
+
+def _candidate_hash(row: dict[str, Any]) -> str:
+    features = candidate_features(row)
+    return str(row.get("canonical_hash") or features.get("canonical_hash") or "")
+
+
+def _candidate_r(row: dict[str, Any]) -> int | None:
+    features = candidate_features(row)
+    for value in (
+        row.get("real_root_count"),
+        row.get("r"),
+        features.get("r"),
+        candidate_payload(row).get("real_root_count"),
+        candidate_payload(row).get("r"),
+    ):
+        try:
+            if value is not None and value != "":
+                return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _intended_r(row: dict[str, Any]) -> int | None:
+    features = candidate_features(row)
+    payload = candidate_payload(row)
+    sources = [
+        row.get("target_r"),
+        row.get("target_r_intent"),
+        features.get("target_r"),
+        features.get("target_r_intent"),
+    ]
+    for key in ("target_metadata", "generation_metadata", "source_sample_export", "sample_provenance"):
+        source = row.get(key)
+        if isinstance(source, dict):
+            sources.extend([source.get("target_r"), source.get("target_r_intent")])
+            nested = source.get("generation_metadata")
+            if isinstance(nested, dict):
+                sources.extend([nested.get("target_r"), nested.get("target_r_intent")])
+    metadata = payload.get("generation_metadata")
+    if isinstance(metadata, dict):
+        sources.extend([metadata.get("target_r"), metadata.get("target_r_intent")])
+    for value in sources:
+        try:
+            if value is not None and value != "":
+                return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _median(values: list[int]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return float(ordered[middle])
+    return (ordered[middle - 1] + ordered[middle]) / 2.0
+
+
+def _feedback_by_hash(feedback: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    by_hash: dict[str, dict[str, Any]] = {}
+    for row in feedback.get("accepted_rows") or []:
+        if not isinstance(row, dict):
+            continue
+        canonical_hash = str(row.get("canonical_hash") or "")
+        if canonical_hash:
+            by_hash[canonical_hash] = row
+    return by_hash
+
+
+def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, Any]) -> dict[str, Any]:
+    hashes = [_candidate_hash(row) for row in rows if _candidate_hash(row)]
+    valid_flags = [_bool_field(row, "valid") for row in rows]
+    irreducible_flags = [_bool_field(row, "irreducible") for row in rows]
+    squarefree_flags = [_bool_field(row, "squarefree") for row in rows]
+    target_r_known = 0
+    target_r_matches = 0
+    family_counts: Counter[str] = Counter()
+    mode_counts: Counter[str] = Counter()
+    compat_rows = 0
+    valuable_survival_rows = 0
+    indexed_survivor_counts: list[int] = []
+    usable_prime_counts: list[int] = []
+    containment_evaluated = 0
+    containment_success = 0
+    containment_failures: list[dict[str, Any]] = []
+    containment_missing = 0
+    by_hash = _feedback_by_hash(feedback)
+    family_outcomes: dict[str, Counter[str]] = {}
+
+    for row in rows:
+        features = candidate_features(row)
+        family = str(features.get("construction_family") or "missing")
+        mode = str(features.get("perturbation_mode") or "missing")
+        family_counts[family] += 1
+        mode_counts[mode] += 1
+        candidate_r = _candidate_r(row)
+        intended_r = _intended_r(row)
+        if candidate_r is not None and intended_r is not None:
+            target_r_known += 1
+            target_r_matches += int(candidate_r == intended_r)
+
+        compat = group_compatibility(row)
+        if compat:
+            compat_rows += 1
+            survivor_count = (
+                compat.get("indexed_target_survivor_count")
+                or compat.get("compatible_label_count")
+                or len(compat.get("indexed_target_labels_not_ruled_out") or compat.get("compatible_labels") or [])
+            )
+            try:
+                indexed_survivor_counts.append(int(survivor_count))
+            except (TypeError, ValueError):
+                pass
+            if compat.get("valuable_targets_not_ruled_out") or compat.get("compatible_uncovered_pairs") or compat.get("compatible_low_team_pairs"):
+                valuable_survival_rows += 1
+            budget = frobenius_evidence_budget(row, compat)
+            usable_prime_counts.append(int(budget.get("usable_prime_count") or 0))
+
+        canonical_hash = _candidate_hash(row)
+        feedback_row = by_hash.get(canonical_hash)
+        true_label = str(feedback_row.get("label") or "") if feedback_row else ""
+        if feedback_row:
+            family_outcomes.setdefault(family, Counter())[true_label or "missing_label"] += 1
+        labels = compat.get("indexed_target_labels_not_ruled_out") or compat.get("compatible_labels") or []
+        if true_label and labels:
+            containment_evaluated += 1
+            if true_label in set(str(label) for label in labels):
+                containment_success += 1
+            else:
+                containment_failures.append(
+                    {
+                        "canonical_hash": canonical_hash,
+                        "true_label": true_label,
+                        "compatible_labels": list(labels)[:25],
+                    }
+                )
+        elif feedback_row:
+            containment_missing += 1
+
+    row_count = len(rows)
+    unique_hash_count = len(set(hashes))
+    return {
+        "source_candidate_count": row_count,
+        "unique_canonical_hash_count": unique_hash_count,
+        "duplicate_hash_count": max(0, len(hashes) - unique_hash_count),
+        "unique_decode_rate": round(unique_hash_count / max(1, row_count), 6),
+        "valid_row_count": sum(1 for value in valid_flags if value is True),
+        "valid_rate_among_known": round(
+            sum(1 for value in valid_flags if value is True) / max(1, sum(value is not None for value in valid_flags)),
+            6,
+        )
+        if any(value is not None for value in valid_flags)
+        else None,
+        "irreducible_row_count": sum(1 for value in irreducible_flags if value is True),
+        "squarefree_row_count": sum(1 for value in squarefree_flags if value is True),
+        "target_r_known_count": target_r_known,
+        "target_r_match_count": target_r_matches,
+        "target_r_match_rate": round(target_r_matches / max(1, target_r_known), 6) if target_r_known else None,
+        "construction_family_counts": dict(family_counts),
+        "perturbation_mode_counts": dict(mode_counts),
+        "compatibility_evidence_row_count": compat_rows,
+        "compatibility_evidence_rate": round(compat_rows / max(1, row_count), 6),
+        "valuable_survival_row_count": valuable_survival_rows,
+        "valuable_survival_rate": round(valuable_survival_rows / max(1, row_count), 6),
+        "median_indexed_survivor_count": _median(indexed_survivor_counts),
+        "max_indexed_survivor_count": max(indexed_survivor_counts) if indexed_survivor_counts else None,
+        "median_frobenius_usable_prime_count": _median(usable_prime_counts),
+        "true_label_containment_evaluated_count": containment_evaluated,
+        "true_label_containment_success_count": containment_success,
+        "true_label_containment_rate": round(containment_success / containment_evaluated, 6)
+        if containment_evaluated
+        else None,
+        "true_label_containment_missing_evidence_count": containment_missing,
+        "true_label_containment_failures": containment_failures[:50],
+        "family_outcomes": {family: dict(counter) for family, counter in sorted(family_outcomes.items())},
+    }
+
+
 def optimizer_replay(
     *,
     selected_path: Path | None,
+    feedback: dict[str, Any],
     score_plan: dict[str, dict[str, Any]],
     packet_limit: int,
     caps: dict[str, int],
@@ -182,6 +381,7 @@ def optimizer_replay(
             "optimizer_heavily_downranked": None,
         }
     rows = read_jsonl(selected_path)
+    source_metrics = selected_candidate_metrics(rows, feedback)
     candidates = [
         normalize_candidate(row, score_plan=score_plan, require_eligible=True)
         for row in rows
@@ -208,6 +408,7 @@ def optimizer_replay(
         "optimizer_rejected_all": selected_count == 0,
         "optimizer_downrank_fraction": round(downrank_fraction, 6),
         "optimizer_heavily_downranked": downrank_fraction <= 0.25,
+        "source_candidate_metrics": source_metrics,
     }
 
 
@@ -230,6 +431,7 @@ def evaluate_case(
     )
     replay = optimizer_replay(
         selected_path=selected_path,
+        feedback=feedback,
         score_plan=score_plan,
         packet_limit=packet_limit,
         caps=caps,
@@ -262,6 +464,23 @@ def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedba
     crowded_rows = sum(int(case["old_pipeline"]["crowded_collapse_rows"]) for case in cases)
     old_pairs = sorted({pair for case in cases for pair in case["old_pipeline"]["distinct_verified_pairs"]})
     new_selected = sum(int(case["remediated_replay"].get("optimizer_selected_rows") or 0) for case in cases)
+    source_metrics = [
+        case["remediated_replay"].get("source_candidate_metrics") or {}
+        for case in cases
+        if case["remediated_replay"].get("source_candidate_metrics")
+    ]
+    containment_evaluated = sum(int(metrics.get("true_label_containment_evaluated_count") or 0) for metrics in source_metrics)
+    containment_success = sum(int(metrics.get("true_label_containment_success_count") or 0) for metrics in source_metrics)
+    containment_missing = sum(
+        int(metrics.get("true_label_containment_missing_evidence_count") or 0) for metrics in source_metrics
+    )
+    source_candidates = sum(int(metrics.get("source_candidate_count") or 0) for metrics in source_metrics)
+    unique_hashes = sum(int(metrics.get("unique_canonical_hash_count") or 0) for metrics in source_metrics)
+    duplicate_hashes = sum(int(metrics.get("duplicate_hash_count") or 0) for metrics in source_metrics)
+    target_r_known = sum(int(metrics.get("target_r_known_count") or 0) for metrics in source_metrics)
+    target_r_match = sum(int(metrics.get("target_r_match_count") or 0) for metrics in source_metrics)
+    compat_rows = sum(int(metrics.get("compatibility_evidence_row_count") or 0) for metrics in source_metrics)
+    valuable_rows = sum(int(metrics.get("valuable_survival_row_count") or 0) for metrics in source_metrics)
     return {
         "schema_version": 1,
         "record_type": "igp24_chronological_replay_benchmark",
@@ -295,6 +514,19 @@ def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedba
             "major_collapse_case_count": len(major),
             "major_collapse_cases_stopped_or_downranked": len(stopped),
             "all_major_collapse_cases_stopped_or_downranked": bool(major) and len(major) == len(stopped),
+            "source_candidate_count": source_candidates,
+            "unique_canonical_hash_count": unique_hashes,
+            "duplicate_hash_count": duplicate_hashes,
+            "unique_decode_rate": round(unique_hashes / max(1, source_candidates), 6),
+            "target_r_match_rate": round(target_r_match / max(1, target_r_known), 6) if target_r_known else None,
+            "compatibility_evidence_rate": round(compat_rows / max(1, source_candidates), 6),
+            "valuable_survival_rate": round(valuable_rows / max(1, source_candidates), 6),
+            "true_label_containment_evaluated_count": containment_evaluated,
+            "true_label_containment_success_count": containment_success,
+            "true_label_containment_rate": round(containment_success / containment_evaluated, 6)
+            if containment_evaluated
+            else None,
+            "true_label_containment_missing_evidence_count": containment_missing,
         },
         "phase7_minimum_gate_passed": bool(major) and len(major) == len(stopped),
         "cases": cases,
@@ -318,16 +550,30 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Estimated old points per 100 submitted rows: {old['estimated_points_per_100_submitted']}",
         f"- Major collapse cases: {new['major_collapse_case_count']}",
         f"- Major collapse cases stopped/downranked by remediated replay: {new['major_collapse_cases_stopped_or_downranked']}",
+        f"- Remediated source unique-decode rate: {new.get('unique_decode_rate')}",
+        f"- Remediated source target-r match rate: {new.get('target_r_match_rate')}",
+        f"- Remediated source compatibility-evidence rate: {new.get('compatibility_evidence_rate')}",
+        f"- Remediated source valuable-survival rate: {new.get('valuable_survival_rate')}",
+        f"- True-label containment evaluated rows: {new.get('true_label_containment_evaluated_count')}",
+        f"- True-label containment rate: {new.get('true_label_containment_rate')}",
+        f"- True-label containment missing-evidence rows: {new.get('true_label_containment_missing_evidence_count')}",
         f"- Phase 7 minimum gate passed: `{summary['phase7_minimum_gate_passed']}`",
         "",
         "## Cases",
         "",
-        "| case | submitted | accepted | labels | pairs | collapse rate | old points/100 | remediated selected | stop/downrank |",
-        "| --- | --- | ---: | --- | --- | ---: | ---: | ---: | --- |",
+        "| case | submitted | accepted | labels | pairs | collapse rate | duplicate pair rate | old points/100 | source unique | compat rows | containment | remediated selected | stop/downrank |",
+        "| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- |",
     ]
     for case in summary["cases"]:
         old_case = case["old_pipeline"]
         replay = case["remediated_replay"]
+        source_metrics = replay.get("source_candidate_metrics") or {}
+        containment = (
+            f"{source_metrics.get('true_label_containment_success_count')}/"
+            f"{source_metrics.get('true_label_containment_evaluated_count')}"
+            if source_metrics.get("true_label_containment_evaluated_count")
+            else "n/a"
+        )
         lines.append(
             "| "
             + " | ".join(
@@ -338,7 +584,11 @@ def build_report(summary: dict[str, Any]) -> str:
                     json.dumps(old_case["label_counts"], sort_keys=True),
                     json.dumps(old_case["pair_counts"], sort_keys=True),
                     str(old_case["crowded_collapse_rate"]),
+                    str(old_case.get("duplicated_pair_rate")),
                     str(old_case["estimated_points_per_100_submitted"]),
+                    str(source_metrics.get("unique_decode_rate")),
+                    str(source_metrics.get("compatibility_evidence_row_count")),
+                    containment,
                     str(replay.get("optimizer_selected_rows")),
                     str(case.get("remediated_stops_or_downranks")),
                 ]

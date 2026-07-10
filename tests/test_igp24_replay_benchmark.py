@@ -116,6 +116,21 @@ def _feedback(path, selected_path, *, submission_id, label, pair, row_count=3):
     )
 
 
+def _feedback_rows(path, selected_path, *, submission_id, rows):
+    path.write_text(
+        json.dumps(
+            {
+                "record_type": "igp24_sair_accepted_label_feedback",
+                "submission_id": submission_id,
+                "submitted_at": "2026-07-09T00:00:00Z",
+                "source_selected_jsonl": str(selected_path),
+                "accepted_rows": rows,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_replay_benchmark_stops_historical_crowded_collapse(tmp_path):
     selected_path = tmp_path / "old_selected.jsonl"
     _write_selected(
@@ -151,7 +166,10 @@ def test_replay_benchmark_stops_historical_crowded_collapse(tmp_path):
 
     assert case["major_crowded_collapse_batch"] is True
     assert case["old_pipeline"]["crowded_collapse_rate"] == 1.0
+    assert case["old_pipeline"]["duplicated_pair_rate"] == 0.666667
     assert case["remediated_replay"]["optimizer_rejected_all"] is True
+    assert case["remediated_replay"]["source_candidate_metrics"]["unique_decode_rate"] == 1.0
+    assert case["remediated_replay"]["source_candidate_metrics"]["compatibility_evidence_row_count"] == 0
     assert case["remediated_replay"]["optimizer_reject_reason_counts"] == {
         "missing_pair_or_compatibility_evidence": 3
     }
@@ -192,6 +210,100 @@ def test_replay_benchmark_keeps_rows_with_uncovered_pair_evidence(tmp_path):
     assert case["old_pipeline"]["low_team_pair_yield"] == 1
     assert case["remediated_replay"]["optimizer_selected_rows"] == 1
     assert case["remediated_replay"]["optimizer_selected_possible_uncovered_pair_count"] == 1
+    assert case["remediated_replay"]["source_candidate_metrics"]["valuable_survival_row_count"] == 1
+
+
+def test_replay_benchmark_reports_true_label_containment_when_hashes_join(tmp_path):
+    selected_path = tmp_path / "contained_selected.jsonl"
+    row = _selected_with_uncovered_pair("d" * 64)
+    row["group_compatibility"]["indexed_target_labels_not_ruled_out"] = ["24T1", "24T7"]
+    _write_selected(selected_path, [row])
+    feedback_path = tmp_path / "contained_feedback.json"
+    _feedback_rows(
+        feedback_path,
+        selected_path,
+        submission_id="sub_contained",
+        rows=[
+            {
+                "row_number": 1,
+                "canonical_hash": "d" * 64,
+                "short_hash": "d" * 12,
+                "label": "24T1",
+                "r": 24,
+                "pair_key": "24T1|r=24",
+                "status": "accepted",
+                "scoreable": True,
+                "scoring_status": "scoreable",
+            }
+        ],
+    )
+
+    case = evaluate_case(
+        feedback_path,
+        score_plan=load_score_plan(_score_plan(tmp_path)),
+        crowded_labels={"24T25000"},
+        low_team_threshold=0.001,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+    )
+
+    metrics = case["remediated_replay"]["source_candidate_metrics"]
+    assert metrics["true_label_containment_evaluated_count"] == 1
+    assert metrics["true_label_containment_success_count"] == 1
+    assert metrics["true_label_containment_rate"] == 1.0
+    assert metrics["true_label_containment_missing_evidence_count"] == 0
+
+
+def test_replay_benchmark_reports_containment_missing_when_no_compatibility_evidence(tmp_path):
+    selected_path = tmp_path / "missing_evidence_selected.jsonl"
+    _write_selected(selected_path, [_selected_without_pair("e" * 64)])
+    feedback_path = tmp_path / "missing_evidence_feedback.json"
+    _feedback_rows(
+        feedback_path,
+        selected_path,
+        submission_id="sub_missing_evidence",
+        rows=[
+            {
+                "row_number": 1,
+                "canonical_hash": "e" * 64,
+                "label": "24T25000",
+                "r": 24,
+                "pair_key": "24T25000|r=24",
+                "status": "accepted",
+                "scoreable": True,
+            }
+        ],
+    )
+
+    case = evaluate_case(
+        feedback_path,
+        score_plan=load_score_plan(_score_plan(tmp_path)),
+        crowded_labels={"24T25000"},
+        low_team_threshold=0.001,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+    )
+
+    metrics = case["remediated_replay"]["source_candidate_metrics"]
+    assert metrics["true_label_containment_evaluated_count"] == 0
+    assert metrics["true_label_containment_rate"] is None
+    assert metrics["true_label_containment_missing_evidence_count"] == 1
 
 
 def test_replay_benchmark_writes_summary_report_and_cases(tmp_path):
@@ -232,6 +344,7 @@ def test_replay_benchmark_writes_summary_report_and_cases(tmp_path):
     saved = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
     assert saved["phase7_minimum_gate_passed"] is True
     assert saved["remediated_totals"]["major_collapse_cases_stopped_or_downranked"] == 1
+    assert "true_label_containment_missing_evidence_count" in saved["remediated_totals"]
     assert len(paths["cases_jsonl"].read_text(encoding="utf-8").splitlines()) == 1
     assert "Chronological Replay Benchmark" in paths["report_md"].read_text(encoding="utf-8")
 
