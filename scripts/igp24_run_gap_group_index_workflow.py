@@ -92,6 +92,7 @@ def write_report(output_dir: Path, summary: dict[str, Any]) -> None:
         f"- Programs loaded from captured output: `{summary['program_status_counts'].get('loaded_existing_output', 0)}`",
         f"- Programs run with GAP: `{summary['program_status_counts'].get('ran_gap', 0)}`",
         f"- Programs blocked: `{summary['program_status_counts'].get('blocked_missing_gap_output', 0)}`",
+        f"- Programs failed: `{summary['program_status_counts'].get('failed_gap_output', 0)}`",
         f"- Rows available: `{summary['rows_available']}`",
         f"- Rows imported: `{summary.get('rows_imported')}`",
         f"- Group count: `{summary.get('group_count')}`",
@@ -109,6 +110,12 @@ def write_report(output_dir: Path, summary: dict[str, Any]) -> None:
         lines.extend(["## Missing GAP Outputs", ""])
         for path in summary["missing_output_files"][:100]:
             lines.append(f"- `{path}`")
+        lines.append("")
+    if summary.get("failed_output_files"):
+        lines.extend(["## Failed GAP Outputs", ""])
+        for row in summary["failed_output_files"][:100]:
+            capture = row.get("failed_capture_path") or row.get("output_path")
+            lines.append(f"- `{capture}`: {row.get('error')}")
         lines.append("")
     if summary.get("program_results"):
         lines.extend(
@@ -164,29 +171,49 @@ def load_or_run_programs(
     gap_library_path: Path | None,
     timeout: int,
     reuse_existing_outputs: bool,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], list[dict[str, Any]]]:
     rows: list[dict[str, Any]] = []
     program_results: list[dict[str, Any]] = []
     missing_outputs: list[str] = []
+    failed_outputs: list[dict[str, Any]] = []
     for program in manifest.get("programs") or []:
         program_path = resolve_path(str(program["path"]), manifest_path=manifest_path)
         output_path = gap_output_path(output_dir, program_path)
-        if reuse_existing_outputs and output_path.exists():
-            program_rows = load_import_rows(output_path)
-            status = "loaded_existing_output"
-        elif gap_path:
-            program_rows = run_gap_program(
-                gap_path=gap_path,
-                gap_library_path=gap_library_path,
-                program_path=program_path,
-                output_path=output_path,
-                timeout=timeout,
-            )
-            status = "ran_gap"
-        else:
+        error: str | None = None
+        try:
+            if reuse_existing_outputs and output_path.exists():
+                program_rows = load_import_rows(output_path)
+                status = "loaded_existing_output"
+            elif gap_path:
+                program_rows = run_gap_program(
+                    gap_path=gap_path,
+                    gap_library_path=gap_library_path,
+                    program_path=program_path,
+                    output_path=output_path,
+                    timeout=timeout,
+                )
+                status = "ran_gap"
+            else:
+                program_rows = []
+                status = "blocked_missing_gap_output"
+                missing_outputs.append(str(output_path))
+        except Exception as exc:  # noqa: BLE001 - record failed chunk and stop importing.
             program_rows = []
-            status = "blocked_missing_gap_output"
-            missing_outputs.append(str(output_path))
+            status = "failed_gap_output"
+            error = f"{type(exc).__name__}: {exc}"
+            failed_capture_path = None
+            if output_path.exists():
+                failed_path = output_path.with_suffix(output_path.suffix + ".failed.txt")
+                output_path.replace(failed_path)
+                failed_capture_path = str(failed_path)
+            failed_outputs.append(
+                {
+                    "program_path": str(program_path),
+                    "output_path": str(output_path),
+                    "failed_capture_path": failed_capture_path,
+                    "error": error,
+                }
+            )
         rows.extend(program_rows)
         program_results.append(
             {
@@ -194,9 +221,12 @@ def load_or_run_programs(
                 "output_path": str(output_path),
                 "status": status,
                 "row_count": len(program_rows),
+                **({"error": error} if error else {}),
             }
         )
-    return rows, program_results, missing_outputs
+        if status == "failed_gap_output":
+            break
+    return rows, program_results, missing_outputs, failed_outputs
 
 
 def status_counts(program_results: Iterable[dict[str, Any]]) -> dict[str, int]:
@@ -213,7 +243,14 @@ def build_blocked_summary(
     rows: list[dict[str, Any]],
     program_results: list[dict[str, Any]],
     missing_outputs: list[str],
+    failed_outputs: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    blocking_reasons: list[str] = []
+    if missing_outputs:
+        blocking_reasons.append("missing_gap_and_missing_captured_outputs")
+    if failed_outputs:
+        blocking_reasons.append("failed_gap_outputs")
+    status = "blocked_failed_gap_outputs" if failed_outputs else "blocked_missing_gap_outputs"
     return {
         "schema_version": 1,
         "record_type": "igp24_gap_group_index_workflow",
@@ -226,11 +263,12 @@ def build_blocked_summary(
         "program_count": len(manifest.get("programs") or []),
         "gap_path": gap_path,
         "gap_library_path": str(gap_library_path) if gap_library_path else None,
-        "status": "blocked_missing_gap_outputs",
-        "blocking_reasons": ["missing_gap_and_missing_captured_outputs"],
+        "status": status,
+        "blocking_reasons": blocking_reasons,
         "program_status_counts": status_counts(program_results),
         "program_results": program_results,
         "missing_output_files": missing_outputs,
+        "failed_output_files": failed_outputs,
         "rows_available": len(rows),
         "rows_imported": 0,
         "group_count": 0,
@@ -253,7 +291,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     gap_path = args.gap_path or shutil.which("gap")
     gap_library_path = args.gap_library_path
-    rows, program_results, missing_outputs = load_or_run_programs(
+    rows, program_results, missing_outputs, failed_outputs = load_or_run_programs(
         manifest=manifest,
         manifest_path=manifest_path,
         output_dir=output_dir,
@@ -262,7 +300,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
         timeout=int(args.timeout),
         reuse_existing_outputs=not args.no_reuse_existing_outputs,
     )
-    if missing_outputs:
+    if missing_outputs or failed_outputs:
         summary = build_blocked_summary(
             manifest_path=manifest_path,
             manifest=manifest,
@@ -272,6 +310,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
             rows=rows,
             program_results=program_results,
             missing_outputs=missing_outputs,
+            failed_outputs=failed_outputs,
         )
         write_summary(output_dir, summary)
         return summary
@@ -287,6 +326,7 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
             "manifest": str(manifest_path),
             "manifest_labels": manifest.get("labels"),
         },
+        expected_labels=manifest.get("labels"),
     )
     write_json(output_dir / IMPORT_SUMMARY_JSON, import_summary)
 
@@ -307,6 +347,12 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
         write_readiness_outputs(readiness_dir, summary=readiness_summary, routes=readiness_routes)
 
     blocking_reasons = list((readiness_summary or {}).get("blocking_reasons") or [])
+    if args.skip_readiness:
+        workflow_status = "index_imported_readiness_skipped"
+    elif blocking_reasons:
+        workflow_status = "index_imported_readiness_blocked"
+    else:
+        workflow_status = "index_imported_readiness_ready"
     summary = {
         "schema_version": 1,
         "record_type": "igp24_gap_group_index_workflow",
@@ -319,13 +365,14 @@ def run_workflow(args: argparse.Namespace) -> dict[str, Any]:
         "program_count": len(manifest.get("programs") or []),
         "gap_path": gap_path,
         "gap_library_path": str(gap_library_path) if gap_library_path else None,
-        "status": "index_imported_readiness_blocked" if blocking_reasons else "index_imported_readiness_ready",
+        "status": workflow_status,
         "blocking_reasons": blocking_reasons,
         "program_status_counts": status_counts(program_results),
         "program_results": program_results,
         "missing_output_files": [],
         "rows_available": len(rows),
         "rows_imported": import_summary["rows_imported"],
+        "import_integrity": import_summary.get("integrity"),
         "group_count": import_summary["group_count"],
         "labels_imported": import_summary["labels_imported"],
         "index_path": str(args.index),

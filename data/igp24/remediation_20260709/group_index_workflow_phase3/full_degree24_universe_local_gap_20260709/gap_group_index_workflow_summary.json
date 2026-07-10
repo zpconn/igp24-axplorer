@@ -1,0 +1,111 @@
+{
+  "blocking_reasons": [
+    "failed_gap_outputs"
+  ],
+  "created_at": "2026-07-10T00:52:49.464635+00:00",
+  "failed_output_files": [
+    {
+      "error": "JSONDecodeError: Expecting ',' delimiter: line 3254 column 3 (char 90537)",
+      "failed_capture_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0011_2501_2750.json.failed.txt",
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0011_2501_2750.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0011_2501_2750.g"
+    }
+  ],
+  "gap_library_path": "/tmp/igp24_gap_local/usr/share/gap",
+  "gap_path": "/tmp/igp24_gap_local/usr/lib/x86_64-linux-gnu/gap/gap",
+  "group_count": 0,
+  "index_path": null,
+  "live_submission_recommended_now": false,
+  "manifest_label_count": 25000,
+  "manifest_path": "data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/gap_export_manifest.json",
+  "missing_output_files": [],
+  "no_approximation_written": true,
+  "output_files": {
+    "report_md": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_group_index_workflow_report.md",
+    "summary_json": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_group_index_workflow_summary.json"
+  },
+  "program_count": 100,
+  "program_results": [
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0001_1_250.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0001_1_250.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0002_251_500.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0002_251_500.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0003_501_750.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0003_501_750.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0004_751_1000.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0004_751_1000.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0005_1001_1250.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0005_1001_1250.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0006_1251_1500.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0006_1251_1500.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0007_1501_1750.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0007_1501_1750.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0008_1751_2000.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0008_1751_2000.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0009_2001_2250.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0009_2001_2250.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0010_2251_2500.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0010_2251_2500.g",
+      "row_count": 250,
+      "status": "loaded_existing_output"
+    },
+    {
+      "error": "JSONDecodeError: Expecting ',' delimiter: line 3254 column 3 (char 90537)",
+      "output_path": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/gap_outputs/degree24_group_cycle_export_0011_2501_2750.json",
+      "program_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/degree24_group_cycle_export_0011_2501_2750.g",
+      "row_count": 0,
+      "status": "failed_gap_output"
+    }
+  ],
+  "program_status_counts": {
+    "failed_gap_output": 1,
+    "loaded_existing_output": 10
+  },
+  "readiness_blocking_reasons": null,
+  "readiness_output_dir": null,
+  "record_type": "igp24_gap_group_index_workflow",
+  "rows_available": 2500,
+  "rows_imported": 0,
+  "safety_note": "Exact GAP group-index workflow. It runs GAP only when available, reuses captured GAP JSON outputs when present, calls no SAIR/network APIs, does not generate candidates, and does not submit anything.",
+  "schema_version": 1,
+  "source_commit": "843eeda1d2516531370f010bbc349729d4c1c31a",
+  "status": "blocked_failed_gap_outputs",
+  "tool": "scripts/igp24_run_gap_group_index_workflow.py"
+}

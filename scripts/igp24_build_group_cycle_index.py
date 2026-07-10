@@ -14,7 +14,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from collections import Counter
+from typing import Any, Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -22,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.igp24.group_compatibility import (  # noqa: E402
     DEGREE,
+    EXPECTED_GLOBAL_GROUP_COUNT,
     GroupCycleIndex,
     GroupRecord,
     utc_now,
@@ -230,10 +232,13 @@ def write_gap_export_programs(
                 "path": str(path),
                 "chunk_index": chunk_index,
                 "label_count": len(chunk),
+                "labels": chunk,
                 "first_label": chunk[0],
                 "last_label": chunk[-1],
                 "command": f"gap -q {path}",
                 "expected_output": "JSON array on stdout; redirect to a .json file and import with --import_rows",
+                "completion_status": "not_started",
+                "output_reuse_policy": "completed chunk output may be reused verbatim by scripts/igp24_run_gap_group_index_workflow.py",
             }
         )
     single_path = output_dir / GAP_EXPORT_PROGRAM
@@ -249,6 +254,8 @@ def write_gap_export_programs(
         "labels": labels,
         "chunk_size": int(chunk_size),
         "program_count": len(programs),
+        "complete_degree24_universe_requested": labels
+        == [f"24T{number}" for number in range(1, EXPECTED_GLOBAL_GROUP_COUNT + 1)],
         "programs": programs,
         "safety": {
             "runs_gap_only": True,
@@ -307,13 +314,57 @@ def record_from_gap(row: dict[str, Any]) -> GroupRecord:
     )
 
 
+def normalized_labels(values: Iterable[str] | None) -> list[str]:
+    labels: list[str] = []
+    seen: set[str] = set()
+    for value in values or []:
+        label, _number = parse_label(str(value))
+        if label not in seen:
+            seen.add(label)
+            labels.append(label)
+    return labels
+
+
+def import_integrity(rows: list[dict[str, Any]], expected_labels: Iterable[str] | None = None) -> dict[str, Any]:
+    row_labels: list[str] = []
+    invalid_rows: list[dict[str, Any]] = []
+    for row_number, row in enumerate(rows, start=1):
+        try:
+            label, _number = parse_label(str(row.get("label")))
+            row_labels.append(label)
+        except Exception as exc:  # noqa: BLE001 - preserved in artifact.
+            invalid_rows.append({"row_number": row_number, "error": str(exc), "row": row})
+    label_counts = Counter(row_labels)
+    duplicate_labels = sorted(label for label, count in label_counts.items() if count > 1)
+    expected = normalized_labels(expected_labels)
+    expected_set = set(expected)
+    row_set = set(row_labels)
+    missing_expected_labels = sorted(expected_set - row_set, key=lambda label: parse_label(label)[1]) if expected else []
+    unexpected_labels = sorted(row_set - expected_set, key=lambda label: parse_label(label)[1]) if expected else []
+    ok = not invalid_rows and not duplicate_labels and not missing_expected_labels and not unexpected_labels
+    return {
+        "expected_label_count": len(expected),
+        "row_label_count": len(row_labels),
+        "distinct_row_label_count": len(row_set),
+        "duplicate_labels": duplicate_labels,
+        "missing_expected_labels": missing_expected_labels,
+        "unexpected_labels": unexpected_labels,
+        "invalid_label_rows": invalid_rows,
+        "integrity_ok": ok,
+    }
+
+
 def import_rows_into_index(
     rows: list[dict[str, Any]],
     index: GroupCycleIndex,
     *,
     import_source: Path | None,
     extra_provenance: dict[str, Any] | None = None,
+    expected_labels: Iterable[str] | None = None,
 ) -> dict[str, Any]:
+    integrity = import_integrity(rows, expected_labels=expected_labels)
+    if not integrity["integrity_ok"]:
+        raise ValueError(f"group row integrity check failed: {integrity}")
     index.initialize(
         provenance={
             "builder": "scripts/igp24_build_group_cycle_index.py",
@@ -342,6 +393,7 @@ def import_rows_into_index(
         "rows_read": len(rows),
         "rows_imported": len(imported),
         "labels_imported": sorted(imported, key=lambda label: parse_label(label)[1]),
+        "integrity": integrity,
         "group_count": index.group_count(),
         "source": "gap_json_rows",
         "no_approximation_written": False,
@@ -357,6 +409,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--gap_library_path", type=Path)
     parser.add_argument("--report_missing_gap_ok", action="store_true")
     parser.add_argument("--import_rows", type=Path, help="Import GAP JSON/JSONL rows instead of running GAP")
+    parser.add_argument(
+        "--strict_expected_labels",
+        action="store_true",
+        help="When importing rows, require exactly the labels supplied by --labels with no missing, duplicate, or unexpected labels.",
+    )
     parser.add_argument("--write_gap_program_dir", type=Path, help="Write chunked GAP export programs and exit")
     parser.add_argument("--gap_program_chunk_size", type=int, default=250)
     return parser
@@ -383,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
             index,
             import_source=args.import_rows,
             extra_provenance={"labels": labels},
+            expected_labels=labels if args.strict_expected_labels else None,
         )
         args.output_dir.mkdir(parents=True, exist_ok=True)
         write_json(args.output_dir / IMPORT_SUMMARY_JSON, summary)

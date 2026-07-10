@@ -198,6 +198,41 @@ def test_gap_workflow_imports_captured_outputs_and_runs_readiness(tmp_path, monk
     assert readiness["ready_for_group_directed_generation"] is False
 
 
+def test_gap_workflow_records_failed_captured_output_without_partial_index(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", "")
+    manifest, program = _manifest(tmp_path, ["24T101", "24T102"])
+    output_dir = tmp_path / "workflow"
+    captured_output = output_dir / "gap_outputs" / f"{program.stem}.json"
+    captured_output.parent.mkdir(parents=True, exist_ok=True)
+    captured_output.write_text("[{\"label\":\"24T101\"}]not-json", encoding="utf-8")
+    index_path = tmp_path / "groups.sqlite"
+
+    assert (
+        workflow_main(
+            [
+                "--manifest",
+                str(manifest),
+                "--output_dir",
+                str(output_dir),
+                "--index",
+                str(index_path),
+                "--skip_readiness",
+            ]
+        )
+        == 0
+    )
+
+    summary = json.loads((output_dir / "gap_group_index_workflow_summary.json").read_text(encoding="utf-8"))
+    assert summary["status"] == "blocked_failed_gap_outputs"
+    assert summary["blocking_reasons"] == ["failed_gap_outputs"]
+    assert summary["program_status_counts"] == {"failed_gap_output": 1}
+    assert summary["rows_imported"] == 0
+    assert summary["no_approximation_written"] is True
+    assert summary["failed_output_files"][0]["failed_capture_path"].endswith(".json.failed.txt")
+    assert not captured_output.exists()
+    assert not index_path.exists()
+
+
 def test_gap_workflow_passes_library_path_to_gap_runner(tmp_path):
     manifest, _program = _manifest(tmp_path, ["24T101"])
     output_dir = tmp_path / "workflow"
@@ -238,6 +273,7 @@ def test_gap_workflow_passes_library_path_to_gap_runner(tmp_path):
     )
 
     summary = json.loads((output_dir / "gap_group_index_workflow_summary.json").read_text(encoding="utf-8"))
+    assert summary["status"] == "index_imported_readiness_skipped"
     assert summary["program_status_counts"] == {"ran_gap": 1}
     assert summary["rows_imported"] == 1
     assert summary["gap_library_path"] == str(library_path)

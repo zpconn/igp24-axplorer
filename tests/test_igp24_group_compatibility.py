@@ -1,7 +1,10 @@
 import json
 
+import pytest
+
 from scripts.igp24_build_group_cycle_index import (
     gap_program,
+    import_rows_into_index,
     load_import_rows,
     main as build_index_main,
     write_dependency_report,
@@ -251,12 +254,15 @@ def test_write_gap_export_programs_is_chunked_and_read_only(tmp_path):
 
     assert manifest["record_type"] == "igp24_gap_group_cycle_export_manifest"
     assert manifest["program_count"] == 2
+    assert manifest["complete_degree24_universe_requested"] is False
     assert manifest["safety"]["calls_sair"] is False
     assert manifest["safety"]["writes_repo_index"] is False
     assert (tmp_path / "degree24_group_cycle_export_0001_1_2.g").exists()
     assert (tmp_path / "degree24_group_cycle_export_0002_3_3.g").exists()
     saved = json.loads((tmp_path / "gap_export_manifest.json").read_text(encoding="utf-8"))
     assert saved["labels"] == ["24T1", "24T2", "24T3"]
+    assert saved["programs"][0]["labels"] == ["24T1", "24T2"]
+    assert saved["programs"][0]["completion_status"] == "not_started"
 
 
 def test_load_import_rows_accepts_json_array_jsonl_and_wrapped_rows(tmp_path):
@@ -341,3 +347,80 @@ def test_group_cycle_index_builder_imports_gap_rows_without_running_gap(tmp_path
     summary = json.loads((output_dir / "group_cycle_index_import_summary.json").read_text(encoding="utf-8"))
     assert summary["rows_imported"] == 2
     assert summary["group_count"] == 2
+    assert summary["integrity"]["integrity_ok"] is True
+
+
+def test_group_cycle_index_import_rejects_duplicate_labels(tmp_path):
+    row = {
+        "label": "24T1",
+        "t": 1,
+        "group_order": "24",
+        "primitive": False,
+        "solvable": True,
+        "parity": "mixed",
+        "block_sizes": [2, 12],
+        "cycle_types": ["1.23"],
+    }
+
+    with pytest.raises(ValueError, match="integrity check failed"):
+        import_rows_into_index(
+            [row, dict(row)],
+            GroupCycleIndex(tmp_path / "degree24.sqlite"),
+            import_source=None,
+        )
+
+
+def test_group_cycle_index_import_rejects_missing_expected_labels(tmp_path):
+    row = {
+        "label": "24T1",
+        "t": 1,
+        "group_order": "24",
+        "primitive": False,
+        "solvable": True,
+        "parity": "mixed",
+        "block_sizes": [2, 12],
+        "cycle_types": ["1.23"],
+    }
+
+    with pytest.raises(ValueError, match="missing_expected_labels"):
+        import_rows_into_index(
+            [row],
+            GroupCycleIndex(tmp_path / "degree24.sqlite"),
+            import_source=None,
+            expected_labels=["24T1", "24T2"],
+        )
+
+
+def test_group_cycle_index_builder_strict_import_rejects_missing_labels(tmp_path):
+    rows_path = tmp_path / "gap_rows.jsonl"
+    rows_path.write_text(
+        json.dumps(
+            {
+                "label": "24T1",
+                "t": 1,
+                "group_order": "24",
+                "primitive": False,
+                "solvable": True,
+                "parity": "mixed",
+                "block_sizes": [2, 12],
+                "cycle_types": ["1.23"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="missing_expected_labels"):
+        build_index_main(
+            [
+                "--import_rows",
+                str(rows_path),
+                "--labels",
+                "1-2",
+                "--strict_expected_labels",
+                "--index",
+                str(tmp_path / "degree24.sqlite"),
+                "--output_dir",
+                str(tmp_path / "out"),
+            ]
+        )

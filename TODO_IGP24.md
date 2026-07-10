@@ -482,6 +482,38 @@ results change.
   approval. Validation:
   py-compile passed; focused GAP workflow/compatibility/readiness/historical
   tests passed (`20 passed`); full test suite passed (`355 passed`).
+- 2026-07-09/10 complete-index resumability checkpoint: strengthened the
+  GAP group-index importer and workflow for full-universe work. Export
+  manifests now include per-chunk labels, completion status metadata, and a
+  `complete_degree24_universe_requested` flag. Imports now reject duplicate
+  labels always, and reject missing or unexpected labels when the workflow
+  supplies manifest labels; failed GAP/JSON chunks now produce a blocked
+  summary instead of crashing or importing a partial approximate index. Wrote
+  a full 25,000-label resumable GAP export manifest under
+  `data/igp24/remediation_20260709/group_index_offline_export_phase3/full_degree24_universe_gap_programs_20260709/`
+  with 100 chunks of 250 labels, and a representative 1-250 manifest under
+  `data/igp24/remediation_20260709/group_index_offline_export_phase3/representative_1_250_gap_programs_20260709/`.
+  Representative exact GAP workflow:
+  `data/igp24/remediation_20260709/group_index_workflow_phase3/representative_1_250_local_gap_20260709/`
+  ran one chunk with the extracted local GAP binary, imported 250/250 rows,
+  and passed strict integrity with no missing, duplicate, or unexpected labels.
+  Full workflow attempt:
+  `data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/`
+  reused/produced 10 valid chunks covering 2,500 rows, then blocked at chunk
+  11 (`24T2501`-`24T2750`) because the local GAP extraction lacks Small Groups
+  identification needed at `24T2667`, causing GAP to write an interactive error
+  into stdout; the failed capture is quarantined as
+  `degree24_group_cycle_export_0011_2501_2750.json.failed.txt` so committed
+  `.json` artifacts remain parseable. The workflow now records
+  `status=blocked_failed_gap_outputs`, `rows_imported=0`,
+  `no_approximation_written=true`, and preserves completed chunk outputs for
+  restart. Full global index is therefore not complete yet; partial-index
+  semantics remain mandatory until `gap-smallgrp` or an equivalent exact GAP
+  dependency is available and all 100 chunks pass integrity. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_group_compatibility.py tests/test_igp24_gap_group_index_workflow.py`
+  -> 21 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 379 passed. No generation or live SAIR submission was made.
 - 2026-07-09 remediation Phase 5/6 group-compatible candidate-pool checkpoint:
   used the exact 27-label GAP index plus fresh SAIR progress from
   `data/igp24/axg113_high_real_20260709/sair_sync_full/sair_label_progress.jsonl`

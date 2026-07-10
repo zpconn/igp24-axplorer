@@ -1,0 +1,65 @@
+
+LoadPackage("transgrp");
+SizeScreen([1000000, 1000000]);
+Print("[\n");
+first := true;
+for t in [4251,4252,4253,4254,4255,4256,4257,4258,4259,4260,4261,4262,4263,4264,4265,4266,4267,4268,4269,4270,4271,4272,4273,4274,4275,4276,4277,4278,4279,4280,4281,4282,4283,4284,4285,4286,4287,4288,4289,4290,4291,4292,4293,4294,4295,4296,4297,4298,4299,4300,4301,4302,4303,4304,4305,4306,4307,4308,4309,4310,4311,4312,4313,4314,4315,4316,4317,4318,4319,4320,4321,4322,4323,4324,4325,4326,4327,4328,4329,4330,4331,4332,4333,4334,4335,4336,4337,4338,4339,4340,4341,4342,4343,4344,4345,4346,4347,4348,4349,4350,4351,4352,4353,4354,4355,4356,4357,4358,4359,4360,4361,4362,4363,4364,4365,4366,4367,4368,4369,4370,4371,4372,4373,4374,4375,4376,4377,4378,4379,4380,4381,4382,4383,4384,4385,4386,4387,4388,4389,4390,4391,4392,4393,4394,4395,4396,4397,4398,4399,4400,4401,4402,4403,4404,4405,4406,4407,4408,4409,4410,4411,4412,4413,4414,4415,4416,4417,4418,4419,4420,4421,4422,4423,4424,4425,4426,4427,4428,4429,4430,4431,4432,4433,4434,4435,4436,4437,4438,4439,4440,4441,4442,4443,4444,4445,4446,4447,4448,4449,4450,4451,4452,4453,4454,4455,4456,4457,4458,4459,4460,4461,4462,4463,4464,4465,4466,4467,4468,4469,4470,4471,4472,4473,4474,4475,4476,4477,4478,4479,4480,4481,4482,4483,4484,4485,4486,4487,4488,4489,4490,4491,4492,4493,4494,4495,4496,4497,4498,4499,4500] do
+  label := Concatenation("24T", String(t));
+  g := TransitiveGroup(24, t);
+  classes := ConjugacyClasses(g);
+  cycles := [];
+  all_even := true;
+  block_sizes := [];
+  if not IsPrimitive(g) then
+    for b in AllBlocks(g) do
+      if Length(b) > 1 and Length(b) < 24 and 24 mod Length(b) = 0 then
+        AddSet(block_sizes, Length(b));
+      fi;
+    od;
+  fi;
+  for c in classes do
+    rep := Representative(c);
+    lengths := SortedList(CycleLengths(rep, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]));
+    cycle_text := "";
+    for i in [1..Length(lengths)] do
+      if i > 1 then
+        Append(cycle_text, ".");
+      fi;
+      Append(cycle_text, String(lengths[i]));
+    od;
+    AddSet(cycles, cycle_text);
+    if SignPerm(rep) = -1 then
+      all_even := false;
+    fi;
+  od;
+  if not first then
+    Print(",\n");
+  fi;
+  first := false;
+  Print("{\"label\":\"", label, "\",\"t\":", t, ",\"degree\":24,");
+  Print("\"group_order\":\"", String(Size(g)), "\",");
+  Print("\"primitive\":", IsPrimitive(g), ",");
+  Print("\"solvable\":", IsSolvableGroup(g), ",");
+  if all_even then
+    Print("\"parity\":\"even\",");
+  else
+    Print("\"parity\":\"mixed\",");
+  fi;
+  Print("\"status\":\"complete\",\"block_sizes\":[");
+  for i in [1..Length(block_sizes)] do
+    if i > 1 then
+      Print(",\n");
+    fi;
+    Print(block_sizes[i]);
+  od;
+  Print("],\"cycle_types\":[\n");
+  for i in [1..Length(cycles)] do
+    if i > 1 then
+      Print(",\n");
+    fi;
+    Print("\"", cycles[i], "\"");
+  od;
+  Print("\n]}");
+od;
+Print("\n]\n");
+QUIT;
