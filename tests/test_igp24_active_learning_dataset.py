@@ -378,3 +378,102 @@ def test_build_dataset_blocks_non_improving_exact_pairs_from_generator_training(
     assert rows[0]["generator_training"]["weight"] == 0.0
     assert summary["generator_training"]["eligible_row_count"] == 0
     assert summary["generator_training"]["role_counts"]["non_improving_exact_pair"] == 1
+
+
+def test_build_dataset_promotes_exact_submission_grade_material_improvement(tmp_path):
+    candidate_path = tmp_path / "exact_submission_grade_candidates.jsonl"
+    coeffs = [
+        5039,
+        0,
+        -48168,
+        0,
+        191772,
+        0,
+        -420888,
+        0,
+        567244,
+        0,
+        -494802,
+        0,
+        287001,
+        0,
+        -112056,
+        0,
+        29455,
+        0,
+        -5130,
+        0,
+        567,
+        0,
+        -36,
+        0,
+        1,
+    ]
+    _write_jsonl(
+        candidate_path,
+        [
+            {
+                "canonical_hash": "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825",
+                "exported_coefficients": coeffs,
+                "verified_group_label": "24T13879",
+                "pair_key": "24T13879|r=24",
+                "computed_r": 24,
+                "real_root_count": 24,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "exact_nfdisc_abs": 22825765914458084106356,
+                "sair_progress_minimum_disc_abs": 236892649271295855220564452756960909291247632384,
+                "sair_progress_team_count": 7,
+                "sair_progress_state": "allowed_discovered",
+                "sair_progress_in_baseline": False,
+                "score_aware_classification": "sair_discovered_pair_material_discriminant_improvement",
+                "submission_grade_candidate": True,
+                "generation_metadata": {"construction_family": "model_sample_export"},
+            }
+        ],
+    )
+    sync_dir = tmp_path / "sync"
+    _write_jsonl(sync_dir / "sair_submission_rows.jsonl", [])
+    _write_jsonl(
+        sync_dir / "sair_label_progress.jsonl",
+        [
+            {
+                "label": "24T13879",
+                "t": 13879,
+                "teamCount": 35,
+                "allowedR": [24],
+                "discoveredSignatures": [24],
+                "remainingSignatures": [],
+                "minimumDiscAbs": "236892649271295855220564452756960909291247632384",
+                "signatures": [
+                    {
+                        "r": 24,
+                        "teamCount": 7,
+                        "discovered": True,
+                        "minimumDiscAbs": "236892649271295855220564452756960909291247632384",
+                    }
+                ],
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=sync_dir,
+        target_rs={24},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+
+    assert rows[0]["score_aware_supervision"]["label"] == "low_team_scoreable"
+    assert rows[0]["score_aware_supervision"]["avoid_for_generation"] is False
+    assert rows[0]["score_aware_supervision"]["exact_submission_grade_official_score"]["estimated_expected_points"] == 0.015625
+    assert rows[0]["generator_training"]["eligible"] is True
+    assert rows[0]["generator_training"]["role"] == "low_team_scoreable"
+    assert rows[0]["generator_training"]["weight"] == 8.0
+    assert summary["generator_training"]["eligible_row_count"] == 1
+    assert summary["generator_training"]["sampling_mass_by_role"]["low_team_scoreable"] == 8.0

@@ -20,6 +20,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts.igp24_anti_basin_planner import candidate_features, mod_pattern_signature
 from scripts.igp24_shortlist import get_source_commit
+from src.igp24.scoring import official_score_economics
 
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "data/igp24/active_learning"
 DEFAULT_PAIR_STATUS = REPO_ROOT / "data/igp24/pair_status_20260706.json"
@@ -269,6 +270,62 @@ def safe_points_numeric(row: dict[str, Any] | None) -> float | None:
         return None
 
 
+def boolish(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in {"1", "true", "yes", "y"}
+
+
+def exact_submission_grade_economics(row: dict[str, Any]) -> dict[str, Any] | None:
+    """Official-score economics for exact-labeled local submission-grade rows.
+
+    These rows are not treated as live SAIR-accepted rows. They are exact local
+    evidence that a candidate would be scoreable if explicitly submitted and
+    accepted, so they may receive positive generator-training mass without
+    conflating compatibility-only candidates with exact labels.
+    """
+    if not boolish(row.get("submission_grade_candidate")):
+        return None
+    if row.get("known_submission_hash_match") or row.get("known_submission_hash"):
+        return None
+    classification = str(row.get("score_aware_classification") or "")
+    if classification not in {
+        "new_uncovered_pair",
+        "accepted_pair_material_discriminant_improvement",
+        "sair_discovered_pair_material_discriminant_improvement",
+    }:
+        return None
+    exact_label = row.get("verified_group_label") or row.get("label")
+    exact_r = row.get("computed_r") if row.get("computed_r") is not None else row.get("r")
+    exact_nfdisc = row.get("exact_nfdisc_abs") or row.get("nfdisc_abs") or row.get("field_disc_abs")
+    if not exact_label or exact_r is None or exact_nfdisc in {None, ""}:
+        return None
+
+    progress_state = str(row.get("sair_progress_state") or "")
+    uncovered = progress_state == "allowed_remaining" or classification == "new_uncovered_pair"
+    team_count = int(row.get("sair_progress_team_count") or row.get("team_count") or 0)
+    economics = official_score_economics(
+        current_team_count=team_count,
+        uncovered=uncovered,
+        baseline_pair=boolish(row.get("sair_progress_in_baseline")),
+        current_best_disc_abs=row.get("sair_progress_minimum_disc_abs"),
+        candidate_disc_abs=exact_nfdisc,
+    )
+    estimated = economics.get("estimated_expected_points")
+    if estimated is None or float(estimated) <= 0:
+        return None
+    if not uncovered and economics.get("candidate_improves_current_best") is False:
+        return None
+    return {
+        **economics,
+        "basis": "exact_submission_grade_official_score_economics",
+        "pair_key": pair_key(str(exact_label), int(exact_r)),
+        "score_aware_classification": classification,
+    }
+
+
 def source_role_from_path(path: Path) -> str:
     text = str(path)
     if "accepted_feedback" in text:
@@ -439,6 +496,7 @@ def enrich_row(
     label_team_count = int(progress_label.get("team_count") or 0)
     known_status = sync_row.get("status") or row.get("status") or pair_status_row.get("status")
     scoreable = sync_row.get("scoreable", row.get("scoreable"))
+    exact_official_score = exact_submission_grade_economics(row)
 
     class_label = derive_class_label(
         label=str(label) if label else None,
@@ -473,6 +531,12 @@ def enrich_row(
         score_positive_pairs=score_positive_pairs,
         high_team_threshold=high_team_threshold,
     )
+    if exact_official_score is not None and score_label in {
+        "accepted_but_crowded_collapse",
+        "accepted_duplicate",
+        "pending_or_unknown",
+    }:
+        score_label = "low_team_scoreable"
     avoid_for_generation = score_label in {
         "accepted_but_crowded_collapse",
         "accepted_duplicate",
@@ -535,6 +599,9 @@ def enrich_row(
             "scoring_status": sync_row.get("scoring_status") or row.get("scoring_status") or row.get("score_status"),
             "field_disc_abs": sync_row.get("field_disc_abs") or row.get("field_disc_abs") or row.get("fieldDiscAbs"),
             "points_numeric": points,
+            "exact_submission_grade_estimated_points": (
+                exact_official_score.get("estimated_expected_points") if exact_official_score else None
+            ),
             "in_baseline": sync_row.get("in_baseline") if sync_row else row.get("in_baseline"),
         },
         "progress_context": {
@@ -557,6 +624,7 @@ def enrich_row(
             "label_team_count": label_team_count,
             "pair_remaining": progress_pair.get("remaining"),
             "pair_discovered": progress_pair.get("discovered"),
+            "exact_submission_grade_official_score": exact_official_score,
         },
         "generator_training": {
             **generator_training,

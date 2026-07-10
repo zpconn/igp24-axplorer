@@ -33,6 +33,65 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.20 exact-feedback / local-valid export checkpoint:
+  updated the active-learning builder so exact, submission-grade local
+  candidates can contribute generator-training mass only through exact official
+  pair economics, not through partial-index compatibility. The exact
+  `ee63944ba7bf` row now enters the rebuilt dataset as
+  `low_team_scoreable` with weight 8.0 because its verified pair is
+  `24T13879|r=24`, current SAIR pair team count is 7, and exact nfdisc
+  `22825765914458084106356` materially improves the fresh SAIR progress
+  minimum `236892649271295855220564452756960909291247632384`. Rebuilt corpus:
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_exact13879_axg120.jsonl`;
+  summary:
+  `data/igp24/active_learning/axg_training_dataset_summary_20260710_postremediation_exact13879_axg120.json`.
+  The corpus has 524 rows and 23 generator-eligible rows:
+  8 `score_positive`, 1 `low_team_scoreable`, and 14
+  `exact_local_exploration`, with sampling mass
+  `score_positive=96.0`, `low_team_scoreable=8.0`, and
+  `exact_local_exploration=14.0`.
+
+  Trained the refreshed advisory reward model at
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_exact13879_axg120_20260710/`;
+  it remains `advisory_insufficient_positive_data`, which is expected because
+  the exact positive pool is still tiny. Ran AXG-1.20 r24 CUDA with
+  training-hash exclusion at
+  `data/igp24/axg120_exact13879_20260710/r24_cuda_targetr_traininghash_excluded/`.
+  The RTX 5090 was used (`max_gpu_utilization_percent=92`, avg 23.969,
+  runtime 67.879s), final train/test loss was 0.022/2.841, and the export
+  attempted 4096 samples. It produced one fresh decoded r24 row after 3783
+  training/history hash exclusions, but CPU exact scoring rejected that row as
+  `reducible_over_q`; no adaptive or Magma follow-up was justified.
+
+  Ran a stricter AXG-1.20 support-shape escape at
+  `data/igp24/axg120_exact13879_20260710/r24_cuda_targetr_gcd1_escape/`.
+  CUDA was again used (`max_gpu_utilization_percent=92`, avg 25.729, runtime
+  111.217s), final train/test loss was 0.022/2.900, and 8192 attempts produced
+  zero decoded rows after requiring non-even support and support gcd one.
+  Skip telemetry shows the model is still dominated by the memorized/even
+  high-real basin: 7543 `even_support_like`, 7543 `support_gcd_not_one`, 7293
+  `excluded_hash`, and 306 `target_r_mismatch` skips.
+
+  Added an opt-in `sample_export_require_local_valid` filter in
+  `src/evaluator.py`, `train.py`, and `scripts/igp24_gpu_sampler_probe.py` so
+  future model exports can require local degree/r/irreducible/squarefree
+  validity before a row reaches adaptive compatibility work. A real CUDA pass
+  with this filter is recorded at
+  `data/igp24/axg120_exact13879_20260710/r24_cuda_targetr_localvalid_export/`:
+  4096 attempts, 3598 decoded attempts, RTX 5090 max utilization 92%, final
+  train/test loss 0.176/2.826, and zero decoded valid rows exported. The
+  local-valid filter explicitly rejected 13 would-be rows as
+  `local_invalid:reducible_over_q`; 3132 rows were known/training hash matches
+  and 461 missed target r.
+
+  Current interpretation: AXG-1.20 exercised the full corrected GPU/export
+  stack, but it did not improve candidate quality or produce a new
+  submission-grade row. The previous exact `24T13879|r=24` candidate remains
+  the only current submission-grade packet candidate, still pending explicit
+  user approval for any live SAIR POST. No live SAIR submission was made.
+  Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 440 passed.
 - 2026-07-10 exact-label / submission-grade checkpoint:
   the alternate public calculator page at `https://magma-maths.org/calc/` is
   reachable and its frontend posts to

@@ -173,6 +173,12 @@ def get_parser():
         help="opt-in: exact-filter decoded export rows to --target_r by real-root count",
     )
     parser.add_argument(
+        "--sample_export_require_local_valid",
+        type=bool_flag,
+        default="false",
+        help="opt-in: exact-filter decoded export rows to local degree/r/irreducible/squarefree validity",
+    )
+    parser.add_argument(
         "--sample_export_required_support_patterns",
         type=str,
         default="",

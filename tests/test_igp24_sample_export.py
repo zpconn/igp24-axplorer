@@ -501,6 +501,109 @@ def test_sample_and_export_can_require_exact_target_r(tmp_path):
     assert records[0]["safety"]["runs_exact_verifiers"] is False
 
 
+def test_sample_and_export_can_require_local_validity(tmp_path):
+    reducible = [720, 0, -10584, 0, 60228, 0, -178248, 0, 307804, 0, -327726, 0, 221271, 0, -96216, 0, 27175, 0, -4950, 0, 561, 0, -36, 0]
+    valid = [
+        5039,
+        0,
+        -48168,
+        0,
+        191772,
+        0,
+        -420888,
+        0,
+        567244,
+        0,
+        -494802,
+        0,
+        287001,
+        0,
+        -112056,
+        0,
+        29455,
+        0,
+        -5130,
+        0,
+        567,
+        0,
+        -36,
+        0,
+    ]
+
+    class DummyDecoded:
+        def __init__(self, coeffs):
+            self.coefficients = coeffs
+
+    class DummyTokenizer:
+        def decode(self, row):
+            return DummyDecoded(valid if int(row[0]) else reducible)
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            return torch.tensor([[0] + [0] * (length - 1), [1] + [0] * (length - 1)], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="local_valid_export_test",
+        exp_id="run",
+        seed=48,
+        device="cpu",
+        max_len=24,
+        coeff_bound=10**15,
+        prime_limit=3,
+        exact_score_timeout=2,
+        translation_radius=0,
+        gen_batch_size=2,
+        num_samples_from_model=2,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=2,
+        sample_export_progress_interval=1,
+        sample_export_avoid_even_support_like=False,
+        sample_export_require_support_gcd_one=False,
+        sample_export_require_nonzero_constant=False,
+        sample_export_require_target_r=False,
+        sample_export_require_local_valid=True,
+        sample_export_required_support_patterns="",
+        sample_export_excluded_support_patterns="",
+        sample_export_family_cap=0,
+        sample_export_basin_fingerprint_cap=0,
+        top_k=-1,
+        igp24_generation_strategy="mixed",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=24,
+        sample_export_target_r_conditioning_mode="control_token",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "local_valid_filtered_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.15,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["records_written"] == 1
+    assert summary["require_local_valid"] is True
+    assert summary["provenance_skip_counts"] == {"local_invalid:reducible_over_q": 1}
+    assert records[0]["decoded_coefficients"] == valid
+    assert records[0]["sample_provenance"]["local_valid_filter"]["valid"] is True
+    assert records[0]["sample_provenance"]["local_valid_filter"]["irreducible"] is True
+    assert records[0]["safety"]["runs_exact_local_filters"] is True
+    assert records[0]["safety"]["runs_exact_verifiers"] is False
+
+
 def test_sample_and_export_can_require_sparse_support_pattern(tmp_path):
     class DummyDecoded:
         def __init__(self, coeffs):

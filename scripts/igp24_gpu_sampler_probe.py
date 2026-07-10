@@ -231,6 +231,7 @@ def summarize_sample_export(path: Path) -> dict[str, Any]:
         "sample_export_avoid_even_support_like": bool(dedup.get("avoid_even_support_like", False)),
         "sample_export_require_support_gcd_one": bool(dedup.get("require_support_gcd_one", False)),
         "sample_export_required_support_patterns": dedup.get("required_support_patterns", []),
+        "sample_export_require_local_valid": bool(dedup.get("require_local_valid", False)),
         "sample_export_excluded_support_patterns": dedup.get("excluded_support_patterns", []),
         "sample_export_excluded_hashes_path": dedup.get("excluded_hashes_path"),
         "sample_export_excluded_hashes_loaded": dedup.get("excluded_hashes_loaded", 0),
@@ -1192,6 +1193,7 @@ def build_sample_export_target_r_conditioned_command(
     require_support_gcd_one: bool = False,
     require_nonzero_constant: bool = False,
     require_target_r: bool = False,
+    require_local_valid: bool = False,
     required_support_patterns: str = "",
     excluded_support_patterns: str = "",
     excluded_hashes_jsonl: str = "",
@@ -1295,6 +1297,8 @@ def build_sample_export_target_r_conditioned_command(
         "true" if require_nonzero_constant else "false",
         "--sample_export_require_target_r",
         "true" if require_target_r else "false",
+        "--sample_export_require_local_valid",
+        "true" if require_local_valid else "false",
         "--sample_export_required_support_patterns",
         str(required_support_patterns),
         "--sample_export_excluded_support_patterns",
@@ -1349,6 +1353,7 @@ def build_sample_export_target_r_conditioned_command(
                 or require_support_gcd_one
                 or require_nonzero_constant
                 or require_target_r
+                or require_local_valid
                 or bool(str(required_support_patterns))
                 or bool(str(excluded_support_patterns))
                 or bool(str(excluded_hashes_jsonl))
@@ -1359,6 +1364,7 @@ def build_sample_export_target_r_conditioned_command(
             "sample_export_require_support_gcd_one": bool(require_support_gcd_one),
             "sample_export_require_nonzero_constant": bool(require_nonzero_constant),
             "sample_export_require_target_r": bool(require_target_r),
+            "sample_export_require_local_valid": bool(require_local_valid),
             "sample_export_required_support_patterns": str(required_support_patterns),
             "sample_export_excluded_support_patterns": str(excluded_support_patterns),
             "sample_export_excluded_hashes_jsonl": str(excluded_hashes_jsonl),
@@ -1850,6 +1856,12 @@ def get_parser() -> argparse.ArgumentParser:
         help="exact-filter model-export rows to the requested target real-root count",
     )
     parser.add_argument(
+        "--target_r_conditioned_require_local_valid",
+        action="store_true",
+        default=False,
+        help="exact-filter model-export rows to local irreducible/squarefree validity before export",
+    )
+    parser.add_argument(
         "--target_r_conditioned_required_support_patterns",
         default="",
         help="comma-separated support_pattern allow-list for sample_export_target_r_conditioned",
@@ -1922,6 +1934,9 @@ def main() -> int:
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_require_target_r": bool(args.target_r_conditioned_require_target_r)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
+        else None,
+        "target_r_conditioned_require_local_valid": bool(args.target_r_conditioned_require_local_valid)
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_conditioned_required_support_patterns": args.target_r_conditioned_required_support_patterns
@@ -2032,6 +2047,7 @@ def main() -> int:
                 require_support_gcd_one=bool(args.target_r_conditioned_require_support_gcd_one),
                 require_nonzero_constant=bool(args.target_r_conditioned_require_nonzero_constant),
                 require_target_r=bool(args.target_r_conditioned_require_target_r),
+                require_local_valid=bool(args.target_r_conditioned_require_local_valid),
                 required_support_patterns=str(args.target_r_conditioned_required_support_patterns),
                 excluded_support_patterns=str(args.target_r_conditioned_excluded_support_patterns),
                 excluded_hashes_jsonl=str(args.target_r_conditioned_excluded_hashes_jsonl),

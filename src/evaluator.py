@@ -15,7 +15,7 @@ import torch
 
 from src.datasets import detokenize
 from src.envs.environment import do_score, do_stats
-from src.igp24.polynomial import IGP24Error, real_root_count
+from src.igp24.polynomial import IGP24Error, analyze_candidate, real_root_count
 from src.utils import MAX_WORKERS
 
 logger = getLogger()
@@ -708,7 +708,9 @@ def build_sample_export_record(
             "proxy_only": True,
             "scored": False,
             "local_search_run": False,
-            "runs_exact_local_filters": bool(provenance.get("exact_target_r_filter_enabled")),
+            "runs_exact_local_filters": bool(
+                provenance.get("exact_target_r_filter_enabled") or provenance.get("local_valid_filter_enabled")
+            ),
             "runs_exact_verifiers": False,
             "calls_sair": False,
             "uses_network": False,
@@ -741,6 +743,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
     require_nonzero_constant = bool(getattr(args, "sample_export_require_nonzero_constant", False))
     require_target_r = bool(getattr(args, "sample_export_require_target_r", False))
+    require_local_valid = bool(getattr(args, "sample_export_require_local_valid", False))
     target_r_value = _int_or_none(getattr(args, "target_r", None))
     required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
     excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
@@ -752,6 +755,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         or require_support_gcd_one
         or require_nonzero_constant
         or require_target_r
+        or require_local_valid
         or bool(required_support_patterns)
         or bool(excluded_support_patterns)
         or bool(excluded_hashes)
@@ -895,6 +899,24 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                                 exact_target_r_filter_counts[f"observed_r:{int(observed_r)}"] += 1
                                 if int(observed_r) != int(target_r_value):
                                     skip_reasons.append("target_r_mismatch")
+                    if require_local_valid:
+                        local_analysis = analyze_candidate(
+                            decoded_coefficients,
+                            coeff_bound=int(getattr(args, "coeff_bound", 0)),
+                            prime_limit=int(getattr(args, "prime_limit", 7)),
+                            exact_score_timeout=float(getattr(args, "exact_score_timeout", 0) or 0),
+                            translation_radius=int(getattr(args, "translation_radius", 0) or 0),
+                        )
+                        sample_provenance["local_valid_filter_enabled"] = True
+                        sample_provenance["local_valid_filter"] = {
+                            "valid": bool(local_analysis.valid),
+                            "rejection_reason": local_analysis.rejection_reason,
+                            "irreducible": local_analysis.irreducible,
+                            "squarefree": local_analysis.squarefree,
+                            "real_root_count": local_analysis.real_root_count,
+                        }
+                        if not local_analysis.valid:
+                            skip_reasons.append(f"local_invalid:{local_analysis.rejection_reason or 'unknown'}")
                     support_pattern = str(sample_provenance.get("support_pattern") or "unknown")
                     if required_support_patterns and support_pattern not in required_support_patterns:
                         skip_reasons.append("required_support_pattern_mismatch")
@@ -1001,6 +1023,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "require_support_gcd_one": require_support_gcd_one,
         "require_nonzero_constant": require_nonzero_constant,
         "require_target_r": require_target_r,
+        "require_local_valid": require_local_valid,
         "exact_target_r_filter_target": target_r_value,
         "exact_target_r_filter_counts": dict(exact_target_r_filter_counts),
         "required_support_patterns": sorted(required_support_patterns),
