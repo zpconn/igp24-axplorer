@@ -181,3 +181,26 @@ def test_reward_model_train_and_score_scripts_write_reproducible_artifacts(tmp_p
     ]
     assert top_crowded
     assert top_crowded[0]["family"] == "crowded_24T25000_family"
+
+
+def test_reward_scoring_normalizes_nested_candidate_generation_metadata():
+    model = train_reward_model(_training_rows())
+    candidate = {
+        "canonical_hash": "nested-candidate-hash",
+        "real_root_count": 8,
+        "exported_coefficients": [1] + [0] * 23 + [1],
+        "generation_metadata": {
+            "construction_family": "rare_good_family",
+            "template_family_id": "rare_good_family:template",
+            "perturbation_mode": "rare_good_family:mode",
+            "basin_fingerprint": "rare_good_family:basin",
+            "family_key": "rare_good_family:key",
+        },
+    }
+
+    scored, summary = score_rows(model, [candidate])
+
+    assert summary["top_families"] == {"rare_good_family": 1}
+    assert scored[0]["features"]["construction_family"] == "rare_good_family"
+    assert scored[0]["features"]["template_family_id"] == "rare_good_family:template"
+    assert scored[0]["reward_model"]["reward_probability"] > scored[0]["reward_model"]["collapse_risk_probability"]

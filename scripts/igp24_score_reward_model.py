@@ -14,6 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from scripts.igp24_packet_optimizer import (  # noqa: E402
+    candidate_features,
+    exported_coefficients,
+    reward_model_input_record,
+)
 from src.igp24.reward_model import (  # noqa: E402
     AdvisoryRewardModel,
     COLLAPSE_RISK_OUTCOMES,
@@ -34,15 +39,25 @@ def load_model(path: Path) -> AdvisoryRewardModel:
     return AdvisoryRewardModel.from_json(json.loads(path.read_text(encoding="utf-8")))
 
 
+def normalized_reward_record(row: dict[str, Any]) -> dict[str, Any]:
+    features = candidate_features(row)
+    coeffs = exported_coefficients(row)
+    raw_coeffs = row.get("coefficients")
+    if coeffs is None and isinstance(raw_coeffs, list):
+        coeffs = [int(value) for value in raw_coeffs]
+    return reward_model_input_record(row, features=features, coeffs=coeffs)
+
+
 def score_rows(model: AdvisoryRewardModel, rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     scored: list[dict[str, Any]] = []
     decision_counts: Counter[str] = Counter()
     outcome_counts: Counter[str] = Counter()
     family_counts: Counter[str] = Counter()
     for index, row in enumerate(rows):
-        prediction = model.predict(row)
-        outcome = outcome_from_record(row)
-        family = group_family_from_record(row)
+        reward_record = normalized_reward_record(row)
+        prediction = model.predict(reward_record)
+        outcome = outcome_from_record(reward_record)
+        family = group_family_from_record(reward_record)
         decision_counts[prediction.decision] += 1
         outcome_counts[outcome] += 1
         family_counts[family] += 1
@@ -53,8 +68,8 @@ def score_rows(model: AdvisoryRewardModel, rows: list[dict[str, Any]]) -> tuple[
                 "dataset_row_id": row.get("dataset_row_id"),
                 "observed_outcome": outcome,
                 "family": family,
-                "r": row.get("r"),
-                "features": row.get("features"),
+                "r": reward_record.get("r"),
+                "features": reward_record.get("features"),
                 "reward_model": prediction.as_dict(),
             }
         )
