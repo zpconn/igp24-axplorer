@@ -504,6 +504,32 @@ results change.
   fresh route to submit or widen as-is; it is now negative calibration for
   the construction planner. SAIR key-shaped secret scan found no matches. No
   live SAIR submission was made.
+- 2026-07-10 post-remediation AXG generator-training contract checkpoint:
+  fixed `scripts/igp24_active_learning_dataset.py` so rows with explicit
+  no-value adaptive evidence, blocked construction-route outcomes,
+  known-submission hashes, non-improving exact SAIR-discovered pairs, or
+  explicit packet-ineligible status cannot become generator-training examples
+  merely because they are locally valid. Added regression tests proving that
+  no-valuable-target adaptive rows and non-improving exact pairs are assigned
+  zero generator weight. Rebuilt the active-learning dataset after committing
+  the guardrail:
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation.jsonl`
+  and
+  `data/igp24/active_learning/axg_training_dataset_summary_20260710_postremediation.json`.
+  Summary: 459 physical rows, 8 generator-eligible rows, eligible roles
+  `{"score_positive": 8}`, sampling mass only on `score_positive` pairs
+  `24T22770|r=12` and `24T9993|r=8`, while 24 reviewed 4x6 no-value rows and
+  4 exact x6 false-target rows are blocked with zero weight. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_active_learning_dataset.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_active_learning_dataset.py tests/test_igp24.py`
+  -> 44 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 415 passed; `git diff --check` passed; SAIR key-shaped secret scan found
+  no matches. No live SAIR submission was made. Next AXG training may resume
+  from this corrected dataset, but any promoted model must beat the measured
+  pre-remediation outcomes on known-hash reproduction, target-r yield, and
+  adaptive valuable-target survival.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
