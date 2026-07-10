@@ -1,0 +1,96 @@
+{
+  "calculator_constraints": {
+    "calculator_url": "https://magma.maths.usyd.edu.au/calc/",
+    "max_input_bytes": 50000,
+    "max_time_seconds": 60,
+    "observed_version": "2.29-8"
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_verification_queue_1row",
+    "--output_dir",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh",
+    "--run_sympy_nfdisc",
+    "--run_sympy_signature",
+    "--online_magma_manual",
+    "--online_magma_pasted_output",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/online_magma_auto_probe_ee639_fresh_20260710/online_magma_pasted_outputs_automated_probe.jsonl"
+  ],
+  "created_at": "2026-07-10T09:23:39.239022+00:00",
+  "diagnostic_queue_summary": {
+    "flag_counts": {},
+    "manual_script_chunking": {
+      "all_scripts_under_calculator_limit": true,
+      "calculator_max_input_bytes": 50000,
+      "max_script_bytes": 944,
+      "mode": "one_candidate_per_script",
+      "scripts_written": 1
+    },
+    "records_with_all_sampled_frobenius_even": 0,
+    "records_with_any_non_generic_flags": 0,
+    "records_with_exact_composed_support": 0,
+    "records_with_near_composed_support": 0,
+    "records_with_no_long_cycle_witness": 0,
+    "records_with_square_discriminant": 0,
+    "strategy_counts": {
+      "model_sample_export": 1
+    }
+  },
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_verification_queue_1row",
+  "output_files": {
+    "online_magma_copy_paste_scripts_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/online_magma_manual/copy_paste_scripts",
+    "online_magma_pasted_output_template_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/online_magma_manual/online_magma_pasted_outputs_template.jsonl",
+    "online_magma_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/online_magma_manual/online_magma_manual_report.md",
+    "online_magma_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/online_magma_manual/online_magma_manual_results.jsonl",
+    "online_magma_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/online_magma_manual/online_magma_manual_summary.json"
+  },
+  "parsed_automated_public_calculator_probe_count": 1,
+  "parsed_probe_mode_counts": {
+    "automated_curl_public_calculator": 1
+  },
+  "pasted_output_paths": [
+    "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/online_magma_auto_probe_ee639_fresh_20260710/online_magma_pasted_outputs_automated_probe.jsonl"
+  ],
+  "queue_status": {
+    "already_parsed_exact_label_hashes": [
+      "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825"
+    ],
+    "local_magma_executed": false,
+    "local_magma_status_counts": {
+      "dry_run": 1
+    },
+    "proxy_only_candidate_hashes": [],
+    "ready_for_manual_copy_paste_hashes": []
+  },
+  "record_type": "igp24_online_magma_manual_summary",
+  "records_selected_for_manual_online_magma": 1,
+  "safety": {
+    "automated_online_submission": false,
+    "automated_online_submission_by_helper": false,
+    "automated_online_submission_in_parsed_inputs": true,
+    "batch_online_submission": false,
+    "manual_only": false,
+    "network_calls_by_helper": false,
+    "note": "Online MAGMA calculator artifacts are offline scripts plus saved-output parsers. The helper does not submit requests, batch online work, call SAIR, or run inside training, GPU sampling, or CPU proxy scoring.",
+    "proxy_labels_preserved": true,
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "selected_hashes": [
+    "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825"
+  ],
+  "source_commit": "e64c9dfa7ed4f89a86f404d2b0134d9ec64b5b22",
+  "status_counts": {
+    "verified": 1
+  },
+  "tool": "scripts/igp24_offline_verify.py",
+  "verified_group_labels": [
+    "24T13879"
+  ],
+  "verified_records": 1
+}

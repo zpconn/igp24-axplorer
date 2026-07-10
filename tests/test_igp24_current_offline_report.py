@@ -434,3 +434,121 @@ def test_current_offline_report_blocks_partial_or_stale_sair_sync(tmp_path):
     assert summary["sair_sync_status"]["status"] == "not_usable"
     assert "fresh_sair_sync_incomplete" in summary["go_no_go"]["blockers"]
     assert "fresh_sair_sync_stale" in summary["go_no_go"]["blockers"]
+
+
+def test_current_offline_report_computes_exact_submission_grade_economics(tmp_path):
+    packet = tmp_path / "packet.json"
+    triage = tmp_path / "triage.json"
+    triage_rows = tmp_path / "triage.jsonl"
+    adaptive = tmp_path / "adaptive.json"
+    index = tmp_path / "index.json"
+    historical = tmp_path / "historical.json"
+    sync = tmp_path / "sync.json"
+
+    _write_json(
+        packet,
+        {
+            "selected_rows": 1,
+            "candidate_count": 1,
+            "best_case_packet_points": 1.0,
+            "expected_points_status": "unavailable_uncalibrated",
+        },
+    )
+    _write_json(
+        triage,
+        {
+            "reviewed_rows": 1,
+            "verified_rows": 1,
+            "known_submission_hash_rows": 0,
+            "submission_grade_rows": 1,
+            "exact_label_status_counts": {"ok": 1},
+            "exact_r_status_counts": {"ok": 1},
+            "exact_nfdisc_status_counts": {"ok": 1},
+        },
+    )
+    _write_jsonl(
+        triage_rows,
+        [
+            {
+                "canonical_hash": "f" * 64,
+                "short_hash": "f" * 12,
+                "pair_key": "24T13879|r=24",
+                "verified_group_label": "24T13879",
+                "computed_r": 24,
+                "exact_label_status": "ok",
+                "exact_nfdisc_status": "ok",
+                "exact_nfdisc_abs": 100,
+                "sair_progress_state": "allowed_discovered",
+                "sair_progress_team_count": 7,
+                "sair_progress_minimum_disc_abs": 1000000,
+                "sair_progress_in_baseline": False,
+                "sair_score_value_status": "valuable_low_team",
+                "known_submission_hash_match": False,
+                "score_aware_classification": "sair_discovered_pair_material_discriminant_improvement",
+                "submission_grade_candidate": True,
+            }
+        ],
+    )
+    _write_json(
+        adaptive,
+        {
+            "evaluated_row_count": 1,
+            "failed_row_count": 0,
+            "exact_label_missing_row_count": 1,
+            "intended_target_failure_rows": 0,
+            "final_valuable_target_survival_rows": 1,
+        },
+    )
+    _write_json(
+        index,
+        {
+            "global_index_complete": True,
+            "group_count": 25000,
+            "expected_global_group_count": 25000,
+            "integrity": {"integrity_ok": True},
+        },
+    )
+    _write_json(historical, {"evaluated_row_count": 1, "indexed_true_label_containment_failures": 0})
+    _write_json(
+        sync,
+        {
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "safety": {"api_key_recorded": False, "sair_submission": False, "live_fetch": True, "network_calls": True},
+            "sync_status": {
+                "partial_sync": False,
+                "global_progress_complete": True,
+                "submission_index_complete": True,
+                "submission_detail_complete": True,
+                "download_complete": True,
+                "full_submission_state_complete": True,
+                "submission_state_complete": True,
+            },
+            "submissions": {"pending_rows": 0, "scoreable_rows": 1},
+        },
+    )
+
+    summary, _rows = build_summary(
+        packet_summary_path=packet,
+        triage_summary_path=triage,
+        triage_rows_path=triage_rows,
+        adaptive_summary_path=adaptive,
+        index_summary_path=index,
+        historical_summary_path=historical,
+        baseline_summary_path=None,
+        replay_summary_path=None,
+        gpu_summary_path=None,
+        sair_sync_summary_path=sync,
+        output_dir=tmp_path / "out",
+        command=[],
+    )
+
+    exact_score = summary["exact_submission_grade_score_economics"]
+    assert exact_score["row_count"] == 1
+    assert exact_score["estimated_expected_points_total"] == 0.015625
+    assert exact_score["maximum_possible_points_total"] == 0.015625
+    assert exact_score["rows"][0]["candidate_improves_current_best"] is True
+    assert summary["packet_status"]["exact_submission_grade_points_basis"] == "exact_verified_pairs_official_score_economics"
+
+    report = render_report(summary)
+    assert "Exact submission-grade estimated points: `0.015625`" in report
+    assert "Estimated official points: `0.015625`" in report

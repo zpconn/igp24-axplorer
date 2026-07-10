@@ -1,0 +1,554 @@
+{
+  "adaptive_packet_status": {
+    "budget_summary": {
+      "10": {
+        "evaluated_rows": 1,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 247,
+        "rows_with_budget_reached": 1,
+        "valuable_target_survival_rows": 1
+      },
+      "20": {
+        "evaluated_rows": 1,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 153,
+        "rows_with_budget_reached": 1,
+        "valuable_target_survival_rows": 1
+      },
+      "40": {
+        "evaluated_rows": 1,
+        "indexed_containment_failures": 0,
+        "intended_target_failure_rows": 0,
+        "intended_target_survival_rows": 0,
+        "median_indexed_target_survivor_count": 92,
+        "rows_with_budget_reached": 1,
+        "valuable_target_survival_rows": 1
+      }
+    },
+    "evaluated_rows": 1,
+    "exact_label_missing_rows": 1,
+    "failed_rows": 0,
+    "final_valuable_target_survival_rows": 1,
+    "intended_target_row_count": 0,
+    "intended_target_survival_rows": 0,
+    "max_usable_primes": 40
+  },
+  "architecture_status": {
+    "baseline_leaderboard": {
+      "our_public_score": 0.000508,
+      "our_rank": 77,
+      "our_scoreable_pairs": 28,
+      "our_team_number": "IGP24-T00153",
+      "rank25_score_cutoff": 108.009839,
+      "rank25_scoreable_pairs": 5087,
+      "recorded_visible_points_from_user_snapshot": 0.0021,
+      "source": "GET /api/public/v1/competitions/igp24/leaderboard?limit=100 at baseline time",
+      "user_snapshot_visible_points_rows": 2
+    },
+    "chronological_replay_minimum_gate_passed": true,
+    "full_group_index_complete": true,
+    "historical_evaluated_rows": 233,
+    "historical_indexed_containment_failures": 0,
+    "historical_valuable_false_positive_rows_at_10_primes": 36,
+    "indexed_group_count": 25000,
+    "latest_gpu_probe_summary": {
+      "gpu_used": null,
+      "rejection_reasons": null,
+      "run_id": "20260710T090012Z",
+      "valid_records": null
+    }
+  },
+  "candidate_status": {
+    "novel_candidate_count_against_synced_submission_history": 1,
+    "novel_candidate_hashes_against_synced_submission_history": [
+      "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825"
+    ],
+    "selected_hashes": [
+      "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825"
+    ],
+    "selected_rows": [
+      {
+        "canonical_hash": "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825",
+        "computed_r": 24,
+        "exact_label_status": "missing",
+        "exact_nfdisc_abs": 7748175911401154024403485283319595159976718226161664,
+        "exact_nfdisc_status": "ok",
+        "known_submission_hash_match": false,
+        "pair_key": null,
+        "sair_progress_state": "exact_pair_missing",
+        "sair_progress_team_count": null,
+        "sair_score_value_status": "no_score_value",
+        "score_aware_classification": "exact_result_missing",
+        "short_hash": "ee63944ba7bf",
+        "submission_grade_candidate": false,
+        "verified_group_label": null
+      }
+    ],
+    "selected_short_hashes": [
+      "ee63944ba7bf"
+    ]
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_current_offline_report.py",
+    "--packet_summary_json",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_summary.json",
+    "--triage_summary_json",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_aware_triage_1row_local_pari/score_aware_triage_summary.json",
+    "--triage_rows_jsonl",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_aware_triage_1row_local_pari/score_aware_triage.jsonl",
+    "--adaptive_summary_json",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/adaptive_frobenius_1row_40primes/adaptive_frobenius_benchmark_summary.json",
+    "--index_summary_json",
+    "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "--historical_summary_json",
+    "data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "--baseline_summary_json",
+    "data/igp24/remediation_20260709/baseline_summary.json",
+    "--replay_summary_json",
+    "data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/replay_benchmark_summary.json",
+    "--gpu_summary_json",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/gpu_sampler_probe_summary.json",
+    "--sair_sync_summary_json",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/sair_sync_20260710_exact_label_gate/sair_sync_summary.json",
+    "--output_dir",
+    "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_fresh_sync_packet"
+  ],
+  "created_at": "2026-07-10T09:20:43.177967+00:00",
+  "go_no_go": {
+    "blockers": [
+      "adaptive_rows_still_missing_exact_labels",
+      "exact_magma_labels_missing",
+      "explicit_user_live_submission_approval_missing",
+      "score_aware_triage_has_no_submission_grade_rows"
+    ],
+    "live_submission_recommended_now": false,
+    "recommendation": "do_not_submit",
+    "warnings": []
+  },
+  "inputs": {
+    "adaptive_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/adaptive_frobenius_1row_40primes/adaptive_frobenius_benchmark_summary.json",
+    "baseline_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/baseline_summary.json",
+    "gpu_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/gpu_sampler_probe_summary.json",
+    "historical_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/historical_group_validation_phase3/full_degree24_universe_poly_disc_patterns_5_10_20260709/broad_historical_group_backtest_summary.json",
+    "index_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/group_cycle_index_import_summary.json",
+    "packet_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_summary.json",
+    "replay_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/replay_benchmark_summary.json",
+    "sair_sync_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/sair_sync_20260710_exact_label_gate/sair_sync_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_aware_triage_1row_local_pari/score_aware_triage.jsonl",
+    "triage_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_aware_triage_1row_local_pari/score_aware_triage_summary.json"
+  },
+  "output_files": {
+    "report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_fresh_sync_packet/current_offline_go_nogo_report.md",
+    "summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_fresh_sync_packet/current_offline_go_nogo_summary.json",
+    "triage_rows_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_fresh_sync_packet/current_offline_go_nogo_triage_rows.jsonl"
+  },
+  "packet_status": {
+    "best_case_packet_points": 1.0,
+    "candidate_count": 1,
+    "construction_family_counts": {
+      "model_sample_export": 1
+    },
+    "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+    "expected_points_status": "unavailable_uncalibrated",
+    "possible_low_team_pair_count": 32,
+    "possible_uncovered_pair_count": 25,
+    "selected_rows": 1
+  },
+  "record_type": "igp24_current_offline_go_nogo_report",
+  "safety": {
+    "candidate_generation": false,
+    "gpu_training": false,
+    "local_file_only": true,
+    "magma_executed": false,
+    "network_calls": false,
+    "pari_executed": false,
+    "sair_api_calls": false,
+    "sair_submission": false
+  },
+  "sair_sync_status": {
+    "age_hours": 0.124231,
+    "blockers": [],
+    "created_at": "2026-07-10T09:13:15.943767+00:00",
+    "fresh_complete": true,
+    "max_sync_age_hours": 6.0,
+    "progress": {
+      "label_count": 25000,
+      "remaining_signature_count": 46638,
+      "top_remaining_r_buckets": [
+        {
+          "allowed": 25000,
+          "average_signature_team_count": 1.88,
+          "discovered": 13691,
+          "discovered_pct": 54.76,
+          "max_signature_team_count": 47,
+          "r": 24,
+          "remaining": 11309,
+          "remaining_pct": 45.24
+        },
+        {
+          "allowed": 21421,
+          "average_signature_team_count": 2.39,
+          "discovered": 11744,
+          "discovered_pct": 54.82,
+          "max_signature_team_count": 45,
+          "r": 16,
+          "remaining": 9677,
+          "remaining_pct": 45.18
+        },
+        {
+          "allowed": 23556,
+          "average_signature_team_count": 3.81,
+          "discovered": 17639,
+          "discovered_pct": 74.88,
+          "max_signature_team_count": 48,
+          "r": 8,
+          "remaining": 5917,
+          "remaining_pct": 25.12
+        },
+        {
+          "allowed": 19934,
+          "average_signature_team_count": 3.19,
+          "discovered": 14079,
+          "discovered_pct": 70.63,
+          "max_signature_team_count": 47,
+          "r": 12,
+          "remaining": 5855,
+          "remaining_pct": 29.37
+        },
+        {
+          "allowed": 10852,
+          "average_signature_team_count": 2.3,
+          "discovered": 5691,
+          "discovered_pct": 52.44,
+          "max_signature_team_count": 43,
+          "r": 20,
+          "remaining": 5161,
+          "remaining_pct": 47.56
+        },
+        {
+          "allowed": 24839,
+          "average_signature_team_count": 5.56,
+          "discovered": 21039,
+          "discovered_pct": 84.7,
+          "max_signature_team_count": 59,
+          "r": 0,
+          "remaining": 3800,
+          "remaining_pct": 15.3
+        },
+        {
+          "allowed": 20057,
+          "average_signature_team_count": 4.61,
+          "discovered": 16763,
+          "discovered_pct": 83.58,
+          "max_signature_team_count": 57,
+          "r": 4,
+          "remaining": 3294,
+          "remaining_pct": 16.42
+        },
+        {
+          "allowed": 6004,
+          "average_signature_team_count": 5.8,
+          "discovered": 5543,
+          "discovered_pct": 92.32,
+          "max_signature_team_count": 50,
+          "r": 6,
+          "remaining": 461,
+          "remaining_pct": 7.68
+        }
+      ],
+      "top_zero_team_remaining_labels": [
+        {
+          "label": "24T24093",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 24093
+        },
+        {
+          "label": "24T23413",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 23413
+        },
+        {
+          "label": "24T22667",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 22667
+        },
+        {
+          "label": "24T22631",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 22631
+        },
+        {
+          "label": "24T22306",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 22306
+        },
+        {
+          "label": "24T19906",
+          "remaining_count": 12,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 19906
+        },
+        {
+          "label": "24T24424",
+          "remaining_count": 11,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            20,
+            24
+          ],
+          "t": 24424
+        },
+        {
+          "label": "24T24189",
+          "remaining_count": 11,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            20,
+            24
+          ],
+          "t": 24189
+        },
+        {
+          "label": "24T24089",
+          "remaining_count": 11,
+          "remaining_r": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            20,
+            24
+          ],
+          "t": 24089
+        },
+        {
+          "label": "24T23742",
+          "remaining_count": 11,
+          "remaining_r": [
+            0,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            24
+          ],
+          "t": 23742
+        }
+      ]
+    },
+    "provided": true,
+    "safety": {
+      "api_key_recorded": false,
+      "live_fetch": true,
+      "network_calls": true,
+      "sair_submission": false
+    },
+    "status": "fresh_complete",
+    "submissions": {
+      "failed_rows": 0,
+      "pair_count": 28,
+      "pending_rows": 0,
+      "row_count": 234,
+      "scoreable_rows": 234,
+      "status_class_counts": {
+        "scoreable": 234
+      },
+      "submission_count": 29,
+      "top_pair_counts": [
+        [
+          "24T25000|r=24",
+          29
+        ],
+        [
+          "24T25000|r=4",
+          26
+        ],
+        [
+          "24T25000|r=20",
+          25
+        ],
+        [
+          "24T25000|r=16",
+          23
+        ],
+        [
+          "24T24979|r=12",
+          21
+        ],
+        [
+          "24T25000|r=8",
+          20
+        ],
+        [
+          "24T24932|r=24",
+          16
+        ],
+        [
+          "24T24979|r=16",
+          13
+        ],
+        [
+          "24T24984|r=12",
+          12
+        ],
+        [
+          "24T24651|r=24",
+          9
+        ],
+        [
+          "24T24651|r=12",
+          8
+        ],
+        [
+          "24T24932|r=12",
+          4
+        ]
+      ],
+      "unmatched_rows": 0
+    },
+    "sync_status": {
+      "download_complete": true,
+      "failing_endpoint": null,
+      "full_submission_state_complete": true,
+      "global_progress_complete": true,
+      "partial_sync": false,
+      "submission_detail_complete": true,
+      "submission_index_complete": true,
+      "submission_state_complete": true
+    },
+    "warnings": []
+  },
+  "schema_version": 1,
+  "source_commit": "e64c9dfa7ed4f89a86f404d2b0134d9ec64b5b22",
+  "tool": "scripts/igp24_current_offline_report.py",
+  "verification_status": {
+    "exact_label_status_counts": {
+      "missing": 1
+    },
+    "exact_nfdisc_status_counts": {
+      "ok": 1
+    },
+    "exact_r_status_counts": {
+      "ok": 1
+    },
+    "known_submission_hash_rows": 0,
+    "pending_exact_label_rows": 1,
+    "reviewed_rows": 1,
+    "submission_grade_rows": 0,
+    "verified_exact_label_rows": 0
+  }
+}

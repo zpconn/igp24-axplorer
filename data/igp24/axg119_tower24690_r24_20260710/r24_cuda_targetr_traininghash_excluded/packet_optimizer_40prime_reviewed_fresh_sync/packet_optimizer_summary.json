@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-10T09:20:10.333293+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "e64c9dfa7ed4f89a86f404d2b0134d9ec64b5b22",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/adaptive_reviewed_candidates_40primes_fresh_sync/adaptive_reviewed_candidates.jsonl"
+    ],
+    "candidate_count": 1,
+    "route_outcome_paths": [
+      "data/igp24/remediation_20260709/construction_outcome_ledger_phase7/quartic_x6_24T24134_exact_negative_20260710/construction_route_outcomes.jsonl"
+    ],
+    "route_outcome_count": 1,
+    "reward_model_json": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_tower24690_r24_20260710/reward_model.json",
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    },
+    "minimum_frobenius_primes": 40
+  },
+  "candidate_count": 1,
+  "eligible_candidate_count": 1,
+  "selected_rows": 1,
+  "rejected_rows": 0,
+  "reject_reason_counts": {},
+  "crowded_only_candidates_rejected": 0,
+  "known_submission_hash_candidates_rejected": 0,
+  "construction_route_outcome_candidates_rejected": 0,
+  "reward_model": {
+    "status": "scored_advisory_only",
+    "source_path": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_tower24690_r24_20260710/reward_model.json",
+    "scored_candidate_count": 1,
+    "selected_scored_candidate_count": 1,
+    "decision_counts": {
+      "advisory_sparse_positive_candidate": 1
+    },
+    "selected_decision_counts": {
+      "advisory_sparse_positive_candidate": 1
+    },
+    "mean_reward_probability": 0.938262908468,
+    "mean_collapse_risk_probability": 0.061737091532,
+    "selected_mean_reward_probability": 0.938262908468,
+    "selected_mean_collapse_risk_probability": 0.061737091532,
+    "max_selected_collapse_risk_probability": 0.061737091532,
+    "selection_effect": "nonfatal_tiebreaker_not_score_expectation"
+  },
+  "pair_evidence_missing_candidates": 0,
+  "insufficient_adaptive_frobenius_candidates": 0,
+  "selected_possible_uncovered_pair_count": 25,
+  "selected_possible_low_team_pair_count": 32,
+  "selected_possible_uncovered_pairs": [
+    "24T15975|r=24",
+    "24T15980|r=24",
+    "24T17768|r=24",
+    "24T17770|r=24",
+    "24T19035|r=24",
+    "24T19042|r=24",
+    "24T19054|r=24",
+    "24T19055|r=24",
+    "24T19058|r=24",
+    "24T19059|r=24",
+    "24T20059|r=24",
+    "24T20061|r=24",
+    "24T20479|r=24",
+    "24T20492|r=24",
+    "24T21043|r=24",
+    "24T21046|r=24",
+    "24T21048|r=24",
+    "24T21053|r=24",
+    "24T21064|r=24",
+    "24T21917|r=24",
+    "24T23239|r=24",
+    "24T23421|r=24",
+    "24T24394|r=24",
+    "24T24402|r=24",
+    "24T24550|r=24"
+  ],
+  "selected_possible_low_team_pairs": [
+    "24T13877|r=24",
+    "24T17754|r=24",
+    "24T19036|r=24",
+    "24T19043|r=24",
+    "24T19461|r=24",
+    "24T20087|r=24",
+    "24T20090|r=24",
+    "24T20478|r=24",
+    "24T20488|r=24",
+    "24T21025|r=24",
+    "24T21041|r=24",
+    "24T21525|r=24",
+    "24T21884|r=24",
+    "24T21940|r=24",
+    "24T21946|r=24",
+    "24T21967|r=24",
+    "24T21976|r=24",
+    "24T22772|r=24",
+    "24T22822|r=24",
+    "24T22825|r=24",
+    "24T23223|r=24",
+    "24T23447|r=24",
+    "24T23448|r=24",
+    "24T23756|r=24",
+    "24T23762|r=24",
+    "24T24416|r=24",
+    "24T24559|r=24",
+    "24T24561|r=24",
+    "24T24647|r=24",
+    "24T24829|r=24",
+    "24T24871|r=24",
+    "24T24971|r=24"
+  ],
+  "distinct_compatible_label_clusters": 1,
+  "selected_compatible_label_clusters": [
+    "24T13877|r=24|24T15975|r=24|24T15980|r=24|24T17754|r=24|24T17768|r=24|24T17770|r=24|24T19035|r=24|24T19036|r=24|24T19042|r=24|24T19043|r=24|24T19054|r=24|24T19055|r=24|24T19058|r=24|24T19059|r=24|24T19461|r=24|24T20059|r=24|24T20061|r=24|24T20087|r=24|24T20090|r=24|24T20478|r=24|24T20479|r=24|24T20488|r=24|24T20492|r=24|24T21025|r=24"
+  ],
+  "best_case_packet_points": 1.0,
+  "expected_score_ceiling": 1.0,
+  "expected_score_ceiling_deprecated": true,
+  "expected_score_estimate": null,
+  "expected_points_status": "unavailable_uncalibrated",
+  "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+  "selected_diversity": {
+    "construction_family": {
+      "model_sample_export": 1
+    },
+    "template_family_id": {
+      "model:mixed:r24:even_support_like": 1
+    },
+    "perturbation_mode": {
+      "even_support_g_x2_like": 1
+    },
+    "basin_fingerprint": {
+      "34917141703f0553c439b99e": 1
+    },
+    "mod_p_pattern_signature": {
+      "": 1
+    },
+    "r": {
+      "24": 1
+    }
+  },
+  "local_packet_ready_for_review": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [
+    {
+      "rank": 1,
+      "short_hash": "ee63944ba7bf",
+      "marginal_best_case_points": 1.0,
+      "marginal_estimated_points": null,
+      "best_case_points": 1.0,
+      "maximum_possible_points": 1.0,
+      "expected_points_status": "unavailable_uncalibrated",
+      "possible_uncovered_pairs": [
+        "24T15975|r=24",
+        "24T15980|r=24",
+        "24T17768|r=24",
+        "24T17770|r=24",
+        "24T19035|r=24",
+        "24T19042|r=24",
+        "24T19054|r=24",
+        "24T19055|r=24",
+        "24T19058|r=24",
+        "24T19059|r=24"
+      ],
+      "possible_uncovered_pair_count": 25,
+      "possible_low_team_pairs": [
+        "24T13877|r=24",
+        "24T17754|r=24",
+        "24T19036|r=24",
+        "24T19043|r=24",
+        "24T19461|r=24",
+        "24T20087|r=24",
+        "24T20090|r=24",
+        "24T20478|r=24",
+        "24T20488|r=24",
+        "24T21025|r=24"
+      ],
+      "possible_low_team_pair_count": 32,
+      "valuable_targets_not_ruled_out": [
+        "24T13877|r=24",
+        "24T15975|r=24",
+        "24T15980|r=24",
+        "24T17754|r=24",
+        "24T17768|r=24",
+        "24T17770|r=24",
+        "24T19035|r=24",
+        "24T19036|r=24",
+        "24T19042|r=24",
+        "24T19043|r=24"
+      ],
+      "valuable_targets_not_ruled_out_count": 57,
+      "indexed_target_survivor_count": 92,
+      "compatible_label_count": 92,
+      "frobenius_usable_prime_count": 40,
+      "minimum_frobenius_primes_required": 40,
+      "adaptive_evidence_status": "sufficient_adaptive_frobenius_evidence",
+      "reward_model_status": "scored_advisory_only",
+      "reward_model_decision": "advisory_sparse_positive_candidate",
+      "reward_model_top_outcome": "score_positive",
+      "reward_probability": 0.938262908468,
+      "collapse_risk_probability": 0.061737091532,
+      "reward_uncertainty_entropy": 0.190065867483,
+      "features": {
+        "canonical_hash": "ee63944ba7bf61dde03b31907636e85b3cea05f648ae1f0a2918d629fd29c825",
+        "short_hash": "ee63944ba7bf",
+        "label": null,
+        "pair_key": null,
+        "r": 24,
+        "coefficient_height": 567244,
+        "support_gcd": 2,
+        "support_pattern": "even_support_like",
+        "even_support": true,
+        "odd_support_exponents": [],
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:mixed:r24:even_support_like",
+        "decomposition_pattern": null,
+        "perturbation_mode": "even_support_g_x2_like",
+        "sparse_support_submode": null,
+        "basin_fingerprint": "34917141703f0553c439b99e",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:mixed:r24:even_support_like:34917141703f0553c439b99e"
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_summary.json",
+    "report_md": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/packet_optimizer_40prime_reviewed_fresh_sync/packet_optimizer_hashes.txt"
+  }
+}

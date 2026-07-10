@@ -21,6 +21,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.igp24_shortlist import get_source_commit, read_jsonl  # noqa: E402
+from src.igp24.scoring import official_score_economics  # noqa: E402
 
 SUMMARY_JSON = "current_offline_go_nogo_summary.json"
 REPORT_MD = "current_offline_go_nogo_report.md"
@@ -192,6 +193,47 @@ def short_hash(value: str | None) -> str:
     return str(value or "")[:12]
 
 
+def boolish(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes"}
+    return bool(value)
+
+
+def exact_score_economics_for_row(row: dict[str, Any]) -> dict[str, Any] | None:
+    """Return official economics for an exact-labeled submission-grade row."""
+
+    if not row.get("submission_grade_candidate"):
+        return None
+    pair = row.get("pair_key")
+    nfdisc = row.get("exact_nfdisc_abs")
+    team_count = row.get("sair_progress_team_count")
+    if pair is None or nfdisc is None or team_count is None:
+        return None
+    progress_state = str(row.get("sair_progress_state") or "")
+    economics = official_score_economics(
+        current_team_count=int(team_count),
+        uncovered=progress_state == "allowed_remaining",
+        baseline_pair=boolish(row.get("sair_progress_in_baseline")),
+        current_best_disc_abs=row.get("sair_progress_minimum_disc_abs"),
+        candidate_disc_abs=nfdisc,
+    )
+    return {
+        "canonical_hash": hash_from_row(row),
+        "short_hash": row.get("short_hash") or short_hash(hash_from_row(row)),
+        "pair_key": pair,
+        "verified_group_label": row.get("verified_group_label"),
+        "computed_r": row.get("computed_r"),
+        "exact_nfdisc_abs": nfdisc,
+        "current_progress_minimum_disc_abs": row.get("sair_progress_minimum_disc_abs"),
+        "sair_progress_state": progress_state,
+        "sair_progress_team_count": team_count,
+        "sair_score_value_status": row.get("sair_score_value_status"),
+        **economics,
+    }
+
+
 def build_gate_status(
     *,
     packet: dict[str, Any],
@@ -325,7 +367,11 @@ def build_summary(
     )
 
     selected_rows = []
+    exact_economics_rows: list[dict[str, Any]] = []
     for row in triage_rows:
+        economics = exact_score_economics_for_row(row)
+        if economics is not None:
+            exact_economics_rows.append(economics)
         selected_rows.append(
             {
                 "canonical_hash": hash_from_row(row),
@@ -344,6 +390,14 @@ def build_summary(
                 "submission_grade_candidate": bool(row.get("submission_grade_candidate")),
             }
         )
+    exact_estimated_points = round(
+        sum(float(row.get("estimated_expected_points") or 0.0) for row in exact_economics_rows),
+        12,
+    )
+    exact_maximum_points = round(
+        sum(float(row.get("maximum_possible_points") or 0.0) for row in exact_economics_rows),
+        12,
+    )
 
     summary = {
         "schema_version": 1,
@@ -400,6 +454,11 @@ def build_summary(
             "best_case_packet_points": packet.get("best_case_packet_points"),
             "expected_points_status": packet.get("expected_points_status"),
             "expected_points_basis": packet.get("expected_points_basis"),
+            "exact_submission_grade_estimated_points": exact_estimated_points if exact_economics_rows else None,
+            "exact_submission_grade_maximum_points": exact_maximum_points if exact_economics_rows else None,
+            "exact_submission_grade_points_basis": (
+                "exact_verified_pairs_official_score_economics" if exact_economics_rows else None
+            ),
             "possible_uncovered_pair_count": packet.get("selected_possible_uncovered_pair_count"),
             "possible_low_team_pair_count": packet.get("selected_possible_low_team_pair_count"),
             "construction_family_counts": (packet.get("selected_diversity") or {}).get("construction_family"),
@@ -431,6 +490,13 @@ def build_summary(
             "novel_candidate_count_against_synced_submission_history": len(novel_candidate_hashes),
             "selected_rows": selected_rows,
         },
+        "exact_submission_grade_score_economics": {
+            "row_count": len(exact_economics_rows),
+            "estimated_expected_points_total": exact_estimated_points if exact_economics_rows else None,
+            "maximum_possible_points_total": exact_maximum_points if exact_economics_rows else None,
+            "basis": "exact_verified_pairs_official_score_economics" if exact_economics_rows else None,
+            "rows": exact_economics_rows,
+        },
         "go_no_go": gate,
         "output_files": {
             "summary_json": str(output_dir / SUMMARY_JSON),
@@ -449,6 +515,7 @@ def render_report(summary: dict[str, Any]) -> str:
     candidates = summary["candidate_status"]
     arch = summary["architecture_status"]
     sync = summary.get("sair_sync_status") or {}
+    exact_score = summary.get("exact_submission_grade_score_economics") or {}
     lines = [
         "# IGP24 Current Offline Go/No-Go Report",
         "",
@@ -467,6 +534,8 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Candidate count considered: `{packet.get('candidate_count')}`",
         f"- Best-case packet points: `{packet.get('best_case_packet_points')}`",
         f"- Expected points status: `{packet.get('expected_points_status')}`",
+        f"- Exact submission-grade estimated points: `{packet.get('exact_submission_grade_estimated_points')}`",
+        f"- Exact submission-grade maximum points: `{packet.get('exact_submission_grade_maximum_points')}`",
         f"- Possible uncovered pairs: `{packet.get('possible_uncovered_pair_count')}`",
         f"- Possible low-team pairs: `{packet.get('possible_low_team_pair_count')}`",
         f"- Construction families: `{json.dumps(packet.get('construction_family_counts'), sort_keys=True)}`",
@@ -507,6 +576,13 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Full submission state complete: `{(sync.get('sync_status') or {}).get('full_submission_state_complete')}`",
         f"- Pending rows: `{(sync.get('submissions') or {}).get('pending_rows')}`",
         f"- Scoreable rows: `{(sync.get('submissions') or {}).get('scoreable_rows')}`",
+        "",
+        "## Exact Score",
+        "",
+        f"- Exact submission-grade rows: `{exact_score.get('row_count')}`",
+        f"- Estimated official points: `{exact_score.get('estimated_expected_points_total')}`",
+        f"- Maximum possible points: `{exact_score.get('maximum_possible_points_total')}`",
+        f"- Basis: `{exact_score.get('basis')}`",
         "",
         "## Candidates",
         "",

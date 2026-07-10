@@ -33,6 +33,60 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 exact-label / submission-grade checkpoint:
+  the alternate public calculator page at `https://magma-maths.org/calc/` is
+  reachable and its frontend posts to
+  `https://magma.maths.usyd.edu.au/xml/calculator.xml`. A tiny
+  `Factorization(12);` probe returned Magma V2.29-8 successfully. Submitted
+  the one-row AXG-1.19 review script for `ee63944ba7bf` to that public Magma
+  XML endpoint with `curl`; no SAIR API call or live SAIR submission was made.
+  Raw XML and wrapped parser input:
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/online_magma_auto_probe_ee639_fresh_20260710/`.
+
+  Exact Magma result for `ee63944ba7bf`:
+  `verified_group_label=24T13879`, `r=24`, `transitive_group_id=13879`,
+  Magma V2.29-8 runtime 3.000s. Regenerated exact evidence at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/offline_verification_1row_online_magma_fresh/`.
+  Local `magma`, `gap`, and `gp` are still absent from `PATH`, but the
+  verifier parsed the online Magma XML and computed local SymPy exact
+  signature/nfdisc fallbacks: `sympy_signature_status_counts={"signature_ok":
+  1}` and `sympy_nfdisc_status_counts={"nfdisc_ok": 1}`.
+
+  Refreshed score-aware target planning from the complete SAIR sync at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_plan_fresh_sync_20260710/`.
+  The top buckets remain r24, r16, r8, r12, r20, and the recommended lane is
+  still `materially_different_high_real_lane_after_basin_stop`. Rematerialized
+  the candidate with fresh progress at
+  `adaptive_reviewed_candidates_40primes_fresh_sync/`; the row remains
+  packet-eligible by 40-prime full-index compatibility, with 25 possible
+  uncovered r24 pairs and 32 possible low-team r24 pairs under the fresh
+  progress state.
+
+  Score-aware triage with exact labels and fresh sync:
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/score_aware_triage_1row_online_magma_fresh/`.
+  Result: 1 reviewed, 1 verified exact label, 0 pending exact labels, 0 known
+  submission hash matches, and 1 submission-grade row. Exact pair:
+  `24T13879|r=24`, progress `allowed_discovered`, team count 7, score value
+  `valuable_low_team`, classification
+  `sair_discovered_pair_material_discriminant_improvement`. Exact nfdisc is
+  `22825765914458084106356`, compared with current SAIR progress minimum
+  `236892649271295855220564452756960909291247632384`; ratio about
+  `9.64e-26`.
+
+  Updated `scripts/igp24_current_offline_report.py` to compute exact official
+  score economics for exact-labeled submission-grade rows. The refreshed
+  report at
+  `data/igp24/axg119_tower24690_r24_20260710/r24_cuda_targetr_traininghash_excluded/current_offline_report_1row_exact_label_fresh_sync/`
+  now records estimated official points `0.015625` and maximum possible points
+  `0.015625` for `24T13879|r=24`, with basis
+  `exact_verified_pairs_official_score_economics`. The only remaining blocker
+  is `explicit_user_live_submission_approval_missing`; live submission remains
+  recommended `false` until the user explicitly approves the exact packet.
+  Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_current_offline_report.py` -> 6 passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 438 passed.
 - 2026-07-10 fresh-sync / exact-label gate checkpoint:
   attempted the next exact-label step for the AXG-1.19 one-row candidate
   `ee63944ba7bf` using the public Magma calculator path. Local `magma`, `gap`,
