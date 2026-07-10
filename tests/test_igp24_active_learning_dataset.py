@@ -340,6 +340,48 @@ def test_build_dataset_blocks_no_valuable_adaptive_rows_from_generator_training(
     assert summary["generator_training"]["role_counts"]["no_valuable_target_survival"] == 1
 
 
+def test_build_dataset_allows_one_exact_structured_internal_frontier_as_exploration(tmp_path):
+    candidate_path = tmp_path / "structured_frontier_candidates.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            {
+                "canonical_hash": "structured-frontier-row",
+                "exported_coefficients": [1, 1] + [0] * 22 + [1],
+                "real_root_count": 8,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "eligible_for_packet": False,
+                "generator_exploration_eligible": True,
+                "internal_frontier_improvement": True,
+                "target_label_not_ruled_out": True,
+                "sufficient_adaptive_frobenius_evidence": True,
+                "exact_nfdisc_abs": 12345,
+                "exact_degree24_label_status": "pending",
+                "submission_recommendation": "false_no_material_exact_nfdisc_improvement",
+                "generation_metadata": {"construction_family": "quartic_in_x6_discriminant_descent"},
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=None,
+        target_rs={8},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+
+    assert rows[0]["generator_training"]["eligible"] is True
+    assert rows[0]["generator_training"]["role"] == "exact_local_exploration"
+    assert rows[0]["generator_training"]["weight"] == 1.0
+    assert summary["generator_training"]["eligible_row_count"] == 1
+
+
 def test_build_dataset_blocks_non_improving_exact_pairs_from_generator_training(tmp_path):
     candidate_path = tmp_path / "exact_label_candidates.jsonl"
     _write_jsonl(
@@ -515,3 +557,93 @@ def test_build_dataset_promotes_exact_submission_grade_material_improvement(tmp_
     assert rows[0]["generator_training"]["weight"] == 8.0
     assert summary["generator_training"]["eligible_row_count"] == 1
     assert summary["generator_training"]["sampling_mass_by_role"]["low_team_scoreable"] == 8.0
+
+
+def test_incremental_base_dataset_preserves_rows_and_deduplicates_sync_history(tmp_path):
+    sync_dir = tmp_path / "sync"
+    _write_jsonl(
+        sync_dir / "sair_submission_rows.jsonl",
+        [
+            {
+                "canonical_hash": "submitted-hash",
+                "polynomial": "1," + ",".join(["0"] * 23) + ",1",
+                "label": "24T9993",
+                "pair_key": "24T9993|r=8",
+                "r": 8,
+                "status": "accepted",
+                "scoreable": True,
+            }
+        ],
+    )
+    _write_jsonl(
+        sync_dir / "sair_label_progress.jsonl",
+        [
+            {
+                "label": "24T9993",
+                "teamCount": 12,
+                "allowedR": [8],
+                "discoveredSignatures": [8],
+                "remainingSignatures": [],
+                "signatures": [{"r": 8, "teamCount": 12, "discovered": True}],
+            }
+        ],
+    )
+    original_candidate = tmp_path / "original_candidates.jsonl"
+    _write_jsonl(
+        original_candidate,
+        [
+            {
+                "canonical_hash": "original-local",
+                "exported_coefficients": [1, 1] + [0] * 22 + [1],
+                "real_root_count": 8,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+            }
+        ],
+    )
+    base_rows, _base_summary = build_dataset(
+        candidate_paths=[original_candidate],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=sync_dir,
+        target_rs={8},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs={"24T9993|r=8"},
+        high_team_threshold=20,
+    )
+    base_path = tmp_path / "base_dataset.jsonl"
+    _write_jsonl(base_path, base_rows)
+    new_candidate = tmp_path / "new_candidates.jsonl"
+    _write_jsonl(
+        new_candidate,
+        [
+            {
+                "canonical_hash": "new-local",
+                "exported_coefficients": [2, 1] + [0] * 22 + [1],
+                "real_root_count": 8,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "eligible_for_packet": False,
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        base_dataset_paths=[base_path],
+        candidate_paths=[new_candidate],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=sync_dir,
+        target_rs={8},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs={"24T9993|r=8"},
+        high_team_threshold=20,
+    )
+
+    assert len(rows) == len(base_rows) + 1
+    assert sum(row["source_role"] == "sair_submission_row" for row in rows) == 1
+    assert next(row for row in rows if row["canonical_hash"] == "original-local") == base_rows[0]
+    assert next(row for row in rows if row["canonical_hash"] == "new-local")["generator_training"]["role"] == "packet_ineligible"
+    assert summary["base_dataset_source_count"] == 1

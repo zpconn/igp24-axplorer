@@ -394,6 +394,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--candidate_limit", type=int, default=60)
     parser.add_argument("--material_improvement_ratio", type=float, default=1.0)
+    parser.add_argument(
+        "--internal_frontier_nfdisc",
+        type=int,
+        default=10723488292100241361294296648700284370944,
+        help="Previous exact local family frontier; improvements may become weight-1 exploration evidence.",
+    )
     args = parser.parse_args(argv)
 
     if not args.group_index.exists():
@@ -561,10 +567,16 @@ def main(argv: list[str] | None = None) -> int:
         record["polynomial_order_index"] = int(exact_nfdisc["index_factor"])
         record["nfdisc_runtime_seconds"] = exact_nfdisc["runtime_seconds"]
         record["nfdisc_ratio_to_current_best"] = record["exact_nfdisc_abs"] / current_best_nfdisc_abs
+        record["internal_frontier_nfdisc_abs"] = int(args.internal_frontier_nfdisc)
+        record["internal_frontier_ratio"] = record["exact_nfdisc_abs"] / int(args.internal_frontier_nfdisc)
+        record["internal_frontier_improvement"] = record["exact_nfdisc_abs"] < int(args.internal_frontier_nfdisc)
         record["exact_degree24_label_status"] = "pending"
         record["verified_group_label"] = None
 
-        should_screen = record["nfdisc_ratio_to_current_best"] <= float(args.frobenius_screen_ratio)
+        should_screen = bool(
+            record["nfdisc_ratio_to_current_best"] <= float(args.frobenius_screen_ratio)
+            or record["internal_frontier_improvement"]
+        )
         if should_screen:
             screen = target_specific_frobenius_screen(
                 record,
@@ -634,6 +646,23 @@ def main(argv: list[str] | None = None) -> int:
             str(row.get("canonical_hash") or ""),
         )
     )
+    frontier_rows = [
+        row
+        for row in candidates
+        if row.get("internal_frontier_improvement")
+        and row.get("target_label_not_ruled_out") is True
+        and row.get("sufficient_adaptive_frobenius_evidence") is True
+    ]
+    for row in candidates:
+        row["generator_exploration_eligible"] = False
+        row["generator_exploration_role"] = None
+    if frontier_rows:
+        frontier_rows[0]["generator_exploration_eligible"] = True
+        frontier_rows[0]["generator_exploration_role"] = "exact_local_exploration"
+        frontier_rows[0]["generator_exploration_reason"] = (
+            "Exact local h(x^6) row improves the previous family nfdisc frontier, has exact outer S4, "
+            "and retains the intended target under adaptive evidence; official exact label remains pending."
+        )
     queue = [row for row in candidates if row.get("exact_label_queue_eligible")]
     retained = candidates[: int(args.candidate_limit)]
     retained_hashes = {str(row["canonical_hash"]) for row in retained}
@@ -656,6 +685,7 @@ def main(argv: list[str] | None = None) -> int:
         "target_score_value_status": progress.get("score_value_status"),
         "target_team_count": progress.get("team_count"),
         "current_best_nfdisc_abs": current_best_nfdisc_abs,
+        "internal_frontier_nfdisc_abs": int(args.internal_frontier_nfdisc),
         "progress_jsonl": str(args.progress_jsonl),
         "known_submission_jsonl": [str(path) for path in known_paths],
         "known_submission_hash_count": len(known["by_hash"]),
@@ -683,6 +713,12 @@ def main(argv: list[str] | None = None) -> int:
         "target_cycle_survivor_count": stage_counts["target_cycle_survivor"],
         "retained_candidate_count": len(retained),
         "exact_label_queue_count": len(queue),
+        "generator_exploration_eligible_count": sum(
+            1 for row in candidates if row.get("generator_exploration_eligible")
+        ),
+        "generator_exploration_hashes": [
+            row.get("canonical_hash") for row in candidates if row.get("generator_exploration_eligible")
+        ],
         "exact_label_queue_hashes": [row.get("canonical_hash") for row in queue],
         "best_exact_nfdisc_abs": retained[0]["exact_nfdisc_abs"] if retained else None,
         "best_nfdisc_ratio_to_current": retained[0]["nfdisc_ratio_to_current_best"] if retained else None,

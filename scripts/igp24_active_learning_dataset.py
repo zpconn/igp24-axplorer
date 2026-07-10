@@ -431,6 +431,19 @@ def generator_training_block_from_row(row: dict[str, Any]) -> tuple[str, str] | 
     }:
         return ("non_improving_exact_pair", "exact SAIR-discovered pair did not improve current progress")
     if row.get("eligible_for_packet") is False:
+        structured_frontier_exploration = bool(
+            row.get("generator_exploration_eligible")
+            and row.get("internal_frontier_improvement")
+            and row.get("target_label_not_ruled_out") is True
+            and row.get("sufficient_adaptive_frobenius_evidence") is True
+            and row.get("valid") is True
+            and row.get("irreducible") is True
+            and row.get("squarefree") is True
+            and row.get("exact_nfdisc_abs") not in {None, ""}
+            and row.get("exact_degree24_label_status") == "pending"
+        )
+        if structured_frontier_exploration:
+            return None
         if row.get("any_valuable_target_not_ruled_out") is False or row.get("submission_recommendation") in {
             "false_no_valuable_targets_not_ruled_out",
             "false_offline_compatibility_only",
@@ -743,6 +756,7 @@ def derive_score_aware_label(
 
 def build_dataset(
     *,
+    base_dataset_paths: list[Path] | None = None,
     candidate_paths: list[Path],
     feedback_paths: list[Path],
     pair_status_path: Path | None,
@@ -757,6 +771,22 @@ def build_dataset(
     sync = load_sair_sync(sair_sync_dir)
     rows: list[dict[str, Any]] = []
 
+    base_paths = list(base_dataset_paths or [])
+    existing_evidence_keys: set[tuple[str, int, str]] = set()
+    existing_submission_hashes: set[str] = set()
+    for path in base_paths:
+        for row in read_jsonl(path):
+            if row.get("record_type") != "igp24_axg_active_learning_row":
+                raise ValueError(f"base dataset row in {path} is not an enriched active-learning row")
+            copied = dict(row)
+            rows.append(copied)
+            source_path = str(copied.get("source_path") or "")
+            source_index = int(copied.get("source_index") or 0)
+            canonical_hash = str(copied.get("canonical_hash") or "")
+            existing_evidence_keys.add((source_path, source_index, canonical_hash))
+            if copied.get("source_role") == "sair_submission_row" and canonical_hash:
+                existing_submission_hashes.add(canonical_hash)
+
     sources: list[tuple[Path, list[dict[str, Any]]]] = []
     for path in candidate_paths:
         sources.append((path, read_jsonl(path)))
@@ -767,19 +797,33 @@ def build_dataset(
 
     for path, source_rows in sources:
         for index, source_row in enumerate(source_rows):
-            rows.append(
-                enrich_row(
-                    row=source_row,
-                    source_path=path,
-                    source_index=index,
-                    pair_status=pair_status,
-                    sync=sync,
-                    target_rs=target_rs,
-                    collapsed_labels=collapsed_labels,
-                    score_positive_pairs=score_positive_pairs,
-                    high_team_threshold=high_team_threshold,
-                )
+            enriched = enrich_row(
+                row=source_row,
+                source_path=path,
+                source_index=index,
+                pair_status=pair_status,
+                sync=sync,
+                target_rs=target_rs,
+                collapsed_labels=collapsed_labels,
+                score_positive_pairs=score_positive_pairs,
+                high_team_threshold=high_team_threshold,
             )
+            evidence_key = (
+                str(enriched.get("source_path") or ""),
+                int(enriched.get("source_index") or 0),
+                str(enriched.get("canonical_hash") or ""),
+            )
+            if evidence_key in existing_evidence_keys:
+                continue
+            if (
+                enriched.get("source_role") == "sair_submission_row"
+                and enriched.get("canonical_hash") in existing_submission_hashes
+            ):
+                continue
+            rows.append(enriched)
+            existing_evidence_keys.add(evidence_key)
+            if enriched.get("source_role") == "sair_submission_row" and enriched.get("canonical_hash"):
+                existing_submission_hashes.add(str(enriched["canonical_hash"]))
             if max_rows is not None and len(rows) >= max_rows:
                 break
         if max_rows is not None and len(rows) >= max_rows:
@@ -811,6 +855,7 @@ def build_dataset(
         "created_at": utc_now(),
         "source_commit": get_source_commit(REPO_ROOT),
         "row_count": len(rows),
+        "base_dataset_source_count": len(base_paths),
         "candidate_source_count": len(candidate_paths),
         "feedback_source_count": len(feedback_paths),
         "sair_sync_dir": str(sair_sync_dir) if sair_sync_dir else None,
@@ -847,6 +892,7 @@ def build_dataset(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--base_dataset_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--candidate_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--accepted_feedback_json", type=Path, action="append", default=[])
     parser.add_argument("--auto_feedback_root", type=Path, default=None)
@@ -868,6 +914,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.auto_feedback_root:
         feedback_paths.extend(default_feedback_paths(args.auto_feedback_root))
     rows, summary = build_dataset(
+        base_dataset_paths=list(args.base_dataset_jsonl),
         candidate_paths=list(args.candidate_jsonl),
         feedback_paths=sorted(set(feedback_paths)),
         pair_status_path=args.pair_status_json,
