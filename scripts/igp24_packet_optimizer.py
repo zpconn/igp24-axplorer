@@ -21,6 +21,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.igp24_shortlist import get_source_commit  # noqa: E402
+from src.igp24.reward_model import AdvisoryRewardModel  # noqa: E402
 from src.igp24.verifiers.sair_api import format_polynomial_line  # noqa: E402
 
 
@@ -65,6 +66,12 @@ def load_score_plan(path: Path | None) -> dict[str, dict[str, Any]]:
             if isinstance(row, dict) and row.get("pair_key"):
                 by_pair[str(row["pair_key"])] = row
     return by_pair
+
+
+def load_reward_model(path: Path | None) -> AdvisoryRewardModel | None:
+    if path is None or not path.exists():
+        return None
+    return AdvisoryRewardModel.from_json(json.loads(path.read_text(encoding="utf-8")))
 
 
 def load_known_submission_hashes(paths: Iterable[Path] | None) -> dict[str, list[dict[str, Any]]]:
@@ -313,6 +320,57 @@ def pair_economics(pair_key: str, score_plan: dict[str, dict[str, Any]], fallbac
     }
 
 
+def reward_model_input_record(
+    row: dict[str, Any],
+    *,
+    features: dict[str, Any],
+    coeffs: list[int] | None,
+) -> dict[str, Any]:
+    record = dict(row)
+    record["features"] = dict(features)
+    if coeffs is not None:
+        record["coefficients"] = coeffs
+        record["features"].setdefault("exported_coefficients", coeffs)
+    if "r" not in record and features.get("r") is not None:
+        record["r"] = features.get("r")
+    return record
+
+
+def reward_advisory_payload(
+    reward_model: AdvisoryRewardModel | None,
+    row: dict[str, Any],
+    *,
+    features: dict[str, Any],
+    coeffs: list[int] | None,
+) -> dict[str, Any]:
+    if reward_model is None:
+        return {
+            "reward_model_status": "not_configured",
+            "reward_model_decision": None,
+            "reward_model_top_outcome": None,
+            "reward_probability": None,
+            "collapse_risk_probability": None,
+            "reward_uncertainty_entropy": None,
+            "reward_confidence": None,
+            "reward_model_selection_tiebreak": 0.0,
+        }
+    prediction = reward_model.predict(reward_model_input_record(row, features=features, coeffs=coeffs)).as_dict()
+    reward_probability = float(prediction.get("reward_probability") or 0.0)
+    collapse_risk_probability = float(prediction.get("collapse_risk_probability") or 0.0)
+    entropy = float(prediction.get("uncertainty_entropy") or 0.0)
+    return {
+        "reward_model_status": "scored_advisory_only",
+        "reward_model_prediction": prediction,
+        "reward_model_decision": prediction.get("decision"),
+        "reward_model_top_outcome": prediction.get("top_outcome"),
+        "reward_probability": round(reward_probability, 12),
+        "collapse_risk_probability": round(collapse_risk_probability, 12),
+        "reward_uncertainty_entropy": round(entropy, 12),
+        "reward_confidence": round(float(prediction.get("confidence") or 0.0), 12),
+        "reward_model_selection_tiebreak": round(reward_probability - collapse_risk_probability, 12),
+    }
+
+
 def add_pairs(
     out: dict[str, dict[str, Any]],
     pairs: Iterable[str],
@@ -333,6 +391,7 @@ def normalize_candidate(
     known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None = None,
     route_outcomes: dict[str, dict[str, Any]] | None = None,
     minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
+    reward_model: AdvisoryRewardModel | None = None,
 ) -> dict[str, Any]:
     candidate = candidate_payload(row)
     features = candidate_features(row)
@@ -421,6 +480,7 @@ def normalize_candidate(
     cluster_parts = sorted(pair_values)[:24]
     cluster = "|".join(cluster_parts) if cluster_parts else f"unknown_r{features.get('r')}"
     anti_basin_score = float(row.get("anti_basin_score", row.get("score", 0.0)) or 0.0)
+    reward_advisory = reward_advisory_payload(reward_model, row, features=features, coeffs=coeffs)
     return {
         "canonical_hash": canonical_hash,
         "short_hash": short_hash,
@@ -458,6 +518,7 @@ def normalize_candidate(
         "expected_points_status": expected_points_status,
         "expected_points_basis": "exact_verified_pair_official_economics" if exact_estimated_points is not None else "unavailable_no_calibrated_probability_model",
         "anti_basin_score": anti_basin_score,
+        **reward_advisory,
         "eligible_for_optimization": not reject_reasons,
         "reject_reasons": reject_reasons,
         "known_submission_hash": known_submission_hash,
@@ -523,6 +584,7 @@ def greedy_select(candidates: list[dict[str, Any]], *, packet_limit: int, caps: 
                 marginal,
                 float(candidate.get("best_case_points") or candidate.get("maximum_possible_points") or 0.0),
                 float(len(marginal_pairs)),
+                float(candidate.get("reward_model_selection_tiebreak") or 0.0),
                 float(candidate.get("anti_basin_score") or 0.0),
                 str(candidate.get("short_hash") or ""),
             )
@@ -571,6 +633,7 @@ def summarize(
     route_outcome_paths: list[Path] | None = None,
     route_outcome_count: int = 0,
     minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
+    reward_model_path: Path | None = None,
 ) -> dict[str, Any]:
     covered_uncovered = sorted({pair for row in selected for pair in row["possible_uncovered_pairs"]})
     covered_low = sorted({pair for row in selected for pair in row["possible_low_team_pairs"]})
@@ -585,6 +648,17 @@ def summarize(
         if all_expected_available
         else None
     )
+    scored_reward_rows = [
+        row for row in candidates if row.get("reward_model_status") == "scored_advisory_only"
+    ]
+    selected_scored_reward_rows = [
+        row for row in selected if row.get("reward_model_status") == "scored_advisory_only"
+    ]
+
+    def mean_or_none(rows: list[dict[str, Any]], key: str) -> float | None:
+        values = [float(row[key]) for row in rows if row.get(key) is not None]
+        return round(sum(values) / len(values), 12) if values else None
+
     return {
         "schema_version": 1,
         "record_type": "igp24_packet_optimizer",
@@ -602,6 +676,7 @@ def summarize(
             "candidate_count": len(candidates),
             "route_outcome_paths": [str(path) for path in route_outcome_paths or []],
             "route_outcome_count": int(route_outcome_count),
+            "reward_model_json": str(reward_model_path) if reward_model_path else None,
             "caps": caps,
             "minimum_frobenius_primes": int(minimum_frobenius_primes),
         },
@@ -617,6 +692,28 @@ def summarize(
         "construction_route_outcome_candidates_rejected": sum(
             1 for row in rejected if "construction_route_outcome_blocked" in row.get("reject_reasons", [])
         ),
+        "reward_model": {
+            "status": "scored_advisory_only" if scored_reward_rows else "not_configured",
+            "source_path": str(reward_model_path) if reward_model_path else None,
+            "scored_candidate_count": len(scored_reward_rows),
+            "selected_scored_candidate_count": len(selected_scored_reward_rows),
+            "decision_counts": dict(Counter(str(row.get("reward_model_decision")) for row in scored_reward_rows)),
+            "selected_decision_counts": dict(
+                Counter(str(row.get("reward_model_decision")) for row in selected_scored_reward_rows)
+            ),
+            "mean_reward_probability": mean_or_none(scored_reward_rows, "reward_probability"),
+            "mean_collapse_risk_probability": mean_or_none(scored_reward_rows, "collapse_risk_probability"),
+            "selected_mean_reward_probability": mean_or_none(selected_scored_reward_rows, "reward_probability"),
+            "selected_mean_collapse_risk_probability": mean_or_none(
+                selected_scored_reward_rows, "collapse_risk_probability"
+            ),
+            "max_selected_collapse_risk_probability": (
+                max(float(row.get("collapse_risk_probability") or 0.0) for row in selected_scored_reward_rows)
+                if selected_scored_reward_rows
+                else None
+            ),
+            "selection_effect": "nonfatal_tiebreaker_not_score_expectation" if scored_reward_rows else "not_configured",
+        },
         "pair_evidence_missing_candidates": sum(
             1 for row in candidates if "missing_pair_or_compatibility_evidence" in row.get("reject_reasons", [])
         ),
@@ -670,6 +767,12 @@ def summarize(
                 "frobenius_usable_prime_count": row.get("frobenius_usable_prime_count"),
                 "minimum_frobenius_primes_required": row.get("minimum_frobenius_primes_required"),
                 "adaptive_evidence_status": row.get("adaptive_evidence_status"),
+                "reward_model_status": row.get("reward_model_status"),
+                "reward_model_decision": row.get("reward_model_decision"),
+                "reward_model_top_outcome": row.get("reward_model_top_outcome"),
+                "reward_probability": row.get("reward_probability"),
+                "collapse_risk_probability": row.get("collapse_risk_probability"),
+                "reward_uncertainty_entropy": row.get("reward_uncertainty_entropy"),
                 "features": row["features"],
             }
             for row in selected
@@ -694,6 +797,9 @@ def report_markdown(summary: dict[str, Any]) -> str:
         f"- Crowded-only rejected: {summary['crowded_only_candidates_rejected']}",
         f"- Known submitted hashes rejected: {summary.get('known_submission_hash_candidates_rejected', 0)}",
         f"- Construction-route outcome blocked: {summary.get('construction_route_outcome_candidates_rejected', 0)}",
+        f"- Reward model status: `{summary.get('reward_model', {}).get('status', 'not_configured')}`",
+        f"- Selected mean reward probability: `{summary.get('reward_model', {}).get('selected_mean_reward_probability')}`",
+        f"- Selected mean collapse-risk probability: `{summary.get('reward_model', {}).get('selected_mean_collapse_risk_probability')}`",
         f"- Missing pair evidence: {summary['pair_evidence_missing_candidates']}",
         f"- Insufficient adaptive Frobenius evidence: {summary.get('insufficient_adaptive_frobenius_candidates', 0)}",
         f"- Best-case packet points: {summary['best_case_packet_points']}",
@@ -703,8 +809,8 @@ def report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Selected Rows",
         "",
-        "| rank | hash | marginal best case | row best case | expected status | uncovered pairs | low-team pairs | r | family | mode |",
-        "| ---: | --- | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |",
+        "| rank | hash | marginal best case | row best case | expected status | reward | collapse | reward decision | uncovered pairs | low-team pairs | r | family | mode |",
+        "| ---: | --- | ---: | ---: | --- | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |",
     ]
     for row in summary["selected_rows_summary"]:
         features = row["features"]
@@ -717,6 +823,9 @@ def report_markdown(summary: dict[str, Any]) -> str:
                     str(row["marginal_best_case_points"]),
                     str(row["best_case_points"]),
                     f"`{row['expected_points_status']}`",
+                    str(row.get("reward_probability")),
+                    str(row.get("collapse_risk_probability")),
+                    f"`{row.get('reward_model_decision')}`",
                     str(row.get("possible_uncovered_pair_count", len(row["possible_uncovered_pairs"]))),
                     str(row.get("possible_low_team_pair_count", len(row["possible_low_team_pairs"]))),
                     str(features.get("r")),
@@ -766,6 +875,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate_jsonl", type=Path, action="append", required=True)
     parser.add_argument("--score_plan_json", type=Path, default=DEFAULT_SCORE_PLAN)
+    parser.add_argument("--reward_model_json", type=Path)
     parser.add_argument("--known_submission_rows_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--route_outcomes_jsonl", type=Path, action="append", default=[])
     parser.add_argument("--output_dir", type=Path, required=True)
@@ -788,6 +898,7 @@ def main(argv: list[str] | None = None) -> int:
     for path in args.candidate_jsonl:
         rows.extend(read_jsonl(path))
     score_plan = load_score_plan(args.score_plan_json)
+    reward_model = load_reward_model(args.reward_model_json)
     known_submission_hashes = load_known_submission_hashes(args.known_submission_rows_jsonl)
     route_outcomes = load_route_outcomes(args.route_outcomes_jsonl)
     candidates = [
@@ -798,6 +909,7 @@ def main(argv: list[str] | None = None) -> int:
             known_submission_hashes=known_submission_hashes,
             route_outcomes=route_outcomes,
             minimum_frobenius_primes=int(args.minimum_frobenius_primes),
+            reward_model=reward_model,
         )
         for row in rows
     ]
@@ -829,6 +941,7 @@ def main(argv: list[str] | None = None) -> int:
         route_outcome_paths=list(args.route_outcomes_jsonl),
         route_outcome_count=len(route_outcomes),
         minimum_frobenius_primes=int(args.minimum_frobenius_primes),
+        reward_model_path=args.reward_model_json,
     )
     paths = write_outputs(args.output_dir, selected=selected, rejected=rejected, summary=summary)
     print(f"candidate_count\t{summary['candidate_count']}")

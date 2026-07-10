@@ -7,6 +7,7 @@ from scripts.igp24_packet_optimizer import (
     summarize,
     write_outputs,
 )
+from src.igp24.reward_model import train_reward_model
 
 
 def _score_plan(tmp_path):
@@ -139,6 +140,34 @@ def _caps():
         "compatible_label_cluster": 10,
         "r": 10,
     }
+
+
+def _reward_training_row(family, role, index):
+    return {
+        "dataset_row_id": f"{family}-{role}-{index}",
+        "r": 24,
+        "features": {
+            "r": 24,
+            "construction_family": family,
+            "template_family_id": f"{family}:template",
+            "perturbation_mode": "fixed",
+            "basin_fingerprint": family,
+            "coefficient_height": 4,
+            "even_support": False,
+            "support_gcd": 1,
+            "odd_support_exponents": [1],
+        },
+        "coefficients": _coefficients(index + 1),
+        "generator_training": {"role": role},
+    }
+
+
+def _reward_model():
+    rows = []
+    for index in range(14):
+        rows.append(_reward_training_row("good_family", "score_positive", index))
+        rows.append(_reward_training_row("bad_family", "crowded_collapse", index))
+    return train_reward_model(rows)
 
 
 def test_packet_optimizer_selects_union_of_valuable_pairs_and_rejects_crowded_only(tmp_path):
@@ -346,6 +375,57 @@ def test_packet_optimizer_rejects_blocked_construction_route_outcomes(tmp_path):
     assert rejected_by_hash["aaa"]["construction_route_outcome_matches"][0]["observed_pair_counts"] == {
         "24T25000|r=24": 3
     }
+
+
+def test_reward_model_advisory_tiebreak_prefers_lower_collapse_risk(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    reward_model = _reward_model()
+    candidates = [
+        normalize_candidate(
+            _row("aaa", uncovered=["24T1|r=24"], family="bad_family", mode="fixed"),
+            score_plan=score_plan,
+            require_eligible=True,
+            reward_model=reward_model,
+        ),
+        normalize_candidate(
+            _row("bbb", uncovered=["24T1|r=24"], family="good_family", mode="fixed"),
+            score_plan=score_plan,
+            require_eligible=True,
+            reward_model=reward_model,
+        ),
+    ]
+
+    selected, rejected = greedy_select(candidates, packet_limit=1, caps=_caps())
+
+    assert [row["short_hash"] for row in selected] == ["bbb"]
+    assert selected[0]["reward_model_status"] == "scored_advisory_only"
+    assert selected[0]["reward_probability"] > selected[0]["collapse_risk_probability"]
+    rejected_by_hash = {row["short_hash"]: row for row in rejected}
+    assert rejected_by_hash["aaa"]["collapse_risk_probability"] > rejected_by_hash["aaa"]["reward_probability"]
+    assert "reward_model_high_collapse_risk" not in rejected_by_hash["aaa"]["reject_reasons"]
+
+
+def test_reward_model_high_collapse_risk_is_advisory_not_fatal(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    reward_model = _reward_model()
+    candidate = normalize_candidate(
+        _row("aaa", uncovered=["24T1|r=24"], family="bad_family", mode="fixed"),
+        score_plan=score_plan,
+        require_eligible=True,
+        reward_model=reward_model,
+    )
+
+    selected, _ = greedy_select([candidate], packet_limit=1, caps=_caps())
+
+    assert [row["short_hash"] for row in selected] == ["aaa"]
+    assert selected[0]["eligible_for_optimization"] is True
+    assert selected[0]["collapse_risk_probability"] > selected[0]["reward_probability"]
+    assert selected[0]["reward_model_decision"] in {
+        "avoid_high_collapse_risk",
+        "abstain_uncertain",
+        "advisory_review",
+    }
+    assert not any(reason.startswith("reward_model") for reason in selected[0]["reject_reasons"])
 
 
 def test_route_target_label_does_not_count_as_exact_verification(tmp_path):
