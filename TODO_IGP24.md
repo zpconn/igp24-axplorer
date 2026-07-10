@@ -329,6 +329,34 @@ results change.
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 401 passed; SAIR key-shaped secret scan found no matches. No live SAIR
   submission was made.
+- 2026-07-10 deep adaptive-evidence packet checkpoint: corrected
+  `scripts/igp24_adaptive_frobenius_benchmark.py` so unlabeled candidate rows
+  are no longer reported as "true label outside index." The benchmark now
+  records `exact_label_status=missing/indexed/outside_index`, separates
+  `exact_label_missing_row_count` from true outside-index labels, and reports
+  intended route-target survival for candidate packets. Regression tests cover
+  the missing-exact-label candidate case and target metadata helpers. Reran the
+  four selected `24T24134|r=8` x6 packet rows against the complete
+  25,000-group index with budgets 20/40/60/80 usable unramified primes:
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/quartic_x6_24T24134_r8_packet4_80primes_20260710/`.
+  Result: 4 input rows, 4 evaluated, 0 failures, 4 exact labels still missing,
+  0 true-label outside-index rows, 4/4 intended `24T24134|r=8` target-survival
+  rows at every budget, and 4/4 rows still retain at least one valuable target
+  through 80 usable primes. Median indexed survivor count narrowed from 311 at
+  20 primes to 266 at 40, 225 at 60, and 189 at 80. Per-row 80-prime survivor
+  counts are 256, 189, 65, and 188; per-row valuable-target counts are 160,
+  105, 20, and 67. This strengthens the packet's necessary-exclusion evidence
+  and confirms the intended target is robust to a deeper small-prime screen,
+  but it still does not establish exact labels or calibrated expected score.
+  Live submission remains recommended `false`; exact Magma/SAIR label
+  verification is still the gating evidence. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile scripts/igp24_adaptive_frobenius_benchmark.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_adaptive_frobenius_benchmark.py tests/test_igp24_adaptive_frobenius.py`
+  -> 6 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 403 passed; SAIR key-shaped secret scan found no matches. No live SAIR
+  submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
