@@ -340,7 +340,11 @@ def default_registry() -> ConstructionRegistry:
                     "scripts/igp24_r8_score_followup_generate.py",
                     "scripts/igp24_r8_score_followup_lane.py",
                 ),
-                notes="Historically found the best project score row, but nearby follow-up lanes became crowded.",
+                notes=(
+                    "Historically found the best project score row, but nearby follow-up lanes became crowded. "
+                    "The exact h(x^6) executable generator only supports r<=8; broader r values here refer to "
+                    "structural/escape variants that need explicit non-exact generator support."
+                ),
             ),
             ConstructionFamily(
                 name="tower_6x4",

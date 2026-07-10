@@ -1,0 +1,232 @@
+{
+  "avoid_labels": [],
+  "blocking_reason_counts": {
+    "unsupported_target_r": 25
+  },
+  "created_at": "2026-07-10T03:26:11.364365+00:00",
+  "executable_generation_ready_route_count": 0,
+  "executable_generation_ready_target_count": 0,
+  "executable_generator_available_route_count": 25,
+  "executable_generator_available_target_count": 25,
+  "families_per_target": 8,
+  "family_route_counts": {
+    "composition_4x6": 25,
+    "composition_8x3": 25,
+    "generic_sparse_random": 25,
+    "gx2_degree12_lift": 25,
+    "linear_real_product": 25,
+    "positive_quadratic_product": 25,
+    "quartic_in_x6": 25,
+    "tower_6x4": 25
+  },
+  "generation_ready_blocking_reason_counts": {
+    "adaptive_target_exclusion_not_run": 150,
+    "executable_generator_not_bound_to_target": 125,
+    "generated_outputs_not_validated": 150,
+    "generator_block_structure_not_matched_to_target": 4,
+    "generator_unsupported_target_r": 25,
+    "structure_preservation_not_verified": 125,
+    "target_parameters_not_instantiated": 125,
+    "unsupported_target_r": 25
+  },
+  "generation_ready_count_deprecated": true,
+  "generation_ready_route_count": 0,
+  "generation_ready_target_count": 0,
+  "group_index_provided": true,
+  "input_group_index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "input_score_plan": "data/igp24/remediation_20260709/score_economics_phase4/score_aware_target_plan.json",
+  "input_score_plan_created_at": "2026-07-09T21:43:28.841522+00:00",
+  "live_submission_recommended_now": false,
+  "record_type": "igp24_construction_target_router",
+  "require_group_invariants": true,
+  "route_count": 200,
+  "safety_note": "Read-only target-to-construction router. It does not generate candidates, call external algebra systems or SAIR, or recommend live submission.",
+  "schema_version": 1,
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+  "source_commit": "81fff4762aba34cd0096427ce6dab88f3a640fd9",
+  "structurally_eligible_route_count": 175,
+  "structurally_eligible_target_count": 25,
+  "target_category_filter": "uncovered_signature",
+  "target_group_record_hit_count": 25,
+  "target_group_record_missing_count": 0,
+  "target_pair_count": 25,
+  "tool": "scripts/igp24_construction_target_router.py",
+  "top_executable_generator_routes": [
+    {
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T19906|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T24093|r=24"
+    },
+    {
+      "combined_priority_score": 1473.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T12889|r=24"
+    },
+    {
+      "combined_priority_score": 1473.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T12891|r=24"
+    },
+    {
+      "combined_priority_score": 1473.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T22567|r=24"
+    },
+    {
+      "combined_priority_score": 1472.241,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T7872|r=24"
+    }
+  ],
+  "top_generation_ready_routes": [],
+  "top_proxy_routes": [
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1476.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1476.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T19906|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24093|r=24"
+    }
+  ],
+  "top_structurally_eligible_routes": [
+    {
+      "combined_priority_score": 1476.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22631|r=24"
+    },
+    {
+      "combined_priority_score": 1476.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "combined_priority_score": 1476.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22667|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T19906|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22306|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T23413|r=24"
+    },
+    {
+      "combined_priority_score": 1475.241,
+      "family": "quartic_in_x6",
+      "pair_key": "24T24093|r=24"
+    }
+  ],
+  "top_targets_requested": 25
+}

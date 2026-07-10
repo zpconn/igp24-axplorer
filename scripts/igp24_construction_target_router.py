@@ -82,8 +82,34 @@ def group_for_label(index: GroupCycleIndex | None, label: str) -> GroupRecord | 
     return index.records_for_labels([label]).get(label)
 
 
+def _target_rows_for_category(score_plan: dict[str, Any], category: str | None) -> list[dict[str, Any]]:
+    source_keys = ["ranked_targets"]
+    if category:
+        source_keys.extend(
+            [
+                "top_uncovered_targets",
+                "top_score_followup_targets",
+                "top_api_scoreable_targets",
+                "top_api_pending_targets",
+                "top_lightly_solved_targets",
+            ]
+        )
+    rows: list[dict[str, Any]] = []
+    seen: set[tuple[str, str | None]] = set()
+    for source_key in source_keys:
+        for row in score_plan.get(source_key) or []:
+            if not isinstance(row, dict) or not row.get("pair_key"):
+                continue
+            dedupe_key = (str(row["pair_key"]), row.get("category"))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            rows.append(row)
+    return rows
+
+
 def select_targets(score_plan: dict[str, Any], *, top_targets: int, category: str | None) -> list[dict[str, Any]]:
-    rows = [row for row in score_plan.get("ranked_targets") or [] if isinstance(row, dict) and row.get("pair_key")]
+    rows = _target_rows_for_category(score_plan, category)
     if category:
         rows = [row for row in rows if row.get("category") == category]
     return rows[: int(top_targets)]
@@ -346,16 +372,18 @@ def render_report(summary: dict[str, Any], routes: list[dict[str, Any]]) -> str:
         "",
         "## Top Routes",
         "",
-        "| rank | pair | family | combined score | structural | generation-ready | blocks | warnings |",
-        "| ---: | --- | --- | ---: | --- | --- | --- | --- |",
+        "| rank | pair | family | combined score | structural | executable | generation-ready | blocks | gen blockers | warnings |",
+        "| ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- |",
     ]
     for index, row in enumerate(routes[:25], start=1):
         blocks = ", ".join(row.get("blocking_reasons") or []) or "-"
+        generation_blocks = ", ".join(row.get("generation_ready_blocking_reasons") or []) or "-"
         warnings = ", ".join(row.get("family_warnings") or []) or "-"
         lines.append(
             f"| {index} | `{row['pair_key']}` | `{row['family']}` | "
             f"{row['combined_priority_score']} | `{row['structurally_eligible']}` | "
-            f"`{row['executable_generation_ready']}` | {blocks} | {warnings} |"
+            f"`{row['executable_generator_available']}` | `{row['executable_generation_ready']}` | "
+            f"{blocks} | {generation_blocks} | {warnings} |"
         )
     if summary["target_group_record_missing_count"]:
         lines.extend(

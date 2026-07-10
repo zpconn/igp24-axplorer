@@ -1,0 +1,226 @@
+{
+  "avoid_labels": [],
+  "blocking_reason_counts": {
+    "unsupported_target_r": 10
+  },
+  "created_at": "2026-07-10T03:26:11.424651+00:00",
+  "executable_generation_ready_route_count": 0,
+  "executable_generation_ready_target_count": 0,
+  "executable_generator_available_route_count": 9,
+  "executable_generator_available_target_count": 5,
+  "families_per_target": 8,
+  "family_route_counts": {
+    "composition_4x6": 5,
+    "composition_8x3": 5,
+    "generic_sparse_random": 5,
+    "gx2_degree12_lift": 5,
+    "linear_real_product": 5,
+    "positive_quadratic_product": 5,
+    "quartic_in_x6": 5,
+    "tower_6x4": 5
+  },
+  "generation_ready_blocking_reason_counts": {
+    "adaptive_target_exclusion_not_run": 29,
+    "executable_generator_not_bound_to_target": 20,
+    "generated_outputs_not_validated": 29,
+    "generator_block_structure_not_matched_to_target": 1,
+    "generator_unsupported_target_r": 1,
+    "structure_preservation_not_verified": 20,
+    "target_parameters_not_instantiated": 20,
+    "unsupported_target_r": 10
+  },
+  "generation_ready_count_deprecated": true,
+  "generation_ready_route_count": 0,
+  "generation_ready_target_count": 0,
+  "group_index_provided": true,
+  "input_group_index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "input_score_plan": "data/igp24/remediation_20260709/score_economics_phase4/score_aware_target_plan.json",
+  "input_score_plan_created_at": "2026-07-09T21:43:28.841522+00:00",
+  "live_submission_recommended_now": false,
+  "record_type": "igp24_construction_target_router",
+  "require_group_invariants": true,
+  "route_count": 40,
+  "safety_note": "Read-only target-to-construction router. It does not generate candidates, call external algebra systems or SAIR, or recommend live submission.",
+  "schema_version": 1,
+  "soundness": "declared_structural_routing_only_not_exact_label_evidence",
+  "source_commit": "81fff4762aba34cd0096427ce6dab88f3a640fd9",
+  "structurally_eligible_route_count": 30,
+  "structurally_eligible_target_count": 5,
+  "target_category_filter": "api_scoreable_pair_followup",
+  "target_group_record_hit_count": 5,
+  "target_group_record_missing_count": 0,
+  "target_pair_count": 5,
+  "tool": "scripts/igp24_construction_target_router.py",
+  "top_executable_generator_routes": [
+    {
+      "combined_priority_score": 540.13007,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 540.13007,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 287.596259,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "combined_priority_score": -32.795741,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T661|r=8"
+    },
+    {
+      "combined_priority_score": -32.795741,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T661|r=8"
+    },
+    {
+      "combined_priority_score": -66.931,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T1310|r=8"
+    },
+    {
+      "combined_priority_score": -66.931,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T1310|r=8"
+    },
+    {
+      "combined_priority_score": -99.675881,
+      "family": "quartic_in_x6",
+      "generator": "quartic_x6_exact_lift_v1",
+      "pair_key": "24T657|r=8"
+    },
+    {
+      "combined_priority_score": -99.675881,
+      "family": "gx2_degree12_lift",
+      "generator": "gx2_exact_composed_lift_v1",
+      "pair_key": "24T657|r=8"
+    }
+  ],
+  "top_generation_ready_routes": [],
+  "top_proxy_routes": [
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 540.13007,
+      "family": "quartic_in_x6",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 540.13007,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 538.63007,
+      "family": "tower_6x4",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 538.63007,
+      "family": "composition_8x3",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 537.63007,
+      "family": "composition_4x6",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 516.63007,
+      "family": "generic_sparse_random",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 287.596259,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 286.096259,
+      "family": "tower_6x4",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 285.096259,
+      "family": "composition_4x6",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "blocking_reasons": [],
+      "combined_priority_score": 279.596259,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22770|r=12"
+    }
+  ],
+  "top_structurally_eligible_routes": [
+    {
+      "combined_priority_score": 540.13007,
+      "family": "quartic_in_x6",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 540.13007,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 538.63007,
+      "family": "tower_6x4",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 538.63007,
+      "family": "composition_8x3",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 537.63007,
+      "family": "composition_4x6",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 516.63007,
+      "family": "generic_sparse_random",
+      "pair_key": "24T9993|r=8"
+    },
+    {
+      "combined_priority_score": 287.596259,
+      "family": "gx2_degree12_lift",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "combined_priority_score": 286.096259,
+      "family": "tower_6x4",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "combined_priority_score": 285.096259,
+      "family": "composition_4x6",
+      "pair_key": "24T22770|r=12"
+    },
+    {
+      "combined_priority_score": 279.596259,
+      "family": "quartic_in_x6",
+      "pair_key": "24T22770|r=12"
+    }
+  ],
+  "top_targets_requested": 5
+}

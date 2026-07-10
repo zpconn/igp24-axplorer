@@ -153,6 +153,36 @@ results change.
   -> 2 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 385 passed.
+- 2026-07-10 exact `h(x^6)` executable-route checkpoint: added a second
+  conservative structure-preserving generator,
+  `quartic_x6_exact_lift_v1`, in
+  `src/igp24/constructions/generators.py`. It is deliberately restricted to
+  exact `h(x^6)` support and target real-root counts `r in {0,2,4,6,8}`;
+  high-real quartic routes such as r24 remain structural/escape-history rows
+  and now explicitly block with `generator_unsupported_target_r` unless a
+  separate non-exact escape generator is implemented. Also fixed
+  `scripts/igp24_construction_target_router.py` so explicit score-plan
+  category routing can use `top_api_scoreable_targets`,
+  `top_lightly_solved_targets`, etc., instead of seeing only the r24-heavy
+  `ranked_targets` slice. Refreshed read-only router artifacts:
+  `data/igp24/remediation_20260709/construction_router_phase5/full_index_quartic_x6_exact_semantics_20260710/`
+  and
+  `data/igp24/remediation_20260709/construction_router_phase5/api_scoreable_followup_quartic_x6_exact_20260710/`.
+  Full-index r24 routing now shows 175 structural routes, 25 executable
+  `g(x^2)` routes, 0 executable exact `h(x^6)` r24 routes, and 0
+  generation-ready routes. API-scoreable follow-up routing over the top five
+  targets shows exact `h(x^6)` executable routes for `24T9993|r=8`,
+  `24T661|r=8`, `24T1310|r=8`, and `24T657|r=8`, with all still blocked by
+  `generated_outputs_not_validated` and `adaptive_target_exclusion_not_run`.
+  A local 60-trial smoke check of the r8 exact `h(x^6)` generator produced
+  one locally valid irreducible squarefree r8 row, 13 reducible rows,
+  32 r4 rows, 13 r0 rows, and one nonsquarefree row, so this lane is
+  executable but needs targeted filtering/adaptive evidence before it can be
+  planner-grade. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_registry.py tests/test_igp24_construction_target_router.py`
+  -> 13 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 389 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

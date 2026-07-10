@@ -17,6 +17,7 @@ from src.igp24.polynomial import DEGREE
 
 GENERATOR_SOUNDNESS = "executable_structure_preserving_generator_not_exact_label_evidence"
 GX2_GENERATOR_NAME = "gx2_exact_composed_lift_v1"
+QUARTIC_X6_GENERATOR_NAME = "quartic_x6_exact_lift_v1"
 
 
 def multiply_polynomials(left: Iterable[int], right: Iterable[int]) -> list[int]:
@@ -64,10 +65,32 @@ GX2_SPEC = ExecutableGeneratorSpec(
 )
 
 
+QUARTIC_X6_SPEC = ExecutableGeneratorSpec(
+    family="quartic_in_x6",
+    generator_name=QUARTIC_X6_GENERATOR_NAME,
+    supported_r_values=(0, 2, 4, 6, 8),
+    required_block_sizes=(6, 12),
+    structure_preservation="exact h(x^6) support; no off-core perturbations",
+    intended_group_constraint=(
+        "The polynomial is composed through x^6, so the construction preserves "
+        "a divisor-6 block symmetry before exact Galois verification."
+    ),
+    parameterization=(
+        "positive_y_root_count = target_r / 2",
+        "negative_y_root_count = 4 - positive_y_root_count",
+        "small base-coefficient perturbations inside h(y)",
+    ),
+)
+
+
+EXECUTABLE_GENERATOR_SPECS = {
+    GX2_SPEC.family: GX2_SPEC,
+    QUARTIC_X6_SPEC.family: QUARTIC_X6_SPEC,
+}
+
+
 def executable_generator_for_family(family_name: str) -> ExecutableGeneratorSpec | None:
-    if str(family_name) == GX2_SPEC.family:
-        return GX2_SPEC
-    return None
+    return EXECUTABLE_GENERATOR_SPECS.get(str(family_name))
 
 
 def gx2_target_parameters(r_value: int) -> dict[str, int]:
@@ -81,6 +104,27 @@ def gx2_target_parameters(r_value: int) -> dict[str, int]:
         "positive_y_root_count": positive_count,
         "negative_y_root_count": 12 - positive_count,
     }
+
+
+def quartic_x6_target_parameters(r_value: int) -> dict[str, int]:
+    r_int = int(r_value)
+    if r_int < 0 or r_int > 8 or r_int % 2:
+        raise ValueError(f"h(x^6) target_r must be even in [0,8], got {r_value}")
+    positive_count = r_int // 2
+    return {
+        "target_r": r_int,
+        "base_degree": 4,
+        "positive_y_root_count": positive_count,
+        "negative_y_root_count": 4 - positive_count,
+    }
+
+
+def target_parameters_for_family(family_name: str, r_value: int) -> dict[str, int]:
+    if str(family_name) == GX2_SPEC.family:
+        return gx2_target_parameters(r_value)
+    if str(family_name) == QUARTIC_X6_SPEC.family:
+        return quartic_x6_target_parameters(r_value)
+    raise ValueError(f"no executable target parameterization for family {family_name!r}")
 
 
 def generation_status_for_route(
@@ -122,7 +166,7 @@ def generation_status_for_route(
     if not spec.supports_r(r_value):
         parameter_blockers.append("generator_unsupported_target_r")
     else:
-        parameters = gx2_target_parameters(int(r_value))
+        parameters = target_parameters_for_family(spec.family, int(r_value))
 
     block_sizes = set(int(value) for value in (group_record.block_sizes if group_record else ()))
     if group_record is None:
@@ -171,7 +215,7 @@ def _root_layouts(count: int) -> list[tuple[int, ...]]:
     return sorted(layouts)
 
 
-def base_polynomial_coefficients_y(
+def root_product_coefficients_y(
     positive_roots: Sequence[int],
     negative_roots: Sequence[int],
 ) -> list[int]:
@@ -182,21 +226,53 @@ def base_polynomial_coefficients_y(
         coeffs = multiply_polynomials(coeffs, [-int(root), 1])
     for root in negative_roots:
         coeffs = multiply_polynomials(coeffs, [int(root), 1])
+    return [int(value) for value in coeffs]
+
+
+def base_polynomial_coefficients_y(
+    positive_roots: Sequence[int],
+    negative_roots: Sequence[int],
+) -> list[int]:
+    """Return ascending coefficients for prod(y-a) * prod(y+b)."""
+
+    coeffs = root_product_coefficients_y(positive_roots, negative_roots)
     if len(coeffs) != 13 or coeffs[-1] != 1:
         raise ValueError("expected monic degree-12 base polynomial")
-    return [int(value) for value in coeffs]
+    return coeffs
+
+
+def quartic_base_polynomial_coefficients_y(
+    positive_roots: Sequence[int],
+    negative_roots: Sequence[int],
+) -> list[int]:
+    """Return ascending coefficients for a monic quartic h(y)."""
+
+    coeffs = root_product_coefficients_y(positive_roots, negative_roots)
+    if len(coeffs) != 5 or coeffs[-1] != 1:
+        raise ValueError("expected monic degree-4 base polynomial")
+    return coeffs
+
+
+def lift_base_to_degree24_by_power(base_coefficients_y: Iterable[int], power: int) -> list[int]:
+    """Return [a0, ..., a23] for g(x^power), omitting the monic x^24 term."""
+
+    base = [int(value) for value in base_coefficients_y]
+    power_int = int(power)
+    if power_int <= 0 or DEGREE % power_int:
+        raise ValueError(f"power must be a positive divisor of {DEGREE}, got {power}")
+    expected_len = DEGREE // power_int + 1
+    if len(base) != expected_len or base[-1] != 1:
+        raise ValueError(f"expected monic degree-{DEGREE // power_int} base coefficients")
+    coeffs = [0] * DEGREE
+    for y_exponent, coefficient in enumerate(base[:-1]):
+        coeffs[power_int * y_exponent] = int(coefficient)
+    return coeffs
 
 
 def lift_base_to_degree24(base_coefficients_y: Iterable[int]) -> list[int]:
     """Return [a0, ..., a23] for g(x^2), omitting the monic x^24 term."""
 
-    base = [int(value) for value in base_coefficients_y]
-    if len(base) != 13 or base[-1] != 1:
-        raise ValueError("expected monic degree-12 base coefficients")
-    coeffs = [0] * DEGREE
-    for y_exponent, coefficient in enumerate(base[:-1]):
-        coeffs[2 * y_exponent] = int(coefficient)
-    return coeffs
+    return lift_base_to_degree24_by_power(base_coefficients_y, 2)
 
 
 def _base_perturbation_groups(rng: random.Random) -> list[tuple[tuple[int, int], ...]]:
@@ -212,6 +288,23 @@ def _base_perturbation_groups(rng: random.Random) -> list[tuple[tuple[int, int],
         ((3, -1), (8, 1)),
         ((1, 1), (4, -1), (7, 1)),
         ((2, 1), (5, -1), (8, 1)),
+    ]
+    out = singles + groups
+    rng.shuffle(out)
+    return out
+
+
+def _quartic_perturbation_groups(rng: random.Random) -> list[tuple[tuple[int, int], ...]]:
+    singles = [((index, delta),) for index in range(0, 4) for delta in (-3, -2, -1, 1, 2, 3)]
+    groups = [
+        ((0, 1), (1, -1)),
+        ((0, -1), (1, 1)),
+        ((1, 1), (2, -1)),
+        ((1, -1), (2, 1)),
+        ((2, 1), (3, -1)),
+        ((2, -1), (3, 1)),
+        ((0, 1), (2, -1), (3, 1)),
+        ((0, -1), (2, 1), (3, -1)),
     ]
     out = singles + groups
     rng.shuffle(out)
@@ -249,6 +342,49 @@ def iter_gx2_trials(*, target_r: int, seed: int, max_trials: int) -> Iterator[di
                 emitted += 1
                 if emitted >= int(max_trials):
                     return
+
+
+def iter_quartic_x6_trials(*, target_r: int, seed: int, max_trials: int) -> Iterator[dict[str, Any]]:
+    """Yield deterministic bounded exact-composed h(x^6) trial plans."""
+
+    params = quartic_x6_target_parameters(target_r)
+    rng = random.Random(int(seed))
+    positives = _root_layouts(params["positive_y_root_count"])
+    negatives = _root_layouts(params["negative_y_root_count"])
+    rng.shuffle(positives)
+    rng.shuffle(negatives)
+    perturbations = _quartic_perturbation_groups(rng)
+
+    emitted = 0
+    for positive_roots in positives:
+        for negative_roots in negatives:
+            base = quartic_base_polynomial_coefficients_y(positive_roots, negative_roots)
+            for group in perturbations:
+                yield {
+                    "generator_name": QUARTIC_X6_GENERATOR_NAME,
+                    "family": QUARTIC_X6_SPEC.family,
+                    "mode": "quartic_base_coefficient_perturbation",
+                    "target_r": int(target_r),
+                    "positive_y_roots": list(positive_roots),
+                    "negative_y_roots": list(negative_roots),
+                    "base_coefficients_y_before_perturbation": list(base),
+                    "base_perturbations": [
+                        {"y_exponent": int(index), "delta": int(delta)} for index, delta in group
+                    ],
+                }
+                emitted += 1
+                if emitted >= int(max_trials):
+                    return
+
+
+def iter_trials_for_family(*, family_name: str, target_r: int, seed: int, max_trials: int) -> Iterator[dict[str, Any]]:
+    if str(family_name) == GX2_SPEC.family:
+        yield from iter_gx2_trials(target_r=target_r, seed=seed, max_trials=max_trials)
+        return
+    if str(family_name) == QUARTIC_X6_SPEC.family:
+        yield from iter_quartic_x6_trials(target_r=target_r, seed=seed, max_trials=max_trials)
+        return
+    raise ValueError(f"no executable trial generator for family {family_name!r}")
 
 
 def coefficients_from_gx2_trial(trial: dict[str, Any]) -> tuple[list[int], dict[str, Any]]:
@@ -289,3 +425,53 @@ def coefficients_from_gx2_trial(trial: dict[str, Any]) -> tuple[list[int], dict[
         "parameterization_status": "target_r_instantiated",
     }
     return coeffs, metadata
+
+
+def coefficients_from_quartic_x6_trial(trial: dict[str, Any]) -> tuple[list[int], dict[str, Any]]:
+    positive_roots = tuple(int(value) for value in trial["positive_y_roots"])
+    negative_roots = tuple(int(value) for value in trial["negative_y_roots"])
+    base_before = [
+        int(value)
+        for value in trial.get("base_coefficients_y_before_perturbation")
+        or quartic_base_polynomial_coefficients_y(positive_roots, negative_roots)
+    ]
+    base_after = list(base_before)
+    perturbations = []
+    for item in trial.get("base_perturbations") or []:
+        y_exponent = int(item["y_exponent"])
+        delta = int(item["delta"])
+        base_after[y_exponent] += delta
+        perturbations.append({"y_exponent": y_exponent, "delta": delta})
+    coeffs = lift_base_to_degree24_by_power(base_after, 6)
+    support = [index for index, value in enumerate(coeffs) if int(value) != 0]
+    metadata = {
+        "construction_family": QUARTIC_X6_SPEC.family,
+        "executable_generator_name": QUARTIC_X6_SPEC.generator_name,
+        "generator_soundness": QUARTIC_X6_SPEC.soundness,
+        "structure_preservation": QUARTIC_X6_SPEC.structure_preservation,
+        "intended_group_constraint": QUARTIC_X6_SPEC.intended_group_constraint,
+        "target_r": int(trial["target_r"]),
+        "positive_y_root_count": len(positive_roots),
+        "negative_y_root_count": len(negative_roots),
+        "positive_y_roots": list(positive_roots),
+        "negative_y_roots": list(negative_roots),
+        "base_coefficients_y_before_perturbation": list(base_before),
+        "base_coefficients_y": list(base_after),
+        "base_perturbations": perturbations,
+        "support_after_lift": support,
+        "exact_composed_support_divisor": 6,
+        "composed_support": True,
+        "non_x6_power_terms_present": any(index % 6 for index in support),
+        "parameterization_status": "target_r_instantiated",
+    }
+    return coeffs, metadata
+
+
+def coefficients_from_trial_for_family(
+    *, family_name: str, trial: dict[str, Any]
+) -> tuple[list[int], dict[str, Any]]:
+    if str(family_name) == GX2_SPEC.family:
+        return coefficients_from_gx2_trial(trial)
+    if str(family_name) == QUARTIC_X6_SPEC.family:
+        return coefficients_from_quartic_x6_trial(trial)
+    raise ValueError(f"no executable coefficient builder for family {family_name!r}")

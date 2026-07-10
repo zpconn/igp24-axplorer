@@ -4,6 +4,7 @@ from scripts.igp24_construction_target_router import (
     build_routes,
     load_score_plan,
     main as router_main,
+    select_targets,
     summarize_routes,
 )
 from src.igp24.group_compatibility import GroupCycleIndex, GroupRecord
@@ -161,6 +162,102 @@ def test_router_uses_group_invariants_to_rank_imprimitive_and_primitive_targets(
     assert primitive_gx2["structurally_eligible"] is False
     assert "forced_imprimitive_family_for_primitive_target" in primitive_gx2["blocking_reasons"]
     assert primitive_generic["combined_priority_score"] > primitive_gx2["combined_priority_score"]
+
+
+def test_router_marks_quartic_x6_exact_generator_only_for_supported_low_r(tmp_path):
+    score_plan_path = tmp_path / "score_plan.json"
+    score_plan_path.write_text(
+        json.dumps(
+            {
+                "record_type": "igp24_score_aware_target_plan",
+                "created_at": "2026-07-09T00:00:00+00:00",
+                "ranked_targets": [
+                    {
+                        "pair_key": "24T103|r=8",
+                        "label": "24T103",
+                        "t": 103,
+                        "r": 8,
+                        "category": "uncovered_signature",
+                        "progress_state": "remaining",
+                        "target_score": 300.0,
+                        "maximum_possible_points": 1.0,
+                        "signature_team_count": 0,
+                    },
+                    {
+                        "pair_key": "24T104|r=24",
+                        "label": "24T104",
+                        "t": 104,
+                        "r": 24,
+                        "category": "uncovered_signature",
+                        "progress_state": "remaining",
+                        "target_score": 299.0,
+                        "maximum_possible_points": 1.0,
+                        "signature_team_count": 0,
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    index = GroupCycleIndex(tmp_path / "groups.sqlite")
+    index.initialize(provenance={"test": True})
+    for label, t_value in (("24T103", 103), ("24T104", 104)):
+        index.upsert_group(
+            GroupRecord(
+                label=label,
+                t=t_value,
+                primitive=False,
+                solvable=True,
+                block_sizes=(6, 12),
+                cycle_types=("1.23",),
+            )
+        )
+
+    routes = build_routes(
+        score_plan=load_score_plan(score_plan_path),
+        group_index=index,
+        avoid_labels=[],
+        top_targets=2,
+        families_per_target=8,
+        require_group_invariants=True,
+    )
+
+    low_r_quartic = next(row for row in routes if row["pair_key"] == "24T103|r=8" and row["family"] == "quartic_in_x6")
+    high_r_quartic = next(row for row in routes if row["pair_key"] == "24T104|r=24" and row["family"] == "quartic_in_x6")
+
+    assert low_r_quartic["structurally_eligible"] is True
+    assert low_r_quartic["executable_generator_available"] is True
+    assert low_r_quartic["executable_generator_name"] == "quartic_x6_exact_lift_v1"
+    assert low_r_quartic["target_generator_parameters"]["positive_y_root_count"] == 4
+    assert high_r_quartic["structurally_eligible"] is True
+    assert high_r_quartic["executable_generator_available"] is False
+    assert "generator_unsupported_target_r" in high_r_quartic["generation_ready_blocking_reasons"]
+
+
+def test_select_targets_uses_explicit_score_plan_category_buckets():
+    plan = {
+        "record_type": "igp24_score_aware_target_plan",
+        "ranked_targets": [
+            {
+                "pair_key": "24T104|r=24",
+                "label": "24T104",
+                "r": 24,
+                "category": "uncovered_signature",
+            }
+        ],
+        "top_api_scoreable_targets": [
+            {
+                "pair_key": "24T9993|r=8",
+                "label": "24T9993",
+                "r": 8,
+                "category": "api_scoreable_pair_followup",
+            }
+        ],
+    }
+
+    targets = select_targets(plan, top_targets=5, category="api_scoreable_pair_followup")
+
+    assert [row["pair_key"] for row in targets] == ["24T9993|r=8"]
 
 
 def test_construction_target_router_cli_writes_parseable_outputs(tmp_path):

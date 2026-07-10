@@ -3,8 +3,10 @@ import json
 from scripts.igp24_construction_registry_report import main as registry_report_main
 from src.igp24.constructions.generators import (
     coefficients_from_gx2_trial,
+    coefficients_from_quartic_x6_trial,
     generation_status_for_route,
     iter_gx2_trials,
+    iter_quartic_x6_trials,
 )
 from src.igp24.constructions.registry import (
     SOUNDNESS_NOTE,
@@ -142,6 +144,61 @@ def test_gx2_executable_generator_instantiates_target_r_and_preserves_even_suppo
     assert metadata["negative_y_root_count"] == 4
     assert metadata["odd_x_power_terms_present"] is False
     assert all(index % 2 == 0 for index in metadata["support_after_lift"])
+
+
+def test_quartic_x6_exact_generator_is_low_r_and_preserves_x6_support():
+    imprimitive = GroupRecord(
+        label="24T103",
+        t=103,
+        primitive=False,
+        solvable=True,
+        block_sizes=(6, 12),
+        cycle_types=("1.23",),
+    )
+    status = generation_status_for_route(
+        family_name="quartic_in_x6",
+        r_value=8,
+        group_record=imprimitive,
+        structurally_eligible=True,
+    )
+
+    assert status["executable_generator_available"] is True
+    assert status["executable_generator_name"] == "quartic_x6_exact_lift_v1"
+    assert status["target_generator_parameters"]["positive_y_root_count"] == 4
+    assert status["target_generator_parameters"]["negative_y_root_count"] == 0
+    assert status["executable_generation_ready"] is False
+    assert "generated_outputs_not_validated" in status["generation_ready_blocking_reasons"]
+
+    trial = next(iter_quartic_x6_trials(target_r=8, seed=11, max_trials=1))
+    coefficients, metadata = coefficients_from_quartic_x6_trial(trial)
+
+    assert len(coefficients) == 24
+    assert metadata["positive_y_root_count"] == 4
+    assert metadata["negative_y_root_count"] == 0
+    assert metadata["exact_composed_support_divisor"] == 6
+    assert metadata["non_x6_power_terms_present"] is False
+    assert all(index % 6 == 0 for index in metadata["support_after_lift"])
+
+
+def test_quartic_x6_exact_generator_refuses_high_real_routes():
+    imprimitive = GroupRecord(
+        label="24T104",
+        t=104,
+        primitive=False,
+        solvable=True,
+        block_sizes=(6, 12),
+        cycle_types=("1.23",),
+    )
+    status = generation_status_for_route(
+        family_name="quartic_in_x6",
+        r_value=24,
+        group_record=imprimitive,
+        structurally_eligible=True,
+    )
+
+    assert status["executable_generator_available"] is False
+    assert status["target_parameters_instantiated"] is False
+    assert "generator_unsupported_target_r" in status["generation_ready_blocking_reasons"]
 
 
 def test_construction_registry_report_cli_writes_artifacts(tmp_path):
