@@ -3,7 +3,9 @@ import json
 from scripts.igp24_score_reward_model import load_model, score_rows
 from scripts.igp24_train_reward_model import main as train_reward_model_main
 from src.igp24.reward_model import (
+    DEFAULT_FEATURE_KEYS,
     OUTCOME_CROWDED_COLLAPSE,
+    OUTCOME_NO_VALUABLE_TARGET_SURVIVAL,
     OUTCOME_SCORE_POSITIVE,
     OUTCOME_UNKNOWN,
     build_training_artifacts,
@@ -123,6 +125,32 @@ def test_reward_model_outcome_mapping_does_not_treat_unknown_as_negative():
     assert model.class_counts == {}
 
 
+def test_no_valuable_target_survival_is_supervised_collapse_risk():
+    row = _record(outcome="unknown", family="no_value_family")
+    row["generator_training"]["role"] = "no_valuable_target_survival"
+
+    assert outcome_from_record(row) == OUTCOME_NO_VALUABLE_TARGET_SURVIVAL
+
+    model = train_reward_model([row])
+    prediction = model.predict(row)
+
+    assert model.class_counts == {OUTCOME_NO_VALUABLE_TARGET_SURVIVAL: 1}
+    assert prediction.collapse_risk_probability > prediction.reward_probability
+
+
+def test_no_valuable_target_survival_role_overrides_crowded_score_label():
+    row = _record(outcome="crowded_accepted_collapse", family="adaptive_no_value_family")
+    row["generator_training"]["role"] = "no_valuable_target_survival"
+
+    assert outcome_from_record(row) == OUTCOME_NO_VALUABLE_TARGET_SURVIVAL
+
+
+def test_reward_model_features_exclude_verified_label_and_team_count_leaks():
+    assert "label" not in DEFAULT_FEATURE_KEYS
+    assert "signature_team_bucket" not in DEFAULT_FEATURE_KEYS
+    assert "label_team_bucket" not in DEFAULT_FEATURE_KEYS
+
+
 def test_reward_model_ranks_positive_above_crowded_and_reports_family_risk():
     rows = _training_rows()
     model = train_reward_model(rows)
@@ -195,6 +223,10 @@ def test_reward_scoring_normalizes_nested_candidate_generation_metadata():
             "perturbation_mode": "rare_good_family:mode",
             "basin_fingerprint": "rare_good_family:basin",
             "family_key": "rare_good_family:key",
+            "even_support_like": True,
+            "odd_support_exponents": [],
+            "support_gcd": 2,
+            "support_pattern": "even_support_like",
         },
     }
 
@@ -203,4 +235,7 @@ def test_reward_scoring_normalizes_nested_candidate_generation_metadata():
     assert summary["top_families"] == {"rare_good_family": 1}
     assert scored[0]["features"]["construction_family"] == "rare_good_family"
     assert scored[0]["features"]["template_family_id"] == "rare_good_family:template"
+    assert scored[0]["features"]["even_support"] is True
+    assert scored[0]["features"]["odd_support_exponents"] == []
+    assert scored[0]["features"]["support_gcd"] == 2
     assert scored[0]["reward_model"]["reward_probability"] > scored[0]["reward_model"]["collapse_risk_probability"]

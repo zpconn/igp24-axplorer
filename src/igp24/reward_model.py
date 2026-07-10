@@ -23,6 +23,7 @@ MODEL_TYPE = "igp24_advisory_reward_risk_nb"
 OUTCOME_SCORE_POSITIVE = "score_positive"
 OUTCOME_LOW_TEAM_SCOREABLE = "low_team_scoreable"
 OUTCOME_CROWDED_COLLAPSE = "crowded_accepted_collapse"
+OUTCOME_NO_VALUABLE_TARGET_SURVIVAL = "no_valuable_target_survival"
 OUTCOME_ACCEPTED_DUPLICATE = "accepted_duplicate"
 OUTCOME_WRONG_R = "wrong_r"
 OUTCOME_INVALID = "invalid"
@@ -32,6 +33,7 @@ SUPERVISED_OUTCOMES = (
     OUTCOME_SCORE_POSITIVE,
     OUTCOME_LOW_TEAM_SCOREABLE,
     OUTCOME_CROWDED_COLLAPSE,
+    OUTCOME_NO_VALUABLE_TARGET_SURVIVAL,
     OUTCOME_ACCEPTED_DUPLICATE,
     OUTCOME_WRONG_R,
     OUTCOME_INVALID,
@@ -39,10 +41,14 @@ SUPERVISED_OUTCOMES = (
 POSITIVE_OUTCOMES = {OUTCOME_SCORE_POSITIVE, OUTCOME_LOW_TEAM_SCOREABLE}
 COLLAPSE_RISK_OUTCOMES = {
     OUTCOME_CROWDED_COLLAPSE,
+    OUTCOME_NO_VALUABLE_TARGET_SURVIVAL,
     OUTCOME_ACCEPTED_DUPLICATE,
     OUTCOME_WRONG_R,
     OUTCOME_INVALID,
 }
+# Verified label and team-count fields are downstream score context, not
+# reliable generator features. Including them made "missing label" a spurious
+# positive signal for unverified candidates.
 DEFAULT_FEATURE_KEYS = (
     "r_bucket",
     "height_bucket",
@@ -57,9 +63,6 @@ DEFAULT_FEATURE_KEYS = (
     "sparse_support_submode",
     "basin_fingerprint",
     "mod_p_pattern_signature",
-    "label",
-    "signature_team_bucket",
-    "label_team_bucket",
 )
 
 
@@ -164,6 +167,8 @@ def outcome_from_record(record: dict[str, Any]) -> str:
         return OUTCOME_SCORE_POSITIVE
     if score_label == "low_team_scoreable" or role == OUTCOME_LOW_TEAM_SCOREABLE:
         return OUTCOME_LOW_TEAM_SCOREABLE
+    if score_label == OUTCOME_NO_VALUABLE_TARGET_SURVIVAL or role == OUTCOME_NO_VALUABLE_TARGET_SURVIVAL:
+        return OUTCOME_NO_VALUABLE_TARGET_SURVIVAL
     if score_label == "accepted_but_crowded_collapse" or role == "crowded_collapse":
         return OUTCOME_CROWDED_COLLAPSE
     if score_label == "accepted_duplicate" or role == OUTCOME_ACCEPTED_DUPLICATE:
@@ -348,6 +353,8 @@ class AdvisoryRewardModel:
             decision = "abstain_uncertain"
         elif collapse_risk >= 0.70 and collapse_risk > reward_probability:
             decision = "avoid_high_collapse_risk"
+        elif positive_supervised_count < 20 and collapse_risk >= 0.25:
+            decision = "advisory_conflicted_sparse_positive"
         elif positive_supervised_count < 20 and reward_probability >= 0.55 and reward_probability > collapse_risk:
             decision = "advisory_sparse_positive_candidate"
         elif reward_probability >= 0.55 and reward_probability > collapse_risk:
@@ -654,7 +661,7 @@ def positive_vs_crowded_diagnostic(model: AdvisoryRewardModel, records: Sequence
     scored: list[dict[str, Any]] = []
     for record in records:
         outcome = outcome_from_record(record)
-        if outcome not in {OUTCOME_SCORE_POSITIVE, OUTCOME_LOW_TEAM_SCOREABLE, OUTCOME_CROWDED_COLLAPSE}:
+        if outcome not in POSITIVE_OUTCOMES | COLLAPSE_RISK_OUTCOMES:
             continue
         prediction = model.predict(record)
         scored.append(
@@ -670,6 +677,7 @@ def positive_vs_crowded_diagnostic(model: AdvisoryRewardModel, records: Sequence
         )
     positive = [row for row in scored if row["outcome"] in POSITIVE_OUTCOMES]
     crowded = [row for row in scored if row["outcome"] == OUTCOME_CROWDED_COLLAPSE]
+    collapse_risk = [row for row in scored if row["outcome"] in COLLAPSE_RISK_OUTCOMES]
     positive_mean = (
         sum(float(row["reward_probability"]) for row in positive) / len(positive)
         if positive
@@ -680,16 +688,30 @@ def positive_vs_crowded_diagnostic(model: AdvisoryRewardModel, records: Sequence
         if crowded
         else None
     )
+    collapse_risk_mean = (
+        sum(float(row["reward_probability"]) for row in collapse_risk) / len(collapse_risk)
+        if collapse_risk
+        else None
+    )
     return {
         "score_positive_count": len(positive),
         "crowded_collapse_count": len(crowded),
+        "collapse_risk_count": len(collapse_risk),
         "mean_positive_reward_probability": positive_mean,
         "mean_crowded_reward_probability": crowded_mean,
+        "mean_collapse_risk_reward_probability": collapse_risk_mean,
         "positive_ranks_above_crowded_mean": (
             positive_mean is not None and crowded_mean is not None and positive_mean > crowded_mean
         ),
+        "positive_ranks_above_collapse_risk_mean": (
+            positive_mean is not None and collapse_risk_mean is not None and positive_mean > collapse_risk_mean
+        ),
         "top_positive_rows": sorted(positive, key=lambda row: -float(row["reward_probability"]))[:10],
         "top_crowded_rows": sorted(crowded, key=lambda row: -float(row["collapse_risk_probability"]))[:10],
+        "top_collapse_risk_rows": sorted(
+            collapse_risk,
+            key=lambda row: -float(row["collapse_risk_probability"]),
+        )[:10],
     }
 
 
@@ -736,6 +758,7 @@ def build_training_artifacts(records: Sequence[dict[str, Any]], *, source_path: 
         "limitations": [
             "This is an advisory risk/reward model, not an exact Galois-group verifier.",
             "Unknown rows are excluded from supervised training and are not treated as negative.",
+            "Rows with adaptive no-valuable-target survival are supervised collapse-risk evidence, not exact labels.",
             "Positive supervision remains sparse; use uncertainty and abstention in downstream gates.",
             "Family-grouped and leave-one-family-out metrics are more meaningful than random row splits.",
         ],

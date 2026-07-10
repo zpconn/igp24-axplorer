@@ -138,24 +138,46 @@ def candidate_payload(row: dict[str, Any]) -> dict[str, Any]:
     return candidate if candidate else row
 
 
+def first_present(*values: Any) -> Any:
+    for value in values:
+        if value is not None and value != "":
+            return value
+    return None
+
+
 def candidate_features(row: dict[str, Any]) -> dict[str, Any]:
     features = nested_dict(row, "features") or nested_dict(row, "anti_basin_features")
     if features:
         return features
     candidate = candidate_payload(row)
     metadata = nested_dict(candidate, "generation_metadata")
+    support_pattern = first_present(metadata.get("support_pattern"), candidate.get("support_pattern"))
+    even_support = first_present(metadata.get("even_support"), metadata.get("even_support_like"), candidate.get("even_support_like"))
+    if even_support is None and support_pattern is not None:
+        even_support = str(support_pattern) == "even_support_like"
     return {
         "canonical_hash": candidate.get("canonical_hash"),
         "short_hash": str(candidate.get("canonical_hash") or "")[:12],
         "label": candidate.get("label") or candidate.get("verified_group_label"),
         "pair_key": candidate.get("pair_key") or candidate.get("verified_pair_key"),
         "r": candidate.get("real_root_count") or candidate.get("r"),
-        "construction_family": metadata.get("construction_family") or metadata.get("source_family") or candidate.get("construction_family"),
-        "template_family_id": metadata.get("template_family_id") or candidate.get("template_family_id"),
-        "perturbation_mode": metadata.get("perturbation_mode") or candidate.get("perturbation_mode"),
-        "basin_fingerprint": metadata.get("basin_fingerprint") or candidate.get("basin_fingerprint"),
-        "mod_p_pattern_signature": candidate.get("mod_p_pattern_signature"),
-        "family_key": metadata.get("family_key") or candidate.get("family_key"),
+        "coefficient_height": first_present(candidate.get("coefficient_height"), metadata.get("coefficient_height")),
+        "support_gcd": first_present(metadata.get("support_gcd"), candidate.get("support_gcd")),
+        "support_pattern": support_pattern,
+        "even_support": even_support,
+        "odd_support_exponents": first_present(metadata.get("odd_support_exponents"), candidate.get("odd_support_exponents")),
+        "construction_family": first_present(
+            metadata.get("construction_family"),
+            metadata.get("source_family"),
+            candidate.get("construction_family"),
+        ),
+        "template_family_id": first_present(metadata.get("template_family_id"), candidate.get("template_family_id")),
+        "decomposition_pattern": first_present(metadata.get("decomposition_pattern"), candidate.get("decomposition_pattern")),
+        "perturbation_mode": first_present(metadata.get("perturbation_mode"), candidate.get("perturbation_mode")),
+        "sparse_support_submode": first_present(metadata.get("sparse_support_submode"), candidate.get("sparse_support_submode")),
+        "basin_fingerprint": first_present(metadata.get("basin_fingerprint"), candidate.get("basin_fingerprint")),
+        "mod_p_pattern_signature": first_present(candidate.get("mod_p_pattern_signature"), metadata.get("modular_signature")),
+        "family_key": first_present(metadata.get("family_key"), candidate.get("family_key")),
     }
 
 

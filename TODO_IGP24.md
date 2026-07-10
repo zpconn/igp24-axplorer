@@ -33,6 +33,46 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 reward/risk advisory remediation checkpoint:
+  fixed a Phase-2 reward-model supervision leak found while continuing the
+  AXG-1.15 corrected-stack review. The first refreshed model artifact
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_tower_axg115_20260710/`
+  and score pass
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/reward_model_scored_reviewed_candidates_20260710/`
+  are preserved as superseded provenance: they treated adaptive
+  `no_valuable_target_survival` rows as `unknown` and gave all four reviewed
+  AXG rows near-certain reward probabilities. The corrected model now has an
+  explicit supervised `no_valuable_target_survival` collapse-risk class,
+  gives that generator-training role precedence over older crowded labels,
+  carries nested model-export metadata (`even_support_like`, `support_gcd`,
+  support pattern, sparse submode, etc.) into scoring, and removes verified
+  label/team-count fields from the Naive Bayes feature set so "missing label"
+  cannot become a fake positive signal for unverified rows. Final artifact:
+  `data/igp24/remediation_20260709/reward_model_phase2/postremediation_tower_axg115_novaluable_noleak_20260710/`.
+  It trains on the same 467-row corrected active-learning corpus with
+  outcome counts `388 crowded_accepted_collapse`,
+  `32 no_valuable_target_survival`, `39 wrong_r`, and `8 score_positive`;
+  grouped split overlap remains `[]`, supervised eval rows `93`, and advisory
+  status remains `advisory_insufficient_positive_data`. Rescoring the four
+  AXG-1.15 reviewed rows at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/reward_model_scored_reviewed_candidates_novaluable_noleak_20260710/`
+  now reports decision counts
+  `3 advisory_sparse_positive_candidate` and
+  `1 advisory_conflicted_sparse_positive`; row `2d819cabad22` now carries
+  reward/collapse `0.560893522964 / 0.439106477036` instead of being treated
+  as almost risk-free. The refreshed optimizer artifact
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/packet_optimizer_40prime_reviewed_reward_novaluable_noleak/`
+  still selects three review-only rows (`2d819cabad22`, `8866c86236ea`,
+  `6951fa0c500f`) with 0 uncovered pairs, 8 possible low-team pairs,
+  best-case packet points `0.046875`, expected points
+  `unavailable_uncalibrated`, selected mean collapse risk
+  `0.150469292657`, and live submission recommended `false`. The main
+  lesson is that the advisory reward model is now less leaky but still too
+  sparse to promote candidates; it remains a nonfatal tie-breaker behind exact
+  local validity, known-hash rejection, adaptive Frobenius evidence, and score
+  economics. Validation so far:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_reward_model.py tests/test_igp24_packet_optimizer.py`
+  -> 21 passed. No live SAIR submission was made.
 - 2026-07-10 bounded AXG-1.15-style corrected-stack checkpoint:
   rebuilt the active-learning dataset with the new tower-6x4 reviewed rows
   included:
