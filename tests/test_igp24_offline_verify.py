@@ -194,6 +194,26 @@ def test_parse_online_magma_pasted_output_records_exact_label_and_headers():
     assert parsed["safety"]["automated_online_submission"] is False
 
 
+def test_parse_online_magma_pasted_output_records_automated_probe_provenance():
+    pasted_xml = """<?xml version=\"1.0\"?>
+<calculator><headers><max_time>60</max_time><max_input>50000</max_input><seed>52682226</seed><version>2.29-8</version><time>0.420</time><memory>32.09MB</memory></headers><results><line>IGP24_BEGIN 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line><line>IGP24_DEGREE 24</line><line>IGP24_IS_IRREDUCIBLE true</line><line>IGP24_SIGNATURE 4</line><line>IGP24_GALOIS_GROUP Transitive group number 7635 of degree 24</line><line>IGP24_TRANSITIVE_GROUP_ID 7635</line><line>IGP24_END 70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb</line></results></calculator>"""
+
+    parsed = parse_online_magma_pasted_output(
+        pasted_xml,
+        expected_candidate_hash="70a542863f79ad17cf1a61789241eae078e6984669278e551f7015795d2f03cb",
+        probe_mode="automated_curl_public_calculator",
+    )
+
+    assert parsed["probe_mode"] == "automated_curl_public_calculator"
+    assert parsed["verified_group_label"] == "24T7635"
+    assert parsed["provenance"]["manual_probe"] is False
+    assert parsed["provenance"]["manual_paste_required"] is False
+    assert parsed["provenance"]["automated_public_calculator_probe"] is True
+    assert parsed["safety"]["network_calls_by_helper"] is False
+    assert parsed["safety"]["automated_online_submission"] is True
+    assert parsed["safety"]["automated_online_submission_by_helper"] is False
+
+
 def test_parse_pari_output_records_nfdisc_and_poly_disc():
     output = "\n".join(
         [

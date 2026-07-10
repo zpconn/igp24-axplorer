@@ -25,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.igp24_shortlist import get_source_commit, read_jsonl
+from src.igp24.group_compatibility import progress_states_for_pairs
 
 
 TRIAGE_JSONL = "score_aware_triage.jsonl"
@@ -241,6 +242,28 @@ def load_pair_status(path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, A
     }
 
 
+def load_sair_progress_rows(paths: Iterable[Path]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Load synced SAIR label-progress rows for pair-value classification."""
+
+    rows: list[dict[str, Any]] = []
+    inputs: list[dict[str, Any]] = []
+    seen_labels: set[str] = set()
+    for path in paths:
+        resolved = path.resolve()
+        loaded_rows = _read_jsonl_if_exists(resolved)
+        loaded = 0
+        for row in loaded_rows:
+            if not isinstance(row, dict):
+                continue
+            rows.append(dict(row))
+            loaded += 1
+            label = normalize_label(row.get("label"))
+            if label:
+                seen_labels.add(label)
+        inputs.append({"path": str(resolved), "rows_loaded": loaded, "labels_seen_total": len(seen_labels)})
+    return rows, inputs
+
+
 def load_known_submission_rows(paths: Iterable[Path]) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     """Load synced SAIR submission-history rows as canonical-hash blockers."""
 
@@ -413,11 +436,63 @@ def accepted_pair_status(
     }
 
 
+def _progress_state_for_pair(pair: str | None, progress_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    if not pair:
+        return {
+            "pair_key": pair,
+            "progress_state": "exact_pair_missing",
+            "score_value_status": "no_score_value",
+        }
+    if not progress_rows:
+        return {
+            "pair_key": pair,
+            "progress_state": "progress_data_missing_unknown",
+            "score_value_status": "unknown_no_score_value",
+        }
+    return progress_states_for_pairs([pair], progress_rows).get(
+        pair,
+        {
+            "pair_key": pair,
+            "progress_state": "progress_data_missing_unknown",
+            "score_value_status": "unknown_no_score_value",
+        },
+    )
+
+
+def _sair_progress_discriminant_status(
+    *,
+    progress_state: dict[str, Any],
+    exact_nfdisc_abs: int | None,
+    material_ratio: float,
+) -> dict[str, Any]:
+    minimum = _coerce_int(progress_state.get("minimum_disc_abs"))
+    ratio = None
+    status = "not_applicable"
+    if progress_state.get("progress_state") == "allowed_discovered":
+        status = "current_disc_missing"
+        if exact_nfdisc_abs is not None and minimum is not None and minimum:
+            ratio = exact_nfdisc_abs / minimum
+            if exact_nfdisc_abs < minimum and ratio <= material_ratio:
+                status = "sair_progress_material_discriminant_improvement"
+            elif exact_nfdisc_abs < minimum:
+                status = "sair_progress_minor_discriminant_improvement"
+            elif exact_nfdisc_abs == minimum:
+                status = "sair_progress_equal_current_best"
+            else:
+                status = "sair_progress_not_improved"
+    return {
+        "sair_progress_minimum_disc_abs": minimum,
+        "sair_progress_disc_ratio": ratio,
+        "sair_progress_discriminant_status": status,
+    }
+
+
 def classify_row(
     row: dict[str, Any],
     *,
     baseline_pairs: dict[str, dict[str, Any]],
     pair_status: dict[str, dict[str, Any]],
+    sair_progress_rows: list[dict[str, Any]] | None = None,
     material_ratio: float,
     allow_generic_submission: bool,
 ) -> dict[str, Any]:
@@ -429,6 +504,12 @@ def classify_row(
         pair=pair,
         exact_nfdisc_abs=exact_nfdisc,
         pair_status=pair_status,
+        material_ratio=material_ratio,
+    )
+    progress_state = _progress_state_for_pair(pair, list(sair_progress_rows or []))
+    progress_disc = _sair_progress_discriminant_status(
+        progress_state=progress_state,
+        exact_nfdisc_abs=exact_nfdisc,
         material_ratio=material_ratio,
     )
     baseline_info = baseline_pairs.get(pair or "")
@@ -465,13 +546,32 @@ def classify_row(
     ] != "not_previously_accepted":
         classification = "accepted_pair_duplicate"
         note = "Pair is already accepted locally; most accepted pairs have tiny scores unless the pair is low-team or the discriminant improves materially."
+    elif progress_state.get("progress_state") == "signature_not_allowed":
+        classification = "signature_not_allowed"
+        note = "SAIR progress says this `(label,r)` signature is not an allowed scoring signature."
+    elif progress_state.get("progress_state") == "progress_data_missing_unknown":
+        classification = "progress_data_missing_unknown"
+        note = "Fresh progress data does not establish this `(label,r)` as allowed and remaining; missing progress is not uncovered."
+    elif progress_state.get("progress_state") == "allowed_discovered" and progress_disc[
+        "sair_progress_discriminant_status"
+    ] == "sair_progress_material_discriminant_improvement":
+        classification = "sair_discovered_pair_material_discriminant_improvement"
+        note = "SAIR progress shows this pair is already discovered, but this exact nfdisc is a material improvement."
+    elif progress_state.get("progress_state") == "allowed_discovered":
+        classification = "sair_discovered_pair_not_improved"
+        note = "SAIR progress shows this pair is already discovered, and this exact nfdisc is not a material current-best improvement."
+    elif progress_state.get("progress_state") == "allowed_remaining":
+        classification = "new_uncovered_pair"
+        note = "SAIR progress shows this exact non-generic pair is allowed and currently remaining."
     else:
-        classification = "new_non_baseline_pair"
-        note = "Exact non-generic pair is absent from the frozen baseline and local accepted ledger."
+        classification = "progress_data_missing_unknown"
+        note = "Pair progress state is not scoreable; treat this row as review-only."
 
-    submission_grade = classification == "new_non_baseline_pair" or classification == (
-        "accepted_pair_material_discriminant_improvement"
-    )
+    submission_grade = classification in {
+        "new_uncovered_pair",
+        "accepted_pair_material_discriminant_improvement",
+        "sair_discovered_pair_material_discriminant_improvement",
+    }
     if generic_s24 and not allow_generic_submission:
         submission_grade = False
 
@@ -488,6 +588,12 @@ def classify_row(
         "baseline_pair_status": "baseline_pair" if baseline_info else "not_in_baseline_or_unknown_label",
         "baseline_nfdisc_abs": baseline_info.get("baseline_nfdisc_abs") if baseline_info else None,
         "baseline_scoring_disc": baseline_info.get("baseline_scoring_disc") if baseline_info else None,
+        "sair_progress_pair_key": progress_state.get("pair_key"),
+        "sair_progress_state": progress_state.get("progress_state"),
+        "sair_score_value_status": progress_state.get("score_value_status"),
+        "sair_progress_team_count": progress_state.get("team_count"),
+        "sair_progress_in_baseline": progress_state.get("in_baseline"),
+        **progress_disc,
         "generic_s24": generic_s24,
         "score_aware_classification": classification,
         "score_aware_note": note,
@@ -502,11 +608,13 @@ def build_triage_rows(
     baseline_pairs: dict[str, dict[str, Any]],
     pair_status: dict[str, dict[str, Any]],
     known_submissions: dict[str, dict[str, Any]] | None = None,
+    sair_progress_rows: list[dict[str, Any]] | None = None,
     material_ratio: float,
     allow_generic_submission: bool,
 ) -> list[dict[str, Any]]:
     triaged: list[dict[str, Any]] = []
     known_submissions = known_submissions or {}
+    sair_progress_rows = list(sair_progress_rows or [])
     for index, queue_row in enumerate(queue_rows, start=1):
         canonical_hash = str(queue_row.get("canonical_hash") or queue_row.get("candidate_hash") or "")
         if not canonical_hash:
@@ -575,6 +683,7 @@ def build_triage_rows(
                 merged,
                 baseline_pairs=baseline_pairs,
                 pair_status=pair_status,
+                sair_progress_rows=sair_progress_rows,
                 material_ratio=material_ratio,
                 allow_generic_submission=allow_generic_submission,
             )
@@ -592,6 +701,7 @@ def build_summary(
     offline_dir: Path,
     sair_label_feedback_inputs: list[dict[str, Any]],
     known_submission_inputs: list[dict[str, Any]],
+    sair_progress_inputs: list[dict[str, Any]],
     baseline_info: dict[str, Any],
     pair_status_info: dict[str, Any],
     triage_rows: list[dict[str, Any]],
@@ -614,6 +724,7 @@ def build_summary(
         "offline_verification_dir": str(offline_dir),
         "sair_label_feedback_inputs": sair_label_feedback_inputs,
         "known_submission_inputs": known_submission_inputs,
+        "sair_progress_inputs": sair_progress_inputs,
         "baseline": baseline_info,
         "pair_status": pair_status_info,
         "options": {
@@ -630,6 +741,9 @@ def build_summary(
         "exact_label_source_counts": _counts(verified, "exact_label_source"),
         "classification_counts": _counts(triage_rows, "score_aware_classification"),
         "accepted_pair_status_counts": _counts(triage_rows, "accepted_pair_status"),
+        "sair_progress_state_counts": _counts(triage_rows, "sair_progress_state"),
+        "sair_score_value_status_counts": _counts(triage_rows, "sair_score_value_status"),
+        "sair_progress_discriminant_status_counts": _counts(triage_rows, "sair_progress_discriminant_status"),
         "known_submission_status_counts": _counts(triage_rows, "known_submission_status"),
         "exact_label_status_counts": _counts(triage_rows, "exact_label_status"),
         "exact_r_status_counts": _counts(triage_rows, "exact_r_status"),
@@ -687,14 +801,16 @@ def build_report(summary: dict[str, Any], triage_rows: list[dict[str, Any]]) -> 
         f"- Labels found: `{json.dumps(summary.get('labels_found_counts'), sort_keys=True)}`",
         f"- Label sources: `{json.dumps(summary.get('exact_label_source_counts'), sort_keys=True)}`",
         f"- Accepted-pair status counts: `{json.dumps(summary.get('accepted_pair_status_counts'), sort_keys=True)}`",
+        f"- SAIR progress state counts: `{json.dumps(summary.get('sair_progress_state_counts'), sort_keys=True)}`",
+        f"- SAIR score value status counts: `{json.dumps(summary.get('sair_score_value_status_counts'), sort_keys=True)}`",
         f"- Known-submission status counts: `{json.dumps(summary.get('known_submission_status_counts'), sort_keys=True)}`",
         f"- Exact r status counts: `{json.dumps(summary.get('exact_r_status_counts'), sort_keys=True)}`",
         f"- Exact nfdisc status counts: `{json.dumps(summary.get('exact_nfdisc_status_counts'), sort_keys=True)}`",
         "",
         "## Row Triage",
         "",
-        "| rank | hash | label | r | nfdisc | known submission | class | submit | note |",
-        "| ---: | --- | --- | ---: | ---: | --- | --- | --- | --- |",
+        "| rank | hash | label | r | nfdisc | progress | teams | known submission | class | submit | note |",
+        "| ---: | --- | --- | ---: | ---: | --- | ---: | --- | --- | --- | --- |",
     ]
     for row in triage_rows:
         lines.append(
@@ -706,6 +822,8 @@ def build_report(summary: dict[str, Any], triage_rows: list[dict[str, Any]]) -> 
                     str(row.get("verified_group_label") or ""),
                     str(row.get("computed_r") or ""),
                     str(row.get("exact_nfdisc_abs") or ""),
+                    str(row.get("sair_progress_state") or ""),
+                    str(row.get("sair_progress_team_count") or ""),
                     str(row.get("known_submission_id") or ""),
                     str(row.get("score_aware_classification")),
                     "yes" if row.get("submission_grade_candidate") else "no",
@@ -856,6 +974,13 @@ def get_parser() -> argparse.ArgumentParser:
         default=[],
         help="Synced SAIR submission rows JSONL used to hard-block known canonical hashes; may be repeated.",
     )
+    parser.add_argument(
+        "--sair_progress_jsonl",
+        type=Path,
+        action="append",
+        default=[],
+        help="Synced SAIR label progress JSONL used to classify exact pairs as allowed/discovered/unknown; may be repeated.",
+    )
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--accepted_material_improvement_ratio", type=float, default=0.5)
     parser.add_argument("--allow_generic_submission", action="store_true")
@@ -875,12 +1000,14 @@ def main(argv: list[str] | None = None) -> int:
         pair_status, pair_status_info = load_pair_status(args.pair_status_json.resolve())
         evidence, sair_label_feedback_inputs = load_evidence(offline_dir, args.sair_label_feedback_json)
         known_submissions, known_submission_inputs = load_known_submission_rows(args.known_submission_rows_jsonl)
+        sair_progress_rows, sair_progress_inputs = load_sair_progress_rows(args.sair_progress_jsonl)
         triage_rows = build_triage_rows(
             queue_rows,
             evidence=evidence,
             baseline_pairs=baseline_pairs,
             pair_status=pair_status,
             known_submissions=known_submissions,
+            sair_progress_rows=sair_progress_rows,
             material_ratio=float(args.accepted_material_improvement_ratio),
             allow_generic_submission=bool(args.allow_generic_submission),
         )
@@ -894,6 +1021,7 @@ def main(argv: list[str] | None = None) -> int:
         offline_dir=offline_dir,
         sair_label_feedback_inputs=sair_label_feedback_inputs,
         known_submission_inputs=known_submission_inputs,
+        sair_progress_inputs=sair_progress_inputs,
         baseline_info=baseline_info,
         pair_status_info=pair_status_info,
         triage_rows=triage_rows,

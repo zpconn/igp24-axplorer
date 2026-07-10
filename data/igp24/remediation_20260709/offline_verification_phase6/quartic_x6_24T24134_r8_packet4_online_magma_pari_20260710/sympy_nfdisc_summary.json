@@ -1,0 +1,48 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710",
+    "--output_dir",
+    "data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_online_magma_pari_20260710",
+    "--pari_executable",
+    "/tmp/igp24_pari_gp_local/root/usr/bin/gp",
+    "--run_pari",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--online_magma_pasted_output",
+    "data/igp24/remediation_20260709/online_magma_auto_probe_phase6/quartic_x6_24T24134_r8_packet4_20260710/online_magma_pasted_outputs_automated_probe.jsonl"
+  ],
+  "created_at": "2026-07-10T05:09:19.212892+00:00",
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/packet_verification_queue_phase6/quartic_x6_24T24134_r8_packet4_20260710",
+  "nfdisc_records": 3,
+  "output_files": {
+    "sympy_nfdisc_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_online_magma_pari_20260710/sympy_nfdisc_report.md",
+    "sympy_nfdisc_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_online_magma_pari_20260710/sympy_nfdisc_results.jsonl",
+    "sympy_nfdisc_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_online_magma_pari_20260710/sympy_nfdisc_summary.json"
+  },
+  "parsed_result_records": 4,
+  "record_type": "igp24_sympy_nfdisc_summary",
+  "records_loaded": 4,
+  "requested": true,
+  "safety": {
+    "exact_nfdisc_claims": true,
+    "local_file_only": true,
+    "network_calls": false,
+    "note": "SymPy nfdisc artifacts are explicit local fallback evidence; PARI/GP remains the official workflow when available.",
+    "official_pari_gp_workflow": false,
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "c686847046eaafd08bd7606137997b21ffb95b77",
+  "status_counts": {
+    "nfdisc_error": 1,
+    "nfdisc_ok": 3
+  },
+  "tool": "scripts/igp24_offline_verify.py"
+}

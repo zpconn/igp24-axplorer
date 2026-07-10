@@ -82,9 +82,9 @@ ONLINE_MAGMA_CALCULATOR_VERSION = "2.29-8"
 ONLINE_MAGMA_MAX_TIME_SECONDS = 60
 ONLINE_MAGMA_MAX_INPUT_BYTES = 50000
 ONLINE_MAGMA_SAFETY_NOTE = (
-    "Online MAGMA calculator artifacts are manual copy/paste aids only. The "
-    "helper does not submit requests, batch online work, call SAIR, or run "
-    "inside training, GPU sampling, or CPU proxy scoring."
+    "Online MAGMA calculator artifacts are offline scripts plus saved-output "
+    "parsers. The helper does not submit requests, batch online work, call "
+    "SAIR, or run inside training, GPU sampling, or CPU proxy scoring."
 )
 DEFAULT_MAGMA_SEARCH_PATTERNS = [
     "/usr/local/bin/magma",
@@ -609,8 +609,9 @@ def parse_online_magma_pasted_output(
     *,
     expected_candidate_hash: str | None = None,
     source_path: Path | None = None,
+    probe_mode: str = "manual",
 ) -> dict[str, Any]:
-    """Parse manually pasted free-calculator output into an exact result row."""
+    """Parse saved free-calculator output into an exact result row."""
 
     normalized = normalize_online_magma_pasted_output(text)
     parsed = parse_magma_output(normalized["output_text"])
@@ -622,9 +623,13 @@ def parse_online_magma_pasted_output(
         parse_status = "hash_mismatch"
     version_raw = normalized["headers"].get("version")
     version = f"V{version_raw}" if version_raw else None
+    normalized_probe_mode = str(probe_mode or "manual").strip().lower() or "manual"
+    manual_probe = normalized_probe_mode in {"manual", "manual_paste", "manual_copy_paste"}
+    automated_probe = not manual_probe
     return {
         "schema_version": ONLINE_MAGMA_MANUAL_SCHEMA_VERSION,
         "record_type": "igp24_online_magma_manual_result",
+        "probe_mode": normalized_probe_mode,
         "parsed_at": datetime.now(timezone.utc).isoformat(),
         "candidate_hash": candidate_hash or None,
         "expected_candidate_hash": expected_candidate_hash,
@@ -651,15 +656,17 @@ def parse_online_magma_pasted_output(
         "provenance": {
             "tool": "Magma free online calculator",
             "calculator_url": ONLINE_MAGMA_CALCULATOR_URL,
-            "manual_probe": True,
-            "manual_paste_required": True,
+            "manual_probe": manual_probe,
+            "manual_paste_required": manual_probe,
+            "automated_public_calculator_probe": automated_probe,
             "observed_magma_version": ONLINE_MAGMA_CALCULATOR_VERSION,
             "observed_runtime_cap_seconds": ONLINE_MAGMA_MAX_TIME_SECONDS,
             "observed_input_limit_bytes": ONLINE_MAGMA_MAX_INPUT_BYTES,
         },
         "safety": {
             "network_calls_by_helper": False,
-            "automated_online_submission": False,
+            "automated_online_submission": automated_probe,
+            "automated_online_submission_by_helper": False,
             "batch_online_submission": False,
             "sair_submission": False,
             "runs_inside_train_loop": False,
@@ -1827,6 +1834,7 @@ def load_online_magma_pasted_outputs(paths: list[Path] | None) -> list[dict[str,
                     pasted_output,
                     expected_candidate_hash=raw.get("candidate_hash"),
                     source_path=source_path,
+                    probe_mode=str(raw.get("probe_mode") or raw.get("source_probe_mode") or "manual"),
                 )
                 result["pasted_output_row"] = line_number
                 result["pasted_output_note"] = raw.get("note")
@@ -1856,6 +1864,12 @@ def build_online_magma_manual_summary(
         counts[status] = counts.get(status, 0) + 1
     verified = [result for result in results if result.get("status") == "verified"]
     verified_hashes = {result.get("candidate_hash") for result in verified}
+    probe_mode_counts = dict(sorted(Counter(str(result.get("probe_mode") or "unknown") for result in results).items()))
+    parsed_automated_probe_count = sum(
+        1
+        for result in results
+        if bool((result.get("provenance") or {}).get("automated_public_calculator_probe"))
+    )
     local_counts: dict[str, int] = {}
     for result in local_magma_results or []:
         status = str(result.get("status"))
@@ -1876,6 +1890,8 @@ def build_online_magma_manual_summary(
         "status_counts": dict(sorted(counts.items())),
         "verified_records": len(verified),
         "verified_group_labels": sorted({str(result.get("verified_group_label")) for result in verified}),
+        "parsed_probe_mode_counts": probe_mode_counts,
+        "parsed_automated_public_calculator_probe_count": parsed_automated_probe_count,
         "diagnostic_queue_summary": _diagnostic_queue_summary(records, script_sizes=script_sizes),
         "queue_status": {
             "already_parsed_exact_label_hashes": [
@@ -1908,9 +1924,11 @@ def build_online_magma_manual_summary(
             "online_magma_report_md": str(manual_dir / ONLINE_MAGMA_REPORT_MD),
         },
         "safety": {
-            "manual_only": True,
+            "manual_only": parsed_automated_probe_count == 0,
             "network_calls_by_helper": False,
             "automated_online_submission": False,
+            "automated_online_submission_by_helper": False,
+            "automated_online_submission_in_parsed_inputs": parsed_automated_probe_count > 0,
             "batch_online_submission": False,
             "sair_submission": False,
             "runs_inside_train_loop": False,

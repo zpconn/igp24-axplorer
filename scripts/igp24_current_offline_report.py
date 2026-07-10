@@ -133,9 +133,13 @@ def build_gate_status(
     if bool(packet.get("live_submission_recommended_now")):
         blockers.append("optimizer_should_not_authorize_live_submission")
 
+    triage_reviewed_rows = int_count(triage, "reviewed_rows")
+    triage_verified_rows = int_count(triage, "verified_rows")
+    triage_exact_labels_complete = triage_reviewed_rows > 0 and triage_verified_rows == triage_reviewed_rows
+
     if int_count(triage, "known_submission_hash_rows") != 0:
         blockers.append("known_submission_hash_present")
-    if int_count(triage, "verified_rows") != int_count(triage, "reviewed_rows"):
+    if not triage_exact_labels_complete:
         blockers.append("exact_magma_labels_missing")
     if count_from_status(triage, "exact_r_status_counts", "ok") != int_count(triage, "reviewed_rows"):
         blockers.append("exact_r_not_complete")
@@ -146,8 +150,10 @@ def build_gate_status(
 
     if int_count(adaptive, "failed_row_count") != 0:
         blockers.append("adaptive_frobenius_failures_present")
-    if int_count(adaptive, "exact_label_missing_row_count") != 0:
+    if int_count(adaptive, "exact_label_missing_row_count") != 0 and not triage_exact_labels_complete:
         blockers.append("adaptive_rows_still_missing_exact_labels")
+    elif int_count(adaptive, "exact_label_missing_row_count") != 0:
+        warnings.append("adaptive_exact_label_missing_field_superseded_by_score_aware_triage")
     if int_count(adaptive, "intended_target_failure_rows") != 0:
         blockers.append("intended_target_ruled_out_by_adaptive_evidence")
     if int_count(adaptive, "final_valuable_target_survival_rows") <= 0:
@@ -227,6 +233,9 @@ def build_summary(
                 "exact_label_status": row.get("exact_label_status"),
                 "exact_nfdisc_status": row.get("exact_nfdisc_status"),
                 "exact_nfdisc_abs": row.get("exact_nfdisc_abs"),
+                "sair_progress_state": row.get("sair_progress_state"),
+                "sair_score_value_status": row.get("sair_score_value_status"),
+                "sair_progress_team_count": row.get("sair_progress_team_count"),
                 "known_submission_hash_match": bool(row.get("known_submission_hash_match")),
                 "score_aware_classification": row.get("score_aware_classification"),
                 "submission_grade_candidate": bool(row.get("submission_grade_candidate")),
@@ -388,8 +397,8 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Novel candidate count against synced submission history: `{candidates.get('novel_candidate_count_against_synced_submission_history')}`",
         f"- Selected short hashes: `{json.dumps(candidates.get('selected_short_hashes'), sort_keys=True)}`",
         "",
-        "| hash | label | r | nfdisc status | known submitted | class | submission-grade |",
-        "| --- | --- | ---: | --- | --- | --- | --- |",
+        "| hash | label | r | progress | teams | nfdisc status | known submitted | class | submission-grade |",
+        "| --- | --- | ---: | --- | ---: | --- | --- | --- | --- |",
     ]
     for row in candidates.get("selected_rows") or []:
         lines.append(
@@ -399,6 +408,8 @@ def render_report(summary: dict[str, Any]) -> str:
                     f"`{row.get('short_hash')}`",
                     str(row.get("verified_group_label") or ""),
                     str(row.get("computed_r") or ""),
+                    str(row.get("sair_progress_state") or ""),
+                    str(row.get("sair_progress_team_count") or ""),
                     str(row.get("exact_nfdisc_status") or ""),
                     str(row.get("known_submission_hash_match")),
                     str(row.get("score_aware_classification") or ""),
@@ -410,7 +421,7 @@ def render_report(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "Compatibility and adaptive Frobenius evidence remain necessary target-exclusion evidence only. Exact labels are still required before any live packet.",
+            "Compatibility and adaptive Frobenius evidence remain necessary target-exclusion evidence only. Exact labels, fresh progress, known-hash checks, and score-aware gates must all clear before any live packet.",
         ]
     )
     return "\n".join(lines) + "\n"

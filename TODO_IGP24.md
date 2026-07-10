@@ -402,6 +402,35 @@ results change.
   exact Magma labels missing, no submission-grade rows, fresh sync required
   immediately before any live packet, and explicit user approval missing.
   No live SAIR submission was made.
+- 2026-07-10 exact-label negative checkpoint for the x6 packet: parsed four
+  saved public online-Magma calculator XML responses with explicit
+  `probe_mode=automated_curl_public_calculator` provenance, while preserving
+  that `scripts/igp24_offline_verify.py` itself made no network calls. Raw
+  XML/input artifact:
+  `data/igp24/remediation_20260709/online_magma_auto_probe_phase6/quartic_x6_24T24134_r8_packet4_20260710/`.
+  Refreshed exact artifact:
+  `data/igp24/remediation_20260709/offline_verification_phase6/quartic_x6_24T24134_r8_packet4_online_magma_pari_20260710/`.
+  Result: 4/4 exact labels, 4/4 exact r=8, and 4/4 exact PARI nfdisc. The
+  exact labels are `24T7635|r=8`, `24T10010|r=8`, `24T12493|r=8`, and
+  `24T9962|r=8`; none is the intended `24T24134|r=8`. Strengthened
+  `scripts/igp24_score_aware_triage.py` so full synced SAIR progress is used
+  for exact-pair value classification: missing progress is now unknown/no
+  score rather than "uncovered," and exact pairs become submission-grade only
+  when SAIR progress says allowed/remaining or when a discovered pair has a
+  material current-best discriminant improvement. Progress-aware triage
+  artifact:
+  `data/igp24/remediation_20260709/score_aware_triage_phase6/quartic_x6_24T24134_r8_packet4_exact_labels_progress_checked_20260710/`.
+  Result: 4 reviewed, 4 verified labels, 0 known-submission hashes, 0 pending
+  labels, 0 submission-grade rows, classification
+  `{"sair_discovered_pair_not_improved": 4}`, and SAIR progress state
+  `{"allowed_discovered": 4}`. Refreshed go/no-go artifact:
+  `data/igp24/remediation_20260709/current_offline_report_phase7/quartic_x6_24T24134_r8_packet4_exact_labels_negative_20260710/`.
+  Recommendation remains `do_not_submit`; blockers are no submission-grade
+  rows, fresh sync required before any live packet, and explicit user live
+  submission approval missing. Lesson: 80-prime full-index compatibility
+  through `24T24134` was a necessary-exclusion signal, not exact targeting;
+  this exact `h(x^6)` basin must be retargeted/rethought before more
+  submission packets are selected from it. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

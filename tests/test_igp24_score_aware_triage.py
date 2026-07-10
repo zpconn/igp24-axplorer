@@ -7,6 +7,7 @@ from scripts.igp24_score_aware_triage import (
     load_known_submission_rows,
     load_pair_status,
     load_sair_label_feedback,
+    load_sair_progress_rows,
     write_outputs,
 )
 
@@ -87,13 +88,58 @@ def test_new_non_baseline_pair_is_submission_grade():
         evidence=_evidence_for("new_pair", label="24T123", nfdisc=99),
         baseline_pairs={},
         pair_status={},
+        sair_progress_rows=[
+            {"label": "24T123", "allowedR": [4], "signatures": [{"r": 4, "discovered": False, "teamCount": 0}]}
+        ],
         material_ratio=0.5,
         allow_generic_submission=False,
     )
 
     assert rows[0]["pair_key"] == "24T123|r=4"
-    assert rows[0]["score_aware_classification"] == "new_non_baseline_pair"
+    assert rows[0]["sair_progress_state"] == "allowed_remaining"
+    assert rows[0]["score_aware_classification"] == "new_uncovered_pair"
     assert rows[0]["submission_grade_candidate"] is True
+
+
+def test_exact_pair_without_progress_is_unknown_not_uncovered():
+    rows = build_triage_rows(
+        [_queue_row("unknown_progress")],
+        evidence=_evidence_for("unknown_progress", label="24T123", nfdisc=99),
+        baseline_pairs={},
+        pair_status={},
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert rows[0]["pair_key"] == "24T123|r=4"
+    assert rows[0]["sair_progress_state"] == "progress_data_missing_unknown"
+    assert rows[0]["score_aware_classification"] == "progress_data_missing_unknown"
+    assert rows[0]["submission_grade_candidate"] is False
+
+
+def test_discovered_progress_pair_without_improvement_is_not_submission_grade():
+    rows = build_triage_rows(
+        [_queue_row("discovered")],
+        evidence=_evidence_for("discovered", label="24T123", nfdisc=500),
+        baseline_pairs={},
+        pair_status={},
+        sair_progress_rows=[
+            {
+                "label": "24T123",
+                "allowedR": [4],
+                "signatures": [{"r": 4, "discovered": True, "teamCount": 9, "minimumDiscAbs": "100"}],
+            }
+        ],
+        material_ratio=0.5,
+        allow_generic_submission=False,
+    )
+
+    assert rows[0]["sair_progress_state"] == "allowed_discovered"
+    assert rows[0]["sair_progress_team_count"] == 9
+    assert rows[0]["sair_progress_minimum_disc_abs"] == 100
+    assert rows[0]["sair_progress_discriminant_status"] == "sair_progress_not_improved"
+    assert rows[0]["score_aware_classification"] == "sair_discovered_pair_not_improved"
+    assert rows[0]["submission_grade_candidate"] is False
 
 
 def test_baseline_and_generic_pairs_are_not_auto_submission_grade():
@@ -238,13 +284,20 @@ def test_loaders_and_write_outputs(tmp_path):
         json.dumps({"pairs": [{"pair_key": "24T2|r=4", "status": "accepted", "exact_nfdisc_abs": 7}]}),
         encoding="utf-8",
     )
+    progress_path = tmp_path / "progress.jsonl"
+    progress_path.write_text(
+        json.dumps({"label": "24T123", "allowedR": [4], "signatures": [{"r": 4, "discovered": False}]}) + "\n",
+        encoding="utf-8",
+    )
     baseline, baseline_info = load_baseline_pairs(baseline_path)
     pairs, pair_info = load_pair_status(pair_status_path)
+    progress_rows, progress_inputs = load_sair_progress_rows([progress_path])
     rows = build_triage_rows(
         [_queue_row("new_pair", coeff0=5)],
         evidence=_evidence_for("new_pair", label="24T123", nfdisc=99),
         baseline_pairs=baseline,
         pair_status=pairs,
+        sair_progress_rows=progress_rows,
         material_ratio=0.5,
         allow_generic_submission=False,
     )
@@ -254,6 +307,7 @@ def test_loaders_and_write_outputs(tmp_path):
         offline_dir=tmp_path / "offline",
         sair_label_feedback_inputs=[],
         known_submission_inputs=[],
+        sair_progress_inputs=progress_inputs,
         baseline_info=baseline_info,
         pair_status_info=pair_info,
         triage_rows=rows,
@@ -268,6 +322,8 @@ def test_loaders_and_write_outputs(tmp_path):
     paths = write_outputs(output_dir=tmp_path / "out", summary=summary, triage_rows=rows, submission_rows=submission_rows)
 
     assert summary["submission_grade_rows"] == 1
+    assert summary["sair_progress_inputs"][0]["rows_loaded"] == 1
+    assert summary["sair_progress_state_counts"] == {"allowed_remaining": 1}
     assert json.loads(paths["triage_jsonl"].read_text(encoding="utf-8").splitlines()[0])["pair_key"] == "24T123|r=4"
     assert paths["submission_coefficients_txt"].read_text(encoding="utf-8").strip().startswith("5,0,0")
     assert "Manual Verification Follow-Up" in paths["manual_checklist_md"].read_text(encoding="utf-8")
