@@ -33,6 +33,43 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.16-style no-leak bounded GPU checkpoint:
+  after committing the reward-model leakage fix as `cd28830`, ran a fresh
+  bounded AXG export to exercise the corrected stack and force the sampler
+  away from the AXG-1.15 even-support basin. The first r16 constrained run at
+  `data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1/` used the
+  corrected active-learning JSONL, target-r control tokens, fresh known-hash
+  exclusions, `temperature=1.12`, open top-k, 700 train steps, 512 sample
+  attempts, `avoid_even_support_like=true`, and
+  `require_support_gcd_one=true`. Sandbox CUDA was blocked, so the same run
+  was rerun unsandboxed and used the RTX 5090 (`cuda_available=true`,
+  max GPU util `90`, avg `29.538`, runtime `27.475s`). Export controls skipped
+  245 excluded/known-hash rows and produced 4 decoded unique sparse gcd-one
+  rows, but CPU proxy scoring found all 4 invalid because the constant
+  coefficient was zero. Implemented an opt-in upstream
+  `sample_export_require_nonzero_constant` filter in `train.py`,
+  `src/evaluator.py`, and `scripts/igp24_gpu_sampler_probe.py`, with test
+  coverage in `tests/test_igp24_sample_export.py`, so future constrained
+  exports can reject SAIR-impossible rows before CPU/adaptive work.
+  Reran the same r16 CUDA probe with the nonzero-constant filter at
+  `data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/`.
+  It used CUDA (`max_gpu_utilization_percent=90`, avg `32.077`,
+  runtime `27.128s`), attempted 512 samples, skipped 245 excluded hashes,
+  317 even-support rows, 317 support-gcd-not-one rows, and 56 zero-constant
+  rows, and exported 149 records with 2 decoded unique rows. CPU proxy scoring
+  at
+  `data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/cpu_scored_samples_bound1e15/`
+  found both decoded rows locally valid, irreducible, and squarefree, but both
+  had r=4 rather than target r16 (`7d33084feb72`, `da68e693585d`). Full
+  25,000-group adaptive Frobenius review at
+  `data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/adaptive_frobenius_2rows_40primes/`
+  evaluated 2/2 rows with 0 failures; at budgets 5, 10, 20, and 40, valuable
+  survival rows remained 0 and median indexed survivor count was 1. No rows
+  are packet-eligible and no live SAIR submission was made. This improves
+  stack hygiene but not score: the next model/search iteration should keep the
+  nonzero-constant filter and address target-r control collapse, likely by
+  adding stronger positive/negative examples for non-even, nonzero-constant
+  r16/r20/r24 rows rather than merely tightening export filters further.
 - 2026-07-10 reward/risk advisory remediation checkpoint:
   fixed a Phase-2 reward-model supervision leak found while continuing the
   AXG-1.15 corrected-stack review. The first refreshed model artifact

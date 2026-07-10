@@ -737,6 +737,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     seed_bank_requested = bool(getattr(args, "sample_export_seed_bank_jsonl", "") and int(getattr(args, "sample_export_seed_bank_limit", 0) or 0) > 0)
     avoid_even_support_like = bool(getattr(args, "sample_export_avoid_even_support_like", False))
     require_support_gcd_one = bool(getattr(args, "sample_export_require_support_gcd_one", False))
+    require_nonzero_constant = bool(getattr(args, "sample_export_require_nonzero_constant", False))
     required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
     excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
     excluded_hashes, excluded_hash_stats = _load_excluded_hashes(getattr(args, "sample_export_excluded_hashes_jsonl", ""))
@@ -745,6 +746,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     provenance_controls_enabled = (
         avoid_even_support_like
         or require_support_gcd_one
+        or require_nonzero_constant
         or bool(required_support_patterns)
         or bool(excluded_support_patterns)
         or bool(excluded_hashes)
@@ -869,6 +871,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     support_gcd = sample_provenance.get("support_gcd")
                     if require_support_gcd_one and support_gcd != 1:
                         skip_reasons.append("support_gcd_not_one")
+                    if require_nonzero_constant and int(decoded_coefficients[0]) == 0:
+                        skip_reasons.append("zero_constant_term")
                     support_pattern = str(sample_provenance.get("support_pattern") or "unknown")
                     if required_support_patterns and support_pattern not in required_support_patterns:
                         skip_reasons.append("required_support_pattern_mismatch")
@@ -973,6 +977,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "provenance_controls_enabled": provenance_controls_enabled,
         "avoid_even_support_like": avoid_even_support_like,
         "require_support_gcd_one": require_support_gcd_one,
+        "require_nonzero_constant": require_nonzero_constant,
         "required_support_patterns": sorted(required_support_patterns),
         "excluded_support_patterns": sorted(excluded_support_patterns),
         "excluded_hashes_path": excluded_hash_stats.get("excluded_hashes_path"),

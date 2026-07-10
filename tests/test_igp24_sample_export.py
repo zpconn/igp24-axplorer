@@ -338,6 +338,80 @@ def test_sample_and_export_axg14_provenance_controls_skip_bad_basins(tmp_path):
     assert records[0]["generation_metadata"]["sparse_support_submode"] == "sparse_odd_single_e1_support_gcd1"
 
 
+def test_sample_and_export_can_require_nonzero_constant(tmp_path):
+    class DummyDecoded:
+        def __init__(self, coeffs):
+            self.coefficients = coeffs
+
+    class DummyTokenizer:
+        def decode(self, row):
+            value = int(row[0])
+            return DummyDecoded([value, 1] + [0] * 22)
+
+    class DummyEnv:
+        tokenizer = DummyTokenizer()
+
+    class DummyModel:
+        def __init__(self):
+            self.values = [0, 5]
+            self.offset = 0
+
+        def generate(self, x_init, length, temperature, top_k, do_sample):
+            batch_size = int(x_init.shape[0])
+            values = self.values[self.offset : self.offset + batch_size]
+            self.offset += batch_size
+            return torch.tensor([[value] + [0] * (length - 1) for value in values], dtype=torch.long)
+
+    args = argparse.Namespace(
+        env_name="igp24",
+        exp_name="nonzero_constant_export_test",
+        exp_id="run",
+        seed=46,
+        device="cpu",
+        max_len=24,
+        coeff_bound=4,
+        gen_batch_size=2,
+        num_samples_from_model=2,
+        sample_export_dedup=True,
+        sample_export_unique_target=0,
+        sample_export_max_attempts=2,
+        sample_export_progress_interval=1,
+        sample_export_avoid_even_support_like=False,
+        sample_export_require_support_gcd_one=False,
+        sample_export_require_nonzero_constant=True,
+        sample_export_required_support_patterns="",
+        sample_export_excluded_support_patterns="",
+        sample_export_family_cap=0,
+        sample_export_basin_fingerprint_cap=0,
+        top_k=-1,
+        igp24_generation_strategy="mixed",
+        igp24_generation_preset="none",
+        igp24_target_r_conditioning_mode="control_token",
+        target_r=16,
+        sample_export_target_r_conditioning_mode="control_token",
+        sample_export_seed_bank_jsonl="",
+        sample_export_seed_bank_target_r=None,
+        sample_export_seed_bank_limit=0,
+    )
+    export_path = tmp_path / "nonzero_constant_samples.jsonl"
+
+    summary = sample_and_export(
+        DummyModel(),
+        args,
+        {"BOS": 0},
+        {},
+        DummyEnv(),
+        temp=1.15,
+        export_path=export_path,
+    )
+    records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
+
+    assert summary["records_written"] == 1
+    assert summary["require_nonzero_constant"] is True
+    assert summary["provenance_skip_counts"] == {"zero_constant_term": 1}
+    assert records[0]["decoded_coefficients"][0] == 5
+
+
 def test_sample_and_export_can_require_sparse_support_pattern(tmp_path):
     class DummyDecoded:
         def __init__(self, coeffs):

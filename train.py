@@ -161,6 +161,12 @@ def get_parser():
         help="opt-in: skip decoded export rows whose positive support gcd is not one",
     )
     parser.add_argument(
+        "--sample_export_require_nonzero_constant",
+        type=bool_flag,
+        default="false",
+        help="opt-in: skip decoded export rows with zero constant coefficient",
+    )
+    parser.add_argument(
         "--sample_export_required_support_patterns",
         type=str,
         default="",

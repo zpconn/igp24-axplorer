@@ -1,0 +1,109 @@
+{
+  "budget_summary": {
+    "10": {
+      "evaluated_rows": 2,
+      "indexed_containment_failures": 0,
+      "intended_target_failure_rows": 0,
+      "intended_target_survival_rows": 0,
+      "median_indexed_target_survivor_count": 1,
+      "rows_with_budget_reached": 2,
+      "valuable_target_survival_rows": 0
+    },
+    "20": {
+      "evaluated_rows": 2,
+      "indexed_containment_failures": 0,
+      "intended_target_failure_rows": 0,
+      "intended_target_survival_rows": 0,
+      "median_indexed_target_survivor_count": 1,
+      "rows_with_budget_reached": 2,
+      "valuable_target_survival_rows": 0
+    },
+    "40": {
+      "evaluated_rows": 2,
+      "indexed_containment_failures": 0,
+      "intended_target_failure_rows": 0,
+      "intended_target_survival_rows": 0,
+      "median_indexed_target_survivor_count": 1,
+      "rows_with_budget_reached": 2,
+      "valuable_target_survival_rows": 0
+    },
+    "5": {
+      "evaluated_rows": 2,
+      "indexed_containment_failures": 0,
+      "intended_target_failure_rows": 0,
+      "intended_target_survival_rows": 0,
+      "median_indexed_target_survivor_count": 1,
+      "rows_with_budget_reached": 2,
+      "valuable_target_survival_rows": 0
+    }
+  },
+  "budgets": [
+    5,
+    10,
+    20,
+    40
+  ],
+  "by_actual_label": {
+    "exact_label_missing": {
+      "final_valuable_target_survival_rows": 0,
+      "indexed_containment_failures": 0,
+      "intended_target_survival_rows": 0,
+      "median_final_indexed_target_survivor_count": 1,
+      "missing_exact_label_rows": 2,
+      "row_count": 2,
+      "true_label_indexed_rows": 0
+    }
+  },
+  "created_at": "2026-07-10T07:49:14.493750+00:00",
+  "discriminant_source_counts": {
+    "discriminant": 2
+  },
+  "evaluated_label_count": 1,
+  "evaluated_row_count": 2,
+  "exact_label_missing_row_count": 2,
+  "failed_row_count": 0,
+  "final_valuable_target_survival_rows": 0,
+  "index_metadata": {
+    "expected_global_group_count": 25000,
+    "global_index_complete": true,
+    "index_scope": "complete_degree24_universe",
+    "indexed_group_count": 25000,
+    "soundness": "necessary_target_exclusion_only",
+    "unindexed_label_mass_unknown": false
+  },
+  "indexed_true_label_containment_failures": 0,
+  "input_row_count": 2,
+  "inputs": {
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+    "max_rows": null,
+    "progress_interval": 1,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+    "row_timeout_seconds": 45.0,
+    "scoreable_rows_jsonl": "data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/cpu_scored_samples_bound1e15/scored_samples.jsonl"
+  },
+  "intended_target_failure_rows": 0,
+  "intended_target_row_count": 0,
+  "intended_target_survival_rows": 0,
+  "max_usable_primes": 40,
+  "observed_label_count": 1,
+  "observed_pair_count": 1,
+  "output_files": {
+    "failed_jsonl": "data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/adaptive_frobenius_2rows_40primes/adaptive_frobenius_benchmark_failed.jsonl",
+    "report_md": "data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/adaptive_frobenius_2rows_40primes/adaptive_frobenius_benchmark_report.md",
+    "rows_jsonl": "data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/adaptive_frobenius_2rows_40primes/adaptive_frobenius_benchmark_rows.jsonl",
+    "summary_json": "data/igp24/axg116_reward_noleak_20260710/r16_cuda_sparse_gcd1_nonzero/adaptive_frobenius_2rows_40primes/adaptive_frobenius_benchmark_summary.json"
+  },
+  "record_type": "igp24_adaptive_frobenius_benchmark",
+  "safety": {
+    "calls_sair": false,
+    "generates_candidates": false,
+    "runs_gap_magma_pari": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "cd288305467788be4722b4625ed4f034f9f6470f",
+  "tool": "scripts/igp24_adaptive_frobenius_benchmark.py",
+  "true_label_indexed_row_count": 0,
+  "true_label_outside_index_row_count": 0
+}
