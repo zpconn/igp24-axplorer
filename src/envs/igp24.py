@@ -1435,6 +1435,13 @@ class IGP24Environment(BaseEnvironment):
             help="Optional active-learning JSONL source to load as initial train/test data",
         )
         parser.add_argument(
+            "--igp24_training_manifest",
+            type=str,
+            action="append",
+            default=[],
+            help="Optional structural-corpus manifest whose relative JSONL shard paths are loaded in order",
+        )
+        parser.add_argument(
             "--igp24_training_jsonl_target_rs",
             type=str,
             default="",

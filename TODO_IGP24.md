@@ -65,6 +65,29 @@ results change.
   Focused readiness/loader/probe validation: 62 passed. No further numbered
   AXG run is permitted until a scalable structural data build clears the new
   gate.
+
+  Implemented the scalable exact corpus route in
+  `src/igp24/constructions/eisenstein_composition.py` and
+  `scripts/igp24_build_structural_pretraining_corpus.py`. It emits resumable,
+  checksummed shards of `f(x)=h(x^m)` with `deg(h)*m=24`. Every emitted row is
+  exactly irreducible by Eisenstein, squarefree in characteristic zero, has an
+  exact real-root count from disjoint midpoint/IVT witnesses, and preserves a
+  stated imprimitive block system. The quartic-in-`x^6` family additionally
+  proves the outer quartic is `S4` using transitivity, an unramified 3-cycle,
+  and nonsquare discriminant. These are structural upper-bound/evidence rows,
+  not exact degree-24 labels and not packet-eligible.
+
+  Replaced SymPy expansion in canonical translation with an exact integer
+  binomial transform and regression-checked it against direct SymPy
+  expansion. Added manifest-backed training-shard loading and named-run
+  support to the GPU probe. A real 11,000-row build benchmark completed in
+  5.5s at roughly 2,000 rows/s, used 14.78 MB, rejected zero canonical
+  collisions, and retained 331/333 attempted outer-`S4` rows in its sampled
+  quartic shard. Projected full 1,000,000-train + 100,000-eval build: about
+  1.5 GB and nine minutes on the conservative single-process path. Focused
+  construction/corpus/loader/readiness/probe validation: 72 passed. Next:
+  materialize the full corpus, run the actual post-loader million-row audit,
+  and only then configure a meaningful named AXG training run.
 - 2026-07-10 AXG-1.21 cross-r escape / exact r8 feedback checkpoint:
   extended `scripts/igp24_positive_seed_escape.py` with opt-in
   `--accepted_output_rs` support so exact positive seeds can provide bounded

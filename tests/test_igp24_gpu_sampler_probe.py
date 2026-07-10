@@ -383,6 +383,27 @@ def test_build_sample_export_target_r_conditioned_command_uses_control_tokens_an
     assert all("pari" not in str(part).lower() for part in command)
 
 
+def test_build_sample_export_target_r_conditioned_command_uses_structural_manifest_and_caps(tmp_path):
+    manifest = tmp_path / "corpus_manifest.json"
+    config = build_sample_export_target_r_conditioned_command(
+        python_executable="python3",
+        output_dir=tmp_path,
+        run_id="run",
+        target_r=8,
+        training_jsonl=None,
+        training_manifest=manifest,
+    )
+    command = config["command"]
+
+    assert config["target_r_training_jsonl"] is None
+    assert config["target_r_training_manifest"] == str(manifest)
+    assert command[command.index("--igp24_training_manifest") + 1] == str(manifest)
+    assert "--igp24_training_jsonl" not in command
+    assert command[command.index("--igp24_training_run_kind") + 1] == "named_iteration"
+    assert command[command.index("--igp24_training_jsonl_target_rs") + 1] == "8,12,16,20,24"
+    assert command[command.index("--igp24_generator_cap_per_family") + 1] == "300000"
+
+
 def test_build_sample_export_target_r_conditioned_command_accepts_diversity_sampling_knobs(tmp_path):
     training_jsonl = tmp_path / "active.jsonl"
     config = build_sample_export_target_r_conditioned_command(

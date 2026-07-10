@@ -1193,8 +1193,9 @@ def build_sample_export_target_r_conditioned_command(
     output_dir: Path,
     run_id: str,
     target_r: int,
-    training_jsonl: Path,
-    target_rs: str = "12,16,20,24",
+    training_jsonl: Path | None,
+    training_manifest: Path | None = None,
+    target_rs: str = "8,12,16,20,24",
     seed: int | str | None = None,
     model_sample_attempts: int = 512,
     max_steps: int = 1800,
@@ -1215,12 +1216,33 @@ def build_sample_export_target_r_conditioned_command(
     basin_fingerprint_cap: int = 0,
     training_run_kind: str = "named_iteration",
 ) -> dict[str, Any]:
+    if training_manifest is None and training_jsonl is None:
+        raise ValueError("target-r conditioned training requires JSONL data or a corpus manifest")
     seed_text = str(seed if seed is not None else 33000 + int(target_r))
     exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
     dump_root = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_dump"
     ledger_path = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_initial_candidates.jsonl"
     sample_export_path = output_dir / f"gpu_model_sample_export_target_r{int(target_r)}_conditioned.jsonl"
     train_log_path = dump_root / exp_name / run_id / "train.log"
+    training_source_args = (
+        ["--igp24_training_manifest", str(training_manifest)]
+        if training_manifest is not None
+        else ["--igp24_training_jsonl", str(training_jsonl)]
+    )
+    structural_cap_args = (
+        [
+            "--igp24_generator_cap_per_pair",
+            "0",
+            "--igp24_generator_cap_per_label",
+            "0",
+            "--igp24_generator_cap_per_family",
+            "300000",
+            "--igp24_generator_cap_per_basin_fingerprint",
+            "0",
+        ]
+        if training_manifest is not None
+        else []
+    )
     cmd = [
         python_executable,
         "train.py",
@@ -1238,14 +1260,14 @@ def build_sample_export_target_r_conditioned_command(
         "decimal_coefficients",
         "--igp24_target_r_conditioning_mode",
         "control_token",
-        "--igp24_training_jsonl",
-        str(training_jsonl),
+        *training_source_args,
         "--igp24_training_jsonl_target_rs",
         str(target_rs),
         "--igp24_training_run_kind",
         str(training_run_kind),
+        *structural_cap_args,
         "--coeff_bound",
-        "1000000000000000",
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "--target_r",
         str(int(target_r)),
         "--gensize",
@@ -1335,7 +1357,8 @@ def build_sample_export_target_r_conditioned_command(
         "probe_mode": PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED,
         "target_r": int(target_r),
         "target_r_conditioning_mode": "control_token",
-        "target_r_training_jsonl": str(training_jsonl),
+        "target_r_training_jsonl": str(training_jsonl) if training_jsonl is not None else None,
+        "target_r_training_manifest": str(training_manifest) if training_manifest is not None else None,
         "target_r_training_target_rs": str(target_rs),
         "target_r_seed": seed_text,
         "command": cmd,
@@ -1361,7 +1384,8 @@ def build_sample_export_target_r_conditioned_command(
             "sample_export_unique_target": int(unique_target),
             "encoding_tokens": "decimal_coefficients",
             "model_target_r_conditioning_mode": "control_token",
-            "training_jsonl": str(training_jsonl),
+            "training_jsonl": str(training_jsonl) if training_jsonl is not None else None,
+            "training_manifest": str(training_manifest) if training_manifest is not None else None,
             "training_target_rs": str(target_rs),
             "generation_strategy": str(generation_strategy),
             "conditioned_diversity_sampling": bool(float(temperature) > 0.9 or int(top_k) < 0 or int(unique_target) > 0),
@@ -1819,8 +1843,14 @@ def get_parser() -> argparse.ArgumentParser:
         help="active-learning JSONL for sample_export_target_r_conditioned",
     )
     parser.add_argument(
+        "--target_r_training_manifest",
+        type=Path,
+        default=None,
+        help="structural-corpus manifest for a readiness-gated named target-r model; takes precedence over JSONL",
+    )
+    parser.add_argument(
         "--target_r_training_target_rs",
-        default="12,16,20,24",
+        default="8,12,16,20,24",
         help="comma-separated r values loaded from --target_r_training_jsonl for sample_export_target_r_conditioned",
     )
     parser.add_argument(
@@ -1944,6 +1974,9 @@ def main() -> int:
         "target_r_training_jsonl": str(args.target_r_training_jsonl)
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
+        "target_r_training_manifest": str(args.target_r_training_manifest)
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED and args.target_r_training_manifest
+        else None,
         "target_r_training_target_rs": args.target_r_training_target_rs
         if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
@@ -2057,6 +2090,7 @@ def main() -> int:
                 run_id=run_id,
                 target_r=args.target_r,
                 training_jsonl=args.target_r_training_jsonl,
+                training_manifest=args.target_r_training_manifest,
                 target_rs=args.target_r_training_target_rs,
                 seed=args.target_r_seed,
                 model_sample_attempts=args.target_r_model_sample_attempts,

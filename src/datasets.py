@@ -33,6 +33,29 @@ def _jsonl_paths(value):
     return [Path(part.strip()) for part in str(value).split(",") if part.strip()]
 
 
+def _igp24_training_paths(args):
+    paths = _jsonl_paths(getattr(args, "igp24_training_jsonl", []))
+    manifest_paths = _jsonl_paths(getattr(args, "igp24_training_manifest", []))
+    for manifest_path in manifest_paths:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        files = payload.get("files")
+        if not isinstance(files, list) or not files:
+            raise ValueError(f"IGP24 training manifest has no files: {manifest_path}")
+        expected_train = int(payload.get("train_row_count") or 0)
+        expected_eval = int(payload.get("eval_row_count") or 0)
+        manifest_rows = sum(int(item.get("row_count") or 0) for item in files if isinstance(item, dict))
+        if expected_train + expected_eval and manifest_rows != expected_train + expected_eval:
+            raise ValueError(f"IGP24 training manifest row-count mismatch: {manifest_path}")
+        for item in files:
+            if not isinstance(item, dict) or not item.get("path"):
+                raise ValueError(f"IGP24 training manifest has malformed file entry: {manifest_path}")
+            path = Path(str(item["path"]))
+            if not path.is_absolute():
+                path = manifest_path.parent / path
+            paths.append(path)
+    return paths, manifest_paths
+
+
 def _coefficient_vector_from_record(record):
     for key in ("coefficients", "exported_coefficients", "decoded_coefficients"):
         value = record.get(key)
@@ -210,7 +233,7 @@ def _cap_key(record, contract, key):
 
 
 def _load_igp24_training_jsonl(args, classname):
-    paths = _jsonl_paths(getattr(args, "igp24_training_jsonl", []))
+    paths, manifest_paths = _igp24_training_paths(args)
     if not paths:
         return None
 
@@ -364,6 +387,8 @@ def _load_igp24_training_jsonl(args, classname):
         dict(role_counts),
         {key: round(value, 3) for key, value in sorted(role_weight.items())},
     )
+    if manifest_paths:
+        logger.info("Loaded IGP24 training manifests: %s", [str(path) for path in manifest_paths])
     logger.info(
         "IGP24 generator sampling mass: labels=%s families=%s cap_limits=%s family_split_overlap=%s",
         label_weight.most_common(20),

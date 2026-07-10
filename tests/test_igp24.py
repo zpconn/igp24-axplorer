@@ -186,6 +186,7 @@ def _igp24_params(tmp_path, seed=123, strategy="mixed", encoding_tokens="coeffic
         igp24_generation_preset="none",
         igp24_target_r_conditioning_mode=target_r_conditioning_mode,
         igp24_training_jsonl=[],
+        igp24_training_manifest=[],
         igp24_training_jsonl_target_rs="",
         igp24_training_jsonl_max_rows=0,
         igp24_training_jsonl_max_abs_coeff=0,
@@ -279,6 +280,65 @@ def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_pa
     env = build_env(params)
     encoded = env.tokenizer.encode(train_set[0])
     assert encoded[1] == env.tokenizer.stoi["R12"]
+
+
+def test_load_initial_data_from_structural_corpus_manifest(tmp_path):
+    train_path = tmp_path / "train.jsonl"
+    eval_path = tmp_path / "eval.jsonl"
+    common_contract = {
+        "eligible": True,
+        "weight": 1.0,
+        "role": "exact_local_exploration",
+    }
+    train_row = {
+        "coefficients": [2] + [0] * 23 + [1],
+        "r": 8,
+        "canonical_hash": "manifest-train",
+        "generator_training": {
+            **common_contract,
+            "construction_family": "manifest-train-family",
+            "split_group_key": "manifest-train-group",
+        },
+        "train_eval_split": "train",
+    }
+    eval_row = {
+        "coefficients": [3] + [0] * 23 + [1],
+        "r": 8,
+        "canonical_hash": "manifest-eval",
+        "generator_training": {
+            **common_contract,
+            "construction_family": "manifest-eval-family",
+            "split_group_key": "manifest-eval-group",
+        },
+        "train_eval_split": "eval",
+    }
+    train_path.write_text(json.dumps(train_row) + "\n", encoding="utf-8")
+    eval_path.write_text(json.dumps(eval_row) + "\n", encoding="utf-8")
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "train_row_count": 1,
+                "eval_row_count": 1,
+                "files": [
+                    {"path": train_path.name, "row_count": 1},
+                    {"path": eval_path.name, "row_count": 1},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    params = _igp24_params(tmp_path, encoding_tokens="decimal_coefficients", target_r_conditioning_mode="control_token")
+    params.dump_path = str(tmp_path / "dump")
+    params.ntest = 1
+    params.igp24_training_manifest = [str(manifest_path)]
+    params.igp24_training_jsonl_target_rs = "8"
+
+    train_set, eval_set = load_initial_data(params, IGP24DataPoint)
+
+    assert [row.features for row in train_set] == ["manifest-train"]
+    assert [row.features for row in eval_set] == ["manifest-eval"]
+    assert train_set[0].source_metadata["construction_family"] == "manifest-train-family"
 
 
 def test_igp24_generator_training_rejects_family_split_leakage(tmp_path):

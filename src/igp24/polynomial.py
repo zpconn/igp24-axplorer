@@ -146,13 +146,20 @@ def translate_coefficients(coefficients: Sequence[Any], k: int) -> tuple[int, ..
 
     if not isinstance(k, Integral):
         raise IGP24Error("translation_must_be_integer")
-    sympy = _require_sympy()
-    x = _symbol()
-    poly = construct_polynomial(coefficients)
-    translated = sympy.Poly(sympy.expand(poly.as_expr().subs(x, x + int(k))), x, domain=sympy.ZZ)
-    if translated.degree() != DEGREE or int(translated.LC()) != 1:
-        raise IGP24Error("translation_did_not_preserve_monic_degree")
-    return tuple(int(translated.nth(i)) for i in range(DEGREE))
+    values = validate_coefficients(coefficients)
+    shift = int(k)
+    full = values + (1,)
+    translated = []
+    for output_degree in range(DEGREE):
+        translated.append(
+            sum(
+                full[input_degree]
+                * math.comb(input_degree, output_degree)
+                * shift ** (input_degree - output_degree)
+                for input_degree in range(output_degree, DEGREE + 1)
+            )
+        )
+    return tuple(translated)
 
 
 def canonicalize_under_translations(
