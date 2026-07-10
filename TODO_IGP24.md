@@ -88,6 +88,46 @@ results change.
   construction/corpus/loader/readiness/probe validation: 72 passed. Next:
   materialize the full corpus, run the actual post-loader million-row audit,
   and only then configure a meaningful named AXG training run.
+
+  Full corpus build completed at
+  `data/igp24/structural_pretraining_20260710_million_v1/` in 537.402s.
+  Results: exactly 1,000,000 unique train rows, 100,000 unique held-out rows,
+  200,000 train + 20,000 eval rows for each of `r=8,12,16,20,24`, eight
+  construction families, 1,100,000 unique canonical hashes, zero canonical
+  collisions, zero matches to the complete fresh SAIR submission history, and
+  1,479,898,407 corpus bytes. The `r=8,m=6` target-specific lane contains
+  33,333 exact outer-`S4` rows; 497 attempted rows were rejected because the
+  bounded exact `S4` certificate was unavailable. Manifest and checksums:
+  `corpus_manifest.json`; distilled report: `corpus_report.md`.
+
+  The independent real loader audit parsed all 1.1M rows in 23s and reported
+  train/eval `1,000,000/100,000`, no missing/filtered/invalid/ineligible/
+  duplicate/capped rows, train ESS `1,000,000`, balanced per-`r` counts, and
+  zero hash/split-group/construction-family leakage. Status:
+  `ready_for_named_iteration`; artifact:
+  `loader_audit/structural_million_corpus_readiness/20260710T120300Z/igp24_training_readiness.json`.
+
+  Independent audit:
+  `data/igp24/structural_pretraining_20260710_million_v1/independent_audit/`.
+  All 30 shard row counts and SHA-256 values matched. All 30 deterministic
+  stratified rows passed independently recomputed canonical hashes, exact
+  irreducibility over Q, exact real-root count, squarefreeness, inner-power
+  support preservation, packet-ineligible state, and exact outer-`S4` order
+  where claimed. Failure count: zero. Decimal token-length scan over all 1.1M
+  rows: min 89, p50 234, p95 295, p99 297, max 299, mean 235.032.
+
+  Added model-side composition controls `M2`, `M4`, and `M6` alongside the
+  existing target-`r` token, plus an inference gate requiring decoded support
+  to preserve the requested inner power. Added epoch-shuffle sampling and
+  unique-coverage telemetry. A named run must now schedule at least one full
+  without-replacement traversal of the million-row train corpus; merely
+  drawing a million replacement samples cannot pass. No new numbered AXG
+  model has been trained yet. The next named configuration is an 8-layer,
+  8-head, 512-embedding model with max token payload 320, batch 32, and 31,250
+  epoch-shuffled steps, which schedules exactly one complete unique-corpus
+  traversal before inference. Primary promotion lane: `r=24,M2`; the corpus
+  has 200,000 exact train rows in that target stratum, about 893,000 total M2
+  train rows, and 80,000 disjoint M2 evaluation rows.
 - 2026-07-10 AXG-1.21 cross-r escape / exact r8 feedback checkpoint:
   extended `scripts/igp24_positive_seed_escape.py` with opt-in
   `--accepted_output_rs` support so exact positive seeds can provide bounded

@@ -68,6 +68,7 @@ def test_smoke_corpus_is_resumable_unique_and_exact(tmp_path):
     assert len({row["canonical_hash"] for row in rows}) == 150
     assert all(row["features"]["packet_eligible"] is False for row in rows)
     assert all(row["features"]["irreducibility_proof"] == "eisenstein" for row in rows)
+    assert {row["features"]["inner_power"] for row in rows}.issubset({2, 4, 6})
 
     assert main(["--output_dir", str(output_dir), "--train_rows", "100", "--eval_rows", "50"]) == 0
     resumed = json.loads((output_dir / "corpus_manifest.json").read_text(encoding="utf-8"))

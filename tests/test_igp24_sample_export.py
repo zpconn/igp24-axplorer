@@ -766,7 +766,7 @@ def test_sample_and_export_prefixes_target_r_seed_bank(tmp_path):
     assert records[1]["generation_metadata"]["target_r_intent"] == 12
 
 
-def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
+def test_sample_and_export_uses_model_side_target_r_and_structure_control_prefix(tmp_path):
     class DummyDecoded:
         def __init__(self, coefficient):
             self.coefficients = [coefficient] + [0] * 23
@@ -775,20 +775,27 @@ def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
         def target_r_control_token_ids(self, target_r):
             return [9] if int(target_r) == 16 else []
 
+        def inner_power_control_token_ids(self, inner_power):
+            return [10] if int(inner_power) == 2 else []
+
         def decode(self, row):
             values = [int(value) for value in row.tolist()]
-            assert values[:2] == [0, 9]
-            return DummyDecoded(values[2])
+            assert values[:3] == [0, 9, 10]
+            return DummyDecoded(values[3])
 
     class DummyEnv:
         tokenizer = DummyTokenizer()
 
     class DummyModel:
         def generate(self, x_init, length, temperature, top_k, do_sample):
-            assert x_init.shape == (2, 2)
+            assert x_init.shape == (2, 3)
             assert x_init[:, 0].tolist() == [0, 0]
             assert x_init[:, 1].tolist() == [9, 9]
-            return torch.tensor([[0, 9, 5] + [0] * (length - 1), [0, 9, 6] + [0] * (length - 1)], dtype=torch.long)
+            assert x_init[:, 2].tolist() == [10, 10]
+            return torch.tensor(
+                [[0, 9, 10, 5] + [0] * (length - 1), [0, 9, 10, 6] + [0] * (length - 1)],
+                dtype=torch.long,
+            )
 
     args = argparse.Namespace(
         env_name="igp24",
@@ -809,7 +816,9 @@ def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
         igp24_generation_strategy="fixed_sparse_template",
         igp24_generation_preset="none",
         igp24_target_r_conditioning_mode="control_token",
+        igp24_structure_conditioning_mode="control_token",
         target_r=16,
+        target_inner_power=2,
         sample_export_target_r_conditioning_mode="none",
         sample_export_seed_bank_jsonl="",
         sample_export_seed_bank_target_r=None,
@@ -820,7 +829,7 @@ def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
     summary = sample_and_export(
         DummyModel(),
         args,
-        {"BOS": 0, "R16": 9},
+        {"BOS": 0, "R16": 9, "M2": 10},
         {},
         DummyEnv(),
         temp=0.9,
@@ -829,9 +838,13 @@ def test_sample_and_export_uses_model_side_target_r_control_prefix(tmp_path):
     records = [json.loads(line) for line in export_path.read_text(encoding="utf-8").splitlines()]
 
     assert summary["model_target_r_conditioning_mode"] == "control_token"
-    assert records[0]["token_ids"][:2] == [0, 9]
+    assert summary["model_structure_conditioning_mode"] == "control_token"
+    assert summary["target_inner_power"] == 2
+    assert records[0]["token_ids"][:3] == [0, 9, 10]
     assert records[0]["generation_metadata"]["target_r_conditioning_mode"] == "control_token"
     assert records[0]["generation_metadata"]["model_target_r_conditioning_mode"] == "control_token"
+    assert records[0]["generation_metadata"]["model_structure_conditioning_mode"] == "control_token"
+    assert records[0]["generation_metadata"]["target_inner_power"] == 2
 
 
 def test_extract_decoded_coefficients_accepts_decoded_or_exported():

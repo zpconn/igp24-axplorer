@@ -1,0 +1,449 @@
+{
+  "checks": {
+    "complete_unique_corpus_traversal": {
+      "batch_size": 32,
+      "max_steps": 50000,
+      "minimum_unique_train_examples_to_traverse": 1000000,
+      "passed": true,
+      "requires_without_replacement_epoch_shuffle": true,
+      "sampling_mode": "epoch_shuffle",
+      "scheduled_presentations": 1600000
+    },
+    "eval_canonical_deduplicated": {
+      "actual_duplicates": 0,
+      "maximum_duplicates": 0,
+      "passed": true
+    },
+    "eval_construction_families": {
+      "actual": 2,
+      "minimum": 1,
+      "passed": true
+    },
+    "eval_examples_r12": {
+      "actual": 20000,
+      "minimum": 20000,
+      "passed": true
+    },
+    "eval_examples_r16": {
+      "actual": 20000,
+      "minimum": 20000,
+      "passed": true
+    },
+    "eval_examples_r20": {
+      "actual": 20000,
+      "minimum": 20000,
+      "passed": true
+    },
+    "eval_examples_r24": {
+      "actual": 20000,
+      "minimum": 20000,
+      "passed": true
+    },
+    "eval_examples_r8": {
+      "actual": 20000,
+      "minimum": 20000,
+      "passed": true
+    },
+    "eval_rows_have_canonical_identity": {
+      "actual_missing": 0,
+      "maximum_missing": 0,
+      "passed": true
+    },
+    "eval_split_groups": {
+      "actual": 50,
+      "minimum": 8,
+      "passed": true
+    },
+    "train_canonical_deduplicated": {
+      "actual_duplicates": 0,
+      "maximum_duplicates": 0,
+      "passed": true
+    },
+    "train_construction_families": {
+      "actual": 6,
+      "minimum": 4,
+      "passed": true
+    },
+    "train_effective_sample_size": {
+      "actual": 1000000.0,
+      "minimum": 500000,
+      "passed": true
+    },
+    "train_eval_construction_family_disjoint": {
+      "overlap_count": 0,
+      "overlap_examples": [],
+      "passed": true
+    },
+    "train_eval_hash_disjoint": {
+      "overlap_count": 0,
+      "overlap_examples": [],
+      "passed": true
+    },
+    "train_eval_split_group_disjoint": {
+      "overlap_count": 0,
+      "overlap_examples": [],
+      "passed": true
+    },
+    "train_examples_r12": {
+      "actual": 200000,
+      "minimum": 200000,
+      "passed": true
+    },
+    "train_examples_r16": {
+      "actual": 200000,
+      "minimum": 200000,
+      "passed": true
+    },
+    "train_examples_r20": {
+      "actual": 200000,
+      "minimum": 200000,
+      "passed": true
+    },
+    "train_examples_r24": {
+      "actual": 200000,
+      "minimum": 200000,
+      "passed": true
+    },
+    "train_examples_r8": {
+      "actual": 200000,
+      "minimum": 200000,
+      "passed": true
+    },
+    "train_rows_have_canonical_identity": {
+      "actual_missing": 0,
+      "maximum_missing": 0,
+      "passed": true
+    },
+    "train_split_groups": {
+      "actual": 502,
+      "minimum": 32,
+      "passed": true
+    },
+    "unique_eval_examples": {
+      "actual": 100000,
+      "minimum": 100000,
+      "passed": true
+    },
+    "unique_train_examples": {
+      "actual": 1000000,
+      "minimum": 1000000,
+      "passed": true
+    }
+  },
+  "counting_semantics": {
+    "augmented_duplicates_count": false,
+    "epochs_count_as_new_examples": false,
+    "evaluation_is_separate": true,
+    "repeated_sampler_draws_count": false,
+    "training_examples": "unique canonical generator-eligible rows after loader filters and holdout"
+  },
+  "eval": {
+    "conditioning_inner_power_counts": {
+      "2": 80000,
+      "4": 20000
+    },
+    "conditioning_r_counts": {
+      "12": 20000,
+      "16": 20000,
+      "20": 20000,
+      "24": 20000,
+      "8": 20000
+    },
+    "construction_families": [
+      "eval_d12_x2_p3_high",
+      "eval_d6_x4_p5_high"
+    ],
+    "construction_family_count": 2,
+    "duplicate_canonical_identity_count": 0,
+    "effective_sample_size": 100000.0,
+    "physical_row_count": 100000,
+    "positive_sampling_mass": 100000.0,
+    "role_counts": {
+      "exact_local_exploration": 100000
+    },
+    "rows_missing_canonical_identity": 0,
+    "split_group_count": 50,
+    "split_group_examples": [
+      "eval_d12_x2_p3_high:r12:parameter_shard_0000",
+      "eval_d12_x2_p3_high:r12:parameter_shard_0001",
+      "eval_d12_x2_p3_high:r12:parameter_shard_0002",
+      "eval_d12_x2_p3_high:r12:parameter_shard_0003",
+      "eval_d12_x2_p3_high:r12:parameter_shard_0004",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0000",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0001",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0002",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0003",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0004",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0005",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0006",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0007",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0008",
+      "eval_d12_x2_p3_high:r16:parameter_shard_0009",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0000",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0001",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0002",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0003",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0004",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0005",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0006",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0007",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0008",
+      "eval_d12_x2_p3_high:r20:parameter_shard_0009",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0000",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0001",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0002",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0003",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0004",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0005",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0006",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0007",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0008",
+      "eval_d12_x2_p3_high:r24:parameter_shard_0009",
+      "eval_d12_x2_p3_high:r8:parameter_shard_0000",
+      "eval_d12_x2_p3_high:r8:parameter_shard_0001",
+      "eval_d12_x2_p3_high:r8:parameter_shard_0002",
+      "eval_d12_x2_p3_high:r8:parameter_shard_0003",
+      "eval_d12_x2_p3_high:r8:parameter_shard_0004",
+      "eval_d6_x4_p5_high:r12:parameter_shard_0000",
+      "eval_d6_x4_p5_high:r12:parameter_shard_0001",
+      "eval_d6_x4_p5_high:r12:parameter_shard_0002",
+      "eval_d6_x4_p5_high:r12:parameter_shard_0003",
+      "eval_d6_x4_p5_high:r12:parameter_shard_0004",
+      "eval_d6_x4_p5_high:r8:parameter_shard_0000",
+      "eval_d6_x4_p5_high:r8:parameter_shard_0001",
+      "eval_d6_x4_p5_high:r8:parameter_shard_0002",
+      "eval_d6_x4_p5_high:r8:parameter_shard_0003",
+      "eval_d6_x4_p5_high:r8:parameter_shard_0004"
+    ],
+    "unique_canonical_example_count": 100000
+  },
+  "exp_id": "20260710T120300Z",
+  "exp_name": "structural_million_corpus_readiness",
+  "failed_checks": [],
+  "per_r_requirements": {
+    "12": {
+      "eval": {
+        "actual": 20000,
+        "minimum": 20000,
+        "passed": true
+      },
+      "train": {
+        "actual": 200000,
+        "minimum": 200000,
+        "passed": true
+      }
+    },
+    "16": {
+      "eval": {
+        "actual": 20000,
+        "minimum": 20000,
+        "passed": true
+      },
+      "train": {
+        "actual": 200000,
+        "minimum": 200000,
+        "passed": true
+      }
+    },
+    "20": {
+      "eval": {
+        "actual": 20000,
+        "minimum": 20000,
+        "passed": true
+      },
+      "train": {
+        "actual": 200000,
+        "minimum": 200000,
+        "passed": true
+      }
+    },
+    "24": {
+      "eval": {
+        "actual": 20000,
+        "minimum": 20000,
+        "passed": true
+      },
+      "train": {
+        "actual": 200000,
+        "minimum": 200000,
+        "passed": true
+      }
+    },
+    "8": {
+      "eval": {
+        "actual": 20000,
+        "minimum": 20000,
+        "passed": true
+      },
+      "train": {
+        "actual": 200000,
+        "minimum": 200000,
+        "passed": true
+      }
+    }
+  },
+  "ready_for_named_iteration": true,
+  "requested_conditioning_rs": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "run_kind": "named_iteration",
+  "schema_version": "igp24_training_readiness_v1",
+  "status": "ready_for_named_iteration",
+  "thresholds": {
+    "min_eval_construction_families": 1,
+    "min_eval_split_groups": 8,
+    "min_train_construction_families": 4,
+    "min_train_effective_sample_size": 500000,
+    "min_train_split_groups": 32,
+    "min_unique_eval_examples": 100000,
+    "min_unique_train_examples": 1000000
+  },
+  "train": {
+    "conditioning_inner_power_counts": {
+      "2": 893334,
+      "4": 73333,
+      "6": 33333
+    },
+    "conditioning_r_counts": {
+      "12": 200000,
+      "16": 200000,
+      "20": 200000,
+      "24": 200000,
+      "8": 200000
+    },
+    "construction_families": [
+      "train_d12_x2_p2_low",
+      "train_d12_x2_p3_low",
+      "train_d12_x2_p5_mid",
+      "train_d12_x2_p7_mid",
+      "train_d4_x6_p2_outer_s4",
+      "train_d6_x4_p2"
+    ],
+    "construction_family_count": 6,
+    "duplicate_canonical_identity_count": 0,
+    "effective_sample_size": 1000000.0,
+    "physical_row_count": 1000000,
+    "positive_sampling_mass": 1000000.0,
+    "role_counts": {
+      "exact_local_exploration": 1000000
+    },
+    "rows_missing_canonical_identity": 0,
+    "split_group_count": 502,
+    "split_group_examples": [
+      "train_d12_x2_p2_low:r12:parameter_shard_0000",
+      "train_d12_x2_p2_low:r12:parameter_shard_0001",
+      "train_d12_x2_p2_low:r12:parameter_shard_0002",
+      "train_d12_x2_p2_low:r12:parameter_shard_0003",
+      "train_d12_x2_p2_low:r12:parameter_shard_0004",
+      "train_d12_x2_p2_low:r12:parameter_shard_0005",
+      "train_d12_x2_p2_low:r12:parameter_shard_0006",
+      "train_d12_x2_p2_low:r12:parameter_shard_0007",
+      "train_d12_x2_p2_low:r12:parameter_shard_0008",
+      "train_d12_x2_p2_low:r12:parameter_shard_0009",
+      "train_d12_x2_p2_low:r12:parameter_shard_0010",
+      "train_d12_x2_p2_low:r12:parameter_shard_0011",
+      "train_d12_x2_p2_low:r12:parameter_shard_0012",
+      "train_d12_x2_p2_low:r12:parameter_shard_0013",
+      "train_d12_x2_p2_low:r12:parameter_shard_0014",
+      "train_d12_x2_p2_low:r12:parameter_shard_0015",
+      "train_d12_x2_p2_low:r12:parameter_shard_0016",
+      "train_d12_x2_p2_low:r12:parameter_shard_0017",
+      "train_d12_x2_p2_low:r12:parameter_shard_0018",
+      "train_d12_x2_p2_low:r12:parameter_shard_0019",
+      "train_d12_x2_p2_low:r16:parameter_shard_0000",
+      "train_d12_x2_p2_low:r16:parameter_shard_0001",
+      "train_d12_x2_p2_low:r16:parameter_shard_0002",
+      "train_d12_x2_p2_low:r16:parameter_shard_0003",
+      "train_d12_x2_p2_low:r16:parameter_shard_0004",
+      "train_d12_x2_p2_low:r16:parameter_shard_0005",
+      "train_d12_x2_p2_low:r16:parameter_shard_0006",
+      "train_d12_x2_p2_low:r16:parameter_shard_0007",
+      "train_d12_x2_p2_low:r16:parameter_shard_0008",
+      "train_d12_x2_p2_low:r16:parameter_shard_0009",
+      "train_d12_x2_p2_low:r16:parameter_shard_0010",
+      "train_d12_x2_p2_low:r16:parameter_shard_0011",
+      "train_d12_x2_p2_low:r16:parameter_shard_0012",
+      "train_d12_x2_p2_low:r16:parameter_shard_0013",
+      "train_d12_x2_p2_low:r16:parameter_shard_0014",
+      "train_d12_x2_p2_low:r16:parameter_shard_0015",
+      "train_d12_x2_p2_low:r16:parameter_shard_0016",
+      "train_d12_x2_p2_low:r16:parameter_shard_0017",
+      "train_d12_x2_p2_low:r16:parameter_shard_0018",
+      "train_d12_x2_p2_low:r16:parameter_shard_0019",
+      "train_d12_x2_p2_low:r16:parameter_shard_0020",
+      "train_d12_x2_p2_low:r16:parameter_shard_0021",
+      "train_d12_x2_p2_low:r16:parameter_shard_0022",
+      "train_d12_x2_p2_low:r16:parameter_shard_0023",
+      "train_d12_x2_p2_low:r16:parameter_shard_0024",
+      "train_d12_x2_p2_low:r20:parameter_shard_0000",
+      "train_d12_x2_p2_low:r20:parameter_shard_0001",
+      "train_d12_x2_p2_low:r20:parameter_shard_0002",
+      "train_d12_x2_p2_low:r20:parameter_shard_0003",
+      "train_d12_x2_p2_low:r20:parameter_shard_0004",
+      "train_d12_x2_p2_low:r20:parameter_shard_0005",
+      "train_d12_x2_p2_low:r20:parameter_shard_0006",
+      "train_d12_x2_p2_low:r20:parameter_shard_0007",
+      "train_d12_x2_p2_low:r20:parameter_shard_0008",
+      "train_d12_x2_p2_low:r20:parameter_shard_0009",
+      "train_d12_x2_p2_low:r20:parameter_shard_0010",
+      "train_d12_x2_p2_low:r20:parameter_shard_0011",
+      "train_d12_x2_p2_low:r20:parameter_shard_0012",
+      "train_d12_x2_p2_low:r20:parameter_shard_0013",
+      "train_d12_x2_p2_low:r20:parameter_shard_0014",
+      "train_d12_x2_p2_low:r20:parameter_shard_0015",
+      "train_d12_x2_p2_low:r20:parameter_shard_0016",
+      "train_d12_x2_p2_low:r20:parameter_shard_0017",
+      "train_d12_x2_p2_low:r20:parameter_shard_0018",
+      "train_d12_x2_p2_low:r20:parameter_shard_0019",
+      "train_d12_x2_p2_low:r20:parameter_shard_0020",
+      "train_d12_x2_p2_low:r20:parameter_shard_0021",
+      "train_d12_x2_p2_low:r20:parameter_shard_0022",
+      "train_d12_x2_p2_low:r20:parameter_shard_0023",
+      "train_d12_x2_p2_low:r20:parameter_shard_0024",
+      "train_d12_x2_p2_low:r24:parameter_shard_0000",
+      "train_d12_x2_p2_low:r24:parameter_shard_0001",
+      "train_d12_x2_p2_low:r24:parameter_shard_0002",
+      "train_d12_x2_p2_low:r24:parameter_shard_0003",
+      "train_d12_x2_p2_low:r24:parameter_shard_0004",
+      "train_d12_x2_p2_low:r24:parameter_shard_0005",
+      "train_d12_x2_p2_low:r24:parameter_shard_0006",
+      "train_d12_x2_p2_low:r24:parameter_shard_0007",
+      "train_d12_x2_p2_low:r24:parameter_shard_0008",
+      "train_d12_x2_p2_low:r24:parameter_shard_0009",
+      "train_d12_x2_p2_low:r24:parameter_shard_0010",
+      "train_d12_x2_p2_low:r24:parameter_shard_0011",
+      "train_d12_x2_p2_low:r24:parameter_shard_0012",
+      "train_d12_x2_p2_low:r24:parameter_shard_0013",
+      "train_d12_x2_p2_low:r24:parameter_shard_0014",
+      "train_d12_x2_p2_low:r24:parameter_shard_0015",
+      "train_d12_x2_p2_low:r24:parameter_shard_0016",
+      "train_d12_x2_p2_low:r24:parameter_shard_0017",
+      "train_d12_x2_p2_low:r24:parameter_shard_0018",
+      "train_d12_x2_p2_low:r24:parameter_shard_0019",
+      "train_d12_x2_p2_low:r24:parameter_shard_0020",
+      "train_d12_x2_p2_low:r24:parameter_shard_0021",
+      "train_d12_x2_p2_low:r24:parameter_shard_0022",
+      "train_d12_x2_p2_low:r24:parameter_shard_0023",
+      "train_d12_x2_p2_low:r24:parameter_shard_0024",
+      "train_d12_x2_p2_low:r8:parameter_shard_0000",
+      "train_d12_x2_p2_low:r8:parameter_shard_0001",
+      "train_d12_x2_p2_low:r8:parameter_shard_0002",
+      "train_d12_x2_p2_low:r8:parameter_shard_0003",
+      "train_d12_x2_p2_low:r8:parameter_shard_0004"
+    ],
+    "unique_canonical_example_count": 1000000
+  },
+  "training_schedule": {
+    "batch_size": 32,
+    "max_steps": 50000,
+    "minimum_unique_train_examples_to_traverse": 1000000,
+    "passed": true,
+    "requires_without_replacement_epoch_shuffle": true,
+    "sampling_mode": "epoch_shuffle",
+    "scheduled_presentations": 1600000
+  }
+}

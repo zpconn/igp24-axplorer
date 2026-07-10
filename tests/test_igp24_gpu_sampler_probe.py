@@ -390,6 +390,7 @@ def test_build_sample_export_target_r_conditioned_command_uses_structural_manife
         output_dir=tmp_path,
         run_id="run",
         target_r=8,
+        target_inner_power=6,
         training_jsonl=None,
         training_manifest=manifest,
     )
@@ -397,11 +398,18 @@ def test_build_sample_export_target_r_conditioned_command_uses_structural_manife
 
     assert config["target_r_training_jsonl"] is None
     assert config["target_r_training_manifest"] == str(manifest)
+    assert config["target_inner_power"] == 6
     assert command[command.index("--igp24_training_manifest") + 1] == str(manifest)
     assert "--igp24_training_jsonl" not in command
     assert command[command.index("--igp24_training_run_kind") + 1] == "named_iteration"
     assert command[command.index("--igp24_training_jsonl_target_rs") + 1] == "8,12,16,20,24"
+    assert command[command.index("--igp24_structure_conditioning_mode") + 1] == "control_token"
+    assert command[command.index("--target_inner_power") + 1] == "6"
     assert command[command.index("--igp24_generator_cap_per_family") + 1] == "300000"
+    assert command[command.index("--igp24_cache_loaded_dataset") + 1] == "false"
+    assert config["caps"]["max_steps_per_epoch"] * config["caps"]["batch_size"] >= 1_000_000
+    assert config["caps"]["n_layer"] == 8
+    assert config["caps"]["n_embd"] == 512
 
 
 def test_build_sample_export_target_r_conditioned_command_accepts_diversity_sampling_knobs(tmp_path):

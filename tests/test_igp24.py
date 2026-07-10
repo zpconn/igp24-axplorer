@@ -1,6 +1,7 @@
 import json
 import math
 import random
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -234,6 +235,32 @@ def test_decimal_tokenizer_roundtrips_high_coefficients_with_target_r(tmp_path):
     assert decoded.coefficients == coeffs
 
 
+def test_decimal_tokenizer_roundtrips_target_r_and_composition_controls(tmp_path):
+    params = _igp24_params(
+        tmp_path,
+        encoding_tokens="decimal_coefficients",
+        target_r_conditioning_mode="control_token",
+    )
+    params.igp24_structure_conditioning_mode = "control_token"
+    env = build_env(params)
+    datapoint = IGP24DataPoint(
+        N=DEGREE,
+        coeffs=VALID,
+        conditioning_target_r=8,
+        conditioning_inner_power=6,
+    )
+
+    encoded = env.tokenizer.encode(datapoint)
+    decoded = env.tokenizer.decode(encoded)
+
+    assert encoded[0] == env.tokenizer.stoi["BOS"]
+    assert encoded[1] == env.tokenizer.stoi["R8"]
+    assert encoded[2] == env.tokenizer.stoi["M6"]
+    assert env.tokenizer.block_size_for_max_len(640) == 644
+    assert decoded is not None
+    assert decoded.coefficients == VALID
+
+
 def test_load_initial_data_from_igp24_jsonl_carries_target_r_conditioning(tmp_path):
     dataset_path = tmp_path / "active.jsonl"
     rows = [
@@ -339,6 +366,44 @@ def test_load_initial_data_from_structural_corpus_manifest(tmp_path):
     assert [row.features for row in train_set] == ["manifest-train"]
     assert [row.features for row in eval_set] == ["manifest-eval"]
     assert train_set[0].source_metadata["construction_family"] == "manifest-train-family"
+
+
+def test_readiness_only_manifest_load_does_not_write_pickle_cache(tmp_path):
+    shard_path = tmp_path / "train.jsonl"
+    shard_path.write_text(
+        json.dumps(
+            {
+                "coefficients": [2] + [0] * 23 + [1],
+                "r": 8,
+                "canonical_hash": "readiness-only",
+                "generator_training": {
+                    "eligible": True,
+                    "weight": 1.0,
+                    "role": "exact_local_exploration",
+                    "construction_family": "readiness-family",
+                    "split_group_key": "readiness-group",
+                },
+                "train_eval_split": "train",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps({"train_row_count": 1, "eval_row_count": 0, "files": [{"path": shard_path.name, "row_count": 1}]}),
+        encoding="utf-8",
+    )
+    params = _igp24_params(tmp_path)
+    params.dump_path = str(tmp_path / "dump")
+    params.ntest = 0
+    params.igp24_training_manifest = [str(manifest_path)]
+    params.igp24_corpus_readiness_only = True
+
+    load_initial_data(params, IGP24DataPoint)
+
+    assert not (Path(params.dump_path) / "train_data.pkl").exists()
+    assert not (Path(params.dump_path) / "test_data.pkl").exists()
 
 
 def test_igp24_generator_training_rejects_family_split_leakage(tmp_path):
@@ -465,6 +530,31 @@ def test_weighted_generator_sampler_never_samples_zero_weight_and_favors_positiv
 
     assert counts.get("crowded_collapse", 0) == 0
     assert counts["score_positive"] > counts["exact_local_exploration"] * 6
+
+
+def test_epoch_shuffle_visits_every_unique_example_before_repeating():
+    dataset = CharDataset(
+        [np.array([index + 1]) for index in range(10)],
+        max_len=2,
+        stoi={"PAD": 0},
+        sample_weights=[1.0] * 10,
+        sample_metadata=[{"role": "exact_local_exploration"}] * 10,
+    )
+    loader = InfiniteDataLoader(dataset, seed=321, sampling_mode="epoch_shuffle", batch_size=1, num_workers=0)
+    try:
+        first_epoch = [int(loader.next()[0][0, 0]) for _ in range(10)]
+        telemetry = loader.sampled_counts()
+        loader.next()
+        after_repeat = loader.sampled_counts()
+    finally:
+        loader.close()
+
+    assert set(first_epoch) == set(range(1, 11))
+    assert telemetry["total_samples"] == 10
+    assert telemetry["unique_examples"] == 10
+    assert telemetry["unique_coverage_fraction"] == 1.0
+    assert after_repeat["total_samples"] == 11
+    assert after_repeat["unique_examples"] == 10
 
 
 def test_environment_seed_resets_generation(tmp_path):

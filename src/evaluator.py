@@ -168,13 +168,15 @@ def _record_r_value(record):
 def generation_prefix_token_ids(args: Any, stoi: dict[Any, int], env: Any) -> list[int]:
     tokens = [int(stoi["BOS"])]
     mode = str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none")
-    if mode != "control_token":
-        return tokens
-    token_ids = []
-    helper = getattr(env.tokenizer, "target_r_control_token_ids", None)
-    if helper is not None:
-        token_ids = helper(getattr(args, "target_r", None))
-    tokens.extend(int(token_id) for token_id in token_ids)
+    if mode == "control_token":
+        helper = getattr(env.tokenizer, "target_r_control_token_ids", None)
+        if helper is not None:
+            tokens.extend(int(token_id) for token_id in helper(getattr(args, "target_r", None)))
+    structure_mode = str(getattr(args, "igp24_structure_conditioning_mode", "none") or "none")
+    if structure_mode == "control_token":
+        helper = getattr(env.tokenizer, "inner_power_control_token_ids", None)
+        if helper is not None:
+            tokens.extend(int(token_id) for token_id in helper(getattr(args, "target_inner_power", None)))
     return tokens
 
 
@@ -461,6 +463,10 @@ def build_sample_provenance(
             "dedup": bool(getattr(args, "sample_export_dedup", False)),
             "max_attempts": int(getattr(args, "sample_export_max_attempts", 0) or 0),
             "model_target_r_conditioning_mode": str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none"),
+            "model_structure_conditioning_mode": str(
+                getattr(args, "igp24_structure_conditioning_mode", "none") or "none"
+            ),
+            "target_inner_power": _int_or_none(getattr(args, "target_inner_power", None)),
             "sample_export_target_r_conditioning_mode": str(
                 getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none"
             ),
@@ -618,6 +624,7 @@ def build_sample_export_record(
 ) -> dict[str, Any]:
     exported_coefficients = decoded_coefficients + [1] if decoded_coefficients is not None else None
     target_r = _int_or_none(getattr(args, "target_r", None))
+    target_inner_power = _int_or_none(getattr(args, "target_inner_power", None))
     sample_conditioning_mode = str(getattr(args, "sample_export_target_r_conditioning_mode", "none") or "none")
     model_conditioning_mode = str(getattr(args, "igp24_target_r_conditioning_mode", "none") or "none")
     conditioning_mode = model_conditioning_mode if sample_conditioning_mode == "none" else sample_conditioning_mode
@@ -693,8 +700,12 @@ def build_sample_export_record(
             "encoding_tokens": getattr(args, "encoding_tokens", None),
             "target_r": target_r,
             "target_r_intent": target_r,
+            "target_inner_power": target_inner_power,
             "target_r_conditioning_mode": conditioning_mode,
             "model_target_r_conditioning_mode": model_conditioning_mode,
+            "model_structure_conditioning_mode": str(
+                getattr(args, "igp24_structure_conditioning_mode", "none") or "none"
+            ),
             "sample_export_target_r_conditioning_mode": sample_conditioning_mode,
             "sample_export_only": True,
         },
@@ -744,6 +755,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
     require_nonzero_constant = bool(getattr(args, "sample_export_require_nonzero_constant", False))
     require_target_r = bool(getattr(args, "sample_export_require_target_r", False))
     require_local_valid = bool(getattr(args, "sample_export_require_local_valid", False))
+    required_inner_power = int(getattr(args, "sample_export_required_inner_power", 0) or 0)
     target_r_value = _int_or_none(getattr(args, "target_r", None))
     required_support_patterns = _parse_csv_set(getattr(args, "sample_export_required_support_patterns", ""))
     excluded_support_patterns = _parse_csv_set(getattr(args, "sample_export_excluded_support_patterns", ""))
@@ -756,6 +768,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         or require_nonzero_constant
         or require_target_r
         or require_local_valid
+        or required_inner_power > 0
         or bool(required_support_patterns)
         or bool(excluded_support_patterns)
         or bool(excluded_hashes)
@@ -881,6 +894,11 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
                     support_gcd = sample_provenance.get("support_gcd")
                     if require_support_gcd_one and support_gcd != 1:
                         skip_reasons.append("support_gcd_not_one")
+                    if required_inner_power > 0 and any(
+                        int(exponent) % required_inner_power
+                        for exponent in (sample_provenance.get("support") or [])
+                    ):
+                        skip_reasons.append("required_inner_power_support_mismatch")
                     if require_nonzero_constant and int(decoded_coefficients[0]) == 0:
                         skip_reasons.append("zero_constant_term")
                     if require_target_r:
@@ -1003,6 +1021,8 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "target_r": _int_or_none(getattr(args, "target_r", None)),
         "encoding_tokens": getattr(args, "encoding_tokens", None),
         "model_target_r_conditioning_mode": getattr(args, "igp24_target_r_conditioning_mode", "none"),
+        "model_structure_conditioning_mode": getattr(args, "igp24_structure_conditioning_mode", "none"),
+        "target_inner_power": _int_or_none(getattr(args, "target_inner_power", None)),
         "sample_export_target_r_conditioning_mode": getattr(args, "sample_export_target_r_conditioning_mode", "none"),
         "records_written": records_written,
         "requested_samples": requested_total,
@@ -1021,6 +1041,7 @@ def sample_and_export(model, args, stoi, itos, env, temp, temp_span=0, export_pa
         "provenance_controls_enabled": provenance_controls_enabled,
         "avoid_even_support_like": avoid_even_support_like,
         "require_support_gcd_one": require_support_gcd_one,
+        "required_inner_power": required_inner_power,
         "require_nonzero_constant": require_nonzero_constant,
         "require_target_r": require_target_r,
         "require_local_valid": require_local_valid,

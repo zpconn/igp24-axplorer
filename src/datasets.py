@@ -106,6 +106,23 @@ def _r_from_record(record):
     return None
 
 
+def _inner_power_from_record(record):
+    for key in ("inner_power", "conditioning_inner_power", "target_inner_power"):
+        value = record.get(key)
+        if value is not None:
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+    features = record.get("features")
+    if isinstance(features, dict) and features.get("inner_power") is not None:
+        try:
+            return int(features["inner_power"])
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
 def _score_from_active_learning_class(class_label):
     score_map = {
         "accepted_useful_score_positive": 4.0,
@@ -287,6 +304,7 @@ def _load_igp24_training_jsonl(args, classname):
                     skipped["missing_coefficients"] += 1
                     continue
                 r_value = _r_from_record(record)
+                inner_power = _inner_power_from_record(record)
                 if r_value is None:
                     skipped["missing_r"] += 1
                     if target_rs:
@@ -318,7 +336,12 @@ def _load_igp24_training_jsonl(args, classname):
                 if capped:
                     continue
                 try:
-                    datapoint = classname(N=args.N, coeffs=coeffs, conditioning_target_r=r_value)
+                    datapoint = classname(
+                        N=args.N,
+                        coeffs=coeffs,
+                        conditioning_target_r=r_value,
+                        conditioning_inner_power=inner_power,
+                    )
                 except Exception:
                     skipped["invalid_datapoint"] += 1
                     continue
@@ -344,6 +367,7 @@ def _load_igp24_training_jsonl(args, classname):
                     "construction_family": contract.get("construction_family"),
                     "train_eval_split": record.get("train_eval_split"),
                     "conditioning_target_r": r_value,
+                    "conditioning_inner_power": inner_power,
                 }
                 seen_hashes.add(canonical_hash)
                 for cap_name in cap_counts:
@@ -572,7 +596,8 @@ def update_datasets(args, data, train_set, test_set, train_path, test_path):
 def load_initial_data(args, classname):
     train_data_path = os.path.join(args.dump_path, "train_data.pkl")
     test_data_path = os.path.join(args.dump_path, "test_data.pkl")
-    if os.path.isfile(train_data_path):
+    cache_loaded_dataset = bool(getattr(args, "igp24_cache_loaded_dataset", True))
+    if cache_loaded_dataset and os.path.isfile(train_data_path):
         logger.info("resuming from existing data")
         train_set = pickle.load(open(train_data_path, "rb"))
         test_set = pickle.load(open(test_data_path, "rb"))
@@ -582,9 +607,10 @@ def load_initial_data(args, classname):
             train_set, test_set, skipped = loaded
             if not train_set:
                 raise ValueError("IGP24 JSONL training data produced no train rows")
-            os.makedirs(args.dump_path, exist_ok=True)
-            pickle.dump(test_set, open(test_data_path, "wb"))
-            pickle.dump(train_set, open(train_data_path, "wb"))
+            if cache_loaded_dataset and not bool(getattr(args, "igp24_corpus_readiness_only", False)):
+                os.makedirs(args.dump_path, exist_ok=True)
+                pickle.dump(test_set, open(test_data_path, "wb"))
+                pickle.dump(train_set, open(train_data_path, "wb"))
             args.igp24_training_jsonl_loaded_rows = len(train_set) + len(test_set)
             args.igp24_training_jsonl_train_rows = len(train_set)
             args.igp24_training_jsonl_eval_rows = len(test_set)
@@ -635,12 +661,28 @@ class InfiniteDataLoader:
     Create a infinite datalaoder in PyTorch
     """
 
-    def __init__(self, dataset, seed=None, **kwargs):
+    def __init__(self, dataset, seed=None, sampling_mode="weighted_replacement", **kwargs):
         self.sampled_role_counts = Counter()
         self.sampled_label_counts = Counter()
         self.sampled_family_counts = Counter()
+        self.sampled_total = 0
+        self.sampled_unique = 0
+        self.sampled_index_seen = bytearray(len(dataset))
+        self.sampling_mode = str(sampling_mode)
         weights = getattr(dataset, "sample_weights", None)
-        if weights:
+        if self.sampling_mode == "epoch_shuffle":
+            if weights and (any(float(weight) <= 0.0 for weight in weights) or len({float(weight) for weight in weights}) != 1):
+                raise ValueError("epoch_shuffle requires equal positive sample weights")
+            generator = torch.Generator()
+            if seed is not None and int(seed) >= 0:
+                generator.manual_seed(int(seed))
+            train_sampler = TrackingEpochShuffleSampler(
+                dataset,
+                num_samples=int(1e10),
+                generator=generator,
+                on_sample=self._record_sample,
+            )
+        elif self.sampling_mode == "weighted_replacement" and weights:
             generator = torch.Generator()
             if seed is not None and int(seed) >= 0:
                 generator.manual_seed(int(seed))
@@ -651,13 +693,19 @@ class InfiniteDataLoader:
                 generator=generator,
                 on_sample=self._record_sample,
             )
-        else:
+        elif self.sampling_mode == "weighted_replacement":
             train_sampler = torch.utils.data.RandomSampler(dataset, replacement=True, num_samples=int(1e10))
+        else:
+            raise ValueError(f"unsupported training sampling mode: {self.sampling_mode}")
         self.train_loader = DataLoader(dataset, sampler=train_sampler, collate_fn=dataset.collate_fn, **kwargs)
         self.data_iter = iter(self.train_loader)
         self._closed = False
 
     def _record_sample(self, index):
+        self.sampled_total += 1
+        if not self.sampled_index_seen[index]:
+            self.sampled_index_seen[index] = 1
+            self.sampled_unique += 1
         metadata = getattr(self.train_loader.dataset, "sample_metadata", None)
         if not metadata or index >= len(metadata):
             return
@@ -673,6 +721,10 @@ class InfiniteDataLoader:
 
     def sampled_counts(self):
         return {
+            "sampling_mode": self.sampling_mode,
+            "total_samples": self.sampled_total,
+            "unique_examples": self.sampled_unique,
+            "unique_coverage_fraction": self.sampled_unique / max(1, len(self.sampled_index_seen)),
             "role": dict(self.sampled_role_counts),
             "label": dict(self.sampled_label_counts),
             "construction_family": dict(self.sampled_family_counts),
@@ -728,6 +780,33 @@ class TrackingWeightedReplacementSampler(torch.utils.data.Sampler):
                     self.on_sample(int(index))
                 yield int(index)
             produced += take
+
+    def __len__(self):
+        return self.num_samples
+
+
+class TrackingEpochShuffleSampler(torch.utils.data.Sampler):
+    """Yield complete random permutations before beginning another epoch."""
+
+    def __init__(self, dataset, *, num_samples, generator=None, on_sample=None):
+        if len(dataset) <= 0:
+            raise ValueError("epoch_shuffle requires a non-empty dataset")
+        self.dataset = dataset
+        self.num_samples = int(num_samples)
+        self.generator = generator
+        self.on_sample = on_sample
+
+    def __iter__(self):
+        produced = 0
+        while produced < self.num_samples:
+            permutation = torch.randperm(len(self.dataset), generator=self.generator).tolist()
+            for index in permutation:
+                if produced >= self.num_samples:
+                    break
+                if self.on_sample is not None:
+                    self.on_sample(int(index))
+                yield int(index)
+                produced += 1
 
     def __len__(self):
         return self.num_samples

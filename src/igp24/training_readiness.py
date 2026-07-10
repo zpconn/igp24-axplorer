@@ -81,6 +81,16 @@ def _conditioning_r(row: Any) -> int | None:
         return None
 
 
+def _conditioning_inner_power(row: Any) -> int | None:
+    value = getattr(row, "conditioning_inner_power", None)
+    if value is None:
+        value = _metadata(row).get("conditioning_inner_power")
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 def effective_sample_size(weights: Iterable[float]) -> float:
     positive = [float(weight) for weight in weights if float(weight) > 0.0]
     if not positive:
@@ -97,6 +107,7 @@ def _distribution(rows: Sequence[Any]) -> dict[str, Any]:
     families = {_construction_family(row) for row in rows} - {None}
     roles = Counter(str(getattr(row, "generator_training_role", "unknown")) for row in rows)
     r_counts = Counter(_conditioning_r(row) for row in rows)
+    inner_power_counts = Counter(_conditioning_inner_power(row) for row in rows)
     weights = [float(getattr(row, "generator_training_weight", 1.0)) for row in rows]
     return {
         "physical_row_count": len(rows),
@@ -113,6 +124,10 @@ def _distribution(rows: Sequence[Any]) -> dict[str, Any]:
         "conditioning_r_counts": {
             str(key) if key is not None else "unknown": value
             for key, value in sorted(r_counts.items(), key=lambda item: (-1 if item[0] is None else item[0]))
+        },
+        "conditioning_inner_power_counts": {
+            str(key) if key is not None else "unknown": value
+            for key, value in sorted(inner_power_counts.items(), key=lambda item: (-1 if item[0] is None else item[0]))
         },
         "_canonical_identities": set(explicit_identities),
         "_split_groups": groups,
@@ -252,6 +267,36 @@ def enforce_training_readiness(report: dict[str, Any], run_kind: str) -> None:
             "IGP24 named AXG iteration blocked by corpus-readiness gate: "
             f"{failed}. Use smoke_test only for explicitly labeled plumbing probes."
         )
+
+
+def add_training_schedule_readiness(
+    report: dict[str, Any],
+    *,
+    sampling_mode: str,
+    batch_size: int,
+    max_steps: int,
+) -> dict[str, Any]:
+    """Require one complete unique-corpus traversal for a named iteration."""
+
+    unique_train = int((report.get("train") or {}).get("unique_canonical_example_count") or 0)
+    presentations = int(batch_size) * int(max_steps)
+    check = {
+        "passed": sampling_mode == "epoch_shuffle" and presentations >= unique_train,
+        "sampling_mode": str(sampling_mode),
+        "batch_size": int(batch_size),
+        "max_steps": int(max_steps),
+        "scheduled_presentations": presentations,
+        "minimum_unique_train_examples_to_traverse": unique_train,
+        "requires_without_replacement_epoch_shuffle": True,
+    }
+    report["training_schedule"] = check
+    report.setdefault("checks", {})["complete_unique_corpus_traversal"] = check
+    failed = sorted(name for name, result in report["checks"].items() if not result["passed"])
+    report["failed_checks"] = failed
+    ready = not failed
+    report["ready_for_named_iteration"] = ready
+    report["status"] = "ready_for_named_iteration" if ready else "smoke_only_not_model_iteration"
+    return report
 
 
 def write_training_readiness_report(path: Path, report: dict[str, Any]) -> None:

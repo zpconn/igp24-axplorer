@@ -14,6 +14,7 @@ from src.evaluator import sample_and_export, sample_and_score
 from src.igp24.training_readiness import (
     TrainingReadinessThresholds,
     assess_training_readiness,
+    add_training_schedule_readiness,
     enforce_training_readiness,
     write_training_readiness_report,
 )
@@ -186,6 +187,13 @@ def get_parser():
         help="opt-in: exact-filter decoded export rows to local degree/r/irreducible/squarefree validity",
     )
     parser.add_argument(
+        "--sample_export_required_inner_power",
+        type=int,
+        choices=[0, 2, 4, 6],
+        default=0,
+        help="require every decoded nonzero support exponent to be divisible by this composition power; 0 disables",
+    )
+    parser.add_argument(
         "--sample_export_required_support_patterns",
         type=str,
         default="",
@@ -266,6 +274,21 @@ if __name__ == "__main__":
                 min_train_construction_families=int(args.igp24_min_train_construction_families),
                 min_eval_construction_families=int(args.igp24_min_eval_construction_families),
             ),
+        )
+        train_weights_for_mode = [float(getattr(row, "generator_training_weight", 1.0)) for row in train_set]
+        requested_sampling_mode = str(args.igp24_generator_sampling_mode)
+        uniform_positive_weights = bool(train_weights_for_mode) and all(
+            weight > 0.0 and weight == train_weights_for_mode[0] for weight in train_weights_for_mode
+        )
+        resolved_sampling_mode = requested_sampling_mode
+        if requested_sampling_mode == "auto":
+            resolved_sampling_mode = "epoch_shuffle" if uniform_positive_weights else "weighted_replacement"
+        args.igp24_resolved_generator_sampling_mode = resolved_sampling_mode
+        add_training_schedule_readiness(
+            readiness,
+            sampling_mode=resolved_sampling_mode,
+            batch_size=int(args.batch_size),
+            max_steps=int(args.max_steps),
         )
         readiness["run_kind"] = args.igp24_training_run_kind
         readiness["exp_name"] = args.exp_name
@@ -376,6 +399,8 @@ if __name__ == "__main__":
             sample_metadata=train_metadata if train_metadata and any(row.get("role") for row in train_metadata) else None,
         )
         test_dataset = CharDataset(test_words, args.max_len, stoi, block_size=args.block_size)
+        if args.sample_export_only:
+            del train_set, test_set, train_words, test_words
         force_release_memory()
 
         if args.device == "cuda":
@@ -387,7 +412,16 @@ if __name__ == "__main__":
                 f"Memory allocated: {torch.mps.current_allocated_memory()/(1024*1024):.2f}MB, reserved: {torch.mps.driver_allocated_memory()/(1024*1024):.2f}MB"
             )
 
-        batch_loader = InfiniteDataLoader(train_dataset, seed=args.seed, batch_size=args.batch_size, pin_memory=args.device == "cuda", num_workers=0)
+        batch_loader = InfiniteDataLoader(
+            train_dataset,
+            seed=args.seed,
+            sampling_mode=getattr(args, "igp24_resolved_generator_sampling_mode", "weighted_replacement")
+            if args.env_name == "igp24"
+            else "weighted_replacement",
+            batch_size=args.batch_size,
+            pin_memory=args.device == "cuda",
+            num_workers=0,
+        )
         try:
             best_loss = train(model, args, batch_loader, optimizer, test_dataset, current_best_loss=best_loss)
             if hasattr(batch_loader, "sampled_counts"):

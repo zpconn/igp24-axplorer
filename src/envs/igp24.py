@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 TARGET_R_VALUES = tuple(range(0, DEGREE + 1, 2))
 TARGET_R_CONTROL_SYMBOLS = tuple(f"R{value}" for value in TARGET_R_VALUES)
+INNER_POWER_VALUES = (2, 4, 6)
+INNER_POWER_CONTROL_SYMBOLS = tuple(f"M{value}" for value in INNER_POWER_VALUES)
 
 IGP24_GENERATION_STRATEGIES = [
     "uniform",
@@ -146,19 +148,37 @@ def _target_r_symbol(value):
     return f"R{r_value}"
 
 
+def _inner_power_symbol(value):
+    inner_power = _int_or_none(value)
+    if inner_power is None or inner_power not in INNER_POWER_VALUES:
+        return None
+    return f"M{inner_power}"
+
+
 class IGP24CoefficientTokenizer(Tokenizer):
     """Fixed-length signed coefficient tokenizer using coeff + coeff_bound."""
 
-    def __init__(self, dataclass, coeff_bound, extra_symbols, target_r_conditioning_mode="none"):
+    def __init__(
+        self,
+        dataclass,
+        coeff_bound,
+        extra_symbols,
+        target_r_conditioning_mode="none",
+        structure_conditioning_mode="none",
+    ):
         super().__init__()
         self.dataclass = dataclass
         self.N = DEGREE
         self.coeff_bound = int(coeff_bound)
         self.target_r_conditioning_mode = str(target_r_conditioning_mode or "none")
+        self.structure_conditioning_mode = str(structure_conditioning_mode or "none")
         self.target_r_control_symbols = set(TARGET_R_CONTROL_SYMBOLS)
+        self.inner_power_control_symbols = set(INNER_POWER_CONTROL_SYMBOLS)
         self.extra_symbols = list(extra_symbols)
         if self.target_r_conditioning_mode == "control_token":
             self.extra_symbols.extend(symbol for symbol in TARGET_R_CONTROL_SYMBOLS if symbol not in self.extra_symbols)
+        if self.structure_conditioning_mode == "control_token":
+            self.extra_symbols.extend(symbol for symbol in INNER_POWER_CONTROL_SYMBOLS if symbol not in self.extra_symbols)
         self.stoi = {}
         self.itos = {}
 
@@ -173,13 +193,23 @@ class IGP24CoefficientTokenizer(Tokenizer):
             self.itos[token_id] = symbol
 
     def block_size_for_max_len(self, max_len):
-        prefix_extra = 1 if self.target_r_conditioning_mode == "control_token" else 0
+        prefix_extra = int(self.target_r_conditioning_mode == "control_token") + int(
+            self.structure_conditioning_mode == "control_token"
+        )
         return int(max_len) + 2 + prefix_extra
 
     def target_r_control_token_ids(self, target_r):
         if self.target_r_conditioning_mode != "control_token":
             return []
         symbol = _target_r_symbol(target_r)
+        if symbol is None:
+            return []
+        return [self.stoi[symbol]]
+
+    def inner_power_control_token_ids(self, inner_power):
+        if self.structure_conditioning_mode != "control_token":
+            return []
+        symbol = _inner_power_symbol(inner_power)
         if symbol is None:
             return []
         return [self.stoi[symbol]]
@@ -192,11 +222,16 @@ class IGP24CoefficientTokenizer(Tokenizer):
         analysis = getattr(datapoint, "analysis", None)
         return _int_or_none(getattr(analysis, "real_root_count", None))
 
+    @staticmethod
+    def _datapoint_inner_power(datapoint):
+        return _int_or_none(getattr(datapoint, "conditioning_inner_power", None))
+
     def encode(self, datapoint_to_encode):
         coeffs = validate_coefficients(datapoint_to_encode.coefficients)
         tokens = [self.stoi["BOS"]]
         target_r_tokens = self.target_r_control_token_ids(self._datapoint_target_r(datapoint_to_encode))
         tokens.extend(target_r_tokens)
+        tokens.extend(self.inner_power_control_token_ids(self._datapoint_inner_power(datapoint_to_encode)))
         for coeff in coeffs:
             if coeff < -self.coeff_bound or coeff > self.coeff_bound:
                 raise ValueError(f"coefficient outside tokenizer bound: {coeff}")
@@ -212,7 +247,7 @@ class IGP24CoefficientTokenizer(Tokenizer):
         try:
             while len(token_seq_to_decode) > 0:
                 value = self.itos[int(token_seq_to_decode[0])]
-                if value in self.target_r_control_symbols:
+                if value in self.target_r_control_symbols or value in self.inner_power_control_symbols:
                     token_seq_to_decode = token_seq_to_decode[1:]
                     continue
                 break
@@ -236,15 +271,25 @@ class IGP24DecimalCoefficientTokenizer(Tokenizer):
     DIGIT_SYMBOLS = tuple(f"D{digit}" for digit in range(10))
     STRUCTURAL_SYMBOLS = ("POS", "NEG", "SEP", "EOS", "PAD", "BOS")
 
-    def __init__(self, dataclass, extra_symbols, target_r_conditioning_mode="none"):
+    def __init__(
+        self,
+        dataclass,
+        extra_symbols,
+        target_r_conditioning_mode="none",
+        structure_conditioning_mode="none",
+    ):
         super().__init__()
         self.dataclass = dataclass
         self.N = DEGREE
         self.target_r_conditioning_mode = str(target_r_conditioning_mode or "none")
+        self.structure_conditioning_mode = str(structure_conditioning_mode or "none")
         self.target_r_control_symbols = set(TARGET_R_CONTROL_SYMBOLS)
+        self.inner_power_control_symbols = set(INNER_POWER_CONTROL_SYMBOLS)
         symbols = list(self.DIGIT_SYMBOLS) + list(self.STRUCTURAL_SYMBOLS)
         if self.target_r_conditioning_mode == "control_token":
             symbols.extend(TARGET_R_CONTROL_SYMBOLS)
+        if self.structure_conditioning_mode == "control_token":
+            symbols.extend(INNER_POWER_CONTROL_SYMBOLS)
         for symbol in extra_symbols:
             if symbol not in symbols:
                 symbols.append(symbol)
@@ -253,13 +298,23 @@ class IGP24DecimalCoefficientTokenizer(Tokenizer):
         self.itos = {token_id: symbol for symbol, token_id in self.stoi.items()}
 
     def block_size_for_max_len(self, max_len):
-        prefix_extra = 1 if self.target_r_conditioning_mode == "control_token" else 0
+        prefix_extra = int(self.target_r_conditioning_mode == "control_token") + int(
+            self.structure_conditioning_mode == "control_token"
+        )
         return int(max_len) + 2 + prefix_extra
 
     def target_r_control_token_ids(self, target_r):
         if self.target_r_conditioning_mode != "control_token":
             return []
         symbol = _target_r_symbol(target_r)
+        if symbol is None:
+            return []
+        return [self.stoi[symbol]]
+
+    def inner_power_control_token_ids(self, inner_power):
+        if self.structure_conditioning_mode != "control_token":
+            return []
+        symbol = _inner_power_symbol(inner_power)
         if symbol is None:
             return []
         return [self.stoi[symbol]]
@@ -272,10 +327,15 @@ class IGP24DecimalCoefficientTokenizer(Tokenizer):
         analysis = getattr(datapoint, "analysis", None)
         return _int_or_none(getattr(analysis, "real_root_count", None))
 
+    @staticmethod
+    def _datapoint_inner_power(datapoint):
+        return _int_or_none(getattr(datapoint, "conditioning_inner_power", None))
+
     def encode(self, datapoint_to_encode):
         coeffs = validate_coefficients(datapoint_to_encode.coefficients)
         tokens = [self.stoi["BOS"]]
         tokens.extend(self.target_r_control_token_ids(self._datapoint_target_r(datapoint_to_encode)))
+        tokens.extend(self.inner_power_control_token_ids(self._datapoint_inner_power(datapoint_to_encode)))
         for index, coeff in enumerate(coeffs):
             coeff = int(coeff)
             tokens.append(self.stoi["NEG" if coeff < 0 else "POS"])
@@ -296,7 +356,8 @@ class IGP24DecimalCoefficientTokenizer(Tokenizer):
         if not symbols or symbols[0] != "BOS":
             return None
         symbols = symbols[1:]
-        while symbols and symbols[0] in self.target_r_control_symbols:
+        control_symbols = self.target_r_control_symbols | self.inner_power_control_symbols
+        while symbols and symbols[0] in control_symbols:
             symbols = symbols[1:]
 
         coeffs = []
@@ -305,7 +366,7 @@ class IGP24DecimalCoefficientTokenizer(Tokenizer):
         for symbol in symbols:
             if symbol in {"EOS", "PAD"}:
                 break
-            if symbol in self.target_r_control_symbols:
+            if symbol in control_symbols:
                 return None
             if symbol in {"POS", "NEG"}:
                 if sign is not None or digits:
@@ -364,13 +425,22 @@ class IGP24DataPoint(DataPoint):
     TARGET_R_CONDITIONING_MODE = "none"
     LAST_GENERATION_DETAILS = {}
 
-    def __init__(self, N=DEGREE, init=False, coeffs=None, generation_strategy=None, conditioning_target_r=None):
+    def __init__(
+        self,
+        N=DEGREE,
+        init=False,
+        coeffs=None,
+        generation_strategy=None,
+        conditioning_target_r=None,
+        conditioning_inner_power=None,
+    ):
         super().__init__()
         if int(N) != DEGREE:
             raise ValueError(f"IGP24 uses fixed degree {DEGREE}; got N={N}")
         self.N = DEGREE
         self.coefficients = tuple(validate_coefficients(coeffs)) if coeffs is not None else tuple([0] * DEGREE)
         self.conditioning_target_r = _int_or_none(conditioning_target_r)
+        self.conditioning_inner_power = _int_or_none(conditioning_inner_power)
         self.analysis = None
         self.generation_strategy = generation_strategy or "manual"
         self.generation_details = {}
@@ -1368,6 +1438,7 @@ class IGP24Environment(BaseEnvironment):
         self.data_class.GENERATION_PRESET = generation_resolution["preset_name"]
         self.data_class.GENERATION_PRESET_TARGET_R = generation_resolution["target_r_intent"]
         target_r_conditioning_mode = str(getattr(params, "igp24_target_r_conditioning_mode", "none"))
+        structure_conditioning_mode = str(getattr(params, "igp24_structure_conditioning_mode", "none"))
         self.data_class.TARGET_R_CONDITIONING_MODE = target_r_conditioning_mode
 
         if params.encoding_tokens == "decimal_coefficients":
@@ -1375,6 +1446,7 @@ class IGP24Environment(BaseEnvironment):
                 self.data_class,
                 self.SPECIAL_SYMBOLS,
                 target_r_conditioning_mode=target_r_conditioning_mode,
+                structure_conditioning_mode=structure_conditioning_mode,
             )
         else:
             self.tokenizer = IGP24CoefficientTokenizer(
@@ -1382,6 +1454,7 @@ class IGP24Environment(BaseEnvironment):
                 params.coeff_bound,
                 self.SPECIAL_SYMBOLS,
                 target_r_conditioning_mode=target_r_conditioning_mode,
+                structure_conditioning_mode=structure_conditioning_mode,
             )
 
     @staticmethod
@@ -1428,6 +1501,20 @@ class IGP24Environment(BaseEnvironment):
             help="Optional model-side target-r conditioning; control_token prepends R<r> after BOS",
         )
         parser.add_argument(
+            "--igp24_structure_conditioning_mode",
+            type=str,
+            default="none",
+            choices=["none", "control_token"],
+            help="Optional model-side composition conditioning; control_token prepends M2/M4/M6 after target r",
+        )
+        parser.add_argument(
+            "--target_inner_power",
+            type=int,
+            default=None,
+            choices=list(INNER_POWER_VALUES),
+            help="Requested composition inner power for M2/M4/M6-conditioned inference",
+        )
+        parser.add_argument(
             "--igp24_training_jsonl",
             type=str,
             action="append",
@@ -1469,10 +1556,22 @@ class IGP24Environment(BaseEnvironment):
             ),
         )
         parser.add_argument(
+            "--igp24_generator_sampling_mode",
+            choices=["auto", "epoch_shuffle", "weighted_replacement"],
+            default="auto",
+            help="Named uniform pretraining resolves to epoch_shuffle; weighted replacement is for explicit fine-tuning/smoke use",
+        )
+        parser.add_argument(
             "--igp24_corpus_readiness_only",
             type=bool_flag,
             default="false",
             help="Load and assess the post-filter corpus, write its report, and exit before model initialization",
+        )
+        parser.add_argument(
+            "--igp24_cache_loaded_dataset",
+            type=bool_flag,
+            default="true",
+            help="Cache loaded train/eval datapoints as pickle files; disable for large manifest runs",
         )
         parser.add_argument(
             "--igp24_min_unique_train_examples",

@@ -6,6 +6,7 @@ from src.igp24.training_readiness import (
     NAMED_ITERATION,
     SMOKE_TEST,
     TrainingReadinessThresholds,
+    add_training_schedule_readiness,
     assess_training_readiness,
     effective_sample_size,
     enforce_training_readiness,
@@ -105,3 +106,25 @@ def test_gate_detects_hash_group_and_family_leakage():
 def test_effective_sample_size_penalizes_repeated_weight_concentration():
     assert effective_sample_size([1.0] * 10) == pytest.approx(10.0)
     assert effective_sample_size([100.0] + [1.0] * 9) < 2.0
+
+
+def test_named_schedule_requires_complete_without_replacement_traversal():
+    train = [row(index, split="train", family=f"train-{index % 2}") for index in range(8)]
+    evaluation = [row(index, split="eval", family="eval") for index in range(4)]
+    thresholds = TrainingReadinessThresholds(
+        min_unique_train_examples=8,
+        min_unique_eval_examples=4,
+        min_train_effective_sample_size=8,
+        min_train_split_groups=8,
+        min_eval_split_groups=4,
+        min_train_construction_families=2,
+        min_eval_construction_families=1,
+    )
+    report = assess_training_readiness(train, evaluation, target_rs=[8], thresholds=thresholds)
+
+    add_training_schedule_readiness(report, sampling_mode="weighted_replacement", batch_size=4, max_steps=2)
+    assert report["ready_for_named_iteration"] is False
+    assert "complete_unique_corpus_traversal" in report["failed_checks"]
+
+    add_training_schedule_readiness(report, sampling_mode="epoch_shuffle", batch_size=4, max_steps=2)
+    assert report["ready_for_named_iteration"] is True

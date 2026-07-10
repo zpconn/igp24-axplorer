@@ -1193,13 +1193,18 @@ def build_sample_export_target_r_conditioned_command(
     output_dir: Path,
     run_id: str,
     target_r: int,
+    target_inner_power: int | None = None,
     training_jsonl: Path | None,
     training_manifest: Path | None = None,
     target_rs: str = "8,12,16,20,24",
     seed: int | str | None = None,
-    model_sample_attempts: int = 512,
-    max_steps: int = 1800,
-    max_len: int = 640,
+    model_sample_attempts: int = 8192,
+    max_steps: int = 31250,
+    max_len: int = 320,
+    batch_size: int = 32,
+    n_layer: int = 8,
+    n_head: int = 8,
+    n_embd: int = 512,
     temperature: float = 0.9,
     top_k: int = 12,
     unique_target: int = 0,
@@ -1218,11 +1223,14 @@ def build_sample_export_target_r_conditioned_command(
 ) -> dict[str, Any]:
     if training_manifest is None and training_jsonl is None:
         raise ValueError("target-r conditioned training requires JSONL data or a corpus manifest")
+    if training_manifest is not None and target_inner_power not in {2, 4, 6}:
+        raise ValueError("structural manifest inference requires target_inner_power in {2,4,6}")
     seed_text = str(seed if seed is not None else 33000 + int(target_r))
-    exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}_conditioned"
-    dump_root = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_dump"
-    ledger_path = output_dir / f"gpu_sample_export_target_r{int(target_r)}_conditioned_initial_candidates.jsonl"
-    sample_export_path = output_dir / f"gpu_model_sample_export_target_r{int(target_r)}_conditioned.jsonl"
+    structure_suffix = f"_m{int(target_inner_power)}" if target_inner_power is not None else ""
+    exp_name = f"igp24_gpu_sample_export_target_r{int(target_r)}{structure_suffix}_conditioned"
+    dump_root = output_dir / f"gpu_sample_export_target_r{int(target_r)}{structure_suffix}_conditioned_dump"
+    ledger_path = output_dir / f"gpu_sample_export_target_r{int(target_r)}{structure_suffix}_conditioned_initial_candidates.jsonl"
+    sample_export_path = output_dir / f"gpu_model_sample_export_target_r{int(target_r)}{structure_suffix}_conditioned.jsonl"
     train_log_path = dump_root / exp_name / run_id / "train.log"
     training_source_args = (
         ["--igp24_training_manifest", str(training_manifest)]
@@ -1260,11 +1268,16 @@ def build_sample_export_target_r_conditioned_command(
         "decimal_coefficients",
         "--igp24_target_r_conditioning_mode",
         "control_token",
+        "--igp24_structure_conditioning_mode",
+        "control_token" if training_manifest is not None else "none",
+        *(["--target_inner_power", str(int(target_inner_power))] if target_inner_power is not None else []),
         *training_source_args,
         "--igp24_training_jsonl_target_rs",
         str(target_rs),
         "--igp24_training_run_kind",
         str(training_run_kind),
+        "--igp24_cache_loaded_dataset",
+        "false" if training_manifest is not None else "true",
         *structural_cap_args,
         "--coeff_bound",
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -1283,17 +1296,17 @@ def build_sample_export_target_r_conditioned_command(
         "--max_steps",
         str(int(max_steps)),
         "--num_eval_steps",
-        str(max(50, min(300, int(max_steps) // 3))),
+        str(max(500, min(5000, int(max_steps) // 8))),
         "--num_samples_from_model",
         str(int(model_sample_attempts)),
         "--batch_size",
-        "128",
+        str(int(batch_size)),
         "--n_layer",
-        "4",
+        str(int(n_layer)),
         "--n_head",
-        "4",
+        str(int(n_head)),
         "--n_embd",
-        "256",
+        str(int(n_embd)),
         "--max_len",
         str(int(max_len)),
         "--temperature",
@@ -1338,6 +1351,8 @@ def build_sample_export_target_r_conditioned_command(
         "true" if require_target_r else "false",
         "--sample_export_require_local_valid",
         "true" if require_local_valid else "false",
+        "--sample_export_required_inner_power",
+        str(int(target_inner_power or 0)),
         "--sample_export_required_support_patterns",
         str(required_support_patterns),
         "--sample_export_excluded_support_patterns",
@@ -1356,7 +1371,9 @@ def build_sample_export_target_r_conditioned_command(
     return {
         "probe_mode": PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED,
         "target_r": int(target_r),
+        "target_inner_power": int(target_inner_power) if target_inner_power is not None else None,
         "target_r_conditioning_mode": "control_token",
+        "structure_conditioning_mode": "control_token" if training_manifest is not None else "none",
         "target_r_training_jsonl": str(training_jsonl) if training_jsonl is not None else None,
         "target_r_training_manifest": str(training_manifest) if training_manifest is not None else None,
         "target_r_training_target_rs": str(target_rs),
@@ -1370,20 +1387,22 @@ def build_sample_export_target_r_conditioned_command(
         "exp_name": exp_name,
         "exp_id": run_id,
         "caps": {
-            "timeout_seconds": 900,
+            "timeout_seconds": 7200,
             "max_epochs": 1,
             "max_steps_per_epoch": int(max_steps),
-            "num_eval_steps": max(50, min(300, int(max_steps) // 3)),
+            "num_eval_steps": max(500, min(5000, int(max_steps) // 8)),
             "num_samples_from_model_per_epoch": int(model_sample_attempts),
-            "batch_size": 128,
-            "n_layer": 4,
-            "n_head": 4,
-            "n_embd": 256,
+            "batch_size": int(batch_size),
+            "n_layer": int(n_layer),
+            "n_head": int(n_head),
+            "n_embd": int(n_embd),
             "temperature": float(temperature),
             "top_k": int(top_k),
             "sample_export_unique_target": int(unique_target),
             "encoding_tokens": "decimal_coefficients",
             "model_target_r_conditioning_mode": "control_token",
+            "model_structure_conditioning_mode": "control_token" if training_manifest is not None else "none",
+            "target_inner_power": int(target_inner_power) if target_inner_power is not None else None,
             "training_jsonl": str(training_jsonl) if training_jsonl is not None else None,
             "training_manifest": str(training_manifest) if training_manifest is not None else None,
             "training_target_rs": str(target_rs),
@@ -1406,6 +1425,7 @@ def build_sample_export_target_r_conditioned_command(
             "sample_export_require_nonzero_constant": bool(require_nonzero_constant),
             "sample_export_require_target_r": bool(require_target_r),
             "sample_export_require_local_valid": bool(require_local_valid),
+            "sample_export_required_inner_power": int(target_inner_power or 0),
             "sample_export_required_support_patterns": str(required_support_patterns),
             "sample_export_excluded_support_patterns": str(excluded_support_patterns),
             "sample_export_excluded_hashes_jsonl": str(excluded_hashes_jsonl),
@@ -1828,6 +1848,13 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dedup_progress_interval", type=int, default=128, help="progress-log interval for sample_export_split_dedup")
     parser.add_argument("--target_r", type=int, default=12, help="target real-root count for sample_export_target_r_seeded")
     parser.add_argument(
+        "--target_inner_power",
+        type=int,
+        choices=[2, 4, 6],
+        default=2,
+        help="composition control for structural-manifest target-r training/inference",
+    )
+    parser.add_argument(
         "--target_r_seed_bank_jsonl",
         type=Path,
         default=DEFAULT_TARGET_R_SEED_BANK,
@@ -1859,8 +1886,12 @@ def get_parser() -> argparse.ArgumentParser:
         default="named_iteration",
         help="Named runs must pass the million-example readiness gate; smoke_test is never an AXG iteration",
     )
-    parser.add_argument("--target_r_conditioned_max_steps", type=int, default=1800, help="training steps for sample_export_target_r_conditioned")
-    parser.add_argument("--target_r_conditioned_max_len", type=int, default=640, help="max token payload for decimal conditioned training")
+    parser.add_argument("--target_r_conditioned_max_steps", type=int, default=31250, help="training steps; default is one full 1M-row epoch at batch 32")
+    parser.add_argument("--target_r_conditioned_max_len", type=int, default=320, help="max token payload for decimal conditioned training")
+    parser.add_argument("--target_r_conditioned_batch_size", type=int, default=32)
+    parser.add_argument("--target_r_conditioned_n_layer", type=int, default=8)
+    parser.add_argument("--target_r_conditioned_n_head", type=int, default=8)
+    parser.add_argument("--target_r_conditioned_n_embd", type=int, default=512)
     parser.add_argument(
         "--target_r_conditioned_temperature",
         type=float,
@@ -1965,6 +1996,9 @@ def main() -> int:
         "dedup_progress_interval": args.dedup_progress_interval if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_DEDUP else None,
         "target_r": args.target_r
         if args.probe_mode in {PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED, PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED}
+        else None,
+        "target_inner_power": args.target_inner_power
+        if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_CONDITIONED
         else None,
         "target_r_seed_bank_jsonl": str(args.target_r_seed_bank_jsonl) if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
         "target_r_seed_bank_limit": args.target_r_seed_bank_limit if args.probe_mode == PROBE_MODE_SAMPLE_EXPORT_TARGET_R_SEEDED else None,
@@ -2078,6 +2112,7 @@ def main() -> int:
                 output_dir=args.output_dir,
                 run_id=run_id,
                 target_r=args.target_r,
+                target_inner_power=args.target_inner_power,
                 seed_bank_jsonl=args.target_r_seed_bank_jsonl,
                 seed_bank_limit=args.target_r_seed_bank_limit,
                 seed=args.target_r_seed,
@@ -2096,6 +2131,10 @@ def main() -> int:
                 model_sample_attempts=args.target_r_model_sample_attempts,
                 max_steps=args.target_r_conditioned_max_steps,
                 max_len=args.target_r_conditioned_max_len,
+                batch_size=args.target_r_conditioned_batch_size,
+                n_layer=args.target_r_conditioned_n_layer,
+                n_head=args.target_r_conditioned_n_head,
+                n_embd=args.target_r_conditioned_n_embd,
                 temperature=args.target_r_conditioned_temperature,
                 top_k=args.target_r_conditioned_top_k,
                 unique_target=args.target_r_conditioned_unique_target,
