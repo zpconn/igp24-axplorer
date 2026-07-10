@@ -61,6 +61,47 @@ def pattern_prefix(collected: dict[str, Any], budget: int) -> list[dict[str, Any
     return list(collected.get("mod_p_factorization_degree_patterns") or [])[: int(budget)]
 
 
+def exact_label_from_record(record: dict[str, Any]) -> str | None:
+    label = record.get("label") or record.get("verified_group_label")
+    if isinstance(label, str) and label.strip():
+        return label.strip()
+    return None
+
+
+def intended_target_label_from_record(record: dict[str, Any]) -> str | None:
+    for value in (
+        record.get("target_label"),
+        record.get("target_t"),
+        (record.get("target_metadata") or {}).get("target_t") if isinstance(record.get("target_metadata"), dict) else None,
+        (record.get("route") or {}).get("label") if isinstance(record.get("route"), dict) else None,
+    ):
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def intended_target_pair_from_record(record: dict[str, Any]) -> str | None:
+    route = record.get("route") if isinstance(record.get("route"), dict) else {}
+    if isinstance(route.get("pair_key"), str) and route.get("pair_key"):
+        return str(route["pair_key"])
+    label = intended_target_label_from_record(record)
+    r_value = (
+        record.get("r")
+        or record.get("real_root_count")
+        or ((record.get("target_metadata") or {}).get("target_r") if isinstance(record.get("target_metadata"), dict) else None)
+        or route.get("r")
+    )
+    if label is None or r_value is None:
+        return None
+    return f"{label}|r={int(r_value)}"
+
+
+def exact_label_status(label: str | None, indexed_labels: set[str]) -> str:
+    if label is None:
+        return "missing"
+    return "indexed" if label in indexed_labels else "outside_index"
+
+
 def evaluate_budgets(
     record: dict[str, Any],
     collected: dict[str, Any],
@@ -69,17 +110,30 @@ def evaluate_budgets(
     budgets: list[int],
 ) -> dict[str, Any]:
     out: dict[str, Any] = {}
+    indexed_labels = index.all_labels()
+    exact_label = exact_label_from_record(record)
+    label_status = exact_label_status(exact_label, indexed_labels)
+    intended_target_label = intended_target_label_from_record(record)
+    intended_target_pair = intended_target_pair_from_record(record)
     for budget in budgets:
         patterns = pattern_prefix(collected, budget)
         compat = compatibility_for_patterns(record, patterns, index, progress_rows) if patterns else collected["final_compatibility"]
+        survivors = set(compat.get("indexed_target_labels_not_ruled_out") or [])
+        valuable = set(compat.get("valuable_targets_not_ruled_out") or [])
         out[str(budget)] = {
             "usable_prime_count": len(patterns),
             "status": compat.get("status"),
             "indexed_target_survivor_count": compat.get("indexed_target_survivor_count"),
             "valuable_target_count": len(compat.get("valuable_targets_not_ruled_out") or []),
             "valuable_targets_not_ruled_out": compat.get("valuable_targets_not_ruled_out") or [],
-            "true_label_indexed": str(record.get("label")) in index.all_labels(),
-            "true_label_survived": str(record.get("label")) in set(compat.get("indexed_target_labels_not_ruled_out") or []),
+            "exact_label": exact_label,
+            "exact_label_status": label_status,
+            "true_label_indexed": label_status == "indexed",
+            "true_label_survived": exact_label in survivors if label_status == "indexed" else None,
+            "intended_target_label": intended_target_label,
+            "intended_target_pair": intended_target_pair,
+            "intended_target_survived": intended_target_label in survivors if intended_target_label else None,
+            "intended_target_valuable_not_ruled_out": intended_target_pair in valuable if intended_target_pair else None,
         }
     return out
 
@@ -121,6 +175,12 @@ def run_rows(
             continue
         final = collected["final_compatibility"]
         budget_results = evaluate_budgets(row, collected, index, progress_rows, budgets)
+        exact_label = exact_label_from_record(row)
+        label_status = exact_label_status(exact_label, indexed_labels)
+        intended_target_label = intended_target_label_from_record(row)
+        intended_target_pair = intended_target_pair_from_record(row)
+        final_survivors = set(final.get("indexed_target_labels_not_ruled_out") or [])
+        final_valuable_targets = set(final.get("valuable_targets_not_ruled_out") or [])
         evaluated.append(
             {
                 "schema_version": 1,
@@ -128,11 +188,18 @@ def run_rows(
                 "row_index": row_index,
                 "canonical_hash": row.get("canonical_hash"),
                 "short_hash": str(row.get("canonical_hash") or "")[:12],
-                "label": row.get("label"),
+                "label": exact_label,
                 "r": row.get("r"),
                 "pair_key": row.get("pair_key"),
-                "true_label_indexed": str(row.get("label")) in indexed_labels,
-                "true_label_survived": str(row.get("label")) in set(final.get("indexed_target_labels_not_ruled_out") or []),
+                "exact_label_status": label_status,
+                "true_label_indexed": label_status == "indexed",
+                "true_label_survived": exact_label in final_survivors if label_status == "indexed" else None,
+                "intended_target_label": intended_target_label,
+                "intended_target_pair": intended_target_pair,
+                "intended_target_survived": intended_target_label in final_survivors if intended_target_label else None,
+                "intended_target_valuable_not_ruled_out": (
+                    intended_target_pair in final_valuable_targets if intended_target_pair else None
+                ),
                 "usable_prime_count": collected.get("usable_prime_count"),
                 "primes_examined": collected.get("primes_examined"),
                 "skipped_ramified_primes": collected.get("skipped_ramified_primes"),
@@ -168,17 +235,22 @@ def summarize(
     pair_counts = Counter(str(row.get("pair_key")) for row in input_rows)
     evaluated_label_counts = Counter(str(row.get("label")) for row in evaluated)
     discriminant_source_counts = Counter(str(row.get("discriminant_source")) for row in evaluated)
-    indexed_rows = [row for row in evaluated if row.get("true_label_indexed")]
+    indexed_rows = [row for row in evaluated if row.get("exact_label_status") == "indexed"]
+    outside_index_rows = [row for row in evaluated if row.get("exact_label_status") == "outside_index"]
+    missing_exact_label_rows = [row for row in evaluated if row.get("exact_label_status") == "missing"]
+    intended_target_rows = [row for row in evaluated if row.get("intended_target_label")]
     by_label: dict[str, dict[str, Any]] = {}
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in evaluated:
-        grouped[str(row.get("label"))].append(row)
+        grouped[str(row.get("label") or "exact_label_missing")].append(row)
     for label, rows in grouped.items():
         by_label[label] = {
             "row_count": len(rows),
             "true_label_indexed_rows": sum(1 for row in rows if row.get("true_label_indexed")),
             "indexed_containment_failures": sum(1 for row in rows if row.get("true_label_indexed") and not row.get("true_label_survived")),
+            "missing_exact_label_rows": sum(1 for row in rows if row.get("exact_label_status") == "missing"),
             "final_valuable_target_survival_rows": sum(1 for row in rows if int(row.get("final_valuable_target_count") or 0) > 0),
+            "intended_target_survival_rows": sum(1 for row in rows if row.get("intended_target_survived") is True),
             "median_final_indexed_target_survivor_count": sorted(int(row.get("final_indexed_target_survivor_count") or 0) for row in rows)[len(rows) // 2],
         }
     budget_summary: dict[str, dict[str, Any]] = {}
@@ -192,6 +264,8 @@ def summarize(
             "indexed_containment_failures": sum(
                 1 for value in values if value.get("true_label_indexed") and not value.get("true_label_survived")
             ),
+            "intended_target_survival_rows": sum(1 for value in values if value.get("intended_target_survived") is True),
+            "intended_target_failure_rows": sum(1 for value in values if value.get("intended_target_survived") is False),
             "median_indexed_target_survivor_count": (
                 sorted(int(value.get("indexed_target_survivor_count") or 0) for value in values)[len(values) // 2]
                 if values
@@ -220,9 +294,13 @@ def summarize(
         "evaluated_label_count": len(evaluated_label_counts),
         "discriminant_source_counts": dict(sorted(discriminant_source_counts.items())),
         "true_label_indexed_row_count": len(indexed_rows),
-        "true_label_outside_index_row_count": len(evaluated) - len(indexed_rows),
+        "true_label_outside_index_row_count": len(outside_index_rows),
+        "exact_label_missing_row_count": len(missing_exact_label_rows),
         "indexed_true_label_containment_failures": sum(1 for row in indexed_rows if not row.get("true_label_survived")),
         "final_valuable_target_survival_rows": sum(1 for row in evaluated if int(row.get("final_valuable_target_count") or 0) > 0),
+        "intended_target_row_count": len(intended_target_rows),
+        "intended_target_survival_rows": sum(1 for row in intended_target_rows if row.get("intended_target_survived") is True),
+        "intended_target_failure_rows": sum(1 for row in intended_target_rows if row.get("intended_target_survived") is False),
         "max_usable_primes": int(max_usable_primes),
         "budgets": budgets,
         "budget_summary": budget_summary,
@@ -246,8 +324,10 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Evaluated rows: `{summary['evaluated_row_count']}`",
         f"- Failed rows: `{summary['failed_row_count']}`",
         f"- True-label outside-index rows: `{summary['true_label_outside_index_row_count']}`",
+        f"- Exact-label missing rows: `{summary['exact_label_missing_row_count']}`",
         f"- Indexed containment failures: `{summary['indexed_true_label_containment_failures']}`",
         f"- Final valuable-target survival rows: `{summary['final_valuable_target_survival_rows']}`",
+        f"- Intended target survival rows: `{summary['intended_target_survival_rows']}/{summary['intended_target_row_count']}`",
         f"- Discriminant sources: `{summary['discriminant_source_counts']}`",
         f"- Max usable primes: `{summary['max_usable_primes']}`",
         f"- Index metadata: `{summary['index_metadata']}`",
@@ -256,13 +336,14 @@ def render_report(summary: dict[str, Any]) -> str:
         "",
         "## Budget Summary",
         "",
-        "| budget | rows | reached budget | valuable survival rows | containment failures | median indexed survivors |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| budget | rows | reached budget | valuable survival rows | intended target survival rows | containment failures | median indexed survivors |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for budget, row in summary["budget_summary"].items():
         lines.append(
             f"| {budget} | {row['evaluated_rows']} | {row['rows_with_budget_reached']} | "
-            f"{row['valuable_target_survival_rows']} | {row['indexed_containment_failures']} | "
+            f"{row['valuable_target_survival_rows']} | {row['intended_target_survival_rows']} | "
+            f"{row['indexed_containment_failures']} | "
             f"{row['median_indexed_target_survivor_count']} |"
         )
     return "\n".join(lines).rstrip() + "\n"
@@ -329,6 +410,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"evaluated_row_count\t{summary['evaluated_row_count']}")
     print(f"failed_row_count\t{summary['failed_row_count']}")
     print(f"final_valuable_target_survival_rows\t{summary['final_valuable_target_survival_rows']}")
+    print(f"exact_label_missing_row_count\t{summary['exact_label_missing_row_count']}")
+    print(f"intended_target_survival_rows\t{summary['intended_target_survival_rows']}/{summary['intended_target_row_count']}")
     print(f"indexed_true_label_containment_failures\t{summary['indexed_true_label_containment_failures']}")
     return 0
 
