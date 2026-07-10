@@ -297,3 +297,84 @@ def test_build_dataset_loads_feedback_rows_and_marks_collapsed(tmp_path):
     assert rows[0]["generator_training"]["weight"] == 0.0
     assert summary["class_counts"] == {"accepted_duplicate_collapsed_basin": 1}
     assert summary["generator_training"]["eligible_row_count"] == 0
+
+
+def test_build_dataset_blocks_no_valuable_adaptive_rows_from_generator_training(tmp_path):
+    candidate_path = tmp_path / "no_value_candidate_queue.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            {
+                "canonical_hash": "no-value-row",
+                "exported_coefficients": [2, 1] + [0] * 22 + [1],
+                "real_root_count": 12,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "eligible_for_packet": False,
+                "any_valuable_target_not_ruled_out": False,
+                "submission_recommendation": "false_no_valuable_targets_not_ruled_out",
+                "generation_metadata": {"construction_family": "alt_composition_4x6"},
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=None,
+        target_rs={12},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+
+    assert rows[0]["derived_class_label"] == "exact_local_valid"
+    assert rows[0]["score_aware_supervision"]["label"] == "pending_or_unknown"
+    assert rows[0]["score_aware_supervision"]["avoid_for_generation"] is True
+    assert rows[0]["generator_training"]["eligible"] is False
+    assert rows[0]["generator_training"]["role"] == "no_valuable_target_survival"
+    assert rows[0]["generator_training"]["weight"] == 0.0
+    assert summary["generator_training"]["eligible_row_count"] == 0
+    assert summary["generator_training"]["role_counts"]["no_valuable_target_survival"] == 1
+
+
+def test_build_dataset_blocks_non_improving_exact_pairs_from_generator_training(tmp_path):
+    candidate_path = tmp_path / "exact_label_candidates.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            {
+                "canonical_hash": "non-improving-row",
+                "exported_coefficients": [2, 1] + [0] * 22 + [1],
+                "verified_group_label": "24T7635",
+                "pair_key": "24T7635|r=8",
+                "r": 8,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "score_aware_classification": "sair_discovered_pair_not_improved",
+                "generation_metadata": {"construction_family": "quartic_in_x6"},
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=None,
+        target_rs={8},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs=set(),
+        high_team_threshold=20,
+    )
+
+    assert rows[0]["derived_class_label"] == "accepted_useful_or_unknown"
+    assert rows[0]["score_aware_supervision"]["avoid_for_generation"] is True
+    assert rows[0]["generator_training"]["eligible"] is False
+    assert rows[0]["generator_training"]["role"] == "non_improving_exact_pair"
+    assert rows[0]["generator_training"]["weight"] == 0.0
+    assert summary["generator_training"]["eligible_row_count"] == 0
+    assert summary["generator_training"]["role_counts"]["non_improving_exact_pair"] == 1

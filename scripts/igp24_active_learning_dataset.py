@@ -70,6 +70,15 @@ GENERATOR_TRAINING_POLICY = {
     "accepted_duplicate": {"eligible": False, "weight": 0.0, "role": "accepted_duplicate"},
     "wrong_r": {"eligible": False, "weight": 0.0, "role": "wrong_r"},
     "invalid": {"eligible": False, "weight": 0.0, "role": "invalid"},
+    "no_valuable_target_survival": {"eligible": False, "weight": 0.0, "role": "no_valuable_target_survival"},
+    "construction_route_outcome_blocked": {
+        "eligible": False,
+        "weight": 0.0,
+        "role": "construction_route_outcome_blocked",
+    },
+    "non_improving_exact_pair": {"eligible": False, "weight": 0.0, "role": "non_improving_exact_pair"},
+    "known_submission_hash": {"eligible": False, "weight": 0.0, "role": "known_submission_hash"},
+    "packet_ineligible": {"eligible": False, "weight": 0.0, "role": "packet_ineligible"},
 }
 SAIR_KEY_RE = re.compile(r"sair_[0-9a-f]{12}_[A-Za-z0-9]{20,}")
 
@@ -351,6 +360,29 @@ def generator_training_policy(
     }
 
 
+def generator_training_block_from_row(row: dict[str, Any]) -> tuple[str, str] | None:
+    if row.get("construction_route_outcome_blocked"):
+        return (
+            "construction_route_outcome_blocked",
+            "exact route outcome ledger blocks repeating this construction basin",
+        )
+    if row.get("known_submission_hash_match") or row.get("known_submission_hash"):
+        return ("known_submission_hash", "known canonical submission hashes are not generator demonstrations")
+    if row.get("score_aware_classification") == "sair_discovered_pair_not_improved":
+        return ("non_improving_exact_pair", "exact SAIR-discovered pair did not improve current progress")
+    if row.get("eligible_for_packet") is False:
+        if row.get("any_valuable_target_not_ruled_out") is False or row.get("submission_recommendation") in {
+            "false_no_valuable_targets_not_ruled_out",
+            "false_offline_compatibility_only",
+        }:
+            return (
+                "no_valuable_target_survival",
+                "adaptive review ruled out every currently valuable target",
+            )
+        return ("packet_ineligible", "row is explicitly not packet-eligible")
+    return None
+
+
 def split_group_key(*, features: dict[str, Any], canonical_hash: str | None) -> str:
     for key in ("construction_family", "template_family", "family_key", "basin_fingerprint"):
         value = features.get(key)
@@ -447,6 +479,9 @@ def enrich_row(
         "wrong_r",
         "invalid",
     }
+    generator_block = generator_training_block_from_row(row)
+    if generator_block is not None:
+        avoid_for_generation = True
 
     generator_training = generator_training_policy(
         class_label=class_label,
@@ -455,6 +490,16 @@ def enrich_row(
         pair=str(pair) if pair else None,
         features=features,
     )
+    if generator_block is not None:
+        block_policy_key, block_reason = generator_block
+        block_policy = GENERATOR_TRAINING_POLICY[block_policy_key]
+        generator_training = {
+            **generator_training,
+            "eligible": bool(block_policy["eligible"]),
+            "weight": float(block_policy["weight"]),
+            "role": str(block_policy["role"]),
+            "reason": block_reason,
+        }
     split_key = split_group_key(features=features, canonical_hash=canonical_hash)
     split_value = int(hashlib.sha256(split_key.encode("utf-8")).hexdigest()[:8], 16) % 10
     train_eval_split = "eval" if split_value in {0, 1} else "train"
