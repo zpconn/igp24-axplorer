@@ -33,6 +33,48 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.17 exact target-r export-filter checkpoint:
+  after the AXG-1.16-style run proved that nonzero/sparse/gcd-one export
+  hygiene could improve local validity while still letting wrong-r rows through,
+  added an opt-in exact real-root-count export gate:
+  `--sample_export_require_target_r` in `train.py`/`src/evaluator.py` and
+  `--target_r_conditioned_require_target_r` in
+  `scripts/igp24_gpu_sampler_probe.py`. The gate uses the local SymPy
+  `real_root_count()` utility as an export filter, records
+  `exact_target_r_filter_counts` in the sample-export sidecar, tags accepted
+  rows with `runs_exact_local_filters`, and remains distinct from exact Galois
+  verification or SAIR submission. Regression coverage:
+  `tests/test_igp24_sample_export.py::test_sample_and_export_can_require_exact_target_r`.
+  Validation before the implementation commit:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 432 passed; `git diff --check` -> passed; local API-key scan -> no
+  matches. Implementation commit: `6157e2b`.
+
+  Reran a fresh bounded r12 AXG probe after committing the filter at
+  `data/igp24/axg117_target_r_filter_20260710/r12_cuda_mixed_targetr/` using
+  CUDA on the RTX 5090, corrected active-learning JSONL, target-r control
+  tokens, 900 train steps, 2048 sample attempts, `temperature=1.1`, open
+  top-k, known-hash exclusions, avoid-even-support, support-gcd-one,
+  nonzero-constant, and exact-target-r export gates. The committed run used
+  CUDA (`max_gpu_utilization_percent=91`, avg `29.353`, runtime `34.772s`),
+  with final train/test loss `0.023 / 0.250`. Export telemetry showed the
+  model decoded many exact r12 shapes (`observed_r:12=1880`) but remained
+  dominated by rejected crowded/basin outputs: 1865 known/excluded hashes,
+  1890 even-support rows, 1890 support-gcd-not-one rows, and 14 wrong-r rows.
+  Only one decoded row survived all export gates. CPU exact scoring at
+  `data/igp24/axg117_target_r_filter_20260710/r12_cuda_mixed_targetr/cpu_scored_samples_bound1e15/`
+  found that row locally valid, irreducible, squarefree, and r12:
+  `d8b7f708da52`
+  (`x^24 - 91*x^20 + 3003*x^16 + 9*x^13 - 44473*x^12 + 296296*x^8 - 773139*x^4 + 518400`).
+  Full 25,000-group adaptive Frobenius review through 80 usable primes at
+  `data/igp24/axg117_target_r_filter_20260710/r12_cuda_mixed_targetr/adaptive_frobenius_1row_80primes/`
+  evaluated 1/1 rows with 0 failures but found 0 valuable-target survivors at
+  every budget (5, 10, 20, 40, 80), so the row is not packet-eligible.
+  Offline report:
+  `data/igp24/axg117_target_r_filter_20260710/r12_cuda_mixed_targetr/offline_go_nogo_report.md`.
+  Live submission remains `false`. The exact target-r filter is useful stack
+  hygiene, but the next model iteration needs stronger anti-memorization and
+  anti-basin pressure rather than more downstream filtering.
 - 2026-07-10 AXG-1.16-style no-leak bounded GPU checkpoint:
   after committing the reward-model leakage fix as `cd28830`, ran a fresh
   bounded AXG export to exercise the corrected stack and force the sampler
