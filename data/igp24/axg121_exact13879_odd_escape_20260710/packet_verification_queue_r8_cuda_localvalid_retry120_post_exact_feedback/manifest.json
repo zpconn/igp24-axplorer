@@ -1,0 +1,53 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_packet_verification_queue.py",
+    "--selected_jsonl",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_selected.jsonl",
+    "--source_candidate_jsonl",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl",
+    "--output_dir",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback"
+  ],
+  "created_at": "2026-07-10T10:34:08.547406+00:00",
+  "optimizer_ranks": [
+    1
+  ],
+  "output_dir": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+  "output_files": {
+    "manifest_json": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/manifest.json",
+    "report_md": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_queue_report.md",
+    "verification_batch_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_batch.jsonl",
+    "verification_coefficients_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_coefficients.txt"
+  },
+  "record_type": "igp24_packet_verification_queue",
+  "safety": {
+    "auto_submission": false,
+    "exact_group_claims": false,
+    "exact_nfdisc_claims": false,
+    "network_calls": false,
+    "review_queue_only": true,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "selected_hashes": [
+    "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204"
+  ],
+  "selected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_selected.jsonl",
+  "selected_records": 1,
+  "selected_short_hashes": [
+    "425c30453d4a"
+  ],
+  "source_candidate_jsonls": [
+    "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl"
+  ],
+  "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+  "source_summaries": [
+    {
+      "coefficient_rows_indexed": 2,
+      "path": "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl",
+      "rows": 2
+    }
+  ],
+  "tool": "scripts/igp24_packet_verification_queue.py"
+}

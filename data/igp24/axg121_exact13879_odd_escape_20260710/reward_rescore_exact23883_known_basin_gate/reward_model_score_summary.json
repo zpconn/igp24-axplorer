@@ -1,0 +1,49 @@
+{
+  "decision_counts": {
+    "avoid_known_exact_negative_hash": 1
+  },
+  "observed_outcome_counts": {
+    "unknown": 1
+  },
+  "record_type": "igp24_reward_model_score_summary",
+  "row_count": 1,
+  "schema_version": 1,
+  "top_collapse_risk_rows": [
+    {
+      "canonical_hash": "8f32835b516ddb4ad27c12ed38e67025d0f13cdb790e28a38473c49bd3c9e1f7",
+      "collapse_risk_probability": 1.0,
+      "decision": "avoid_known_exact_negative_hash",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.0,
+      "row_index": 0
+    }
+  ],
+  "top_families": {
+    "model_sample_export": 1
+  },
+  "top_reward_known_risk_count": 0,
+  "top_reward_known_risk_rows": [],
+  "top_reward_rows": [
+    {
+      "canonical_hash": "8f32835b516ddb4ad27c12ed38e67025d0f13cdb790e28a38473c49bd3c9e1f7",
+      "collapse_risk_probability": 1.0,
+      "decision": "avoid_known_exact_negative_hash",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.0,
+      "row_index": 0
+    }
+  ],
+  "top_reward_safe_or_unknown_rows": [
+    {
+      "canonical_hash": "8f32835b516ddb4ad27c12ed38e67025d0f13cdb790e28a38473c49bd3c9e1f7",
+      "collapse_risk_probability": 1.0,
+      "decision": "avoid_known_exact_negative_hash",
+      "family": "model_sample_export",
+      "observed_outcome": "unknown",
+      "reward_probability": 0.0,
+      "row_index": 0
+    }
+  ]
+}

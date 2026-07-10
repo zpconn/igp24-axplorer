@@ -1,0 +1,48 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_threshold20_pre_exact_review",
+    "--output_dir",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_threshold20_both_exact_online_magma",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--online_magma_pasted_output",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0001_8f32835b516d.xml",
+    "--online_magma_pasted_output",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+    "--timeout_seconds",
+    "240"
+  ],
+  "created_at": "2026-07-10T10:43:38.898994+00:00",
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_threshold20_pre_exact_review",
+  "output_files": {
+    "sympy_signature_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_threshold20_both_exact_online_magma/sympy_signature_report.md",
+    "sympy_signature_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_threshold20_both_exact_online_magma/sympy_signature_results.jsonl",
+    "sympy_signature_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_threshold20_both_exact_online_magma/sympy_signature_summary.json"
+  },
+  "parsed_result_records": 2,
+  "record_type": "igp24_sympy_signature_summary",
+  "records_loaded": 2,
+  "requested": true,
+  "safety": {
+    "exact_r_claims": true,
+    "local_file_only": true,
+    "magma_signature_workflow": false,
+    "network_calls": false,
+    "note": "SymPy signature artifacts are explicit local exact-r fallback evidence; Magma remains the preferred exact-label/signature workflow when available.",
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "signature_records": 2,
+  "source_commit": "698d2196275b3b3556009a7116504677571a0365",
+  "status_counts": {
+    "signature_ok": 2
+  },
+  "tool": "scripts/igp24_offline_verify.py"
+}

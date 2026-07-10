@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-10T10:34:02.052360+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl"
+    ],
+    "candidate_count": 2,
+    "route_outcome_paths": [],
+    "route_outcome_count": 0,
+    "reward_model_json": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_exact13879_crossr_exact23883_known_basin_gate_axg121_20260710/reward_model.json",
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    },
+    "minimum_frobenius_primes": 40
+  },
+  "candidate_count": 2,
+  "eligible_candidate_count": 1,
+  "selected_rows": 1,
+  "rejected_rows": 1,
+  "reject_reason_counts": {
+    "reward_model_known_exact_negative": 1
+  },
+  "crowded_only_candidates_rejected": 0,
+  "known_submission_hash_candidates_rejected": 0,
+  "construction_route_outcome_candidates_rejected": 0,
+  "reward_model": {
+    "status": "scored_advisory_only",
+    "source_path": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_exact13879_crossr_exact23883_known_basin_gate_axg121_20260710/reward_model.json",
+    "scored_candidate_count": 2,
+    "selected_scored_candidate_count": 1,
+    "decision_counts": {
+      "avoid_known_exact_negative_hash": 1,
+      "advisory_sparse_positive_candidate": 1
+    },
+    "selected_decision_counts": {
+      "advisory_sparse_positive_candidate": 1
+    },
+    "mean_reward_probability": 0.499278459903,
+    "mean_collapse_risk_probability": 0.500721540098,
+    "selected_mean_reward_probability": 0.998556919805,
+    "selected_mean_collapse_risk_probability": 0.001443080195,
+    "max_selected_collapse_risk_probability": 0.001443080195,
+    "selection_effect": "nonfatal_tiebreaker_not_score_expectation"
+  },
+  "pair_evidence_missing_candidates": 0,
+  "insufficient_adaptive_frobenius_candidates": 0,
+  "selected_possible_uncovered_pair_count": 2,
+  "selected_possible_low_team_pair_count": 29,
+  "selected_possible_uncovered_pairs": [
+    "24T24992|r=8",
+    "24T24997|r=8"
+  ],
+  "selected_possible_low_team_pairs": [
+    "24T20418|r=8",
+    "24T22102|r=8",
+    "24T22514|r=8",
+    "24T22517|r=8",
+    "24T23257|r=8",
+    "24T23675|r=8",
+    "24T23783|r=8",
+    "24T23784|r=8",
+    "24T24062|r=8",
+    "24T24120|r=8",
+    "24T24126|r=8",
+    "24T24128|r=8",
+    "24T24131|r=8",
+    "24T24361|r=8",
+    "24T24532|r=8",
+    "24T24553|r=8",
+    "24T24604|r=8",
+    "24T24630|r=8",
+    "24T24634|r=8",
+    "24T24674|r=8",
+    "24T24719|r=8",
+    "24T24753|r=8",
+    "24T24817|r=8",
+    "24T24833|r=8",
+    "24T24886|r=8",
+    "24T24923|r=8",
+    "24T24927|r=8",
+    "24T24981|r=8",
+    "24T24999|r=8"
+  ],
+  "distinct_compatible_label_clusters": 1,
+  "selected_compatible_label_clusters": [
+    "24T20418|r=8|24T22102|r=8|24T22514|r=8|24T22517|r=8|24T23116|r=8|24T23257|r=8|24T23675|r=8|24T23783|r=8|24T23784|r=8|24T24062|r=8|24T24120|r=8|24T24126|r=8|24T24128|r=8|24T24131|r=8|24T24361|r=8|24T24502|r=8|24T24532|r=8|24T24553|r=8|24T24604|r=8|24T24630|r=8|24T24634|r=8|24T24646|r=8|24T24674|r=8|24T24719|r=8"
+  ],
+  "best_case_packet_points": 1.0,
+  "expected_score_ceiling": 1.0,
+  "expected_score_ceiling_deprecated": true,
+  "expected_score_estimate": null,
+  "expected_points_status": "unavailable_uncalibrated",
+  "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+  "selected_diversity": {
+    "construction_family": {
+      "model_sample_export": 1
+    },
+    "template_family_id": {
+      "model:mixed:r8:even_support_like": 1
+    },
+    "perturbation_mode": {
+      "even_support_g_x2_like": 1
+    },
+    "basin_fingerprint": {
+      "0faf8c20493d5d069d2bd652": 1
+    },
+    "mod_p_pattern_signature": {
+      "": 1
+    },
+    "r": {
+      "8": 1
+    }
+  },
+  "local_packet_ready_for_review": true,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [
+    {
+      "rank": 1,
+      "short_hash": "425c30453d4a",
+      "marginal_best_case_points": 1.0,
+      "marginal_estimated_points": null,
+      "best_case_points": 1.0,
+      "maximum_possible_points": 1.0,
+      "expected_points_status": "unavailable_uncalibrated",
+      "possible_uncovered_pairs": [
+        "24T24992|r=8",
+        "24T24997|r=8"
+      ],
+      "possible_uncovered_pair_count": 2,
+      "possible_low_team_pairs": [
+        "24T20418|r=8",
+        "24T22102|r=8",
+        "24T22514|r=8",
+        "24T22517|r=8",
+        "24T23257|r=8",
+        "24T23675|r=8",
+        "24T23783|r=8",
+        "24T23784|r=8",
+        "24T24062|r=8",
+        "24T24120|r=8"
+      ],
+      "possible_low_team_pair_count": 29,
+      "valuable_targets_not_ruled_out": [
+        "24T20418|r=8",
+        "24T22102|r=8",
+        "24T22514|r=8",
+        "24T22517|r=8",
+        "24T23257|r=8",
+        "24T23675|r=8",
+        "24T23783|r=8",
+        "24T23784|r=8",
+        "24T24062|r=8",
+        "24T24120|r=8"
+      ],
+      "valuable_targets_not_ruled_out_count": 31,
+      "indexed_target_survivor_count": 57,
+      "compatible_label_count": 57,
+      "frobenius_usable_prime_count": 40,
+      "minimum_frobenius_primes_required": 40,
+      "adaptive_evidence_status": "sufficient_adaptive_frobenius_evidence",
+      "reward_model_status": "scored_advisory_only",
+      "reward_model_decision": "advisory_sparse_positive_candidate",
+      "reward_model_top_outcome": "score_positive",
+      "reward_probability": 0.998556919805,
+      "collapse_risk_probability": 0.001443080195,
+      "reward_uncertainty_entropy": 0.076768866993,
+      "features": {
+        "canonical_hash": "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204",
+        "short_hash": "425c30453d4a",
+        "label": null,
+        "pair_key": null,
+        "r": 8,
+        "coefficient_height": 17,
+        "support_gcd": 6,
+        "support_pattern": "even_support_like",
+        "even_support": true,
+        "odd_support_exponents": [],
+        "construction_family": "model_sample_export",
+        "template_family_id": "model:mixed:r8:even_support_like",
+        "decomposition_pattern": null,
+        "perturbation_mode": "even_support_g_x2_like",
+        "sparse_support_submode": null,
+        "basin_fingerprint": "0faf8c20493d5d069d2bd652",
+        "mod_p_pattern_signature": null,
+        "family_key": "model:mixed:r8:even_support_like:0faf8c20493d5d069d2bd652"
+      }
+    }
+  ],
+  "output_files": {
+    "summary_json": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_summary.json",
+    "report_md": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_hashes.txt"
+  }
+}

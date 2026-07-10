@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "record_type": "igp24_packet_optimizer",
+  "created_at": "2026-07-10T10:31:59.595894+00:00",
+  "tool": "scripts/igp24_packet_optimizer.py",
+  "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+  "safety": {
+    "sair_submission": false,
+    "sair_dry_run": false,
+    "network_calls": false,
+    "api_key_recorded": false
+  },
+  "inputs": {
+    "candidate_paths": [
+      "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes/adaptive_reviewed_candidates.jsonl"
+    ],
+    "candidate_count": 1,
+    "route_outcome_paths": [],
+    "route_outcome_count": 0,
+    "reward_model_json": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_exact13879_crossr_exact23883_known_basin_gate_axg121_20260710/reward_model.json",
+    "caps": {
+      "construction_family": 40,
+      "template_family_id": 12,
+      "perturbation_mode": 20,
+      "basin_fingerprint": 3,
+      "mod_p_pattern_signature": 4,
+      "compatible_label_cluster": 8,
+      "r": 40
+    },
+    "minimum_frobenius_primes": 40
+  },
+  "candidate_count": 1,
+  "eligible_candidate_count": 0,
+  "selected_rows": 0,
+  "rejected_rows": 1,
+  "reject_reason_counts": {
+    "reward_model_known_exact_negative": 1
+  },
+  "crowded_only_candidates_rejected": 0,
+  "known_submission_hash_candidates_rejected": 0,
+  "construction_route_outcome_candidates_rejected": 0,
+  "reward_model": {
+    "status": "scored_advisory_only",
+    "source_path": "data/igp24/remediation_20260709/reward_model_phase2/postremediation_exact13879_crossr_exact23883_known_basin_gate_axg121_20260710/reward_model.json",
+    "scored_candidate_count": 1,
+    "selected_scored_candidate_count": 0,
+    "decision_counts": {
+      "avoid_known_exact_negative_hash": 1
+    },
+    "selected_decision_counts": {},
+    "mean_reward_probability": 0.0,
+    "mean_collapse_risk_probability": 1.0,
+    "selected_mean_reward_probability": null,
+    "selected_mean_collapse_risk_probability": null,
+    "max_selected_collapse_risk_probability": null,
+    "selection_effect": "nonfatal_tiebreaker_not_score_expectation"
+  },
+  "pair_evidence_missing_candidates": 0,
+  "insufficient_adaptive_frobenius_candidates": 0,
+  "selected_possible_uncovered_pair_count": 0,
+  "selected_possible_low_team_pair_count": 0,
+  "selected_possible_uncovered_pairs": [],
+  "selected_possible_low_team_pairs": [],
+  "distinct_compatible_label_clusters": 0,
+  "selected_compatible_label_clusters": [],
+  "best_case_packet_points": 0,
+  "expected_score_ceiling": 0,
+  "expected_score_ceiling_deprecated": true,
+  "expected_score_estimate": null,
+  "expected_points_status": "unavailable_uncalibrated",
+  "expected_points_basis": "unavailable_no_calibrated_probability_model_over_indexed_and_unindexed_labels",
+  "selected_diversity": {
+    "construction_family": {},
+    "template_family_id": {},
+    "perturbation_mode": {},
+    "basin_fingerprint": {},
+    "mod_p_pattern_signature": {},
+    "r": {}
+  },
+  "local_packet_ready_for_review": false,
+  "live_submission_recommended_now": false,
+  "live_submission_reason": "optimizer never authorizes live SAIR submission; exact packet still needs local validation, dry-run, and explicit user approval",
+  "selected_rows_summary": [],
+  "output_files": {
+    "summary_json": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_summary.json",
+    "report_md": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_report.md",
+    "selected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_selected.jsonl",
+    "rejected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_rejected.jsonl",
+    "coefficients_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_coefficients.txt",
+    "hashes_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_post_exact_feedback/packet_optimizer_hashes.txt"
+  }
+}

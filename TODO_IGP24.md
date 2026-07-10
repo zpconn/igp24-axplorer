@@ -33,6 +33,84 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 AXG-1.21 cross-r escape / exact r8 feedback checkpoint:
+  extended `scripts/igp24_positive_seed_escape.py` with opt-in
+  `--accepted_output_rs` support so exact positive seeds can provide bounded
+  cross-r structural feedback without changing the default same-r behavior.
+  Source-r, observed-r, and target-r intent are now explicit in each row.
+  The exact `24T13879|r=24` seed produced no valid r24 mutation across 260
+  bounded odd-support trials (`target_r_mismatch=233`, `reducible_over_q=27`).
+  A cross-r pass retained 80 exact local-valid rows (`r8=70`, `r12=10`), but
+  40-prime full-index review ruled out every currently valuable target for all
+  80. Artifacts:
+  `data/igp24/axg121_exact13879_odd_escape_20260710/positive_seed_escape_r24/`,
+  `positive_seed_escape_cross_r/`, `adaptive_frobenius_cross_r_40primes/`,
+  and `adaptive_reviewed_cross_r_40primes/` beneath that run directory.
+
+  Rebuilt the generator corpus with these negative rows at
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_exact13879_crossr_axg121.jsonl`.
+  The 80 rows enter only as zero-weight `no_valuable_target_survival`
+  evidence. AXG-1.21 then trained and sampled r8 on the RTX 5090 at
+  `data/igp24/axg121_exact13879_odd_escape_20260710/r8_cuda_localvalid_export/`:
+  8192 attempts, 7990 decoded attempts, 2 fresh exact local-valid exports,
+  final train/test loss `0.022/2.848`, max GPU utilization 91%, average GPU
+  utilization 25.114%, and runtime 190.301s. Upstream export filtering
+  rejected 7952 known/training hashes, 41 wrong-r rows, 2 reducible rows, and
+  2 nonsquarefree rows.
+
+  The first 40-prime adaptive pass evaluated one row and timed out on the
+  other at 30s. Retrying with a 120s row budget evaluated both with zero
+  failures at
+  `adaptive_frobenius_r8_cuda_localvalid_40primes_retry120/`. Corrected the
+  compatibility value partition from an inconsistent 3-team cutoff to the
+  planner's established low-team range of 0-20 teams, with crowded beginning
+  at 21; this retains `24T9993|r=8` as a valuable low-team possibility while
+  preserving necessary-exclusion-only semantics. Rematerialized output:
+  `adaptive_reviewed_r8_cuda_localvalid_40primes_retry120_threshold20/`.
+
+  Exact public-Magma verification, with no SAIR POST, resolved both hashes:
+  `8f32835b516d` is `24T23883|r=8`, exact nfdisc
+  `737241846034013584158961827003874342424955999915225997334666057394099568420094367839673122816`,
+  current team count 47, and not a discriminant improvement. `425c30453d4a`
+  is `24T9993|r=8`, exact nfdisc
+  `10723488292100241361294296648700284370944`, current team count 12; it is
+  about 90.497 times worse than the fresh progress minimum
+  `118495339126629900844605413086090756096`. Combined exact triage at
+  `score_aware_triage_r8_cuda_localvalid_retry120_threshold20_both_exact/`
+  reports two verified rows, zero pending labels, and zero submission-grade
+  rows. The `24T9993` result is still structurally informative: AXG-1.21
+  generated an exact historically score-positive group through the sparse
+  quartic-in-`x^6` polynomial
+  `x^24 - 9*x^18 + 17*x^12 - 8*x^6 + 1`, but it did not improve the score.
+
+  Fixed exact-feedback precedence so `accepted_pair_duplicate` and
+  `sair_discovered_pair_not_improved` rows cannot become positive LM examples
+  merely because their pair has historical points. The final 606-row corpus at
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_exact13879_crossr_exact23883_exact9993_axg121.jsonl`
+  still has 23 generator-eligible rows: 8 `score_positive`, 1
+  `low_team_scoreable`, and 14 `exact_local_exploration`; both AXG-1.21 exact
+  outcomes have zero generator weight. Added deterministic exact-hash and
+  exact-negative-basin evidence to the advisory risk model. Ordinary
+  statistical risk remains advisory, but known exact negative hashes/basins
+  are now fatal in packet optimization. The post-feedback replay at
+  `packet_optimizer_r8_cuda_localvalid_retry120_threshold20_post_both_exact_feedback/`
+  considers both rows, selects zero, reports best-case packet points 0, and
+  recommends no live submission. Consolidated report:
+  `current_offline_report_r8_cuda_localvalid_retry120_threshold20_both_exact_feedback/`
+  -> `do_not_submit`; the fresh SAIR sync remains complete and no live
+  submission was made.
+
+  Focused validation currently passes:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q
+  tests/test_igp24_active_learning_dataset.py
+  tests/test_igp24_group_compatibility.py tests/test_igp24_reward_model.py
+  tests/test_igp24_packet_optimizer.py tests/test_igp24_positive_seed_escape.py`
+  -> 61 passed; full validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 446 passed. Next focused research lane: use the exact
+  `24T9993|r=8` quartic-in-`x^6` structure as a bounded discriminant-reduction
+  route, with every variant deduplicated, adaptively screened, exactly labeled,
+  and compared against the current nfdisc before any packet can be promoted.
 - 2026-07-10 AXG-1.20 exact-feedback / local-valid export checkpoint:
   updated the active-learning builder so exact, submission-grade local
   candidates can contribute generator-training mass only through exact official

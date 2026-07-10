@@ -1,0 +1,49 @@
+{
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_40primes",
+    "--output_dir",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--timeout_seconds",
+    "180"
+  ],
+  "created_at": "2026-07-10T10:23:46.029130+00:00",
+  "execution": {
+    "executed": false,
+    "raw_output_path": null,
+    "requested": false,
+    "status": "not_requested"
+  },
+  "input_kind": "review_batch",
+  "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_40primes",
+  "nfdisc_records": 0,
+  "output_files": {
+    "pari_input_gp": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes/pari_input.gp",
+    "pari_raw_output": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes/pari_raw_output.txt",
+    "pari_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes/pari_nfdisc_report.md",
+    "pari_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes/pari_nfdisc_results.jsonl",
+    "pari_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_40primes/pari_nfdisc_summary.json"
+  },
+  "parsed_result_records": 0,
+  "pasted_output_paths": [],
+  "record_type": "igp24_pari_nfdisc_summary",
+  "records_loaded": 1,
+  "safety": {
+    "exact_nfdisc_claims": false,
+    "local_file_only": true,
+    "network_calls": false,
+    "note": "PARI/GP nfdisc artifacts are local/manual evidence only and never submit to SAIR.",
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false
+  },
+  "schema_version": 1,
+  "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+  "status_counts": {},
+  "tool": "scripts/igp24_offline_verify.py"
+}

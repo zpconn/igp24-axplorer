@@ -1,0 +1,539 @@
+{
+  "coefficient_shape": {
+    "leading_coefficient": 1,
+    "length": 25
+  },
+  "command": [
+    "/home/zpconn/code/axplorer/.venv/bin/python",
+    "scripts/igp24_offline_verify.py",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "--output_dir",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma",
+    "--run_sympy_signature",
+    "--run_sympy_nfdisc",
+    "--online_magma_manual",
+    "--online_magma_pasted_output",
+    "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+    "--timeout_seconds",
+    "240"
+  ],
+  "created_at": "2026-07-10T10:35:12.240098+00:00",
+  "diagnostic_queue_summary": {
+    "flag_counts": {},
+    "manual_script_chunking": {
+      "all_scripts_under_calculator_limit": true,
+      "calculator_max_input_bytes": 50000,
+      "max_script_bytes": null,
+      "mode": "one_candidate_per_script",
+      "scripts_written": 0
+    },
+    "records_with_all_sampled_frobenius_even": 0,
+    "records_with_any_non_generic_flags": 0,
+    "records_with_exact_composed_support": 0,
+    "records_with_near_composed_support": 0,
+    "records_with_no_long_cycle_witness": 0,
+    "records_with_square_discriminant": 0,
+    "strategy_counts": {
+      "model_sample_export": 1
+    }
+  },
+  "execution": {
+    "magma": {
+      "cache_entries": 0,
+      "cache_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_verification_cache.json",
+      "executed": false,
+      "max_records": null,
+      "requested": false,
+      "results": {
+        "dry_run": 1
+      },
+      "status": "dry_run"
+    },
+    "pari": {
+      "executed": false,
+      "raw_output_path": null,
+      "requested": false,
+      "status": "not_requested"
+    }
+  },
+  "magma_discovery": {
+    "available": false,
+    "candidates_checked": [
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/usr/local/bin/magma",
+        "query": "/usr/local/bin/magma",
+        "source": "search_pattern"
+      },
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/usr/bin/magma",
+        "query": "/usr/bin/magma",
+        "source": "search_pattern"
+      },
+      {
+        "exists": false,
+        "is_executable": false,
+        "is_file": false,
+        "path": "/home/zpconn/bin/magma",
+        "query": "/home/zpconn/bin/magma",
+        "source": "search_pattern"
+      }
+    ],
+    "common_search_patterns": [
+      "/usr/local/bin/magma",
+      "/usr/bin/magma",
+      "/opt/magma*/magma",
+      "/opt/Magma*/magma",
+      "/usr/local/magma*/magma",
+      "/usr/local/Magma*/magma",
+      "/home/zpconn/magma*/magma",
+      "/home/zpconn/Magma*/magma",
+      "/home/zpconn/bin/magma"
+    ],
+    "executable": "magma",
+    "extra_search_patterns": [],
+    "path": null,
+    "selected_query": null,
+    "selected_source": null
+  },
+  "magma_rerun_guidance": {
+    "message": "MAGMA was not found on PATH or in the bounded common local search locations. Install MAGMA or pass --magma_executable /path/to/magma, then rerun the command below.",
+    "rerun_command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+      "--output_dir",
+      "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma_run_magma",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--online_magma_pasted_output",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+      "--timeout_seconds",
+      "240",
+      "--run_magma",
+      "--magma_executable",
+      "/path/to/magma"
+    ],
+    "rerun_command_text": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_offline_verify.py data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback --output_dir /home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma_run_magma --run_sympy_signature --run_sympy_nfdisc --online_magma_manual --online_magma_pasted_output data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml --timeout_seconds 240 --run_magma --magma_executable /path/to/magma",
+    "status": "unavailable"
+  },
+  "online_magma_manual": {
+    "calculator_constraints": {
+      "calculator_url": "https://magma.maths.usyd.edu.au/calc/",
+      "max_input_bytes": 50000,
+      "max_time_seconds": 60,
+      "observed_version": "2.29-8"
+    },
+    "command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+      "--output_dir",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--online_magma_pasted_output",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+      "--timeout_seconds",
+      "240"
+    ],
+    "created_at": "2026-07-10T10:35:12.239804+00:00",
+    "diagnostic_queue_summary": {
+      "flag_counts": {},
+      "manual_script_chunking": {
+        "all_scripts_under_calculator_limit": true,
+        "calculator_max_input_bytes": 50000,
+        "max_script_bytes": 894,
+        "mode": "one_candidate_per_script",
+        "scripts_written": 1
+      },
+      "records_with_all_sampled_frobenius_even": 0,
+      "records_with_any_non_generic_flags": 0,
+      "records_with_exact_composed_support": 0,
+      "records_with_near_composed_support": 0,
+      "records_with_no_long_cycle_witness": 0,
+      "records_with_square_discriminant": 0,
+      "strategy_counts": {
+        "model_sample_export": 1
+      }
+    },
+    "input_kind": "review_batch",
+    "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "output_files": {
+      "online_magma_copy_paste_scripts_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/copy_paste_scripts",
+      "online_magma_pasted_output_template_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_pasted_outputs_template.jsonl",
+      "online_magma_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_report.md",
+      "online_magma_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_results.jsonl",
+      "online_magma_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_summary.json"
+    },
+    "parsed_automated_public_calculator_probe_count": 0,
+    "parsed_probe_mode_counts": {
+      "manual": 1
+    },
+    "pasted_output_paths": [
+      "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml"
+    ],
+    "queue_status": {
+      "already_parsed_exact_label_hashes": [
+        "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204"
+      ],
+      "local_magma_executed": false,
+      "local_magma_status_counts": {
+        "dry_run": 1
+      },
+      "proxy_only_candidate_hashes": [],
+      "ready_for_manual_copy_paste_hashes": []
+    },
+    "record_type": "igp24_online_magma_manual_summary",
+    "records_selected_for_manual_online_magma": 1,
+    "safety": {
+      "automated_online_submission": false,
+      "automated_online_submission_by_helper": false,
+      "automated_online_submission_in_parsed_inputs": false,
+      "batch_online_submission": false,
+      "manual_only": true,
+      "network_calls_by_helper": false,
+      "note": "Online MAGMA calculator artifacts are offline scripts plus saved-output parsers. The helper does not submit requests, batch online work, call SAIR, or run inside training, GPU sampling, or CPU proxy scoring.",
+      "proxy_labels_preserved": true,
+      "runs_inside_cpu_proxy_scoring_loop": false,
+      "runs_inside_gpu_sampling_loop": false,
+      "runs_inside_train_loop": false,
+      "sair_submission": false
+    },
+    "schema_version": 1,
+    "selected_hashes": [
+      "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204"
+    ],
+    "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+    "status_counts": {
+      "verified": 1
+    },
+    "tool": "scripts/igp24_offline_verify.py",
+    "verified_group_labels": [
+      "24T9993"
+    ],
+    "verified_records": 1
+  },
+  "output_files": {
+    "magma_cache_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_verification_cache.json",
+    "magma_candidate_scripts_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_candidate_scripts",
+    "magma_input_m": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_input.m",
+    "magma_raw_output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_raw_outputs",
+    "magma_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_verification_report.md",
+    "magma_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_verification_results.jsonl",
+    "magma_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/magma_verification_summary.json",
+    "offline_verification_manifest_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/offline_verification_manifest.json",
+    "online_magma_copy_paste_scripts_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/copy_paste_scripts",
+    "online_magma_pasted_output_template_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_pasted_outputs_template.jsonl",
+    "online_magma_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_report.md",
+    "online_magma_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_results.jsonl",
+    "online_magma_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/online_magma_manual/online_magma_manual_summary.json",
+    "pari_input_gp": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_input.gp",
+    "pari_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_report.md",
+    "pari_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_results.jsonl",
+    "pari_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_summary.json",
+    "sympy_nfdisc_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_report.md",
+    "sympy_nfdisc_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_results.jsonl",
+    "sympy_nfdisc_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_summary.json",
+    "sympy_signature_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_report.md",
+    "sympy_signature_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_results.jsonl",
+    "sympy_signature_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_summary.json",
+    "verification_batch_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/verification_batch.jsonl",
+    "verification_coefficients_txt": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/verification_coefficients.txt",
+    "verification_plan_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/verification_plan.md"
+  },
+  "pari_nfdisc": {
+    "command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+      "--output_dir",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--online_magma_pasted_output",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+      "--timeout_seconds",
+      "240"
+    ],
+    "created_at": "2026-07-10T10:35:11.686892+00:00",
+    "execution": {
+      "executed": false,
+      "raw_output_path": null,
+      "requested": false,
+      "status": "not_requested"
+    },
+    "input_kind": "review_batch",
+    "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "nfdisc_records": 0,
+    "output_files": {
+      "pari_input_gp": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_input.gp",
+      "pari_raw_output": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_raw_output.txt",
+      "pari_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_report.md",
+      "pari_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_results.jsonl",
+      "pari_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/pari_nfdisc_summary.json"
+    },
+    "parsed_result_records": 0,
+    "pasted_output_paths": [],
+    "record_type": "igp24_pari_nfdisc_summary",
+    "records_loaded": 1,
+    "safety": {
+      "exact_nfdisc_claims": false,
+      "local_file_only": true,
+      "network_calls": false,
+      "note": "PARI/GP nfdisc artifacts are local/manual evidence only and never submit to SAIR.",
+      "runs_inside_cpu_proxy_scoring_loop": false,
+      "runs_inside_gpu_sampling_loop": false,
+      "runs_inside_train_loop": false,
+      "sair_submission": false
+    },
+    "schema_version": 1,
+    "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+    "status_counts": {},
+    "tool": "scripts/igp24_offline_verify.py"
+  },
+  "safety": {
+    "auto_submission": false,
+    "dry_run_preparation_only": false,
+    "exact_group_claims": true,
+    "exact_group_labels_parsed": true,
+    "exact_nfdisc_claims": true,
+    "exact_r_claims": true,
+    "magma_executed": false,
+    "network_calls": false,
+    "note": "Offline verifier artifact. No SAIR submission, network call, or auto-submission is performed; exact group labels are recorded only when an explicit local MAGMA run returns parseable provenance.",
+    "online_magma_automated_submission": false,
+    "online_magma_exact_group_labels_parsed": true,
+    "online_magma_manual_artifacts": true,
+    "pari_executed": false,
+    "pari_nfdisc_results_parsed": false,
+    "runs_inside_cpu_proxy_scoring_loop": false,
+    "runs_inside_gpu_sampling_loop": false,
+    "runs_inside_train_loop": false,
+    "sair_submission": false,
+    "sympy_nfdisc_executed": true,
+    "sympy_nfdisc_results_parsed": true,
+    "sympy_signature_executed": true,
+    "sympy_signature_results_parsed": true
+  },
+  "selected_hashes": [
+    "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204"
+  ],
+  "selected_records": 1,
+  "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+  "source_input_kind": "review_batch",
+  "source_input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+  "source_review_batch_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+  "source_review_manifest": {
+    "command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_packet_verification_queue.py",
+      "--selected_jsonl",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_selected.jsonl",
+      "--source_candidate_jsonl",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl",
+      "--output_dir",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback"
+    ],
+    "created_at": "2026-07-10T10:34:08.547406+00:00",
+    "optimizer_ranks": [
+      1
+    ],
+    "output_dir": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "output_files": {
+      "manifest_json": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/manifest.json",
+      "report_md": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_queue_report.md",
+      "verification_batch_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_batch.jsonl",
+      "verification_coefficients_txt": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback/verification_coefficients.txt"
+    },
+    "record_type": "igp24_packet_verification_queue",
+    "safety": {
+      "auto_submission": false,
+      "exact_group_claims": false,
+      "exact_nfdisc_claims": false,
+      "network_calls": false,
+      "review_queue_only": true,
+      "sair_submission": false
+    },
+    "schema_version": 1,
+    "selected_hashes": [
+      "425c30453d4a687477904ed655aa27673e6d51558794aeacf7efe43bb94b4204"
+    ],
+    "selected_jsonl": "data/igp24/axg121_exact13879_odd_escape_20260710/packet_optimizer_r8_cuda_localvalid_40primes_retry120_post_exact_feedback/packet_optimizer_selected.jsonl",
+    "selected_records": 1,
+    "selected_short_hashes": [
+      "425c30453d4a"
+    ],
+    "source_candidate_jsonls": [
+      "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl"
+    ],
+    "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+    "source_summaries": [
+      {
+        "coefficient_rows_indexed": 2,
+        "path": "data/igp24/axg121_exact13879_odd_escape_20260710/adaptive_reviewed_r8_cuda_localvalid_40primes_retry120/adaptive_reviewed_candidates.jsonl",
+        "rows": 2
+      }
+    ],
+    "tool": "scripts/igp24_packet_verification_queue.py"
+  },
+  "sympy_nfdisc": {
+    "command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+      "--output_dir",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--online_magma_pasted_output",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+      "--timeout_seconds",
+      "240"
+    ],
+    "created_at": "2026-07-10T10:35:12.237319+00:00",
+    "input_kind": "review_batch",
+    "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "nfdisc_records": 1,
+    "output_files": {
+      "sympy_nfdisc_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_report.md",
+      "sympy_nfdisc_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_results.jsonl",
+      "sympy_nfdisc_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_nfdisc_summary.json"
+    },
+    "parsed_result_records": 1,
+    "record_type": "igp24_sympy_nfdisc_summary",
+    "records_loaded": 1,
+    "requested": true,
+    "safety": {
+      "exact_nfdisc_claims": true,
+      "local_file_only": true,
+      "network_calls": false,
+      "note": "SymPy nfdisc artifacts are explicit local fallback evidence; PARI/GP remains the official workflow when available.",
+      "official_pari_gp_workflow": false,
+      "runs_inside_cpu_proxy_scoring_loop": false,
+      "runs_inside_gpu_sampling_loop": false,
+      "runs_inside_train_loop": false,
+      "sair_submission": false
+    },
+    "schema_version": 1,
+    "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+    "status_counts": {
+      "nfdisc_ok": 1
+    },
+    "tool": "scripts/igp24_offline_verify.py"
+  },
+  "sympy_signature": {
+    "command": [
+      "/home/zpconn/code/axplorer/.venv/bin/python",
+      "scripts/igp24_offline_verify.py",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+      "--output_dir",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma",
+      "--run_sympy_signature",
+      "--run_sympy_nfdisc",
+      "--online_magma_manual",
+      "--online_magma_pasted_output",
+      "data/igp24/axg121_exact13879_odd_escape_20260710/online_magma_auto_probe_r8_cuda_localvalid_20260710/raw_xml/0002_425c30453d4a.xml",
+      "--timeout_seconds",
+      "240"
+    ],
+    "created_at": "2026-07-10T10:35:12.238150+00:00",
+    "input_kind": "review_batch",
+    "input_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/packet_verification_queue_r8_cuda_localvalid_retry120_post_exact_feedback",
+    "output_files": {
+      "sympy_signature_report_md": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_report.md",
+      "sympy_signature_results_jsonl": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_results.jsonl",
+      "sympy_signature_summary_json": "/home/zpconn/code/igp24-axplorer/data/igp24/axg121_exact13879_odd_escape_20260710/offline_verification_r8_cuda_localvalid_retry120_post_exact_feedback_online_magma/sympy_signature_summary.json"
+    },
+    "parsed_result_records": 1,
+    "record_type": "igp24_sympy_signature_summary",
+    "records_loaded": 1,
+    "requested": true,
+    "safety": {
+      "exact_r_claims": true,
+      "local_file_only": true,
+      "magma_signature_workflow": false,
+      "network_calls": false,
+      "note": "SymPy signature artifacts are explicit local exact-r fallback evidence; Magma remains the preferred exact-label/signature workflow when available.",
+      "runs_inside_cpu_proxy_scoring_loop": false,
+      "runs_inside_gpu_sampling_loop": false,
+      "runs_inside_train_loop": false,
+      "sair_submission": false
+    },
+    "schema_version": 1,
+    "signature_records": 1,
+    "source_commit": "af8061a5cc018c58d85da4de076c230e0c4ddb4b",
+    "status_counts": {
+      "signature_ok": 1
+    },
+    "tool": "scripts/igp24_offline_verify.py"
+  },
+  "timeout_seconds": 240,
+  "tool": "scripts/igp24_offline_verify.py",
+  "tool_availability": {
+    "magma": {
+      "available": false,
+      "discovery": {
+        "available": false,
+        "candidates_checked": [
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/usr/local/bin/magma",
+            "query": "/usr/local/bin/magma",
+            "source": "search_pattern"
+          },
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/usr/bin/magma",
+            "query": "/usr/bin/magma",
+            "source": "search_pattern"
+          },
+          {
+            "exists": false,
+            "is_executable": false,
+            "is_file": false,
+            "path": "/home/zpconn/bin/magma",
+            "query": "/home/zpconn/bin/magma",
+            "source": "search_pattern"
+          }
+        ],
+        "common_search_patterns": [
+          "/usr/local/bin/magma",
+          "/usr/bin/magma",
+          "/opt/magma*/magma",
+          "/opt/Magma*/magma",
+          "/usr/local/magma*/magma",
+          "/usr/local/Magma*/magma",
+          "/home/zpconn/magma*/magma",
+          "/home/zpconn/Magma*/magma",
+          "/home/zpconn/bin/magma"
+        ],
+        "executable": "magma",
+        "extra_search_patterns": [],
+        "path": null,
+        "selected_query": null,
+        "selected_source": null
+      },
+      "executable": "magma",
+      "path": null
+    },
+    "pari": {
+      "available": false,
+      "executable": "gp",
+      "path": null
+    }
+  }
+}
