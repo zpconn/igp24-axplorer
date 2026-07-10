@@ -1,0 +1,51 @@
+{
+  "adaptive_any_valuable_survivor_count": 0,
+  "adaptive_any_valuable_survivor_hashes": [],
+  "adaptive_any_valuable_survivor_seen_count": 0,
+  "adaptive_target_compatible_count": 0,
+  "adaptive_target_compatible_hashes": [],
+  "adaptive_target_compatible_seen_count": 0,
+  "candidate_output_limit": 12,
+  "candidate_recommendation_counts": {},
+  "construction_family": "composition_8x3",
+  "continue_after_candidate_limit": true,
+  "created_at": "2026-07-10T06:26:52.213692+00:00",
+  "executable_generator_name": "composition_8x3_exact_cubic_lift_v1",
+  "group_index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "group_index_available": true,
+  "known_submission_hash_count": 233,
+  "known_submission_jsonl": [
+    "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl"
+  ],
+  "live_submission_recommended_now": false,
+  "local_valid_candidate_count": 0,
+  "local_valid_evaluated_count": 0,
+  "local_valid_overflow_count": 0,
+  "max_trials": 160,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_candidates.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_candidate_hashes.txt",
+    "rejected_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_rejected.jsonl",
+    "report_md": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_experiment_report.md",
+    "summary_json": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_exact_20260710/exact_composed_route_experiment_summary.json"
+  },
+  "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+  "record_type": "igp24_exact_composed_route_experiment",
+  "rejected_counts": {
+    "coefficient_height_exceeds_bound": 160
+  },
+  "routes_jsonl": "data/igp24/remediation_20260709/construction_router_phase5/explicit_24T24134_with_8x3_generator_20260710/construction_target_routes.jsonl",
+  "safety_note": "Offline exact-composed route experiment. It does not call SAIR/network APIs and does not make a live submission.",
+  "schema_version": 1,
+  "selected_hashes": [],
+  "source_commit": "fed1e40ab44d74f3525d3fc801b998cfef36ca8b",
+  "structure_preservation": "exact h(c(x)) support with deg(h)=8 and monic cubic c(x)",
+  "submission_recommendation": "false_no_adaptive_target_compatible_candidates",
+  "target_compatible_limit": 0,
+  "target_label": "24T24134",
+  "target_pair": "24T24134|r=8",
+  "target_r": 8,
+  "tool": "scripts/igp24_exact_composed_route_experiment.py",
+  "trials_attempted": 160
+}

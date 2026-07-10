@@ -2,9 +2,11 @@ import json
 
 from scripts.igp24_construction_registry_report import main as registry_report_main
 from src.igp24.constructions.generators import (
+    coefficients_from_composition_8x3_trial,
     coefficients_from_gx2_trial,
     coefficients_from_quartic_x6_trial,
     generation_status_for_route,
+    iter_composition_8x3_trials,
     iter_gx2_trials,
     iter_quartic_x6_trials,
 )
@@ -199,6 +201,41 @@ def test_quartic_x6_exact_generator_refuses_high_real_routes():
     assert status["executable_generator_available"] is False
     assert status["target_parameters_instantiated"] is False
     assert "generator_unsupported_target_r" in status["generation_ready_blocking_reasons"]
+
+
+def test_composition_8x3_exact_generator_instantiates_and_preserves_composition():
+    imprimitive = GroupRecord(
+        label="24T105",
+        t=105,
+        primitive=False,
+        solvable=True,
+        block_sizes=(3, 8),
+        cycle_types=("1.23",),
+    )
+    status = generation_status_for_route(
+        family_name="composition_8x3",
+        r_value=16,
+        group_record=imprimitive,
+        structurally_eligible=True,
+    )
+
+    assert status["executable_generator_available"] is True
+    assert status["executable_generator_name"] == "composition_8x3_exact_cubic_lift_v1"
+    assert status["target_generator_parameters"]["inside_y_root_count"] == 4
+    assert status["target_generator_parameters"]["outside_y_root_count"] == 4
+    assert status["executable_generation_ready"] is False
+    assert "generated_outputs_not_validated" in status["generation_ready_blocking_reasons"]
+
+    trial = next(iter_composition_8x3_trials(target_r=16, seed=13, max_trials=1))
+    coefficients, metadata = coefficients_from_composition_8x3_trial(trial)
+
+    assert len(coefficients) == 24
+    assert metadata["inside_y_root_count"] == 4
+    assert metadata["outside_y_root_count"] == 4
+    assert metadata["exact_composition_degree_pattern"] == "8x3"
+    assert metadata["composed_support"] is True
+    assert metadata["inner_cubic_coefficients_x"] == [0, -12, 0, 1]
+    assert max(metadata["support_after_lift"]) <= 23
 
 
 def test_construction_registry_report_cli_writes_artifacts(tmp_path):

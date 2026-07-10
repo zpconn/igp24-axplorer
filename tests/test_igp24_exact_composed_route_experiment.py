@@ -140,3 +140,65 @@ def test_exact_composed_experiment_retains_target_compatible_rows_after_limit(tm
     assert summary["adaptive_target_compatible_count"] == 1
     assert rows[-1]["canonical_hash"] == "hash-2"
     assert rows[-1]["retention_reason"] == "target_compatible_after_candidate_limit"
+
+
+def test_exact_composed_experiment_prefilter_only_does_not_claim_local_validity(tmp_path):
+    routes = tmp_path / "routes.jsonl"
+    routes.write_text(
+        json.dumps(
+            {
+                "pair_key": "24T24134|r=8",
+                "label": "24T24134",
+                "r": 8,
+                "family": "composition_8x3",
+                "structurally_eligible": True,
+                "executable_generator_available": True,
+                "combined_priority_score": 10.0,
+                "target_group_block_sizes": [3, 6],
+                "soundness": "test",
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        experiment.main(
+            [
+                "--routes_jsonl",
+                str(routes),
+                "--family",
+                "composition_8x3",
+                "--target_pair",
+                "24T24134|r=8",
+                "--output_dir",
+                str(tmp_path / "out"),
+                "--max_trials",
+                "3",
+                "--limit",
+                "2",
+                "--prefilter_only",
+            ]
+        )
+        == 0
+    )
+
+    summary = json.loads(
+        (tmp_path / "out" / "exact_composed_route_experiment_summary.json").read_text(encoding="utf-8")
+    )
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "out" / "exact_composed_route_candidates.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+
+    assert summary["prefilter_only"] is True
+    assert summary["prefilter_candidate_count"] == 2
+    assert summary["local_valid_candidate_count"] == 0
+    assert summary["local_valid_evaluated_count"] == 0
+    assert rows[0]["local_validation_status"] == "not_run_prefilter_only"
+    assert rows[0]["eligible_for_packet"] is False
+    assert rows[0]["submission_recommendation"] == "false_prefilter_only_exact_validation_not_run"

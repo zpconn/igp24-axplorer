@@ -1,0 +1,120 @@
+{
+  "any_valuable_target_count": 1,
+  "created_at": "2026-07-10T06:39:20.578619+00:00",
+  "eligible_for_packet_count": 1,
+  "input_candidate_count": 12,
+  "inputs": {
+    "adaptive_rows_jsonl": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/composition_8x3_24T24134_r8_local_exact_4rows_10primes_20260710/adaptive_frobenius_benchmark_rows.jsonl",
+    "candidate_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_local_exact_20260710/exact_composed_route_candidates.jsonl",
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+    "minimum_usable_primes": 10,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl"
+  },
+  "live_submission_recommended_now": false,
+  "median_indexed_target_survivor_count": 2,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/composition_8x3_24T24134_r8_4rows_10primes_20260710/adaptive_reviewed_candidates.jsonl",
+    "rejected_jsonl": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/composition_8x3_24T24134_r8_4rows_10primes_20260710/adaptive_reviewed_candidates_rejected.jsonl",
+    "report_md": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/composition_8x3_24T24134_r8_4rows_10primes_20260710/adaptive_reviewed_candidates_report.md",
+    "summary_json": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/composition_8x3_24T24134_r8_4rows_10primes_20260710/adaptive_reviewed_candidates_summary.json"
+  },
+  "record_type": "igp24_adaptive_reviewed_candidates",
+  "rejected_candidate_count": 9,
+  "rejection_reason_counts": {
+    "missing_adaptive_review_row": 9
+  },
+  "reviewed_candidate_count": 3,
+  "safety": {
+    "calls_sair": false,
+    "exact_label_verification": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "fed1e40ab44d74f3525d3fc801b998cfef36ca8b",
+  "submission_recommendation": "false_offline_compatibility_only",
+  "target_compatible_count": 0,
+  "tool": "scripts/igp24_materialize_adaptive_reviewed_candidates.py",
+  "valuable_target_frequency_top20": [
+    [
+      "24T12159|r=8",
+      1
+    ],
+    [
+      "24T14091|r=8",
+      1
+    ],
+    [
+      "24T16107|r=8",
+      1
+    ],
+    [
+      "24T19298|r=8",
+      1
+    ],
+    [
+      "24T19522|r=8",
+      1
+    ],
+    [
+      "24T20515|r=8",
+      1
+    ],
+    [
+      "24T20517|r=8",
+      1
+    ],
+    [
+      "24T20518|r=8",
+      1
+    ],
+    [
+      "24T20519|r=8",
+      1
+    ],
+    [
+      "24T20520|r=8",
+      1
+    ],
+    [
+      "24T21422|r=8",
+      1
+    ],
+    [
+      "24T21423|r=8",
+      1
+    ],
+    [
+      "24T21542|r=8",
+      1
+    ],
+    [
+      "24T21549|r=8",
+      1
+    ],
+    [
+      "24T21552|r=8",
+      1
+    ],
+    [
+      "24T21560|r=8",
+      1
+    ],
+    [
+      "24T21561|r=8",
+      1
+    ],
+    [
+      "24T22468|r=8",
+      1
+    ],
+    [
+      "24T22469|r=8",
+      1
+    ],
+    [
+      "24T22473|r=8",
+      1
+    ]
+  ]
+}

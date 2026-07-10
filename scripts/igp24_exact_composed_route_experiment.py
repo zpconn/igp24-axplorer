@@ -11,6 +11,7 @@ exclusion, and adaptive Frobenius target-exclusion evidence.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from collections import Counter
@@ -30,7 +31,7 @@ from src.igp24.constructions.generators import (  # noqa: E402
     iter_trials_for_family,
 )
 from src.igp24.group_compatibility import GroupCycleIndex, read_jsonl  # noqa: E402
-from src.igp24.polynomial import analysis_to_record, coefficient_height, score_candidate  # noqa: E402
+from src.igp24.polynomial import DEGREE, analysis_to_record, coefficient_height, export_coefficients, score_candidate  # noqa: E402
 
 
 DEFAULT_ROUTES = (
@@ -130,6 +131,9 @@ def load_known_submissions(paths: Iterable[Path]) -> dict[str, dict[str, Any]]:
 
 def row_features(record: dict[str, Any], route: dict[str, Any], metadata: dict[str, Any]) -> dict[str, Any]:
     divisor = metadata.get("exact_composed_support_divisor")
+    decomposition_pattern = metadata.get("exact_composition_degree_pattern")
+    if decomposition_pattern is None and divisor is not None:
+        decomposition_pattern = f"base_polynomial_of_x_to_{divisor}"
     return {
         "canonical_hash": record.get("canonical_hash"),
         "short_hash": str(record.get("canonical_hash") or "")[:12],
@@ -139,12 +143,15 @@ def row_features(record: dict[str, Any], route: dict[str, Any], metadata: dict[s
         "label": route.get("label"),
         "r": route.get("r"),
         "coefficient_height": record.get("coefficient_height"),
-        "decomposition_pattern": f"base_polynomial_of_x_to_{divisor}",
+        "decomposition_pattern": decomposition_pattern,
         "composed_support": bool(metadata.get("composed_support")),
         "exact_composed_support_divisor": divisor,
+        "exact_composition_degree_pattern": metadata.get("exact_composition_degree_pattern"),
         "support_after_lift": metadata.get("support_after_lift"),
         "positive_y_root_count": metadata.get("positive_y_root_count"),
         "negative_y_root_count": metadata.get("negative_y_root_count"),
+        "inside_y_root_count": metadata.get("inside_y_root_count"),
+        "outside_y_root_count": metadata.get("outside_y_root_count"),
         "odd_x_power_terms_present": metadata.get("odd_x_power_terms_present"),
         "non_x6_power_terms_present": metadata.get("non_x6_power_terms_present"),
     }
@@ -165,6 +172,7 @@ def evaluate_trial(
     adaptive_max_primes: int,
     adaptive_min_primes: int,
     adaptive_stable_after: int,
+    translation_radius: int,
 ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     coeffs, metadata = coefficients_from_trial_for_family(family_name=family_name, trial=trial)
     metadata.update(
@@ -185,6 +193,7 @@ def evaluate_trial(
         prime_limit=int(prime_limit),
         exact_score_timeout=float(exact_score_timeout),
         seen_hashes=seen_hashes,
+        translation_radius=int(translation_radius),
     )
     metadata["local_validation"] = {
         "valid": bool(analysis.valid),
@@ -281,6 +290,82 @@ def evaluate_trial(
         record["sufficient_adaptive_frobenius_evidence"] = False
         record["submission_recommendation"] = "false_missing_group_index"
 
+    return record, None
+
+
+def raw_coefficients_hash(coefficients: Iterable[int]) -> str:
+    payload = json.dumps(
+        {"degree": DEGREE, "coefficients": [int(value) for value in coefficients]},
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def evaluate_prefilter_trial(
+    *,
+    trial: dict[str, Any],
+    family_name: str,
+    route: dict[str, Any],
+    coeff_bound: int,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    coeffs, metadata = coefficients_from_trial_for_family(family_name=family_name, trial=trial)
+    metadata.update(
+        {
+            "target_pair": route.get("pair_key"),
+            "target_label": route.get("label"),
+            "target_group_block_sizes": route.get("target_group_block_sizes") or [],
+            "route_combined_priority_score": route.get("combined_priority_score"),
+        }
+    )
+    height = coefficient_height(coeffs)
+    if height > int(coeff_bound):
+        return None, {"trial": trial, "metadata": metadata, "rejection_reason": "coefficient_height_exceeds_bound"}
+    if int(coeffs[0]) == 0:
+        return None, {"trial": trial, "metadata": metadata, "rejection_reason": "zero_constant_term"}
+    raw_hash = raw_coefficients_hash(coeffs)
+    record = {
+        "record_type": "igp24_exact_composed_route_prefilter_candidate",
+        "schema_version": 1,
+        "canonical_hash": raw_hash,
+        "raw_coefficients_hash": raw_hash,
+        "canonical_hash_status": "not_computed_prefilter_only",
+        "exported_coefficients": export_coefficients(coeffs),
+        "coefficient_height": height,
+        "features": {
+            "canonical_hash": raw_hash,
+            "short_hash": raw_hash[:12],
+            "construction_family": route.get("family"),
+            "executable_generator_name": metadata.get("executable_generator_name"),
+            "pair_key": route.get("pair_key"),
+            "label": route.get("label"),
+            "r": route.get("r"),
+            "coefficient_height": height,
+            "decomposition_pattern": metadata.get("exact_composition_degree_pattern"),
+            "composed_support": bool(metadata.get("composed_support")),
+            "support_after_lift": metadata.get("support_after_lift"),
+            "inside_y_root_count": metadata.get("inside_y_root_count"),
+            "outside_y_root_count": metadata.get("outside_y_root_count"),
+        },
+        "route": {
+            "pair_key": route.get("pair_key"),
+            "label": route.get("label"),
+            "r": route.get("r"),
+            "family": route.get("family"),
+            "target_group_block_sizes": route.get("target_group_block_sizes") or [],
+            "soundness": route.get("soundness"),
+        },
+        "generation_metadata": metadata,
+        "local_validation_status": "not_run_prefilter_only",
+        "adaptive_frobenius": None,
+        "group_compatibility": None,
+        "target_label_not_ruled_out": None,
+        "target_pair_valuable_not_ruled_out": None,
+        "sufficient_adaptive_frobenius_evidence": False,
+        "eligible_for_packet": False,
+        "live_submission_recommended_now": False,
+        "submission_recommendation": "false_prefilter_only_exact_validation_not_run",
+    }
     return record, None
 
 
@@ -388,9 +473,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--coeff_bound", type=int, default=1_000_000_000)
     parser.add_argument("--prime_limit", type=int, default=11)
     parser.add_argument("--exact_score_timeout", type=float, default=5.0)
+    parser.add_argument("--translation_radius", type=int, default=2)
     parser.add_argument("--adaptive_max_primes", type=int, default=20)
     parser.add_argument("--adaptive_min_primes", type=int, default=10)
     parser.add_argument("--adaptive_stable_after", type=int, default=0)
+    parser.add_argument(
+        "--prefilter_only",
+        action="store_true",
+        help="Only generate cheap coefficient/height/hash rows; skip exact local validation and adaptive evidence.",
+    )
     args = parser.parse_args(argv)
 
     family_name = str(args.family)
@@ -411,6 +502,8 @@ def main(argv: list[str] | None = None) -> int:
     trials_attempted = 0
     local_valid_evaluated_count = 0
     local_valid_overflow_count = 0
+    prefilter_evaluated_count = 0
+    prefilter_overflow_count = 0
     target_compatible_seen_count = 0
     any_valuable_seen_count = 0
     for trial in iter_trials_for_family(
@@ -420,25 +513,45 @@ def main(argv: list[str] | None = None) -> int:
         max_trials=int(args.max_trials),
     ):
         trials_attempted += 1
-        record, rejection = evaluate_trial(
-            trial=trial,
-            family_name=family_name,
-            route=route,
-            known_submissions=known_submissions,
-            seen_hashes=seen_hashes,
-            group_index=group_index,
-            progress_rows=progress_rows,
-            coeff_bound=int(args.coeff_bound),
-            prime_limit=int(args.prime_limit),
-            exact_score_timeout=float(args.exact_score_timeout),
-            adaptive_max_primes=int(args.adaptive_max_primes),
-            adaptive_min_primes=int(args.adaptive_min_primes),
-            adaptive_stable_after=int(args.adaptive_stable_after),
-        )
+        if bool(args.prefilter_only):
+            record, rejection = evaluate_prefilter_trial(
+                trial=trial,
+                family_name=family_name,
+                route=route,
+                coeff_bound=int(args.coeff_bound),
+            )
+        else:
+            record, rejection = evaluate_trial(
+                trial=trial,
+                family_name=family_name,
+                route=route,
+                known_submissions=known_submissions,
+                seen_hashes=seen_hashes,
+                group_index=group_index,
+                progress_rows=progress_rows,
+                coeff_bound=int(args.coeff_bound),
+                prime_limit=int(args.prime_limit),
+                exact_score_timeout=float(args.exact_score_timeout),
+                adaptive_max_primes=int(args.adaptive_max_primes),
+                adaptive_min_primes=int(args.adaptive_min_primes),
+                adaptive_stable_after=int(args.adaptive_stable_after),
+                translation_radius=int(args.translation_radius),
+            )
         if rejection is not None:
             rejected.append(rejection)
             continue
         if record is None:
+            continue
+        if bool(args.prefilter_only):
+            prefilter_evaluated_count += 1
+            seen_hashes.add(str(record["canonical_hash"]))
+            if len(candidates) < int(args.limit):
+                record["retention_reason"] = "prefilter_within_candidate_limit"
+                candidates.append(record)
+            else:
+                prefilter_overflow_count += 1
+            if not bool(args.continue_after_candidate_limit) and len(candidates) >= int(args.limit):
+                break
             continue
         local_valid_evaluated_count += 1
         seen_hashes.add(str(record["canonical_hash"]))
@@ -509,9 +622,15 @@ def main(argv: list[str] | None = None) -> int:
         "candidate_output_limit": int(args.limit),
         "continue_after_candidate_limit": bool(args.continue_after_candidate_limit),
         "target_compatible_limit": int(args.target_compatible_limit),
-        "local_valid_candidate_count": len(candidates),
+        "prefilter_only": bool(args.prefilter_only),
+        "translation_radius": int(args.translation_radius),
+        "local_valid_candidate_count": 0 if bool(args.prefilter_only) else len(candidates),
         "local_valid_evaluated_count": local_valid_evaluated_count,
         "local_valid_overflow_count": local_valid_overflow_count,
+        "prefilter_candidate_count": len(candidates) if bool(args.prefilter_only) else 0,
+        "prefilter_evaluated_count": prefilter_evaluated_count,
+        "prefilter_overflow_count": prefilter_overflow_count,
+        "prefilter_exact_validation_status": "not_run" if bool(args.prefilter_only) else "run",
         "adaptive_target_compatible_count": len(adaptive_target_compatible),
         "adaptive_target_compatible_seen_count": target_compatible_seen_count,
         "adaptive_any_valuable_survivor_count": len(adaptive_any_valuable),

@@ -1,0 +1,153 @@
+{
+  "blocked_families": [
+    {
+      "blocked_route_count": 1,
+      "exact_label_row_count": 4,
+      "false_target_count": 4,
+      "family": "quartic_in_x6",
+      "observed_pair_counts": {
+        "24T10010|r=8": 1,
+        "24T12493|r=8": 1,
+        "24T7635|r=8": 1,
+        "24T9962|r=8": 1
+      }
+    }
+  ],
+  "blocked_family_count": 1,
+  "bounded_experiment_candidate_count": 2,
+  "created_at": "2026-07-10T06:22:57.324140+00:00",
+  "expected_points_status": "unavailable_uncalibrated",
+  "family_count": 8,
+  "inputs": {
+    "adaptive_candidates_jsonl": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates.jsonl",
+        "rows_loaded": 16
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/alt_composition_4x6_r12_24rows_40primes_20260710/adaptive_reviewed_candidates.jsonl",
+        "rows_loaded": 24
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/adaptive_reviewed_candidates_40primes/adaptive_reviewed_candidates.jsonl",
+        "rows_loaded": 3
+      }
+    ],
+    "packet_rejected_jsonl": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_route_outcome_blocked_20260710/packet_optimizer_rejected.jsonl",
+        "rows_loaded": 16
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/packet_optimizer_phase6/alt_composition_4x6_r12_24rows_40prime_reviewed_20260710/packet_optimizer_rejected.jsonl",
+        "rows_loaded": 24
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_rejected.jsonl",
+        "rows_loaded": 2
+      }
+    ],
+    "packet_selected_jsonl": [
+      {
+        "exists": true,
+        "path": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_selected.jsonl",
+        "rows_loaded": 1
+      }
+    ],
+    "packet_summary_json": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_24T24134_r8_40prime_reviewed_route_outcome_blocked_20260710/packet_optimizer_summary.json",
+        "rows_loaded": 1
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/packet_optimizer_phase6/alt_composition_4x6_r12_24rows_40prime_reviewed_20260710/packet_optimizer_summary.json",
+        "rows_loaded": 1
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/axg114_postremediation_20260710/r12_cuda_mixed_loose_top20/packet_optimizer_40prime_reviewed_reward_advisory/packet_optimizer_summary.json",
+        "rows_loaded": 1
+      }
+    ],
+    "replay_summary_json": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/replay_benchmark_summary.json",
+        "rows_loaded": 7
+      }
+    ],
+    "route_outcomes_jsonl": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/construction_outcome_ledger_phase7/quartic_x6_24T24134_exact_negative_20260710/construction_route_outcomes.jsonl",
+        "rows_loaded": 1
+      }
+    ],
+    "router_routes_jsonl": [
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/construction_router_phase5/explicit_quartic_x6_24T24134_with_exact_negative_outcome_20260710/construction_target_routes.jsonl",
+        "rows_loaded": 8
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/construction_router_phase5/full_index_quartic_x6_exact_semantics_20260710/construction_target_routes.jsonl",
+        "rows_loaded": 200
+      },
+      {
+        "exists": true,
+        "path": "data/igp24/remediation_20260709/construction_router_phase5/api_scoreable_followup_quartic_x6_exact_20260710/construction_target_routes.jsonl",
+        "rows_loaded": 40
+      }
+    ]
+  },
+  "live_submission_recommended_now": false,
+  "output_files": {
+    "report_md": "data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_advisory_20260710/construction_family_calibration_report.md",
+    "rows_jsonl": "data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_advisory_20260710/construction_family_calibration_rows.jsonl",
+    "summary_json": "data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_advisory_20260710/construction_family_calibration_summary.json"
+  },
+  "recommended_action_counts": {
+    "baseline_only_until_new_conditioning": 1,
+    "block_repeat_exact_basin": 1,
+    "candidate_for_generator_implementation": 2,
+    "do_not_widen_without_material_structural_change": 1,
+    "review_only_insufficient_evidence": 1,
+    "review_only_until_reparameterized": 2
+  },
+  "record_type": "igp24_construction_family_calibration_summary",
+  "safety_note": "Local-only construction-family calibration. It reads existing artifacts and writes advisory summaries; it does not submit to SAIR or claim exact Galois labels for compatibility-only rows.",
+  "schema_version": 1,
+  "source_commit": "fed1e40ab44d74f3525d3fc801b998cfef36ca8b",
+  "tool": "scripts/igp24_construction_family_calibration.py",
+  "top_bounded_experiment_candidates": [
+    {
+      "adaptive_candidate_count": 0,
+      "executable_generator_route_count": 0,
+      "family": "composition_8x3",
+      "reasons": [
+        "structural_route_exists_but_no_executable_generator"
+      ],
+      "recommended_action": "candidate_for_generator_implementation",
+      "structurally_eligible_route_count": 31
+    },
+    {
+      "adaptive_candidate_count": 0,
+      "executable_generator_route_count": 0,
+      "family": "tower_6x4",
+      "reasons": [
+        "structural_route_exists_but_no_executable_generator"
+      ],
+      "recommended_action": "candidate_for_generator_implementation",
+      "structurally_eligible_route_count": 31
+    }
+  ]
+}

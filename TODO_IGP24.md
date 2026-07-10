@@ -33,6 +33,48 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 exact `h(c(x))`/8x3 construction remediation checkpoint:
+  added `composition_8x3_exact_cubic_lift_v1`, an exact
+  `h(c(x))` generator with monic cubic inner map `c(x)=x^3-s*x`, routed
+  through `src/igp24/constructions/generators.py`. It preserves a degree-3
+  fiber/block structure but remains compatibility-only evidence, not exact
+  label verification. Added `scripts/igp24_construction_family_calibration.py`
+  plus tests so family-level recommendations distinguish exact false basins,
+  non-target valuable survivors, and target-compatible survivors. Also added
+  `--translation_radius` and `--prefilter_only` support to
+  `scripts/igp24_exact_composed_route_experiment.py` for dense exact
+  compositions. Key artifacts:
+  `data/igp24/remediation_20260709/construction_router_phase5/explicit_24T24134_with_8x3_generator_20260710/`,
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_prefilter_20260710/`,
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_composition_8x3_local_exact_20260710/`,
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/composition_8x3_24T24134_r8_local_exact_12rows_40primes_20260710/`,
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/composition_8x3_24T24134_r8_local_exact_12rows_80primes_20260710/`,
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/composition_8x3_24T24134_r8_80prime_reviewed_20260710/`,
+  and
+  `data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_strict_8x3_80prime_20260710/`.
+  Results: the explicit route made 80 trial attempts, 55 exact local
+  validations before limit/overflow accounting, and 12 retained local-valid
+  irreducible/squarefree r8 candidates. A 40-prime adaptive pass evaluated
+  11/12 rows, timed out 1, found 5 rows with any valuable non-target survivor,
+  and 0 intended `24T24134|r=8` survivors at 40 primes. A stricter 80-prime
+  pass evaluated 7/12 rows, timed out 5, left only 1 row with any valuable
+  compatibility, and still had 0 intended-target survivors. The 80-prime
+  optimizer selected one review-only row, hash `4ec581d227ec`, with 0 possible
+  uncovered pairs, 2 possible low-team pairs, `best_case_packet_points=0.015625`,
+  and `expected_points_status=unavailable_uncalibrated`; live submission
+  remains `false`. Family calibration now marks `composition_8x3` as
+  `review_only_until_reparameterized`, with reason
+  `adaptive_review_found_no_target_compatible_survivors`; `tower_6x4` is the
+  only remaining structural family recommended for generator implementation.
+  Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_family_calibration.py`
+  -> 3 passed; construction-focused suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_registry.py tests/test_igp24_construction_target_router.py tests/test_igp24_exact_composed_route_experiment.py tests/test_igp24_construction_family_calibration.py`
+  -> 24 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 426 passed; `git diff --check` and py-compile passed; key-shaped
+  `sair_[0-9a-f]{8,}_[A-Za-z0-9]{20,}` scan found no matches; Stage 4
+  remains present. No live SAIR submission was made.
 - 2026-07-09/10 full-index and discriminant-safety remediation checkpoint:
   recovered the local GAP environment by downloading/extracting `gap-smallgrp`
   into `/tmp/igp24_gap_local` and verified `smallgrp` + `transgrp` locally.
