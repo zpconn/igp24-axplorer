@@ -3,6 +3,7 @@ import json
 from scripts.igp24_replay_benchmark import (
     aggregate_cases,
     evaluate_case,
+    load_evidence_rows,
     load_score_plan,
     write_outputs,
 )
@@ -304,6 +305,74 @@ def test_replay_benchmark_reports_containment_missing_when_no_compatibility_evid
     assert metrics["true_label_containment_evaluated_count"] == 0
     assert metrics["true_label_containment_rate"] is None
     assert metrics["true_label_containment_missing_evidence_count"] == 1
+
+
+def test_replay_benchmark_joins_adaptive_evidence_by_canonical_hash(tmp_path):
+    selected_path = tmp_path / "joined_evidence_selected.jsonl"
+    _write_selected(selected_path, [_selected_without_pair("f" * 64)])
+    feedback_path = tmp_path / "joined_evidence_feedback.json"
+    _feedback_rows(
+        feedback_path,
+        selected_path,
+        submission_id="sub_joined_evidence",
+        rows=[
+            {
+                "row_number": 1,
+                "canonical_hash": "f" * 64,
+                "label": "24T25000",
+                "r": 24,
+                "pair_key": "24T25000|r=24",
+                "status": "accepted",
+                "scoreable": True,
+            }
+        ],
+    )
+    evidence_path = tmp_path / "evidence.jsonl"
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "record_type": "igp24_adaptive_frobenius_benchmark_row",
+                "canonical_hash": "f" * 64,
+                "label": "24T25000",
+                "usable_prime_count": 20,
+                "final_indexed_target_survivor_count": 2,
+                "final_valuable_target_count": 0,
+                "true_label_indexed": True,
+                "true_label_survived": True,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    evidence_by_hash, evidence_inputs = load_evidence_rows([evidence_path])
+
+    case = evaluate_case(
+        feedback_path,
+        score_plan=load_score_plan(_score_plan(tmp_path)),
+        crowded_labels={"24T25000"},
+        low_team_threshold=0.001,
+        packet_limit=10,
+        caps={
+            "construction_family": 10,
+            "template_family_id": 10,
+            "perturbation_mode": 10,
+            "basin_fingerprint": 10,
+            "mod_p_pattern_signature": 10,
+            "compatible_label_cluster": 10,
+            "r": 10,
+        },
+        evidence_by_hash=evidence_by_hash,
+    )
+
+    metrics = case["remediated_replay"]["source_candidate_metrics"]
+    assert evidence_inputs == [{"path": str(evidence_path), "exists": True, "rows_loaded": 1}]
+    assert metrics["compatibility_evidence_row_count"] == 1
+    assert metrics["joined_adaptive_evidence_row_count"] == 1
+    assert metrics["median_indexed_survivor_count"] == 2.0
+    assert metrics["median_frobenius_usable_prime_count"] == 20.0
+    assert metrics["true_label_containment_evaluated_count"] == 1
+    assert metrics["true_label_containment_success_count"] == 1
+    assert metrics["true_label_containment_missing_evidence_count"] == 0
 
 
 def test_replay_benchmark_writes_summary_report_and_cases(tmp_path):

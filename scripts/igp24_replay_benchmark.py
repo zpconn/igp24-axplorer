@@ -70,6 +70,36 @@ def write_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> None:
             handle.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
 
 
+def load_evidence_rows(paths: Iterable[Path] | None) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    """Load optional adaptive compatibility evidence keyed by canonical hash.
+
+    These rows are calibration evidence for replay metrics. They are not used
+    to fabricate optimizer-compatible pair lists unless those lists are already
+    present in the candidate row.
+    """
+
+    by_hash: dict[str, dict[str, Any]] = {}
+    inputs: list[dict[str, Any]] = []
+    for path in paths or []:
+        if not path.exists():
+            inputs.append({"path": str(path), "exists": False, "rows_loaded": 0})
+            continue
+        rows = read_jsonl(path)
+        loaded = 0
+        for row in rows:
+            canonical_hash = str(row.get("canonical_hash") or "")
+            if not canonical_hash:
+                continue
+            loaded += 1
+            previous = by_hash.get(canonical_hash)
+            previous_primes = int(previous.get("usable_prime_count") or 0) if previous else -1
+            current_primes = int(row.get("usable_prime_count") or 0)
+            if previous is None or current_primes >= previous_primes:
+                by_hash[canonical_hash] = row
+        inputs.append({"path": str(path), "exists": True, "rows_loaded": loaded})
+    return by_hash, inputs
+
+
 def resolve_repo_path(value: str | None) -> Path | None:
     if not value:
         return None
@@ -249,7 +279,54 @@ def _feedback_by_hash(feedback: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return by_hash
 
 
-def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, Any]) -> dict[str, Any]:
+def _evidence_survivor_count(evidence_row: dict[str, Any]) -> int | None:
+    for value in (
+        evidence_row.get("final_indexed_target_survivor_count"),
+        evidence_row.get("indexed_target_survivor_count"),
+    ):
+        try:
+            if value is not None:
+                return int(value)
+        except (TypeError, ValueError):
+            pass
+    budget_results = evidence_row.get("budget_results")
+    if isinstance(budget_results, dict):
+        best_budget: dict[str, Any] | None = None
+        for value in budget_results.values():
+            if not isinstance(value, dict):
+                continue
+            if best_budget is None or int(value.get("usable_prime_count") or 0) >= int(best_budget.get("usable_prime_count") or 0):
+                best_budget = value
+        if best_budget is not None:
+            try:
+                return int(best_budget.get("indexed_target_survivor_count"))
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
+def _evidence_valuable_count(evidence_row: dict[str, Any]) -> int:
+    for value in (
+        evidence_row.get("final_valuable_target_count"),
+        evidence_row.get("valuable_target_count"),
+    ):
+        try:
+            if value is not None:
+                return int(value)
+        except (TypeError, ValueError):
+            pass
+    targets = evidence_row.get("final_valuable_targets_not_ruled_out")
+    if isinstance(targets, list):
+        return len(targets)
+    return 0
+
+
+def selected_candidate_metrics(
+    rows: list[dict[str, Any]],
+    feedback: dict[str, Any],
+    *,
+    evidence_by_hash: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     hashes = [_candidate_hash(row) for row in rows if _candidate_hash(row)]
     valid_flags = [_bool_field(row, "valid") for row in rows]
     irreducible_flags = [_bool_field(row, "irreducible") for row in rows]
@@ -259,6 +336,8 @@ def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, A
     family_counts: Counter[str] = Counter()
     mode_counts: Counter[str] = Counter()
     compat_rows = 0
+    local_compat_rows = 0
+    joined_evidence_rows = 0
     valuable_survival_rows = 0
     indexed_survivor_counts: list[int] = []
     usable_prime_counts: list[int] = []
@@ -282,8 +361,11 @@ def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, A
             target_r_matches += int(candidate_r == intended_r)
 
         compat = group_compatibility(row)
+        canonical_hash = _candidate_hash(row)
+        evidence_row = (evidence_by_hash or {}).get(canonical_hash)
         if compat:
             compat_rows += 1
+            local_compat_rows += 1
             survivor_count = (
                 compat.get("indexed_target_survivor_count")
                 or compat.get("compatible_label_count")
@@ -297,14 +379,35 @@ def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, A
                 valuable_survival_rows += 1
             budget = frobenius_evidence_budget(row, compat)
             usable_prime_counts.append(int(budget.get("usable_prime_count") or 0))
+        elif evidence_row:
+            compat_rows += 1
+            joined_evidence_rows += 1
+            survivor_count = _evidence_survivor_count(evidence_row)
+            if survivor_count is not None:
+                indexed_survivor_counts.append(survivor_count)
+            if _evidence_valuable_count(evidence_row) > 0:
+                valuable_survival_rows += 1
+            usable_prime_counts.append(int(evidence_row.get("usable_prime_count") or 0))
 
-        canonical_hash = _candidate_hash(row)
         feedback_row = by_hash.get(canonical_hash)
         true_label = str(feedback_row.get("label") or "") if feedback_row else ""
         if feedback_row:
             family_outcomes.setdefault(family, Counter())[true_label or "missing_label"] += 1
         labels = compat.get("indexed_target_labels_not_ruled_out") or compat.get("compatible_labels") or []
-        if true_label and labels:
+        if true_label and evidence_row and evidence_row.get("true_label_indexed") is True and evidence_row.get("true_label_survived") is not None:
+            containment_evaluated += 1
+            if evidence_row.get("true_label_survived") is True:
+                containment_success += 1
+            else:
+                containment_failures.append(
+                    {
+                        "canonical_hash": canonical_hash,
+                        "true_label": true_label,
+                        "evidence_label": evidence_row.get("label"),
+                        "evidence_source": "joined_adaptive_frobenius",
+                    }
+                )
+        elif true_label and labels:
             containment_evaluated += 1
             if true_label in set(str(label) for label in labels):
                 containment_success += 1
@@ -341,6 +444,8 @@ def selected_candidate_metrics(rows: list[dict[str, Any]], feedback: dict[str, A
         "construction_family_counts": dict(family_counts),
         "perturbation_mode_counts": dict(mode_counts),
         "compatibility_evidence_row_count": compat_rows,
+        "local_compatibility_evidence_row_count": local_compat_rows,
+        "joined_adaptive_evidence_row_count": joined_evidence_rows,
         "compatibility_evidence_rate": round(compat_rows / max(1, row_count), 6),
         "valuable_survival_row_count": valuable_survival_rows,
         "valuable_survival_rate": round(valuable_survival_rows / max(1, row_count), 6),
@@ -362,6 +467,7 @@ def optimizer_replay(
     *,
     selected_path: Path | None,
     feedback: dict[str, Any],
+    evidence_by_hash: dict[str, dict[str, Any]] | None,
     score_plan: dict[str, dict[str, Any]],
     packet_limit: int,
     caps: dict[str, int],
@@ -381,7 +487,7 @@ def optimizer_replay(
             "optimizer_heavily_downranked": None,
         }
     rows = read_jsonl(selected_path)
-    source_metrics = selected_candidate_metrics(rows, feedback)
+    source_metrics = selected_candidate_metrics(rows, feedback, evidence_by_hash=evidence_by_hash)
     candidates = [
         normalize_candidate(row, score_plan=score_plan, require_eligible=True)
         for row in rows
@@ -420,6 +526,7 @@ def evaluate_case(
     low_team_threshold: float,
     packet_limit: int,
     caps: dict[str, int],
+    evidence_by_hash: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     feedback = load_json(feedback_path)
     selected_path = infer_source_selected_path(feedback_path, feedback)
@@ -432,6 +539,7 @@ def evaluate_case(
     replay = optimizer_replay(
         selected_path=selected_path,
         feedback=feedback,
+        evidence_by_hash=evidence_by_hash,
         score_plan=score_plan,
         packet_limit=packet_limit,
         caps=caps,
@@ -457,7 +565,13 @@ def evaluate_case(
     }
 
 
-def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedback_paths: list[Path]) -> dict[str, Any]:
+def aggregate_cases(
+    cases: list[dict[str, Any]],
+    *,
+    caps: dict[str, int],
+    feedback_paths: list[Path],
+    evidence_inputs: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     major = [case for case in cases if case.get("major_crowded_collapse_batch")]
     stopped = [case for case in major if case.get("remediated_stops_or_downranks")]
     rows = sum(int(case["old_pipeline"]["accepted_rows"]) for case in cases)
@@ -480,6 +594,7 @@ def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedba
     target_r_known = sum(int(metrics.get("target_r_known_count") or 0) for metrics in source_metrics)
     target_r_match = sum(int(metrics.get("target_r_match_count") or 0) for metrics in source_metrics)
     compat_rows = sum(int(metrics.get("compatibility_evidence_row_count") or 0) for metrics in source_metrics)
+    joined_evidence_rows = sum(int(metrics.get("joined_adaptive_evidence_row_count") or 0) for metrics in source_metrics)
     valuable_rows = sum(int(metrics.get("valuable_survival_row_count") or 0) for metrics in source_metrics)
     return {
         "schema_version": 1,
@@ -496,6 +611,7 @@ def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedba
         "inputs": {
             "feedback_paths": [str(path.relative_to(REPO_ROOT) if path.is_relative_to(REPO_ROOT) else path) for path in feedback_paths],
             "case_count": len(cases),
+            "evidence_inputs": evidence_inputs or [],
             "caps": caps,
         },
         "old_pipeline_totals": {
@@ -520,6 +636,7 @@ def aggregate_cases(cases: list[dict[str, Any]], *, caps: dict[str, int], feedba
             "unique_decode_rate": round(unique_hashes / max(1, source_candidates), 6),
             "target_r_match_rate": round(target_r_match / max(1, target_r_known), 6) if target_r_known else None,
             "compatibility_evidence_rate": round(compat_rows / max(1, source_candidates), 6),
+            "joined_adaptive_evidence_row_count": joined_evidence_rows,
             "valuable_survival_rate": round(valuable_rows / max(1, source_candidates), 6),
             "true_label_containment_evaluated_count": containment_evaluated,
             "true_label_containment_success_count": containment_success,
@@ -544,6 +661,7 @@ def build_report(summary: dict[str, Any]) -> str:
         "## Aggregate",
         "",
         f"- Cases: {summary['inputs']['case_count']}",
+        f"- Evidence inputs: {summary['inputs'].get('evidence_inputs', [])}",
         f"- Old accepted rows: {old['accepted_rows']}",
         f"- Old crowded-collapse rate: {old['crowded_collapse_rate']}",
         f"- Old distinct verified pairs: {old['distinct_verified_pair_count']}",
@@ -553,6 +671,7 @@ def build_report(summary: dict[str, Any]) -> str:
         f"- Remediated source unique-decode rate: {new.get('unique_decode_rate')}",
         f"- Remediated source target-r match rate: {new.get('target_r_match_rate')}",
         f"- Remediated source compatibility-evidence rate: {new.get('compatibility_evidence_rate')}",
+        f"- Joined adaptive-evidence rows: {new.get('joined_adaptive_evidence_row_count')}",
         f"- Remediated source valuable-survival rate: {new.get('valuable_survival_rate')}",
         f"- True-label containment evaluated rows: {new.get('true_label_containment_evaluated_count')}",
         f"- True-label containment rate: {new.get('true_label_containment_rate')}",
@@ -601,6 +720,7 @@ def build_report(summary: dict[str, Any]) -> str:
             "## Interpretation",
             "",
             "A pass here is not leaderboard progress. It is evidence that the remediated stack no longer approves the historical collapse packets that produced crowded-label outcomes such as `24T25000` and `24T24979`.",
+            "Joined adaptive evidence is used only for replay calibration metrics such as true-label containment and valuable-survival rate; it does not fabricate optimizer-compatible pair lists for old packets.",
             "",
         ]
     )
@@ -631,6 +751,13 @@ def parse_csv_set(value: str | None) -> set[str]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--accepted_feedback_json", type=Path, action="append")
+    parser.add_argument(
+        "--evidence_jsonl",
+        type=Path,
+        action="append",
+        default=[],
+        help="Optional adaptive compatibility evidence rows joined by canonical_hash for replay calibration metrics.",
+    )
     parser.add_argument("--score_plan_json", type=Path, default=DEFAULT_SCORE_PLAN)
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--crowded_labels", default=",".join(sorted(DEFAULT_CROWDED_LABELS)))
@@ -650,6 +777,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     feedback_paths = args.accepted_feedback_json or list(DEFAULT_REPLAY_FEEDBACKS)
     score_plan = load_score_plan(args.score_plan_json)
+    evidence_by_hash, evidence_inputs = load_evidence_rows(args.evidence_jsonl)
     crowded_labels = parse_csv_set(args.crowded_labels)
     caps = {
         "construction_family": int(args.per_construction_family_cap),
@@ -668,11 +796,12 @@ def main(argv: list[str] | None = None) -> int:
             low_team_threshold=float(args.low_team_threshold),
             packet_limit=int(args.packet_limit),
             caps=caps,
+            evidence_by_hash=evidence_by_hash,
         )
         for path in feedback_paths
         if path.exists()
     ]
-    summary = aggregate_cases(cases, caps=caps, feedback_paths=feedback_paths)
+    summary = aggregate_cases(cases, caps=caps, feedback_paths=feedback_paths, evidence_inputs=evidence_inputs)
     paths = write_outputs(args.output_dir, summary)
     print(f"case_count\t{summary['inputs']['case_count']}")
     print(f"old_crowded_collapse_rate\t{summary['old_pipeline_totals']['crowded_collapse_rate']}")
