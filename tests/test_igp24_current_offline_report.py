@@ -100,7 +100,29 @@ def test_current_offline_report_blocks_missing_exact_labels(tmp_path):
     )
     _write_json(historical, {"evaluated_row_count": 10, "indexed_true_label_containment_failures": 0})
     _write_json(replay, {"phase7_minimum_gate_passed": True})
-    _write_json(gpu, {"run_id": "probe", "training_and_sampling": {"gpu_used": True}, "cpu_proxy_scoring": {"valid_records": 0}})
+    _write_json(
+        gpu,
+        {
+            "run_id": "probe",
+            "runs": {
+                "gpu_sampler_probe": {
+                    "gpu_used": True,
+                    "runtime_seconds": 12.5,
+                    "gpu_monitor": {
+                        "max_gpu_utilization_percent": 91.0,
+                        "avg_gpu_utilization_percent": 25.1,
+                        "max_memory_used_mib": 4499,
+                    },
+                    "train_log": {
+                        "eval_losses": [{"train_loss": 0.02, "test_loss": 2.8}],
+                    },
+                    "sample_export_attempted_samples": 8192,
+                    "sample_export_decoded_records": 2,
+                    "sample_export_provenance_skip_counts": {"excluded_hash": 7952},
+                }
+            },
+        },
+    )
     _write_json(baseline, {"leaderboard": {"our_public_score": 0.1}})
 
     summary, rows = build_summary(
@@ -124,6 +146,13 @@ def test_current_offline_report_blocks_missing_exact_labels(tmp_path):
     assert "exact_nfdisc_not_complete" in summary["go_no_go"]["blockers"]
     assert "score_aware_triage_has_no_submission_grade_rows" in summary["go_no_go"]["blockers"]
     assert "packet_uses_single_construction_family" in summary["go_no_go"]["warnings"]
+    gpu_status = summary["architecture_status"]["latest_gpu_probe_summary"]
+    assert gpu_status["gpu_used"] is True
+    assert gpu_status["max_gpu_utilization_percent"] == 91.0
+    assert gpu_status["final_test_loss"] == 2.8
+    assert gpu_status["attempted_samples"] == 8192
+    assert gpu_status["decoded_records"] == 2
+    assert gpu_status["rejection_reasons"] == {"excluded_hash": 7952}
 
     report = render_report(summary)
     assert "Live submission recommended now: `False`" in report

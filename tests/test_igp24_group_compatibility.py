@@ -129,6 +129,22 @@ def test_candidate_compatibility_missing_progress_is_not_uncovered(tmp_path):
     )
 
 
+def test_candidate_compatibility_keeps_discovered_twelve_team_pair_in_low_team_set(tmp_path):
+    index = _build_fixture_index(tmp_path / "groups.sqlite")
+    progress = [
+        {
+            "label": "24T2",
+            "signatures": [{"r": 8, "discovered": True, "teamCount": 12}],
+        }
+    ]
+
+    result = candidate_compatibility(_candidate_row(), index, progress_rows=progress)
+
+    assert "24T2|r=8" in result["compatible_low_team_pairs"]
+    assert "24T2|r=8" in result["valuable_targets_not_ruled_out"]
+    assert "24T2|r=8" not in result["compatible_unknown_or_no_score_pairs"]
+
+
 def test_candidate_compatibility_signature_not_allowed_has_no_score_value(tmp_path):
     index = _build_fixture_index(tmp_path / "groups.sqlite")
     progress = [{"label": "24T2", "allowedR": [4], "signatures": [{"r": 4, "discovered": False, "teamCount": 0}]}]

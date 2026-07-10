@@ -524,8 +524,8 @@ def candidate_compatibility(
     index: GroupCycleIndex,
     *,
     progress_rows: Iterable[dict[str, Any]] | None = None,
-    low_team_threshold: int = 3,
-    crowded_team_threshold: int = 20,
+    low_team_threshold: int = 20,
+    crowded_team_threshold: int = 21,
 ) -> dict[str, Any]:
     evidence = observed_cycle_evidence(row)
     all_labels = index.all_labels()

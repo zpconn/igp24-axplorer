@@ -163,6 +163,8 @@ def outcome_from_record(record: dict[str, Any]) -> str:
     status = str(feedback.get("status") or record.get("status") or "")
     scoreable = feedback.get("scoreable")
 
+    if role in {OUTCOME_ACCEPTED_DUPLICATE, "non_improving_exact_pair"}:
+        return OUTCOME_ACCEPTED_DUPLICATE
     if score_label == "score_positive" or role == OUTCOME_SCORE_POSITIVE:
         return OUTCOME_SCORE_POSITIVE
     if score_label == "low_team_scoreable" or role == OUTCOME_LOW_TEAM_SCOREABLE:
@@ -260,6 +262,8 @@ class RewardPrediction:
     confidence: float
     decision: str
     top_outcome: str
+    evidence_source: str | None = None
+    evidence: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -270,6 +274,8 @@ class RewardPrediction:
             "confidence": self.confidence,
             "decision": self.decision,
             "top_outcome": self.top_outcome,
+            "evidence_source": self.evidence_source,
+            "evidence": self.evidence,
         }
 
 
@@ -283,6 +289,8 @@ class AdvisoryRewardModel:
         class_feature_totals: dict[str, dict[str, float]],
         class_counts: dict[str, int],
         feature_value_counts: dict[str, int],
+        known_hash_outcomes: dict[str, dict[str, Any]] | None = None,
+        known_negative_basin_outcomes: dict[str, dict[str, Any]] | None = None,
         alpha: float = 0.5,
         min_supervised_rows: int = 12,
         abstain_entropy_threshold: float = 0.72,
@@ -292,6 +300,8 @@ class AdvisoryRewardModel:
         self.class_feature_totals = class_feature_totals
         self.class_counts = class_counts
         self.feature_value_counts = feature_value_counts
+        self.known_hash_outcomes = known_hash_outcomes or {}
+        self.known_negative_basin_outcomes = known_negative_basin_outcomes or {}
         self.alpha = float(alpha)
         self.min_supervised_rows = int(min_supervised_rows)
         self.abstain_entropy_threshold = float(abstain_entropy_threshold)
@@ -303,6 +313,26 @@ class AdvisoryRewardModel:
         return int(sum(self.class_counts.values()))
 
     def predict(self, record: dict[str, Any] | dict[str, str]) -> RewardPrediction:
+        canonical_hash = _canonical_hash_from_record(record)
+        if canonical_hash and canonical_hash in self.known_hash_outcomes:
+            evidence = self.known_hash_outcomes[canonical_hash]
+            return _known_outcome_prediction(
+                str(evidence["outcome"]),
+                evidence_source="known_exact_hash_outcome",
+                evidence=evidence,
+                confidence=1.0,
+            )
+
+        basin_fingerprint = _basin_fingerprint_from_record(record)
+        if basin_fingerprint and basin_fingerprint in self.known_negative_basin_outcomes:
+            evidence = self.known_negative_basin_outcomes[basin_fingerprint]
+            return _known_outcome_prediction(
+                str(evidence["outcome"]),
+                evidence_source="known_exact_negative_basin",
+                evidence=evidence,
+                confidence=0.95,
+            )
+
         if not self.outcomes:
             probabilities = {label: 0.0 for label in SUPERVISED_OUTCOMES}
             probabilities[OUTCOME_UNKNOWN] = 1.0
@@ -314,6 +344,7 @@ class AdvisoryRewardModel:
                 confidence=0.0,
                 decision="abstain_insufficient_supervision",
                 top_outcome=OUTCOME_UNKNOWN,
+                evidence_source="insufficient_supervision",
             )
 
         projection = record if all(isinstance(value, str) for value in record.values()) else feature_projection(record)  # type: ignore[arg-type]
@@ -370,6 +401,7 @@ class AdvisoryRewardModel:
             confidence=confidence,
             decision=decision,
             top_outcome=top_outcome,
+            evidence_source="statistical_naive_bayes",
         )
 
     def to_json(self) -> dict[str, Any]:
@@ -388,6 +420,8 @@ class AdvisoryRewardModel:
             "class_feature_counts": self.class_feature_counts,
             "class_feature_totals": self.class_feature_totals,
             "feature_value_counts": dict(sorted(self.feature_value_counts.items())),
+            "known_hash_outcomes": dict(sorted(self.known_hash_outcomes.items())),
+            "known_negative_basin_outcomes": dict(sorted(self.known_negative_basin_outcomes.items())),
         }
 
     @classmethod
@@ -401,11 +435,151 @@ class AdvisoryRewardModel:
             feature_value_counts={
                 str(key): int(value) for key, value in (payload.get("feature_value_counts") or {}).items()
             },
+            known_hash_outcomes={
+                str(key): dict(value) for key, value in (payload.get("known_hash_outcomes") or {}).items()
+            },
+            known_negative_basin_outcomes={
+                str(key): dict(value)
+                for key, value in (payload.get("known_negative_basin_outcomes") or {}).items()
+            },
             alpha=float(payload.get("alpha", 1.0)),
             min_supervised_rows=int(payload.get("min_supervised_rows", 12)),
             abstain_entropy_threshold=float(payload.get("abstain_entropy_threshold", 0.72)),
             abstain_confidence_threshold=float(payload.get("abstain_confidence_threshold", 0.45)),
         )
+
+
+def _canonical_hash_from_record(record: dict[str, Any] | dict[str, str]) -> str:
+    features = record.get("features")
+    feature_hash = features.get("canonical_hash") if isinstance(features, dict) else None
+    return str(record.get("canonical_hash") or feature_hash or "")
+
+
+def _basin_fingerprint_from_record(record: dict[str, Any] | dict[str, str]) -> str:
+    features = record.get("features")
+    feature_basin = features.get("basin_fingerprint") if isinstance(features, dict) else None
+    return str(feature_basin or record.get("basin_fingerprint") or "")
+
+
+def _known_outcome_prediction(
+    outcome: str,
+    *,
+    evidence_source: str,
+    evidence: dict[str, Any],
+    confidence: float,
+) -> RewardPrediction:
+    probabilities = {label: 0.0 for label in SUPERVISED_OUTCOMES}
+    confidence = min(1.0, max(0.0, float(confidence)))
+    probabilities[outcome] = confidence
+    remainder = 1.0 - confidence
+    if remainder:
+        probabilities[OUTCOME_SCORE_POSITIVE] += remainder / 2.0
+        probabilities[OUTCOME_LOW_TEAM_SCOREABLE] += remainder / 2.0
+    reward_probability = sum(probabilities.get(label, 0.0) for label in POSITIVE_OUTCOMES)
+    collapse_risk = sum(probabilities.get(label, 0.0) for label in COLLAPSE_RISK_OUTCOMES)
+    if outcome in COLLAPSE_RISK_OUTCOMES:
+        decision = (
+            "avoid_known_exact_negative_hash"
+            if evidence_source == "known_exact_hash_outcome"
+            else "avoid_known_exact_negative_basin"
+        )
+    else:
+        decision = "prefer_known_exact_positive_hash"
+    entropy = -sum(value * math.log(value) for value in probabilities.values() if value > 0)
+    normalized_entropy = entropy / math.log(max(2, len([value for value in probabilities.values() if value > 0])))
+    return RewardPrediction(
+        probabilities=probabilities,
+        reward_probability=reward_probability,
+        collapse_risk_probability=collapse_risk,
+        uncertainty_entropy=normalized_entropy,
+        confidence=confidence,
+        decision=decision,
+        top_outcome=outcome,
+        evidence_source=evidence_source,
+        evidence=dict(evidence),
+    )
+
+
+def _consensus_outcome(outcomes: set[str]) -> str | None:
+    if not outcomes:
+        return None
+    if len(outcomes) == 1:
+        return next(iter(outcomes))
+    if outcomes <= COLLAPSE_RISK_OUTCOMES:
+        for preferred in (
+            OUTCOME_CROWDED_COLLAPSE,
+            OUTCOME_NO_VALUABLE_TARGET_SURVIVAL,
+            OUTCOME_ACCEPTED_DUPLICATE,
+            OUTCOME_WRONG_R,
+            OUTCOME_INVALID,
+        ):
+            if preferred in outcomes:
+                return preferred
+    if outcomes <= POSITIVE_OUTCOMES:
+        return OUTCOME_LOW_TEAM_SCOREABLE if OUTCOME_LOW_TEAM_SCOREABLE in outcomes else OUTCOME_SCORE_POSITIVE
+    return None
+
+
+def _has_exact_basin_outcome(record: dict[str, Any], outcome: str) -> bool:
+    if outcome not in POSITIVE_OUTCOMES | {OUTCOME_CROWDED_COLLAPSE, OUTCOME_ACCEPTED_DUPLICATE}:
+        return False
+    role = str(_generator_training_source(record).get("role") or "")
+    if role in {
+        OUTCOME_SCORE_POSITIVE,
+        OUTCOME_LOW_TEAM_SCOREABLE,
+        "crowded_collapse",
+        "non_improving_exact_pair",
+        OUTCOME_ACCEPTED_DUPLICATE,
+    }:
+        return True
+    feedback = _sair_feedback_source(record)
+    features = _feature_source(record)
+    return bool(feedback.get("label") or features.get("label")) and str(feedback.get("status") or "") == "accepted"
+
+
+def _build_known_outcome_indexes(records: Sequence[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    by_hash: dict[str, list[tuple[str, dict[str, Any]]]] = defaultdict(list)
+    by_basin: dict[str, list[tuple[str, dict[str, Any]]]] = defaultdict(list)
+    for record in records:
+        outcome = outcome_from_record(record)
+        if outcome == OUTCOME_UNKNOWN:
+            continue
+        canonical_hash = _canonical_hash_from_record(record)
+        if canonical_hash:
+            by_hash[canonical_hash].append((outcome, record))
+        basin = _basin_fingerprint_from_record(record)
+        if basin and basin != "missing" and _has_exact_basin_outcome(record, outcome):
+            by_basin[basin].append((outcome, record))
+
+    known_hash_outcomes: dict[str, dict[str, Any]] = {}
+    for canonical_hash, rows in by_hash.items():
+        outcome = _consensus_outcome({item[0] for item in rows})
+        if outcome is None:
+            continue
+        known_hash_outcomes[canonical_hash] = {
+            "outcome": outcome,
+            "row_count": len(rows),
+            "canonical_hash": canonical_hash,
+        }
+
+    known_negative_basin_outcomes: dict[str, dict[str, Any]] = {}
+    for basin, rows in by_basin.items():
+        outcome = _consensus_outcome({item[0] for item in rows})
+        if outcome not in COLLAPSE_RISK_OUTCOMES:
+            continue
+        known_negative_basin_outcomes[basin] = {
+            "outcome": outcome,
+            "row_count": len(rows),
+            "basin_fingerprint": basin,
+            "canonical_hashes": sorted(
+                {
+                    _canonical_hash_from_record(record)
+                    for _row_outcome, record in rows
+                    if _canonical_hash_from_record(record)
+                }
+            ),
+        }
+    return known_hash_outcomes, known_negative_basin_outcomes
 
 
 def train_reward_model(
@@ -444,6 +618,8 @@ def train_reward_model(
             class_feature_counts[outcome][feature][value] += class_weight
             class_feature_totals[outcome][feature] += class_weight
 
+    known_hash_outcomes, known_negative_basin_outcomes = _build_known_outcome_indexes(records)
+
     return AdvisoryRewardModel(
         class_feature_counts={
             outcome: {feature: dict(values) for feature, values in by_feature.items()}
@@ -452,6 +628,8 @@ def train_reward_model(
         class_feature_totals=class_feature_totals,
         class_counts=dict(class_counts),
         feature_value_counts={feature: max(1, len(values)) for feature, values in feature_values.items()},
+        known_hash_outcomes=known_hash_outcomes,
+        known_negative_basin_outcomes=known_negative_basin_outcomes,
         alpha=alpha,
         min_supervised_rows=min_supervised_rows,
         abstain_entropy_threshold=abstain_entropy_threshold,

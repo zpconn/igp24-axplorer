@@ -425,7 +425,10 @@ def generator_training_block_from_row(row: dict[str, Any]) -> tuple[str, str] | 
         )
     if row.get("known_submission_hash_match") or row.get("known_submission_hash"):
         return ("known_submission_hash", "known canonical submission hashes are not generator demonstrations")
-    if row.get("score_aware_classification") == "sair_discovered_pair_not_improved":
+    if row.get("score_aware_classification") in {
+        "sair_discovered_pair_not_improved",
+        "accepted_pair_duplicate",
+    }:
         return ("non_improving_exact_pair", "exact SAIR-discovered pair did not improve current progress")
     if row.get("eligible_for_packet") is False:
         if row.get("any_valuable_target_not_ruled_out") is False or row.get("submission_recommendation") in {

@@ -3,6 +3,8 @@ import json
 from scripts.igp24_score_reward_model import load_model, score_rows
 from scripts.igp24_train_reward_model import main as train_reward_model_main
 from src.igp24.reward_model import (
+    AdvisoryRewardModel,
+    OUTCOME_ACCEPTED_DUPLICATE,
     DEFAULT_FEATURE_KEYS,
     OUTCOME_CROWDED_COLLAPSE,
     OUTCOME_NO_VALUABLE_TARGET_SURVIVAL,
@@ -125,6 +127,13 @@ def test_reward_model_outcome_mapping_does_not_treat_unknown_as_negative():
     assert model.class_counts == {}
 
 
+def test_non_improving_exact_pair_role_overrides_pair_level_score_positive_label():
+    row = _record(outcome="score_positive", family="known_pair_duplicate", label="24T9993")
+    row["generator_training"]["role"] = "non_improving_exact_pair"
+
+    assert outcome_from_record(row) == OUTCOME_ACCEPTED_DUPLICATE
+
+
 def test_no_valuable_target_survival_is_supervised_collapse_risk():
     row = _record(outcome="unknown", family="no_value_family")
     row["generator_training"]["role"] = "no_valuable_target_survival"
@@ -168,6 +177,29 @@ def test_reward_model_ranks_positive_above_crowded_and_reports_family_risk():
 
     diagnostic = positive_vs_crowded_diagnostic(model, rows)
     assert diagnostic["positive_ranks_above_crowded_mean"] is True
+
+
+def test_reward_model_blocks_known_exact_negative_hash_and_basin_after_round_trip():
+    exact_negative = _record(
+        outcome="crowded_accepted_collapse",
+        family="known_negative_family",
+        coefficient=71,
+        label="24T23883",
+        team_count=47,
+    )
+    model = train_reward_model([exact_negative])
+    restored = AdvisoryRewardModel.from_json(model.to_json())
+
+    exact_prediction = restored.predict(exact_negative)
+    assert exact_prediction.decision == "avoid_known_exact_negative_hash"
+    assert exact_prediction.evidence_source == "known_exact_hash_outcome"
+    assert exact_prediction.collapse_risk_probability == 1.0
+
+    same_basin = _record(outcome="unknown", family="known_negative_family", coefficient=72)
+    basin_prediction = restored.predict(same_basin)
+    assert basin_prediction.decision == "avoid_known_exact_negative_basin"
+    assert basin_prediction.evidence_source == "known_exact_negative_basin"
+    assert basin_prediction.collapse_risk_probability == 0.95
 
 
 def test_reward_training_artifacts_use_grouped_split_and_metrics():

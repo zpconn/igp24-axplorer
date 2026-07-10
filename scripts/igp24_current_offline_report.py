@@ -399,6 +399,33 @@ def build_summary(
         12,
     )
 
+    gpu_probe_summary = None
+    if gpu:
+        legacy_training = gpu.get("training_and_sampling") or {}
+        legacy_scoring = gpu.get("cpu_proxy_scoring") or {}
+        current_run = (gpu.get("runs") or {}).get("gpu_sampler_probe") or {}
+        monitor = current_run.get("gpu_monitor") or {}
+        train_log = current_run.get("train_log") or {}
+        eval_losses = train_log.get("eval_losses") or []
+        final_eval = eval_losses[-1] if eval_losses else {}
+        gpu_probe_summary = {
+            "run_id": gpu.get("run_id"),
+            "gpu_used": legacy_training.get("gpu_used", current_run.get("gpu_used")),
+            "runtime_seconds": current_run.get("runtime_seconds"),
+            "max_gpu_utilization_percent": monitor.get("max_gpu_utilization_percent"),
+            "avg_gpu_utilization_percent": monitor.get("avg_gpu_utilization_percent"),
+            "max_memory_used_mib": monitor.get("max_memory_used_mib"),
+            "final_train_loss": final_eval.get("train_loss"),
+            "final_test_loss": final_eval.get("test_loss"),
+            "attempted_samples": current_run.get("sample_export_attempted_samples"),
+            "decoded_records": current_run.get("sample_export_decoded_records"),
+            "valid_records": legacy_scoring.get("valid_records", current_run.get("sample_export_decoded_records")),
+            "rejection_reasons": legacy_scoring.get(
+                "rejection_reasons",
+                current_run.get("sample_export_provenance_skip_counts"),
+            ),
+        }
+
     summary = {
         "schema_version": 1,
         "record_type": "igp24_current_offline_go_nogo_report",
@@ -437,14 +464,7 @@ def build_summary(
                 (historical.get("budget_summary") or {}).get("10") or {}
             ).get("valuable_target_survival_rows"),
             "chronological_replay_minimum_gate_passed": replay.get("phase7_minimum_gate_passed") if replay else None,
-            "latest_gpu_probe_summary": {
-                "run_id": gpu.get("run_id"),
-                "gpu_used": (gpu.get("training_and_sampling") or {}).get("gpu_used"),
-                "valid_records": (gpu.get("cpu_proxy_scoring") or {}).get("valid_records"),
-                "rejection_reasons": (gpu.get("cpu_proxy_scoring") or {}).get("rejection_reasons"),
-            }
-            if gpu
-            else None,
+            "latest_gpu_probe_summary": gpu_probe_summary,
             "baseline_leaderboard": baseline.get("leaderboard") if baseline else None,
         },
         "sair_sync_status": sair_sync_status,

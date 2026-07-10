@@ -96,3 +96,58 @@ def test_generate_candidates_keeps_exact_target_r_odd_escape():
     assert candidate["sample_export_source"] == "positive_seed_escape"
     assert candidate["generation_metadata"]["odd_escape_mutations"] == [{"x_exponent": 1, "delta": 1}]
     assert candidate["generation_metadata"]["support_gcd"] == 1
+
+
+def test_generate_candidates_can_keep_allowed_observed_cross_r_outputs():
+    seed_coeffs = [
+        5039,
+        0,
+        -48168,
+        0,
+        191772,
+        0,
+        -420888,
+        0,
+        567244,
+        0,
+        -494802,
+        0,
+        287001,
+        0,
+        -112056,
+        0,
+        29455,
+        0,
+        -5130,
+        0,
+        567,
+        0,
+        -36,
+        0,
+    ]
+    seed = _active_row(seed_coeffs, r=24, role="low_team_scoreable")
+
+    candidates, rejected, summary = generate_candidates(
+        seeds=[seed],
+        known_hashes={stable_canonical_hash(seed_coeffs)},
+        odd_exponents=[1],
+        deltas=[-21],
+        max_trials_per_seed=1,
+        max_candidates=4,
+        coeff_bound=10**15,
+        prime_limit=7,
+        exact_score_timeout=5.0,
+        require_support_gcd_one=True,
+        include_pair_mutations=False,
+        accepted_output_rs={6},
+    )
+
+    assert rejected == []
+    assert summary["candidate_count"] == 1
+    assert summary["candidate_r_counts"] == {"r=6": 1}
+    candidate = candidates[0]
+    assert candidate["real_root_count"] == 6
+    assert candidate["target_metadata"]["target_r"] == 6
+    assert candidate["generation_metadata"]["source_seed_r"] == 24
+    assert candidate["generation_metadata"]["observed_r"] == 6
+    assert candidate["generation_metadata"]["target_r"] == 6

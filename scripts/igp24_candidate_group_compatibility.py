@@ -79,8 +79,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output_dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--progress_jsonl", type=Path)
     parser.add_argument("--historical_validation", action="store_true")
-    parser.add_argument("--low_team_threshold", type=int, default=3)
-    parser.add_argument("--crowded_team_threshold", type=int, default=20)
+    parser.add_argument("--low_team_threshold", type=int, default=20)
+    parser.add_argument("--crowded_team_threshold", type=int, default=21)
     return parser
 
 

@@ -428,6 +428,47 @@ def test_reward_model_high_collapse_risk_is_advisory_not_fatal(tmp_path):
     assert not any(reason.startswith("reward_model") for reason in selected[0]["reject_reasons"])
 
 
+def test_reward_model_known_exact_negative_basin_is_fatal(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    exact_negative = _reward_training_row("blocked_family", "crowded_collapse", 0)
+    exact_negative["canonical_hash"] = "known-negative-hash"
+    reward_model = train_reward_model([exact_negative])
+
+    blocked = normalize_candidate(
+        _row(
+            "newbad",
+            uncovered=["24T1|r=24"],
+            family="blocked_family",
+            mode="fixed",
+            basin="blocked_family",
+        ),
+        score_plan=score_plan,
+        require_eligible=True,
+        reward_model=reward_model,
+    )
+    fresh = normalize_candidate(
+        _row(
+            "fresh",
+            uncovered=["24T1|r=24"],
+            family="fresh_family",
+            mode="fixed",
+            basin="fresh_basin",
+        ),
+        score_plan=score_plan,
+        require_eligible=True,
+        reward_model=reward_model,
+    )
+
+    selected, rejected = greedy_select([blocked, fresh], packet_limit=1, caps=_caps())
+
+    assert [row["short_hash"] for row in selected] == ["fresh"]
+    blocked_row = next(row for row in rejected if row["short_hash"] == "newbad")
+    assert blocked_row["reward_model_decision"] == "avoid_known_exact_negative_basin"
+    assert blocked_row["reward_model_evidence_source"] == "known_exact_negative_basin"
+    assert blocked_row["reward_model_exact_negative_blocked"] is True
+    assert "reward_model_known_exact_negative" in blocked_row["reject_reasons"]
+
+
 def test_route_target_label_does_not_count_as_exact_verification(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     row = _row("aaa", uncovered=["24T1|r=24"], label_count=2)

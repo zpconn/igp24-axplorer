@@ -374,21 +374,31 @@ def reward_advisory_payload(
             "collapse_risk_probability": None,
             "reward_uncertainty_entropy": None,
             "reward_confidence": None,
+            "reward_model_evidence_source": None,
+            "reward_model_exact_negative_blocked": False,
             "reward_model_selection_tiebreak": 0.0,
         }
     prediction = reward_model.predict(reward_model_input_record(row, features=features, coeffs=coeffs)).as_dict()
     reward_probability = float(prediction.get("reward_probability") or 0.0)
     collapse_risk_probability = float(prediction.get("collapse_risk_probability") or 0.0)
     entropy = float(prediction.get("uncertainty_entropy") or 0.0)
+    decision = str(prediction.get("decision") or "")
+    evidence_source = prediction.get("evidence_source")
+    exact_negative_blocked = decision in {
+        "avoid_known_exact_negative_hash",
+        "avoid_known_exact_negative_basin",
+    }
     return {
         "reward_model_status": "scored_advisory_only",
         "reward_model_prediction": prediction,
-        "reward_model_decision": prediction.get("decision"),
+        "reward_model_decision": decision,
         "reward_model_top_outcome": prediction.get("top_outcome"),
         "reward_probability": round(reward_probability, 12),
         "collapse_risk_probability": round(collapse_risk_probability, 12),
         "reward_uncertainty_entropy": round(entropy, 12),
         "reward_confidence": round(float(prediction.get("confidence") or 0.0), 12),
+        "reward_model_evidence_source": evidence_source,
+        "reward_model_exact_negative_blocked": exact_negative_blocked,
         "reward_model_selection_tiebreak": round(reward_probability - collapse_risk_probability, 12),
     }
 
@@ -503,6 +513,8 @@ def normalize_candidate(
     cluster = "|".join(cluster_parts) if cluster_parts else f"unknown_r{features.get('r')}"
     anti_basin_score = float(row.get("anti_basin_score", row.get("score", 0.0)) or 0.0)
     reward_advisory = reward_advisory_payload(reward_model, row, features=features, coeffs=coeffs)
+    if reward_advisory["reward_model_exact_negative_blocked"]:
+        reject_reasons.append("reward_model_known_exact_negative")
     return {
         "canonical_hash": canonical_hash,
         "short_hash": short_hash,

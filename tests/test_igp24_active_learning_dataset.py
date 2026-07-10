@@ -380,6 +380,44 @@ def test_build_dataset_blocks_non_improving_exact_pairs_from_generator_training(
     assert summary["generator_training"]["role_counts"]["non_improving_exact_pair"] == 1
 
 
+def test_build_dataset_exact_pair_duplicate_overrides_historical_score_positive_pair(tmp_path):
+    candidate_path = tmp_path / "exact_pair_duplicate.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            {
+                "canonical_hash": "non-improving-score-positive-row",
+                "exported_coefficients": [1, 1] + [0] * 22 + [1],
+                "verified_group_label": "24T9993",
+                "pair_key": "24T9993|r=8",
+                "r": 8,
+                "valid": True,
+                "irreducible": True,
+                "squarefree": True,
+                "score_aware_classification": "accepted_pair_duplicate",
+                "generation_metadata": {"construction_family": "model_sample_export"},
+            }
+        ],
+    )
+
+    rows, summary = build_dataset(
+        candidate_paths=[candidate_path],
+        feedback_paths=[],
+        pair_status_path=None,
+        sair_sync_dir=None,
+        target_rs={8},
+        collapsed_labels=DEFAULT_COLLAPSED_LABELS,
+        score_positive_pairs={"24T9993|r=8"},
+        high_team_threshold=20,
+    )
+
+    assert rows[0]["score_aware_supervision"]["label"] == "score_positive"
+    assert rows[0]["generator_training"]["eligible"] is False
+    assert rows[0]["generator_training"]["role"] == "non_improving_exact_pair"
+    assert rows[0]["generator_training"]["weight"] == 0.0
+    assert summary["generator_training"]["eligible_row_count"] == 0
+
+
 def test_build_dataset_promotes_exact_submission_grade_material_improvement(tmp_path):
     candidate_path = tmp_path / "exact_submission_grade_candidates.jsonl"
     coeffs = [

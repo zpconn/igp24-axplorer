@@ -195,9 +195,17 @@ def mutate_coefficients(coefficients: list[int], plan: list[tuple[int, int]]) ->
     return mutated
 
 
-def candidate_metadata(seed: dict[str, Any], plan: list[tuple[int, int]], profile: dict[str, Any]) -> dict[str, Any]:
+def candidate_metadata(
+    seed: dict[str, Any],
+    plan: list[tuple[int, int]],
+    profile: dict[str, Any],
+    *,
+    output_r: int | None = None,
+) -> dict[str, Any]:
     generator = seed.get("generator_training") if isinstance(seed.get("generator_training"), dict) else {}
     feedback = seed.get("sair_feedback") if isinstance(seed.get("sair_feedback"), dict) else {}
+    source_seed_r = seed.get("r")
+    target_r = output_r if output_r is not None else source_seed_r
     return {
         "strategy": "positive_seed_escape",
         "source": "local_exact_positive_seed_mutation",
@@ -206,9 +214,11 @@ def candidate_metadata(seed: dict[str, Any], plan: list[tuple[int, int]], profil
         "source_seed_hash": seed.get("canonical_hash"),
         "source_seed_pair": generator.get("pair_key") or feedback.get("pair_key"),
         "source_seed_label": generator.get("label") or feedback.get("label"),
+        "source_seed_r": source_seed_r,
         "source_seed_role": generator.get("role"),
-        "target_r": seed.get("r"),
-        "target_r_intent": seed.get("r"),
+        "observed_r": output_r,
+        "target_r": target_r,
+        "target_r_intent": target_r,
         "odd_escape_mutations": [{"x_exponent": int(exponent), "delta": int(delta)} for exponent, delta in plan],
         "support_pattern": profile.get("support_pattern"),
         "support_gcd": profile.get("support_gcd"),
@@ -231,12 +241,15 @@ def generate_candidates(
     exact_score_timeout: float,
     require_support_gcd_one: bool,
     include_pair_mutations: bool,
+    accepted_output_rs: set[int] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     seen_hashes = set(known_hashes)
+    accepted_output_rs = set(accepted_output_rs or set())
     rejection_counts: Counter[str] = Counter()
     exact_r_counts: Counter[str] = Counter()
+    candidate_r_counts: Counter[str] = Counter()
     source_seed_counts: Counter[str] = Counter()
     total_trials = 0
 
@@ -284,7 +297,7 @@ def generate_candidates(
             score, analysis = score_candidate(
                 coeffs,
                 coeff_bound=int(coeff_bound),
-                target_r=target_r,
+                target_r=None if accepted_output_rs else target_r,
                 prime_limit=int(prime_limit),
                 exact_score_timeout=float(exact_score_timeout),
                 seen_hashes=seen_hashes,
@@ -304,7 +317,24 @@ def generate_candidates(
                     }
                 )
                 continue
-            if int(analysis.real_root_count or -1) != target_r:
+            observed_r = int(analysis.real_root_count or -1)
+            if accepted_output_rs:
+                if observed_r not in accepted_output_rs:
+                    rejection_counts["output_r_not_allowed"] += 1
+                    rejected.append(
+                        {
+                            "source_seed_hash": seed_hash,
+                            "mutation_plan": plan,
+                            "reason": "output_r_not_allowed",
+                            "observed_r": analysis.real_root_count,
+                            "allowed_output_rs": sorted(accepted_output_rs),
+                            "source_seed_r": target_r,
+                            "canonical_hash": analysis.canonical_hash,
+                        }
+                    )
+                    continue
+                candidate_target_r = observed_r
+            elif observed_r != target_r:
                 rejection_counts["target_r_mismatch"] += 1
                 rejected.append(
                     {
@@ -317,6 +347,8 @@ def generate_candidates(
                     }
                 )
                 continue
+            else:
+                candidate_target_r = target_r
             if analysis.canonical_hash in seen_hashes:
                 rejection_counts["known_or_duplicate_hash"] += 1
                 rejected.append(
@@ -330,14 +362,15 @@ def generate_candidates(
                 continue
 
             seen_hashes.add(analysis.canonical_hash)
+            candidate_r_counts[f"r={candidate_target_r}"] += 1
             source_seed_counts[seed_hash[:12]] += 1
             record = analysis_to_record(
                 analysis,
                 score,
-                target_r=target_r,
+                target_r=candidate_target_r,
                 experiment_name="positive_seed_escape",
                 verification_status="proxy_scored",
-                generation_metadata=candidate_metadata(seed, plan, profile),
+                generation_metadata=candidate_metadata(seed, plan, profile, output_r=candidate_target_r),
             )
             record["record_type"] = "igp24_positive_seed_escape_candidate"
             record["source_seed"] = {
@@ -358,6 +391,7 @@ def generate_candidates(
         "rejected_count": len(rejected),
         "rejection_reason_counts": dict(rejection_counts),
         "exact_r_counts": dict(exact_r_counts),
+        "candidate_r_counts": dict(candidate_r_counts),
         "source_seed_candidate_counts": dict(source_seed_counts),
     }
     return candidates, rejected, summary
@@ -402,6 +436,7 @@ def summarize(
             "max_candidates": int(args.max_candidates),
             "odd_exponents": parse_int_csv(args.odd_exponents),
             "deltas": parse_int_csv(args.deltas),
+            "accepted_output_rs": parse_int_csv(args.accepted_output_rs),
             "include_pair_mutations": bool(args.include_pair_mutations),
             "require_support_gcd_one": bool(args.require_support_gcd_one),
             "coeff_bound": int(args.coeff_bound),
@@ -450,6 +485,9 @@ def render_report(summary: dict[str, Any]) -> str:
     lines.extend(["", "## Exact r Observations", ""])
     for r_value, count in sorted(summary.get("exact_r_counts", {}).items()):
         lines.append(f"- `{r_value}`: {count}")
+    lines.extend(["", "## Retained Candidate r Counts", ""])
+    for r_value, count in sorted(summary.get("candidate_r_counts", {}).items()):
+        lines.append(f"- `{r_value}`: {count}")
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -477,6 +515,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--exact_score_timeout", type=float, default=3.0)
     parser.add_argument("--require_support_gcd_one", action="store_true", default=False)
     parser.add_argument("--include_pair_mutations", action="store_true", default=False)
+    parser.add_argument(
+        "--accepted_output_rs",
+        default="",
+        help="optional observed real-root counts to retain even when they differ from the source seed r",
+    )
     return parser
 
 
@@ -500,6 +543,7 @@ def main(argv: list[str] | None = None) -> int:
         exact_score_timeout=float(args.exact_score_timeout),
         require_support_gcd_one=bool(args.require_support_gcd_one),
         include_pair_mutations=bool(args.include_pair_mutations),
+        accepted_output_rs=set(parse_int_csv(args.accepted_output_rs)),
     )
     summary = summarize(
         active_learning_jsonl=args.active_learning_jsonl,
