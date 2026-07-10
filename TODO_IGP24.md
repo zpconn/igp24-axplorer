@@ -33,6 +33,49 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 exact `h(q(x))`/tower-6x4 construction remediation
+  checkpoint: added `tower_6x4_exact_quartic_inner_v1`, an exact
+  `h(q(x))` generator with monic even quartic inner map
+  `q(x)=x^4-s*x^2`, routed through
+  `src/igp24/constructions/generators.py`. The generator preserves a
+  degree-6-by-degree-4 tower/composition shape and records the intended
+  four-real/no-real quartic preimage level counts, but it remains
+  compatibility-only evidence and does not establish an exact 24T label.
+  Refreshed explicit route artifact:
+  `data/igp24/remediation_20260709/construction_router_phase5/explicit_24T24134_with_tower_6x4_generator_20260710/`.
+  The router now sees 8 routes for `24T24134|r=8`, 6 structurally eligible
+  routes, 3 executable-generator routes, and 0 generation-ready routes because
+  generated outputs still need local/adaptive validation. A prefilter-only
+  scout generated 240 exact tower shapes and stored 60 unvalidated coefficient
+  rows at
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_prefilter_20260710/`.
+  A local/adaptive exact scout at
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_12rows_20260710/`
+  attempted 12 trials, retained 8 local-valid irreducible/squarefree r8 rows,
+  rejected 4 wrong-r rows, rejected 0 known submissions, found 0 intended
+  `24T24134|r=8` survivors at 10 usable primes, and found only 2 shallow
+  non-target valuable survivors. A 40-prime benchmark over those 8 rows at
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/tower_6x4_24T24134_r8_exact_8rows_40primes_20260710/`
+  evaluated 8/8 with 0 failures: valuable-survival rows fell from 8 at
+  5 primes to 4 at 10, 1 at 20, and 0 at 40; intended-target survival was
+  0/8 at every budget. Materialized reviewed artifact:
+  `data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24134_r8_40primes_20260710/`
+  with 8 reviewed rows, 0 packet-eligible, 0 target-compatible, and 0
+  any-valuable rows. Refreshed multi-source family calibration at
+  `data/igp24/remediation_20260709/construction_family_calibration_phase7/current_multisource_strict_tower_6x4_40prime_20260710/`
+  now reports 0 bounded-experiment candidate families; `tower_6x4` is marked
+  `do_not_widen_without_material_structural_change` with reason
+  `adaptive_review_found_no_valuable_survivors`. No live SAIR submission was
+  made. Focused validation currently run:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m py_compile src/igp24/constructions/generators.py scripts/igp24_exact_composed_route_experiment.py`
+  -> passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_registry.py tests/test_igp24_exact_composed_route_experiment.py`
+  -> 14 passed;
+  focused construction/materialization suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_construction_registry.py tests/test_igp24_exact_composed_route_experiment.py tests/test_igp24_construction_family_calibration.py tests/test_igp24_materialize_adaptive_reviewed_candidates.py`
+  -> 18 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 427 passed; `git diff --check` -> passed.
 - 2026-07-10 exact `h(c(x))`/8x3 construction remediation checkpoint:
   added `composition_8x3_exact_cubic_lift_v1`, an exact
   `h(c(x))` generator with monic cubic inner map `c(x)=x^3-s*x`, routed

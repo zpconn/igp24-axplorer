@@ -1,0 +1,37 @@
+{
+  "any_valuable_target_count": 0,
+  "created_at": "2026-07-10T07:16:21.515232+00:00",
+  "eligible_for_packet_count": 0,
+  "input_candidate_count": 8,
+  "inputs": {
+    "adaptive_rows_jsonl": "data/igp24/remediation_20260709/adaptive_frobenius_phase5/tower_6x4_24T24134_r8_exact_8rows_40primes_20260710/adaptive_frobenius_benchmark_rows.jsonl",
+    "candidate_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_12rows_20260710/exact_composed_route_candidates.jsonl",
+    "index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+    "minimum_usable_primes": 40,
+    "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl"
+  },
+  "live_submission_recommended_now": false,
+  "median_indexed_target_survivor_count": 4,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates.jsonl",
+    "rejected_jsonl": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates_rejected.jsonl",
+    "report_md": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates_report.md",
+    "summary_json": "data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/tower_6x4_24T24134_r8_40primes_20260710/adaptive_reviewed_candidates_summary.json"
+  },
+  "record_type": "igp24_adaptive_reviewed_candidates",
+  "rejected_candidate_count": 0,
+  "rejection_reason_counts": {},
+  "reviewed_candidate_count": 8,
+  "safety": {
+    "calls_sair": false,
+    "exact_label_verification": false,
+    "submits": false,
+    "uses_network": false
+  },
+  "schema_version": 1,
+  "source_commit": "75bd6365c9bee88cd9b17880b96d726633b7988e",
+  "submission_recommendation": "false_offline_compatibility_only",
+  "target_compatible_count": 0,
+  "tool": "scripts/igp24_materialize_adaptive_reviewed_candidates.py",
+  "valuable_target_frequency_top20": []
+}

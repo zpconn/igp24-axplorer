@@ -152,6 +152,8 @@ def row_features(record: dict[str, Any], route: dict[str, Any], metadata: dict[s
         "negative_y_root_count": metadata.get("negative_y_root_count"),
         "inside_y_root_count": metadata.get("inside_y_root_count"),
         "outside_y_root_count": metadata.get("outside_y_root_count"),
+        "four_real_preimage_level_count": metadata.get("four_real_preimage_level_count"),
+        "no_real_preimage_level_count": metadata.get("no_real_preimage_level_count"),
         "odd_x_power_terms_present": metadata.get("odd_x_power_terms_present"),
         "non_x6_power_terms_present": metadata.get("non_x6_power_terms_present"),
     }
@@ -346,6 +348,8 @@ def evaluate_prefilter_trial(
             "support_after_lift": metadata.get("support_after_lift"),
             "inside_y_root_count": metadata.get("inside_y_root_count"),
             "outside_y_root_count": metadata.get("outside_y_root_count"),
+            "four_real_preimage_level_count": metadata.get("four_real_preimage_level_count"),
+            "no_real_preimage_level_count": metadata.get("no_real_preimage_level_count"),
         },
         "route": {
             "pair_key": route.get("pair_key"),

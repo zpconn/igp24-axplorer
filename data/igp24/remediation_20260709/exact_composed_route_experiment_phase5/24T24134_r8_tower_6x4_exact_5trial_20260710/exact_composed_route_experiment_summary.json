@@ -1,0 +1,69 @@
+{
+  "adaptive_any_valuable_survivor_count": 5,
+  "adaptive_any_valuable_survivor_hashes": [
+    "d5aa43d6cb93497e7a2792d52dd3b58f9592931e8e8cd4531bea721a31ba4355",
+    "aa10b2909f9f2797ea77891f8b71fbced091f98e8119efe84d575d5f00d4bd04",
+    "e84d801cab9f09573a3d4735090ed23fa6e93246cc3dfa33cf83e757aa33d297",
+    "3e1b65cdb5a3a12dcd0fc523a7af473d34a74bb7625003075b8f92d4a06aa349",
+    "f6e11fda4e7f3de1ab9cf58af739a329e4097a6183a67edaa4bf79b407d45165"
+  ],
+  "adaptive_any_valuable_survivor_seen_count": 5,
+  "adaptive_target_compatible_count": 0,
+  "adaptive_target_compatible_hashes": [],
+  "adaptive_target_compatible_seen_count": 0,
+  "candidate_output_limit": 5,
+  "candidate_recommendation_counts": {
+    "false_target_label_ruled_out_by_adaptive_evidence": 5
+  },
+  "construction_family": "tower_6x4",
+  "continue_after_candidate_limit": true,
+  "created_at": "2026-07-10T07:11:23.589359+00:00",
+  "executable_generator_name": "tower_6x4_exact_quartic_inner_v1",
+  "group_index": "data/igp24/remediation_20260709/group_index_workflow_phase3/full_degree24_universe_local_gap_20260709/degree24_group_cycle_index.sqlite",
+  "group_index_available": true,
+  "known_submission_hash_count": 233,
+  "known_submission_jsonl": [
+    "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_submission_rows.jsonl"
+  ],
+  "live_submission_recommended_now": false,
+  "local_valid_candidate_count": 5,
+  "local_valid_evaluated_count": 5,
+  "local_valid_overflow_count": 0,
+  "max_trials": 5,
+  "output_files": {
+    "candidates_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_candidates.jsonl",
+    "coefficients_txt": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_candidate_coefficients.txt",
+    "hashes_txt": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_candidate_hashes.txt",
+    "rejected_jsonl": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_rejected.jsonl",
+    "report_md": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_experiment_report.md",
+    "summary_json": "data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T24134_r8_tower_6x4_exact_5trial_20260710/exact_composed_route_experiment_summary.json"
+  },
+  "prefilter_candidate_count": 0,
+  "prefilter_evaluated_count": 0,
+  "prefilter_exact_validation_status": "run",
+  "prefilter_only": false,
+  "prefilter_overflow_count": 0,
+  "progress_jsonl": "data/igp24/remediation_20260709/submission_gate_phase6/fresh_sair_sync_20260709T231426Z/sair_label_progress.jsonl",
+  "record_type": "igp24_exact_composed_route_experiment",
+  "rejected_counts": {},
+  "routes_jsonl": "data/igp24/remediation_20260709/construction_router_phase5/explicit_24T24134_with_tower_6x4_generator_20260710/construction_target_routes.jsonl",
+  "safety_note": "Offline exact-composed route experiment. It does not call SAIR/network APIs and does not make a live submission.",
+  "schema_version": 1,
+  "selected_hashes": [
+    "d5aa43d6cb93497e7a2792d52dd3b58f9592931e8e8cd4531bea721a31ba4355",
+    "aa10b2909f9f2797ea77891f8b71fbced091f98e8119efe84d575d5f00d4bd04",
+    "e84d801cab9f09573a3d4735090ed23fa6e93246cc3dfa33cf83e757aa33d297",
+    "3e1b65cdb5a3a12dcd0fc523a7af473d34a74bb7625003075b8f92d4a06aa349",
+    "f6e11fda4e7f3de1ab9cf58af739a329e4097a6183a67edaa4bf79b407d45165"
+  ],
+  "source_commit": "75bd6365c9bee88cd9b17880b96d726633b7988e",
+  "structure_preservation": "exact h(q(x)) support with deg(h)=6 and quartic q(x)=x^4-s*x^2",
+  "submission_recommendation": "false_no_adaptive_target_compatible_candidates",
+  "target_compatible_limit": 0,
+  "target_label": "24T24134",
+  "target_pair": "24T24134|r=8",
+  "target_r": 8,
+  "tool": "scripts/igp24_exact_composed_route_experiment.py",
+  "translation_radius": 0,
+  "trials_attempted": 5
+}

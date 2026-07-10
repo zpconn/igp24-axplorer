@@ -5,10 +5,12 @@ from src.igp24.constructions.generators import (
     coefficients_from_composition_8x3_trial,
     coefficients_from_gx2_trial,
     coefficients_from_quartic_x6_trial,
+    coefficients_from_tower_6x4_trial,
     generation_status_for_route,
     iter_composition_8x3_trials,
     iter_gx2_trials,
     iter_quartic_x6_trials,
+    iter_tower_6x4_trials,
 )
 from src.igp24.constructions.registry import (
     SOUNDNESS_NOTE,
@@ -236,6 +238,43 @@ def test_composition_8x3_exact_generator_instantiates_and_preserves_composition(
     assert metadata["composed_support"] is True
     assert metadata["inner_cubic_coefficients_x"] == [0, -12, 0, 1]
     assert max(metadata["support_after_lift"]) <= 23
+
+
+def test_tower_6x4_exact_generator_instantiates_and_preserves_composition():
+    imprimitive = GroupRecord(
+        label="24T106",
+        t=106,
+        primitive=False,
+        solvable=True,
+        block_sizes=(4, 6),
+        cycle_types=("1.23",),
+    )
+    status = generation_status_for_route(
+        family_name="tower_6x4",
+        r_value=12,
+        group_record=imprimitive,
+        structurally_eligible=True,
+    )
+
+    assert status["executable_generator_available"] is True
+    assert status["executable_generator_name"] == "tower_6x4_exact_quartic_inner_v1"
+    assert status["target_generator_parameters"]["four_real_preimage_level_count"] == 3
+    assert status["target_generator_parameters"]["no_real_preimage_level_count"] == 3
+    assert status["executable_generation_ready"] is False
+    assert "generated_outputs_not_validated" in status["generation_ready_blocking_reasons"]
+
+    trial = next(iter_tower_6x4_trials(target_r=12, seed=17, max_trials=1))
+    coefficients, metadata = coefficients_from_tower_6x4_trial(trial)
+
+    assert len(coefficients) == 24
+    assert metadata["four_real_preimage_level_count"] == 3
+    assert metadata["no_real_preimage_level_count"] == 3
+    assert metadata["exact_composition_degree_pattern"] == "6x4"
+    assert metadata["tower_expression"] == "h(q(x)), q(x)=x^4-s*x^2"
+    assert metadata["composed_support"] is True
+    assert metadata["inner_quartic_coefficients_x"][-1] == 1
+    assert metadata["odd_x_power_terms_present"] is False
+    assert all(index % 2 == 0 for index in metadata["support_after_lift"])
 
 
 def test_construction_registry_report_cli_writes_artifacts(tmp_path):
