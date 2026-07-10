@@ -630,6 +630,32 @@ results change.
   should replay later/full-index candidate pools that do carry adaptive
   compatibility evidence, so containment and false-positive rates can be
   measured rather than missing.
+- 2026-07-10 joined-evidence replay calibration checkpoint: extended
+  `scripts/igp24_replay_benchmark.py` with optional `--evidence_jsonl` inputs
+  that join adaptive Frobenius/full-index calibration rows by canonical hash.
+  Joined evidence is used only for replay metrics such as true-label
+  containment, survivor count, usable-prime count, and valuable-target
+  survival; it does not fabricate optimizer-compatible pair lists for old
+  packets. Regression coverage now proves that canonical-hash evidence joins
+  make containment evaluable while absent evidence remains explicitly
+  missing. Reran the same seven historical collapse feedback packets with the
+  corrected full-index 234-row adaptive evidence cache:
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_234x10primes_full_index_poly_disc_patterns_20260709/adaptive_frobenius_benchmark_rows.jsonl`.
+  New artifact:
+  `data/igp24/remediation_20260709/replay_benchmark_phase7/expanded_metrics_with_adaptive_join_20260710/`.
+  Result: evidence rows loaded 233, old accepted rows 41, old crowded-collapse
+  rate 1.000, seven major collapse cases, all seven stopped/downranked by the
+  current optimizer, joined adaptive-evidence rows 41/41, compatibility
+  evidence rate 1.000, true-label containment 41/41, missing containment
+  evidence 0, median survivor count mostly 1 label after 10 usable primes
+  (the `24T24979|r=12` packet median is 2), and valuable-survival rate 0.000.
+  This is stronger Phase 7 evidence: the remediated stack rejects those old
+  collapse packets, and corrected full-index evidence retrospectively contains
+  their true crowded labels while showing no valuable target survived. It is
+  still not leaderboard progress and still does not create a live-submission
+  recommendation. Focused validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_replay_benchmark.py`
+  -> 7 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty
