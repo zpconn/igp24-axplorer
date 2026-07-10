@@ -324,6 +324,21 @@ def test_exact_verified_pair_can_use_official_economics(tmp_path):
     assert "insufficient_adaptive_frobenius_evidence" not in candidate["reject_reasons"]
 
 
+def test_route_target_label_does_not_count_as_exact_verification(tmp_path):
+    score_plan = load_score_plan(_score_plan(tmp_path))
+    row = _row("aaa", uncovered=["24T1|r=24"], label_count=2)
+    row["features"]["label"] = "24T2"
+    row["features"]["pair_key"] = "24T2|r=16"
+    row["features"]["r"] = 16
+
+    candidate = normalize_candidate(row, score_plan=score_plan, require_eligible=True)
+
+    assert "24T2|r=16" not in candidate["pair_values"]
+    assert candidate["expected_points_status"] == "unavailable_uncalibrated"
+    assert candidate["estimated_expected_points"] is None
+    assert candidate["best_case_points"] == 1.0
+
+
 def test_packet_optimizer_enforces_diversity_caps(tmp_path):
     score_plan = load_score_plan(_score_plan(tmp_path))
     candidates = _normalized(

@@ -183,6 +183,45 @@ results change.
   -> 13 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 389 passed. No live SAIR submission was made.
+- 2026-07-10 exact-composed r8 route experiment checkpoint: added
+  `scripts/igp24_exact_composed_route_experiment.py`, a generic offline
+  runner for executable exact-composed route families, and
+  `scripts/igp24_materialize_adaptive_reviewed_candidates.py`, which merges
+  stronger adaptive-Frobenius benchmark rows back into candidate JSONL without
+  claiming exact labels. Ran the exact `h(x^6)` route for
+  `24T9993|r=8` using the full 25,000-group index, fresh known-submission
+  hashes, and 20 usable adaptive primes:
+  `data/igp24/remediation_20260709/exact_composed_route_experiment_phase5/24T9993_r8_quartic_x6_exact_20260710/`.
+  Result: 160 trials, 16 locally valid irreducible/squarefree r8 candidates,
+  0 known-submission rejections, 113 wrong-r rejections, 29 reducible
+  rejections, 2 nonsquarefree rejections, 0 intended-target-compatible rows,
+  but 16/16 rows retained at least one non-target valuable r8 survivor at
+  20 primes. Followed with a 40-prime review artifact:
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/quartic_x6_24T9993_r8_candidates_40primes_20260710/`.
+  Result: 16/16 evaluated, 0 failures, valuable-survival rows remained
+  16/16 at budgets 10, 20, and 40; median indexed survivor count narrowed
+  from 342 at 10 primes to 140 at 20 primes and 87 at 40 primes. Materialized
+  the 40-prime-reviewed pool under
+  `data/igp24/remediation_20260709/adaptive_reviewed_candidates_phase5/quartic_x6_24T9993_r8_40primes_20260710/`;
+  16/16 rows are offline packet-eligible by compatibility evidence, 0 are
+  intended-target compatible, and the most persistent valuable pairs are
+  `24T24134|r=8`, `24T24135|r=8`, `24T24529|r=8`, and `24T24908|r=8`.
+  Ran the packet optimizer on the reviewed pool:
+  `data/igp24/remediation_20260709/packet_optimizer_phase6/quartic_x6_r8_40prime_reviewed_20260710/`.
+  It selected 4 rows, covered 27 possible uncovered r8 pairs and 250 possible
+  low-team r8 pairs, and reported `best_case_packet_points=4.0` with
+  `expected_points_status=unavailable_uncalibrated`. While doing this, fixed
+  `scripts/igp24_packet_optimizer.py` so a route target label in `features`
+  no longer counts as exact verification or unlocks exact expected-score
+  economics; only explicit exact-verification fields do. This is meaningful
+  Phase 5/6 progress, but still not a live-submission recommendation because
+  compatibility remains necessary-only and labels are not exact. Validation:
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_exact_composed_route_experiment.py tests/test_igp24_materialize_adaptive_reviewed_candidates.py`
+  -> 4 passed;
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q tests/test_igp24_packet_optimizer.py`
+  -> 10 passed; full suite
+  `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
+  -> 394 passed. No live SAIR submission was made.
 - 2026-07-09 remediation Phase 1 hardening checkpoint: tightened grouped
   generator train/eval splitting so a corpus with only one available
   construction/split family now keeps all rows in train and leaves eval empty

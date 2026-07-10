@@ -273,6 +273,7 @@ def normalize_candidate(
     known_submission_hashes: dict[str, list[dict[str, Any]]] | set[str] | None = None,
     minimum_frobenius_primes: int = DEFAULT_MINIMUM_FROBENIUS_PRIMES,
 ) -> dict[str, Any]:
+    candidate = candidate_payload(row)
     features = candidate_features(row)
     compat = group_compatibility(row)
     coeffs = exported_coefficients(row)
@@ -288,12 +289,15 @@ def normalize_candidate(
         and (
             row.get("exact_label_verified")
             or row.get("verified_label")
+            or row.get("verified_group_label")
+            or candidate.get("exact_label_verified")
+            or candidate.get("verified_label")
+            or candidate.get("verified_group_label")
             or features.get("exact_label_verified")
-            or features.get("verified_group_label")
-            or features.get("label")
+            or features.get("exact_verified_pair")
         )
     )
-    if exact_pair:
+    if exact_pair_verified:
         fallback = "uncovered" if str(exact_pair) in score_plan and score_plan[str(exact_pair)].get("progress_state") == "remaining" else "exact_pair"
         add_pairs(pair_values, [exact_pair], score_plan=score_plan, fallback_kind=fallback)
     frobenius_budget = frobenius_evidence_budget(row, compat)
@@ -576,8 +580,11 @@ def summarize(
                 "maximum_possible_points": row["maximum_possible_points"],
                 "expected_points_status": row.get("expected_points_status"),
                 "possible_uncovered_pairs": row["possible_uncovered_pairs"][:10],
+                "possible_uncovered_pair_count": len(row["possible_uncovered_pairs"]),
                 "possible_low_team_pairs": row["possible_low_team_pairs"][:10],
+                "possible_low_team_pair_count": len(row["possible_low_team_pairs"]),
                 "valuable_targets_not_ruled_out": row.get("valuable_targets_not_ruled_out", [])[:10],
+                "valuable_targets_not_ruled_out_count": len(row.get("valuable_targets_not_ruled_out", [])),
                 "indexed_target_survivor_count": row.get("indexed_target_survivor_count"),
                 "compatible_label_count": row["compatible_label_count"],
                 "frobenius_usable_prime_count": row.get("frobenius_usable_prime_count"),
@@ -629,8 +636,8 @@ def report_markdown(summary: dict[str, Any]) -> str:
                     str(row["marginal_best_case_points"]),
                     str(row["best_case_points"]),
                     f"`{row['expected_points_status']}`",
-                    str(len(row["possible_uncovered_pairs"])),
-                    str(len(row["possible_low_team_pairs"])),
+                    str(row.get("possible_uncovered_pair_count", len(row["possible_uncovered_pairs"]))),
+                    str(row.get("possible_low_team_pair_count", len(row["possible_low_team_pairs"]))),
                     str(features.get("r")),
                     f"`{features.get('construction_family')}`",
                     f"`{features.get('perturbation_mode')}`",
