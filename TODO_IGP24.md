@@ -112,6 +112,34 @@ results change.
   -> 23 passed; full suite
   `PYTHONPATH=. /home/zpconn/code/axplorer/.venv/bin/python -m pytest -q`
   -> 370 passed.
+- 2026-07-09/10 remediation Phase 5 adaptive-Frobenius checkpoint: added
+  `src/igp24/adaptive_frobenius.py` and
+  `scripts/igp24_adaptive_frobenius_benchmark.py`, a read-only offline
+  procedure that recomputes modular factorization degree patterns at
+  increasing unramified primes and re-evaluates the corrected partial-index
+  compatibility semantics after each prefix. The script makes no SAIR calls,
+  uses no network, runs no GAP/Magma/PARI, generates no candidates, and cannot
+  submit. Real artifacts:
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_10primes_partial_index_20260709/`
+  and
+  `data/igp24/remediation_20260709/adaptive_frobenius_phase5/scoreable_rows_25x80primes_partial_index_20260709/`.
+  Full 234-row scoreable-history run with budgets 5 and 10 usable primes:
+  234 evaluated, 0 failed, 164 rows with true labels inside the 27-label
+  partial index, 70 rows outside the index, 0 indexed true-label containment
+  failures, and valuable-target survival reduced from 4 rows at 5 primes to
+  0 rows at 10 primes. Discriminant source counts were 53 computed SymPy
+  polynomial discriminants and 181 synced `field_disc_abs` values. A 25-row
+  80-prime calibration found no marginal false-positive reduction beyond
+  10 primes on that sample. Earlier attempts to run 80 primes over all 234
+  rows were intentionally interrupted because exact-discriminant fallback and
+  then full 80-prime factoring were too slow for the checkpoint. Current
+  defensible default: use 10 usable unramified primes for historical/nuisance
+  rejection in the partial-index review gate, with 80-prime deep mode reserved
+  for small selected packets or high-value rows. Limitation: this remains
+  necessary target-exclusion evidence only; the 27-label index is incomplete,
+  field-discriminant filtering is used where SAIR provides it, and no exact
+  label verification or live-submission recommendation follows from this
+  result.
 - 2026-07-09 remediation Phase 6 fresh-sync gate checkpoint: ran a fresh
   read-only SAIR API sync after the group-compatible packet gate, with
   `SAIR_API_KEY` remaining environment-only and no live submission. Artifacts:
