@@ -1,0 +1,53 @@
+{
+  "created_at_utc": "2026-07-10T07:22:53.489077+00:00",
+  "decoded_input_records": 1,
+  "gpu_probe_summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/gpu_sampler_probe_summary.json",
+  "invalid_input_records": 0,
+  "local_search_enabled": false,
+  "max_records": null,
+  "output_dir": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15",
+  "real_root_counts": {
+    "4": 1
+  },
+  "records_read": 27,
+  "records_selected": 27,
+  "rejected_records": 0,
+  "report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15/score_report.md",
+  "runtime_seconds": 0.02206488100637216,
+  "safety": {
+    "auto_submits": false,
+    "calls_sair": false,
+    "proxy_only": true,
+    "runs_exact_verifiers": false,
+    "uses_network": false
+  },
+  "sample_export_source_counts": {
+    "model_generate": 1
+  },
+  "sample_export_source_target_r_survivors": {},
+  "score_all": true,
+  "score_command": "/home/zpconn/code/axplorer/.venv/bin/python scripts/igp24_score_sample_export.py data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/gpu_model_sample_export_target_r8_conditioned.jsonl --output_dir data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15 --score_all true --gpu_probe_summary data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/gpu_sampler_probe_summary.json --coeff_bound 1000000000000000 --target_r 8 --prime_limit 7 --exact_score_timeout 2 --translation_radius 0 --local_search false --max_local_search_steps 0 --seed 34108 --exp_name axg115_r8_mixed_corrected_score",
+  "scored_jsonl_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15/scored_samples.jsonl",
+  "scored_record_summary": {
+    "best_score": 9953.974032478425,
+    "canonical_hash_records": 1,
+    "duplicate_canonical_hash_examples": [],
+    "duplicate_canonical_hash_records": 0,
+    "duplicate_canonical_hashes": 0,
+    "mean_score": 9953.974032478425,
+    "proxy_scored_records": 1,
+    "rejected_records": 0,
+    "scored_records": 1,
+    "unique_canonical_hashes": 1
+  },
+  "scored_records": 1,
+  "selection_mode": "all_explicit",
+  "skipped_decode_records": 26,
+  "source_commit": "a6d8cf31935b5b7fbbacfaf4924eb244022287ef",
+  "source_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/gpu_model_sample_export_target_r8_conditioned.jsonl",
+  "split_manifest_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15/split_workflow_manifest.json",
+  "split_report_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15/split_workflow_report.md",
+  "summary_path": "/home/zpconn/code/igp24-axplorer/data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/cpu_scored_samples_bound1e15/score_summary.json",
+  "target_r_survivor_count": 0,
+  "valid_records": 1
+}

@@ -33,6 +33,51 @@ results change.
 
 - Branch: `igp24-dev`
 - Remote target: `zpconn/igp24-axplorer`
+- 2026-07-10 bounded AXG-1.15-style corrected-stack checkpoint:
+  rebuilt the active-learning dataset with the new tower-6x4 reviewed rows
+  included:
+  `data/igp24/active_learning/axg_training_dataset_20260710_postremediation_tower6x4.jsonl`
+  and
+  `data/igp24/active_learning/axg_training_dataset_summary_20260710_postremediation_tower6x4.json`.
+  Dataset rows increased from 459 to 467; the generator-training contract
+  still allows only 8 score-positive rows to have nonzero generator imitation
+  mass, while 32 no-valuable-target-survival rows, 39 wrong-r rows, 384
+  crowded-collapse rows, and 4 non-improving exact pairs remain zero-weight.
+  A first sandboxed r8 GPU probe at
+  `data/igp24/axg115_tower_remediation_20260710/r8_cuda_mixed_corrected/`
+  could not access CUDA (`nvidia-smi` returned NVML blocked and PyTorch
+  reported `cuda_available=false`); unsandboxed `nvidia-smi` then confirmed the
+  local RTX 5090. The same r8 proxy-only export rerun unsandboxed used CUDA
+  successfully (`max_gpu_utilization_percent=90`, avg 47.667, 12.749s runtime)
+  but exported only 27 rows with 1 decoded unique coefficient vector after
+  strict anti-basin filters. CPU proxy scoring found that lone decoded row was
+  valid r4, not target r8, and 40-prime adaptive review found 0 valuable
+  targets, so it is not a candidate.
+  A second bounded r12 loose/mixed CUDA export at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/`
+  used the corrected dataset, fresh hash exclusions, target-r control tokens,
+  `temperature=1.05`, open top-k, 600 train steps, 2048 sample attempts, and
+  family/basin caps. It used CUDA (`max_gpu_utilization_percent=90`, avg 59.0,
+  27.252s runtime), exported 96 rows with 4 decoded unique coefficient vectors,
+  and avoided CPU scoring/local search during training. CPU proxy scoring found
+  4/4 locally valid rows: one r12 and three r4, all even-support
+  `g(x^2)`-like outputs. A 40-prime adaptive pass at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/adaptive_frobenius_4rows_40primes/`
+  evaluated 4/4 with 0 failures and 4 valuable-survival rows. The materialized
+  review at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/adaptive_reviewed_candidates_40primes/`
+  has 4 packet-eligible rows, 0 intended-target rows, and 4 any-valuable rows.
+  Packet optimization at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/packet_optimizer_40prime_reviewed/`
+  selected 3 rows (`2d819cabad22`, `8866c86236ea`, `6951fa0c500f`) with
+  0 possible uncovered pairs, 8 possible low-team pairs, best-case packet
+  points `0.046875`, and expected points
+  `unavailable_uncalibrated`. Final local submission gate at
+  `data/igp24/axg115_tower_remediation_20260710/r12_cuda_mixed_loose_corrected/submission_gate_40prime_reviewed/`
+  passed local formatting/exact-validity checks and local SAIR dry-run
+  formatting, but live submission remains `false`: compatibility is necessary
+  evidence only, labels are not exactly verified, possible value is low-team
+  only, and no live SAIR submission was made.
 - 2026-07-10 exact `h(q(x))`/tower-6x4 construction remediation
   checkpoint: added `tower_6x4_exact_quartic_inner_v1`, an exact
   `h(q(x))` generator with monic even quartic inner map
